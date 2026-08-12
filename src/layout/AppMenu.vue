@@ -260,7 +260,11 @@ const model = ref([
 </script>
 
 <template>
-    <ul class="layout-menu">
+    <span class="usuario-menu">
+        <font-icon icon="fa-solid fa-user" />
+        Nombre del usuario
+    </span>
+    <ul class="layout-menu" style="border-top: 1px solid gray; margin-top: 10px;">
         <template v-for="(item, i) in model" :key="item">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
@@ -268,4 +272,20 @@ const model = ref([
     </ul>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.usuario-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 15px;
+    margin: 0 10px;
+
+    font-weight: 600;
+}
+
+.layout-menu {
+    border-top: 1px solid var(--p-surface-300);
+    margin-top: 10px;
+}
+</style>
