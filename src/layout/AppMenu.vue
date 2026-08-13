@@ -4,258 +4,188 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
+        label: 'Inicio',
+        path: '/principal',
         items: [
             {
-                label: 'Dashboard',
-                icon: 'pi pi-fw pi-home',
-                to: '/'
+                label: 'Principal',
+                icon: 'fa-solid fa-house',
+                to: '/principal',
+                class: 'icon-cyan'
             }
         ]
     },
     {
-        label: 'UI Components',
-        path: '/uikit',
+        label: 'Configuracion',
+        path: 'configuracion',
         items: [
             {
-                label: 'Form Layout',
-                icon: 'pi pi-fw pi-id-card',
-                to: '/uikit/formlayout'
+                label: 'Usuarios',
+                icon: 'fa-solid fa-user',
+                to: '/configuracion/usuarios',
+                class: 'icon-cyan'
             },
             {
-                label: 'Input',
-                icon: 'pi pi-fw pi-check-square',
-                to: '/uikit/input'
+                label: 'Perfiles',
+                icon: 'fa-solid fa-user-shield',
+                to: '/configuracion/perfiles',
+                class: 'icon-cyan'
             },
             {
-                label: 'Button',
-                icon: 'pi pi-fw pi-mobile',
-                to: '/uikit/button',
-                class: 'rotated-icon'
+                label: 'Asignar Perfil',
+                icon: 'fa-solid fa-user-tag',
+                to: '/configuracion/asignar_perfil',
+                class: 'icon-cyan'
             },
             {
-                label: 'Table',
-                icon: 'pi pi-fw pi-table',
-                to: '/uikit/table'
-            },
-            {
-                label: 'List',
-                icon: 'pi pi-fw pi-list',
-                to: '/uikit/list'
-            },
-            {
-                label: 'Tree',
-                icon: 'pi pi-fw pi-share-alt',
-                to: '/uikit/tree'
-            },
-            {
-                label: 'Panel',
-                icon: 'pi pi-fw pi-tablet',
-                to: '/uikit/panel'
-            },
-            {
-                label: 'Overlay',
-                icon: 'pi pi-fw pi-clone',
-                to: '/uikit/overlay'
-            },
-            {
-                label: 'Media',
-                icon: 'pi pi-fw pi-image',
-                to: '/uikit/media'
-            },
-            {
-                label: 'Menu',
-                icon: 'pi pi-fw pi-bars',
-                to: '/uikit/menu'
-            },
-            {
-                label: 'Message',
-                icon: 'pi pi-fw pi-comment',
-                to: '/uikit/message'
-            },
-            {
-                label: 'File',
-                icon: 'pi pi-fw pi-file',
-                to: '/uikit/file'
-            },
-            {
-                label: 'Chart',
-                icon: 'pi pi-fw pi-chart-bar',
-                to: '/uikit/charts'
-            },
-            {
-                label: 'Timeline',
-                icon: 'pi pi-fw pi-calendar',
-                to: '/uikit/timeline'
-            },
-            {
-                label: 'Misc',
-                icon: 'pi pi-fw pi-circle',
-                to: '/uikit/misc'
+                label: 'Correo Notificaciones',
+                icon: 'fa-solid fa-envelope',
+                to: '/configuracion/correo_notificaciones',
+                class: 'icon-cyan'
             }
         ]
     },
     {
-        label: 'Prime Blocks',
-        icon: 'pi pi-fw pi-prime',
-        path: '/blocks',
+        label: 'Catalogos',
+        path: 'catalogos',
         items: [
             {
-                label: 'Free Blocks',
-                icon: 'pi pi-fw pi-eye',
-                to: '/blocks/free'
+                label: 'Empresas',
+                icon: 'fa-solid fa-building',
+                to: '/catalogos/empresas',
+                class: 'icon-cyan'
             },
             {
-                label: 'All Blocks',
-                icon: 'pi pi-fw pi-globe',
-                url: 'https://blocks.primevue.org/',
-                target: '_blank'
+                label: 'Promotores',
+                icon: 'fa-solid fa-people-group',
+                to: '/catalogos/promotores',
+                class: 'icon-cyan'
+            },
+            {
+                label: 'Clientes',
+                icon: 'fa-solid fa-users-rays',
+                to: '/catalogos/clientes',
+                class: 'icon-cyan'
+            },
+            {
+                label: 'Impuesto',
+                icon: 'fa-solid fa-scale-balanced',
+                to: '/catalogos/impuestos',
+                class: 'icon-cyan'
+            },
+            {
+                label: 'Catalogo Sat',
+                icon: 'fa-solid fa-list-check',
+                to: '/catalogos/catalogo_sat',
+                class: 'icon-cyan'
             }
         ]
     },
     {
-        label: 'Pages',
-        icon: 'pi pi-fw pi-briefcase',
-        path: '/pages',
+        label: 'Operaciones',
+        path: 'operaciones',
         items: [
             {
-                label: 'Landing',
-                icon: 'pi pi-fw pi-globe',
-                to: '/landing'
+                label: 'Mesa de Control',
+                icon: 'fa-solid fa-gauge',
+                to: '/operaciones/mesa_control',
+                class: 'icon-cyan'
             },
             {
-                label: 'Auth',
-                icon: 'pi pi-fw pi-user',
-                path: '/auth',
+                label: 'Solicitud Detallada',
+                icon: 'fa-solid fa-magnifying-glass',
+                to: '/operaciones/solicitud_detallada',
+                class: 'icon-cyan'
+            },
+            {
+                label: 'Solicitud de Pago',
+                icon: 'fa-solid fa-file-invoice-dollar',
+                to: '/operaciones/solicitud_pago',
+                class: 'icon-cyan'
+            }
+        ]
+    },
+    {
+        label: 'Administrador de CFDI',
+        path: '/administrador_cfdi',
+        items: [
+            {
+                label: 'Parametros',
+                icon: 'fa-solid fa-gear',
+                path: '/administrador_cfdi/parametros',
+                class: 'icon-cyan',
                 items: [
                     {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
-                    },
-                    {
-                        label: 'Error',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/auth/error'
-                    },
-                    {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
+                        label: 'Empresas a Consultar',
+                        icon: 'fa-solid fa-tachograph-digital',
+                        path: '/administrador_cfdi/parametros',
+                        to: '/administrador_cfdi/parametros/empresas_consultar',
+                        class: 'icon-cyan'
                     }
                 ]
             },
             {
-                label: 'Crud',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/crud'
-            },
-            {
-                label: 'Not Found',
-                icon: 'pi pi-fw pi-exclamation-circle',
-                to: '/pages/notfound'
-            },
-            {
-                label: 'Empty',
-                icon: 'pi pi-fw pi-circle-off',
-                to: '/pages/empty'
-            }
-        ]
-    },
-    {
-        label: 'Hierarchy',
-        icon: 'pi pi-fw pi-align-left',
-        path: '/hierarchy',
-        items: [
-            {
-                label: 'Submenu 1',
-                icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_1',
+                label: 'Operaciones CFDI',
+                icon: 'fa-solid fa-cloud',
+                path: '/administrador_cfdi/operaciones_cfdi',
+                class: 'icon-cyan',
                 items: [
                     {
-                        label: 'Submenu 1.1',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_1',
-                        items: [
-                            {
-                                label: 'Submenu 1.1.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 1.1.2',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 1.1.3',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
+                        label: 'Solicitud SAT',
+                        icon: 'fa-hand-point-up',
+                        path: '/administrador_cfdi/operaciones_cfdi',
+                        to: '/administrador_cfdi/operaciones_cfdi/solicitud_sat',
+                        class: 'icon-cyan'
                     },
                     {
-                        label: 'Submenu 1.2',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_2',
-                        items: [
-                            {
-                                label: 'Submenu 1.2.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
+                        label: 'Carga Masiva CFDI',
+                        icon: 'fa-solid fa-file-upload',
+                        path: '/administrador_cfdi/operaciones_cfdi',
+                        to: '/administrador_cfdi/operaciones_cfdi/carga_masiva_cfdi',
+                        class: 'icon-cyan'
+                    },
+                    {
+                        label: 'Consultas SAT',
+                        icon: 'fa-solid fa-cloud-arrow-down',
+                        path: '/administrador_cfdi/operaciones_cfdi',
+                        to: '/administrador_cfdi/operaciones_cfdi/consultas_sat',
+                        class: 'icon-cyan'
                     }
                 ]
             },
             {
-                label: 'Submenu 2',
-                icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_2',
+                label: 'Reportes CFDI',
+                icon: 'fa-solid fa-book-open-reader',
+                path: '/administrador_cfdi/reportes_cfdi',
+                class: 'icon-cyan',
                 items: [
                     {
-                        label: 'Submenu 2.1',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_1',
-                        items: [
-                            {
-                                label: 'Submenu 2.1.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 2.1.2',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
+                        label: 'CFDI\'s',
+                        icon: 'fa-solid fa-file-code',
+                        path: '/administrador_cfdi/reportes_cfdi',
+                        to: '/administrador_cfdi/reportes_cfdi/cfdis',
+                        class: 'icon-cyan'
                     },
                     {
-                        label: 'Submenu 2.2',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_2',
-                        items: [
-                            {
-                                label: 'Submenu 2.2.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
+                        label: 'Complementos Pagos',
+                        icon: 'fa-solid fa-file-invoice-dollar',
+                        path: '/administrador_cfdi/reportes_cfdi',
+                        to: '/administrador_cfdi/reportes_cfdi/complementos_pagos',
+                        class: 'icon-cyan'
+                    },
+                    {
+                        label: 'CFDI\'s Cancelados',
+                        icon: 'fa-solid fa-file-circle-xmark',
+                        path: '/administrador_cfdi/reportes_cfdi',
+                        to: '/administrador_cfdi/reportes_cfdi/cfdis_cancelados',
+                        class: 'icon-cyan'
                     }
                 ]
-            }
-        ]
-    },
-    {
-        label: 'Get Started',
-        path: '/start',
-        items: [
-            {
-                label: 'Documentation',
-                icon: 'pi pi-fw pi-book',
-                to: '/start/documentation'
-            },
-            {
-                label: 'View Source',
-                icon: 'pi pi-fw pi-github',
-                url: 'https://github.com/primefaces/sakai-vue',
-                target: '_blank'
             }
         ]
     }
+
+
 ]);
 </script>
 

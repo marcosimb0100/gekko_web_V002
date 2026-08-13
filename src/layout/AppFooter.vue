@@ -5,7 +5,12 @@
 
 <template>
     <div class="layout-footer">
-        GEKKO by
+        <img
+            src="@/assets/images/logo_gekko.png"
+            alt="Logo Sociedad Ballfudr"
+            width="40"
+        />
+        by
         <!-- <a href="https://primevue.org" target="_blank" rel="noopener noreferrer" class="text-primary font-bold hover:underline">{{appCliente}}</a> -->
         <label class="text-primary font-bold">{{appCliente}}</label>
     </div>
