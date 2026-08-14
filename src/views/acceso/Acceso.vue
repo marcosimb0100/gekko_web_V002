@@ -40,7 +40,7 @@
 
                     <form
                         class="login-form"
-                        @submit.prevent="handleLogin"
+                        @submit.prevent="handleAcceso"
                     >
                         <div class="field">
                             <label for="correo">
@@ -49,11 +49,12 @@
 
                             <InputText
                                 id="correo"
-                                v-model="correo"
+                                v-model="frmAcceso.correo_electronico"
                                 type="email"
                                 class="w-full custom-input"
                                 placeholder="correo@empresa.com"
-                                autocomplete="username"
+                                :invalid="!correoElectronicoValido"
+                                @update:modelValue="frmAcceso.correo_electronico = $event.toLowerCase()"
                             />
                         </div>
 
@@ -63,14 +64,14 @@
                             </label>
 
                             <Password
-                                v-model="password"
-                                inputId="password"
+                                v-model="frmAcceso.clave"
+                                inputId="clave"
                                 class="custom-password"
                                 inputClass="w-full"
+                                :invalid="!claveValida"
                                 :feedback="false"
                                 toggleMask
                                 placeholder="Ingresa tu contraseña"
-                                autocomplete="current-password"
                             />
                         </div>
 
@@ -79,6 +80,7 @@
                             label="Ingresar"
                             icon="pi pi-sign-in"
                             class="w-full login-button"
+                            :disabled="botonEntrarDeshabilitado"
                             :loading="cargando"
                         />
                     </form>
@@ -89,8 +91,15 @@
 </template>
 
 <script>
+import proceso from './js/proceso.js';
 export default {
-
+    name: 'Acceso',
+    // components: {AppFooter, cargando},
+    setup(){
+      return{
+        ...proceso()
+      }
+    }
 }
 </script>
 

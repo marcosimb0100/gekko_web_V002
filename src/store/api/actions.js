@@ -8,14 +8,15 @@ export const apiPostAcceso = async({ commit }, { direccion, datosJson }) => {
     const { estatus, mensaje, datos } = await apiPost_sinToken( direccion, datosJson );
     if (estatus === 200) {
         commit('visibleCargandoMutation');
-        const { nombre, apellidos, email_empresarial, username, id_profile, token } = datos;
-        localStorage.setItem('nombre', nombre);
-        localStorage.setItem('apellidos', apellidos);
-        localStorage.setItem('email_empresarial', email_empresarial);
-        localStorage.setItem('username', username);
-        localStorage.setItem('id_profile', id_profile);
-        localStorage.setItem('token', `Bearer ${token}`);
-        router.replace({ name: 'bienvenida' });
+
+        const { correo_electronico, nombre_completo, token } = datos;
+        localStorage.setItem('correo_electronico', correo_electronico);
+        localStorage.setItem('nombre_completo', nombre_completo);
+        // localStorage.setItem('id_profile', id_profile);
+        localStorage.setItem('token', token);
+
+        router.replace({ name: 'bienvenida_principal' });
+
     } else {
         commit('visibleCargandoMutation');
     }

@@ -1,5 +1,7 @@
 <template>
     <h3>Pagina Web - CorreoNotificaciones</h3>
+
+    
 </template>
 
 <script>

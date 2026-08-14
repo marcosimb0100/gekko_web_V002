@@ -111,8 +111,8 @@ const presetSeleccionado = definePreset(
 
 const app = createApp(App);
 
-app.use(router);
 app.use(store);
+app.use(router);
 
 app.use(PrimeVue, {
     theme: {
