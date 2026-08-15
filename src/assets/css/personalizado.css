@@ -1,0 +1,110 @@
+/* MODO CLARO */
+:deep(.encabezado-columna) {
+    background: rgb(106, 196, 202) !important;
+    color: rgb(37, 44, 50) !important;
+    border-color: rgb(106, 196, 202) !important;
+    font-weight: 600 !important;
+}
+
+
+
+/* =====================================================
+   BOTÓN NUEVO
+   MODO CLARO
+
+   Mismo color oscuro del icono
+   ===================================================== */
+
+.btn-nuevo {
+    background: rgb(37, 44, 50) !important;
+
+    border-color: rgb(37, 44, 50) !important;
+
+    color: #ffffff !important;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Hover */
+.btn-nuevo:hover {
+    background: rgb(55, 65, 75) !important;
+
+    border-color: rgb(55, 65, 75) !important;
+
+    color: #ffffff !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* Presionado */
+.btn-nuevo:active {
+    background: rgb(20, 25, 30) !important;
+
+    border-color: rgb(20, 25, 30) !important;
+
+    color: #ffffff !important;
+
+    transform: translateY(0);
+}
+
+
+/* Focus */
+.btn-nuevo:focus {
+    box-shadow:
+        0 0 0 0.2rem rgba(37, 44, 50, 0.20) !important;
+}
+
+
+
+/* =====================================================
+   =====================================================
+   MODO OSCURO
+   =====================================================
+   ===================================================== */
+
+
+.app-dark .btn-nuevo {
+    background: rgb(132, 196, 202) !important;
+
+    border-color: rgb(132, 196, 202) !important;
+
+    color: rgb(37, 44, 50) !important;
+}
+
+
+/* Hover */
+.app-dark .btn-nuevo:hover {
+    background: rgb(106, 196, 202) !important;
+
+    border-color: rgb(106, 196, 202) !important;
+
+    color: rgb(37, 44, 50) !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* Presionado */
+.app-dark .btn-nuevo:active {
+    background: rgb(72, 165, 172) !important;
+
+    border-color: rgb(72, 165, 172) !important;
+
+    color: #ffffff !important;
+
+    transform: translateY(0);
+}
+
+
+/* Focus */
+.app-dark .btn-nuevo:focus {
+    box-shadow:
+        0 0 0 0.2rem rgba(132, 196, 202, 0.25) !important;
+}

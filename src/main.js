@@ -23,9 +23,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(fas);
 
 
+import '@/assets/css/personalizado.css';
 import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
-
 
 const presetNombre =
     import.meta.env.VITE_PRIME_PRESET || 'Lara';
