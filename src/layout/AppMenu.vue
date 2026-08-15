@@ -6,6 +6,7 @@ const model = ref([
     {
         label: 'Inicio',
         path: '/principal',
+        icon: 'fa-solid fa-list',
         items: [
             {
                 label: 'Principal',
@@ -18,6 +19,7 @@ const model = ref([
     {
         label: 'Configuracion',
         path: 'configuracion',
+        icon: 'fa-solid fa-list',
         items: [
             {
                 label: 'Usuarios',
@@ -48,6 +50,7 @@ const model = ref([
     {
         label: 'Catalogos',
         path: 'catalogos',
+        icon: 'fa-solid fa-list',
         items: [
             {
                 label: 'Empresas',
@@ -84,6 +87,7 @@ const model = ref([
     {
         label: 'Operaciones',
         path: 'operaciones',
+        icon: 'fa-solid fa-list',
         items: [
             {
                 label: 'Mesa de Control',
@@ -108,6 +112,7 @@ const model = ref([
     {
         label: 'Administrador de CFDI',
         path: '/administrador_cfdi',
+        icon: 'fa-solid fa-list',
         items: [
             {
                 label: 'Parametros',

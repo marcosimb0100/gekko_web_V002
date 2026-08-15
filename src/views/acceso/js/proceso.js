@@ -1,5 +1,5 @@
 import { useToast } from 'primevue/usetoast';
-import { computed, reactive } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 
 const frmAccesoInit = () => ( {
@@ -16,6 +16,8 @@ const useProceso = () => {
 
     const frmAcceso = reactive(frmAccesoInit());
 
+    const correoInput = ref(null);
+
 
     const handleAcceso = async() => {
         
@@ -27,13 +29,24 @@ const useProceso = () => {
             datosJson: frmAcceso
         });
 
-        console.log( JSON.stringify( res ) );
-
-        // if (res.estatus !== 200) {
-        //     toast.add({ severity: 'error', summary: 'Notificacion', detail: res.mensaje, life: 3000 });
-        // }
+        if (res.estatus !== 200) {
+            toast.add({ severity: 'error', summary: 'Notificacion', detail: res.mensaje, life: 3000 });
+            limpiarFormulario();
+        }
                
 
+    };
+
+    
+    const limpiarFormulario = async () => {
+
+        Object.assign(frmAcceso, frmAccesoInit());
+
+        await nextTick();
+
+        const elemento = correoInput.value?.$el ?? correoInput.value;
+
+        elemento?.focus?.();
     };
 
 
@@ -84,7 +97,8 @@ const useProceso = () => {
 
         correoElectronicoValido,
         claveValida,
-        botonEntrarDeshabilitado
+        botonEntrarDeshabilitado,
+        correoInput
 
     }
 

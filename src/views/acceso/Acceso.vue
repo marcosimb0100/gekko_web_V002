@@ -48,6 +48,7 @@
                             </label>
 
                             <InputText
+                                ref="correoInput"
                                 id="correo"
                                 v-model="frmAcceso.correo_electronico"
                                 type="email"
@@ -59,18 +60,17 @@
                         </div>
 
                         <div class="field">
-                            <label for="password">
+                            <label for="clave">
                                 Contraseña
                             </label>
 
                             <Password
+                                id="clave"
                                 v-model="frmAcceso.clave"
-                                inputId="clave"
                                 class="custom-password"
                                 inputClass="w-full"
                                 :invalid="!claveValida"
                                 :feedback="false"
-                                toggleMask
                                 placeholder="Ingresa tu contraseña"
                             />
                         </div>
@@ -81,7 +81,6 @@
                             icon="pi pi-sign-in"
                             class="w-full login-button"
                             :disabled="botonEntrarDeshabilitado"
-                            :loading="cargando"
                         />
                     </form>
                 </div>
