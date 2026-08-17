@@ -2,10 +2,9 @@ import { apiGet_blob, apiGet_token, apiPost_sinToken, apiPost_token, apiPost_tok
 // import { notify } from "@kyvg/vue3-notification";
 import router from '../../router/index';
 
-export const apiPostAcceso = async({ commit }, { direccion, datosJson }) => {
-
+export const apiPostAcceso = async ({ commit }, { direccion, datosJson }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, datos } = await apiPost_sinToken( direccion, datosJson );
+    const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, datosJson);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
 
@@ -16,7 +15,6 @@ export const apiPostAcceso = async({ commit }, { direccion, datosJson }) => {
         localStorage.setItem('token', token);
 
         router.replace({ name: 'bienvenida_principal' });
-
     } else {
         commit('visibleCargandoMutation');
     }
@@ -25,26 +23,25 @@ export const apiPostAcceso = async({ commit }, { direccion, datosJson }) => {
         mensaje,
         datos
     };
-
 };
 
-export const apiGetToken = async({ commit }, { direccion }) => {
+export const apiGetToken = async ({ commit }, { direccion }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, datos } = await apiGet_token( direccion );
+    const { estatus, mensaje, datos } = await apiGet_token(direccion);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
@@ -52,27 +49,25 @@ export const apiGetToken = async({ commit }, { direccion }) => {
         mensaje,
         datos
     };
-
 };
 
-
-export const apiPostToken = async({ commit }, { direccion, datosJson }) => {
+export const apiPostToken = async ({ commit }, { direccion, datosJson }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, datos } = await apiPost_token( direccion, datosJson );
+    const { estatus, mensaje, datos } = await apiPost_token(direccion, datosJson);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
@@ -80,27 +75,25 @@ export const apiPostToken = async({ commit }, { direccion, datosJson }) => {
         mensaje,
         datos
     };
-
 };
 
-
-export const apiPutToken = async({ commit }, { direccion, datosJson }) => {
+export const apiPutToken = async ({ commit }, { direccion, datosJson }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, datos } = await apiPut_token( direccion, datosJson );
+    const { estatus, mensaje, datos } = await apiPut_token(direccion, datosJson);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
@@ -108,84 +101,75 @@ export const apiPutToken = async({ commit }, { direccion, datosJson }) => {
         mensaje,
         datos
     };
-
 };
 
-
-export const apiPutTokenFormData = async({ commit }, { direccion, formData }) => {
-
+export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje } = await apiPut_token_formdata( direccion, formData );
+    const { estatus, mensaje } = await apiPut_token_formdata(direccion, formData);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
         estatus,
         mensaje
     };
-
 };
 
-
-export const apiPostTokenFormData = async({ commit }, { direccion, formData }) => {
+export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje } = await apiPost_token_formdata( direccion, formData );
+    const { estatus, mensaje } = await apiPost_token_formdata(direccion, formData);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
         estatus,
         mensaje
     };
-
 };
 
-
-
-export const apiGetblob = async({ commit }, { direccion }) => {
-    
+export const apiGetblob = async ({ commit }, { direccion }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, data } = await apiGet_blob( direccion );
+    const { estatus, mensaje, data } = await apiGet_blob(direccion);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
         commit('visibleCargandoMutation');
     }
-    if( estatus === 401 ){
+    if (estatus === 401) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 402 ){
+    if (estatus === 402) {
         localStorage.clear();
         router.replace({ name: 'acceso' });
     }
-    if( estatus === 403 ){
+    if (estatus === 403) {
         router.replace({ name: 'notpagefound' });
     }
     return {
@@ -193,7 +177,44 @@ export const apiGetblob = async({ commit }, { direccion }) => {
         mensaje,
         data
     };
-
 };
 
+export const apiGetblobSinCargando = async ({ commit }, { direccion }) => {
+    const { estatus, mensaje, data } = await apiGet_blob(direccion);
 
+    if (estatus === 401 || estatus === 402) {
+        localStorage.clear();
+        router.replace({ name: 'acceso' });
+    }
+
+    if (estatus === 403) {
+        router.replace({
+            name: 'notpagefound'
+        });
+    }
+
+    return {
+        estatus,
+        mensaje,
+        data
+    };
+};
+
+export const apiGetTokenSinCargando = async ({ commit }, { direccion }) => {
+    const { estatus, mensaje, datos } = await apiGet_token(direccion);
+
+    if (estatus === 401 || estatus === 402) {
+        localStorage.clear();
+        router.replace({ name: 'acceso' });
+    }
+
+    if (estatus === 403) {
+        router.replace({ name: 'notpagefound' });
+    }
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
