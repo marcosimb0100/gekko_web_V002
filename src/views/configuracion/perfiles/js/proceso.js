@@ -30,9 +30,6 @@ const useProceso = () => {
 
     const frmPerfil = reactive(frmPerfilInit());
 
-    // =========================================================
-    // INICIALIZAR
-    // =========================================================
 
     const handleInit = async () => {
         const res = await store.dispatch('api/apiGetToken', {
@@ -53,22 +50,13 @@ const useProceso = () => {
 
     handleInit();
 
-    // =========================================================
-    // FILTRO
-    // =========================================================
 
     const handleLimpiarFiltro = () => {
         filtros.value.global.value = null;
     };
 
-    // =========================================================
-    // MOSTRAR FORMULARIO
-    // =========================================================
 
     const handleMostrarFormulario = async (tipo, data) => {
-        // -----------------------------------------------------
-        // NUEVO
-        // -----------------------------------------------------
 
         if (tipo === 'N') {
             await handleLimpiarFormulario();
@@ -80,9 +68,6 @@ const useProceso = () => {
             mostrarTablaFormulario.value = true;
         }
 
-        // -----------------------------------------------------
-        // EDITAR
-        // -----------------------------------------------------
         else if (tipo === 'E') {
             await handleLimpiarFormulario();
 
@@ -97,9 +82,6 @@ const useProceso = () => {
             mostrarTablaFormulario.value = true;
         }
 
-        // -----------------------------------------------------
-        // CANCELAR
-        // -----------------------------------------------------
         else if (tipo === 'C') {
             mostrarTablaFormulario.value = false;
 
@@ -110,10 +92,6 @@ const useProceso = () => {
             await handleInit();
         }
     };
-
-    // =========================================================
-    // GUARDAR
-    // =========================================================
 
     const handleGuardar = async () => {
         if (!frmPerfil.nombre_perfil.trim()) {
@@ -144,9 +122,6 @@ const useProceso = () => {
             nombre_perfil: frmPerfil.nombre_perfil.trim().toUpperCase()
         };
 
-        // =====================================================
-        // NUEVO
-        // =====================================================
 
         if (movimiento.value === 'N') {
             const res = await store.dispatch('api/apiPostToken', {
@@ -173,9 +148,6 @@ const useProceso = () => {
             });
         }
 
-        // =====================================================
-        // EDITAR
-        // =====================================================
         else if (movimiento.value === 'E') {
             const res = await store.dispatch('api/apiPutToken', {
                 direccion: `/perfiles/`,
@@ -201,9 +173,6 @@ const useProceso = () => {
             });
         }
 
-        // =====================================================
-        // TERMINAR
-        // =====================================================
 
         mostrarTablaFormulario.value = false;
 
@@ -214,9 +183,6 @@ const useProceso = () => {
         await handleInit();
     };
 
-    // =========================================================
-    // LIMPIAR
-    // =========================================================
 
     const handleLimpiarFormulario = async () => {
         Object.assign(frmPerfil, frmPerfilInit());
@@ -224,9 +190,6 @@ const useProceso = () => {
         await nextTick();
     };
 
-    // =========================================================
-    // VALIDACIONES
-    // =========================================================
 
     const nombrePerfilValido = computed(() => {
         if (!frmPerfil.nombre_perfil) {
@@ -250,9 +213,6 @@ const useProceso = () => {
         return false;
     });
 
-    // =========================================================
-    // RETURN
-    // =========================================================
 
     return {
         tablaPerfiles,

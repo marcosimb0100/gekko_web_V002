@@ -1,128 +1,158 @@
 <template>
-    <h3>Pagina Web - AsignarPerfil</h3>
+    <Encabezado titulo="Asignación de Perfiles" subtitulo="Administración de perfiles asignados a usuarios" icono="pi pi-users">
+        <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleMostrarFormulario('N')" v-if="!mostrarTablaFormulario">
+            <template #icon><font-icon icon="fa-solid fa-plus" class="mr-2" /></template>
+        </Button>
 
-    <Fluid>
-        <div class="flex flex-col md:flex-row gap-8">
-            <div class="md:w-1/2">
-                <div class="card flex flex-col gap-4">
-                    <div class="font-semibold text-xl">Vertical</div>
-                    <div class="flex flex-col gap-2">
-                        <label for="name1">Name</label>
-                        <InputText id="name1" type="text" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label for="email1">Email</label>
-                        <InputText id="email1" type="text" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label for="age1">Age</label>
-                        <InputText id="age1" type="text" />
-                    </div>
-                </div>
+        <Button type="button" label="Cancelar" class="w-full btn-cancelar" @click="handleMostrarFormulario('C')" v-if="mostrarTablaFormulario">
+            <template #icon><font-icon icon="fa-solid fa-xmark" class="mr-2" /></template>
+        </Button>
 
-                <div class="card flex flex-col gap-4">
-                    <div class="font-semibold text-xl">Vertical Grid</div>
-                    <div class="flex flex-wrap gap-4">
-                        <div class="flex flex-col grow basis-0 gap-2">
-                            <label for="name2">Name</label>
-                            <InputText id="name2" type="text" />
-                        </div>
-                        <div class="flex flex-col grow basis-0 gap-2">
-                            <label for="email2">Email</label>
-                            <InputText id="email2" type="text" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="md:w-1/2">
-                <div class="card flex flex-col gap-4">
-                    <div class="font-semibold text-xl">Horizontal</div>
-                    <div class="grid grid-cols-12 gap-2">
-                        <label for="name3" class="flex items-center col-span-12 mb-2 md:col-span-2 md:mb-0">Name</label>
-                        <div class="col-span-12 md:col-span-10">
-                            <InputText id="name3" type="text" />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-12 gap-2">
-                        <label for="email3" class="flex items-center col-span-12 mb-2 md:col-span-2 md:mb-0">Email</label>
-                        <div class="col-span-12 md:col-span-10">
-                            <InputText id="email3" type="text" />
-                        </div>
-                    </div>
-                </div>
+        <Button type="submit" label="Guardar" class="w-full btn-guardar" form="formAsignacionPerfil" v-if="mostrarTablaFormulario" :disabled="botonGuardarDeshabilitado">
+            <template #icon><font-icon icon="fa-solid fa-floppy-disk" class="mr-2" /></template>
+        </Button>
+    </Encabezado>
 
-                <div class="card flex flex-col gap-4">
-                    <div class="font-semibold text-xl">Inline</div>
-                    <div class="flex flex-wrap items-start gap-4">
-                        <div class="field">
-                            <label for="firstname1" class="sr-only">Firstname</label>
-                            <InputText id="firstname1" type="text" placeholder="Firstname" />
-                        </div>
-                        <div class="field">
-                            <label for="lastname1" class="sr-only">Lastname</label>
-                            <InputText id="lastname1" type="text" placeholder="Lastname" />
-                        </div>
-                        <Button label="Submit" :fluid="false"></Button>
-                    </div>
-                </div>
-                <div class="card flex flex-col gap-4">
-                    <div class="font-semibold text-xl">Help Text</div>
-                    <div class="flex flex-wrap gap-2">
-                        <label for="username">Username</label>
-                        <InputText id="username" type="text" />
-                        <small>Enter your username to reset your password.</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="card p-0 m-0" style="height: 72vh">
 
-        <div class="flex mt-8">
-            <div class="card flex flex-col gap-4 w-full">
-                <div class="font-semibold text-xl">Advanced</div>
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <label for="firstname2">Firstname</label>
-                        <InputText id="firstname2" type="text" />
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <label for="lastname2">Lastname</label>
-                        <InputText id="lastname2" type="text" />
-                    </div>
-                </div>
+        <!-- TABLA -->
+        <ScrollPanel style="height: 65vh" v-if="!mostrarTablaFormulario">
+            <DataTable
+                v-model:filters="filtros"
+                :value="catPerfilesUser"
+                :globalFilterFields="['usuario', 'perfil']"
+                paginator
+                :rows="100"
+                :rowsPerPageOptions="[100, 200, 300, 400]"
+                scrollable
+                scrollHeight="54vh"
+                size="small"
+                tableStyle="min-width: 50rem"
+                class="tabla-encabezados"
+            >
+                <template #header>
+                    <div class="flex justify-content-between">
+                        <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined style="margin-right: 5px" @click="handleLimpiarFiltro" />
 
-                <div class="flex flex-wrap">
-                    <label for="address">Address</label>
-                    <Textarea id="address" rows="4" />
-                </div>
+                        <IconField iconPosition="left">
+                            <InputIcon><i class="pi pi-search" /></InputIcon>
+                            <InputText v-model="filtros.global.value" placeholder="Buscar..." />
+                        </IconField>
+                    </div>
+                </template>
 
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <label for="state">State</label>
-                        <Select id="state" v-model="dropdownItem" :options="dropdownItems" optionLabel="name" placeholder="Select One" class="w-full"></Select>
-                    </div>
-                    <div class="flex flex-wrap gap-2 w-full">
-                        <label for="zip">Zip</label>
-                        <InputText id="zip" type="text" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </Fluid>
+                <template #empty>No se encontraron registros.</template>
+
+                <Column header="Usuario" headerClass="encabezado-columna">
+                    <template #body="slotProps">
+                        {{ handleNombreUsuario(slotProps.data.id_usuario) }}
+                    </template>
+                </Column>
+
+                <Column header="Perfil" headerClass="encabezado-columna">
+                    <template #body="slotProps">
+                        {{ handleNombrePerfil(slotProps.data.idprofiles) }}
+                    </template>
+                </Column>
+
+                <Column header="Activo" headerClass="encabezado-columna">
+                    <template #body="slotProps">
+                        <span v-if="slotProps.data.status === 0" style="font-size: 15px; color: red"><font-icon :icon="['fas', 'square-xmark']" /></span>
+                        <span v-if="slotProps.data.status === 1" style="font-size: 15px; color: green"><font-icon :icon="['fas', 'square-check']" /></span>
+                    </template>
+                </Column>
+
+                <Column header="Opciones" headerClass="encabezado-columna">
+                    <template #body="slotProps">
+                        <Button class="btn-nuevo" style="margin: 5px" @click="handleMostrarFormulario('E', slotProps.data)">
+                            <font-icon :icon="['fas', 'pen-to-square']" />
+                        </Button>
+                    </template>
+                </Column>
+            </DataTable>
+        </ScrollPanel>
+
+        <!-- FORMULARIO -->
+        <Tabs value="0" v-if="mostrarTablaFormulario">
+            <TabList>
+                <Tab value="0">Datos</Tab>
+                <Tab value="1">Historial</Tab>
+            </TabList>
+
+            <TabPanels>
+                <TabPanel value="0">
+                    <ScrollPanel style="height: 60vh">
+                        <form id="formAsignacionPerfil" @submit.prevent="handleGuardar">
+                            <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px">
+
+                                <!-- USUARIO -->
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
+                                    <div style="display: flex; flex-direction: column; gap: 8px">
+                                        <label for="id_usuario">Usuario:</label>
+
+                                        <Dropdown
+                                            id="id_usuario"
+                                            v-model="frmAsignacion.id_usuario"
+                                            :options="catUsuarios"
+                                            optionLabel="username"
+                                            optionValue="id_usuario"
+                                            placeholder="Selecciona un usuario"
+                                            :disabled="movimiento === 'E'"
+                                            style="width: 100%"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- PERFIL -->
+                                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
+                                    <div style="display: flex; flex-direction: column; gap: 8px">
+                                        <label for="idprofiles">Perfil:</label>
+
+                                        <Dropdown
+                                            id="idprofiles"
+                                            v-model="frmAsignacion.idprofiles"
+                                            :options="catPerfiles"
+                                            optionLabel="nameProfile"
+                                            optionValue="idprofiles"
+                                            placeholder="Selecciona un perfil"
+                                            style="width: 100%"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- ACTIVO -->
+                                <div style="display: flex; align-items: center; gap: 8px">
+                                    <Checkbox inputId="status" v-model="frmAsignacion.status" binary trueValue="1" falseValue="0" />
+                                    <label for="status">Activo</label>
+                                </div>
+                            </div>
+                        </form>
+                    </ScrollPanel>
+                </TabPanel>
+
+                <TabPanel value="1">
+                    <p class="m-0">Aquí se mostrará el historial de asignaciones del perfil.</p>
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
+    </div>
 </template>
 
 <script>
+import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
+
 export default {
-    name: 'AsignarPerfil',
-    // components: {AppFooter, cargando},
-    setup(){
-      return{
-        ...proceso()
-      }
+    name: 'AsignarPerfiles',
+    components: { Encabezado },
+    setup() {
+        return {
+            ...proceso()
+        };
     }
-}
+};
 </script>
 
 <style scoped>
-    @import './css/estilo.css';
+@import './css/estilo.css';
 </style>
