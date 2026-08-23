@@ -1,3 +1,52 @@
-.ejemplo{
-    color: red;
+.contenedor-carga {
+    display: flex;
+    justify-content: center;
+
+    padding: 35px 20px;
+}
+
+.card-carga {
+    width: 100%;
+    max-width: 800px;
+
+    padding: 20px;
+
+    border: 1px solid var(--p-surface-200);
+    border-radius: 12px;
+
+    background: var(--p-surface-0);
+}
+
+.titulo-carga {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.zona-vacia {
+    min-height: 220px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    text-align: center;
+}
+
+.icono-carga {
+    font-size: 38px;
+}
+
+.zona-vacia small {
+    color: var(--p-text-muted-color);
 }

@@ -1,5 +1,5 @@
 <template>
-    <Encabezado titulo="Asignación de Perfiles" subtitulo="Administración de perfiles asignados a usuarios" icono="pi pi-users">
+    <Encabezado titulo="Asignación de Perfiles" subtitulo="Administración de perfiles asignados a usuarios" icono="pi pi-user-edit">
         <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleMostrarFormulario('N')" v-if="!mostrarTablaFormulario">
             <template #icon><font-icon icon="fa-solid fa-plus" class="mr-2" /></template>
         </Button>
@@ -14,13 +14,12 @@
     </Encabezado>
 
     <div class="card p-0 m-0" style="height: 72vh">
-
         <!-- TABLA -->
         <ScrollPanel style="height: 65vh" v-if="!mostrarTablaFormulario">
             <DataTable
                 v-model:filters="filtros"
-                :value="catPerfilesUser"
-                :globalFilterFields="['usuario', 'perfil']"
+                :value="tablaAsignaciones"
+                :globalFilterFields="['nombre_completo', 'nombre_perfil']"
                 paginator
                 :rows="100"
                 :rowsPerPageOptions="[100, 200, 300, 400]"
@@ -43,22 +42,13 @@
 
                 <template #empty>No se encontraron registros.</template>
 
-                <Column header="Usuario" headerClass="encabezado-columna">
-                    <template #body="slotProps">
-                        {{ handleNombreUsuario(slotProps.data.id_usuario) }}
-                    </template>
-                </Column>
-
-                <Column header="Perfil" headerClass="encabezado-columna">
-                    <template #body="slotProps">
-                        {{ handleNombrePerfil(slotProps.data.idprofiles) }}
-                    </template>
-                </Column>
+                <Column field="nombre_completo" header="Usuario" headerClass="encabezado-columna" />
+                <Column field="nombre_perfil" header="Perfil" headerClass="encabezado-columna" />
 
                 <Column header="Activo" headerClass="encabezado-columna">
                     <template #body="slotProps">
-                        <span v-if="slotProps.data.status === 0" style="font-size: 15px; color: red"><font-icon :icon="['fas', 'square-xmark']" /></span>
-                        <span v-if="slotProps.data.status === 1" style="font-size: 15px; color: green"><font-icon :icon="['fas', 'square-check']" /></span>
+                        <span v-if="slotProps.data.activo === false" style="font-size: 15px; color: red"><font-icon :icon="['fas', 'square-xmark']" /></span>
+                        <span v-if="slotProps.data.activo === true" style="font-size: 15px; color: green"><font-icon :icon="['fas', 'square-check']" /></span>
                     </template>
                 </Column>
 
@@ -80,11 +70,11 @@
             </TabList>
 
             <TabPanels>
+                <!-- DATOS -->
                 <TabPanel value="0">
                     <ScrollPanel style="height: 60vh">
                         <form id="formAsignacionPerfil" @submit.prevent="handleGuardar">
                             <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px">
-
                                 <!-- USUARIO -->
                                 <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
                                     <div style="display: flex; flex-direction: column; gap: 8px">
@@ -94,8 +84,8 @@
                                             id="id_usuario"
                                             v-model="frmAsignacion.id_usuario"
                                             :options="catUsuarios"
-                                            optionLabel="username"
-                                            optionValue="id_usuario"
+                                            optionLabel="nombre_completo"
+                                            optionValue="_id"
                                             placeholder="Selecciona un usuario"
                                             :disabled="movimiento === 'E'"
                                             style="width: 100%"
@@ -106,32 +96,25 @@
                                 <!-- PERFIL -->
                                 <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
                                     <div style="display: flex; flex-direction: column; gap: 8px">
-                                        <label for="idprofiles">Perfil:</label>
+                                        <label for="id_perfil">Perfil:</label>
 
-                                        <Dropdown
-                                            id="idprofiles"
-                                            v-model="frmAsignacion.idprofiles"
-                                            :options="catPerfiles"
-                                            optionLabel="nameProfile"
-                                            optionValue="idprofiles"
-                                            placeholder="Selecciona un perfil"
-                                            style="width: 100%"
-                                        />
+                                        <Dropdown id="id_perfil" v-model="frmAsignacion.id_perfil" :options="catPerfiles" optionLabel="nombre_perfil" optionValue="_id" placeholder="Selecciona un perfil" style="width: 100%" />
                                     </div>
                                 </div>
 
                                 <!-- ACTIVO -->
                                 <div style="display: flex; align-items: center; gap: 8px">
-                                    <Checkbox inputId="status" v-model="frmAsignacion.status" binary trueValue="1" falseValue="0" />
-                                    <label for="status">Activo</label>
+                                    <Checkbox inputId="activo" v-model="frmAsignacion.activo" binary />
+                                    <label for="activo">Activo</label>
                                 </div>
                             </div>
                         </form>
                     </ScrollPanel>
                 </TabPanel>
 
+                <!-- HISTORIAL -->
                 <TabPanel value="1">
-                    <p class="m-0">Aquí se mostrará el historial de asignaciones del perfil.</p>
+                    <p class="m-0">Aquí se mostrará el historial de asignación de perfiles.</p>
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -143,7 +126,7 @@ import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
 
 export default {
-    name: 'AsignarPerfiles',
+    name: 'AsignarPerfil',
     components: { Encabezado },
     setup() {
         return {

@@ -1,3 +1,93 @@
-.ejemplo{
-    color: red;
+.filtros-cfdi {
+    display: grid;
+
+    grid-template-columns:
+        minmax(240px, 2fr)
+        150px
+        minmax(190px, 1fr)
+        minmax(170px, 1fr)
+        160px
+        160px
+        42px
+        42px;
+
+    gap: 8px;
+
+    align-items: end;
+
+    padding: 18px 20px 10px 20px;
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.campo-filtro label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.boton-filtro {
+    width: 40px !important;
+    height: 40px;
+    padding: 0 !important;
+}
+
+.barra-busqueda {
+    display: flex;
+    justify-content: flex-end;
+
+    padding: 0 20px 10px 20px;
+}
+
+:deep(.tabla-cfdi .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+:deep(.tabla-cfdi .nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-cfdi .total-cfdi) {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.estatus-cfdi {
+    display: inline-block;
+
+    padding: 3px 7px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.estatus-vigente {
+    background: rgba(0, 128, 0, 0.16);
+}
+
+.estatus-cancelado {
+    background: rgba(255, 0, 0, 0.16);
+}
+
+@media (max-width: 1200px) {
+    .filtros-cfdi {
+        grid-template-columns:
+            1fr 1fr 1fr 1fr;
+    }
 }

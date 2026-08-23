@@ -1,3 +1,128 @@
-.ejemplo{
+.solicitud-contenedor {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bloque-formulario {
+    padding: 5px;
+    border: 1px solid var(--p-surface-200);
+    border-radius: 12px;
+    background: var(--p-surface-50);
+}
+
+.bloque-titulo {
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.grid-datos-principales {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    align-items: end;
+}
+
+.grid-concepto {
+    display: grid;
+    grid-template-columns: minmax(400px, 1fr) 130px 170px 44px;
+    gap: 10px;
+    align-items: end;
+}
+
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.requerido {
     color: red;
+}
+
+.archivo-contenedor {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-agregar-concepto {
+    width: 44px;
+    height: 44px;
+}
+
+.concepto-opcion {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 700px;
+}
+
+.grid-tabla-totales {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+}
+
+.tabla-conceptos {
+    height: 220px;
+    overflow: auto;
+    border: 1px solid var(--p-surface-200);
+    border-radius: 12px;
+}
+
+.resumen-cfdi {
+    border: 1px solid var(--p-surface-200);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--p-surface-50);
+}
+
+.resumen-titulo {
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.resumen-renglon {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.resumen-separador {
+    border-top: 1px solid var(--p-surface-300);
+    margin: 10px 0;
+}
+
+.resumen-total {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 1000px) {
+    .grid-datos-principales {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-concepto {
+        grid-template-columns: 1fr 120px 150px 44px;
+    }
+
+    .grid-tabla-totales {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .grid-datos-principales,
+    .grid-concepto {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-agregar-concepto {
+        width: 100%;
+    }
 }

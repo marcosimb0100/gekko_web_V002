@@ -1,3 +1,96 @@
-.ejemplo{
-    color: red;
+.filtros-consultas {
+    display: grid;
+    grid-template-columns:
+        minmax(260px, 1.3fr)
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
+        130px;
+
+    gap: 15px;
+
+    align-items: end;
+
+    padding: 20px 28px 12px 28px;
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo-filtro label {
+    font-weight: 500;
+}
+
+.campo-boton {
+    display: flex;
+    align-items: flex-end;
+}
+
+.campo-boton .p-button {
+    width: 100%;
+    white-space: nowrap;
+}
+
+.barra-tabla {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 28px 8px 28px;
+}
+
+:deep(.tabla-consultas .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-consultas .p-datatable-tbody > tr > td) {
+    padding: 6px 8px;
+}
+
+:deep(.tabla-consultas .nowrap) {
+    white-space: nowrap;
+}
+
+.estatus-sat {
+    display: inline-block;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.estatus-completado {
+    background: rgba(0, 128, 0, 0.18);
+}
+
+.estatus-proceso {
+    background: rgba(255, 165, 0, 0.22);
+}
+
+.estatus-error {
+    background: rgba(255, 0, 0, 0.18);
+}
+
+.estatus-default {
+    background: rgba(42, 194, 211, 0.18);
+}
+
+.btn-consulta {
+    white-space: nowrap;
+    width: auto !important;
+}
+
+@media (max-width: 1000px) {
+    .filtros-consultas {
+        grid-template-columns: 1fr 1fr;
+    }
 }

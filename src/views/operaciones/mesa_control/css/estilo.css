@@ -1,3 +1,216 @@
 .ejemplo{
     color: red;
 }
+
+/* =====================================================
+   MESA DE CONTROL
+   ===================================================== */
+
+:deep(.tabla-mesa-control .p-datatable-tbody > tr > td) {
+    padding: 6px 8px !important;
+    vertical-align: middle;
+}
+
+:deep(.tabla-mesa-control .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-mesa-control .col-no-wrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-mesa-control .col-numero) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+:deep(.tabla-mesa-control .col-opciones) {
+    white-space: nowrap;
+}
+
+.acciones-tabla {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+.acciones-tabla :deep(.p-button) {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    flex: 0 0 32px;
+}
+
+
+
+/* =====================================================
+   DIALOG DETALLE SOLICITUD
+   ===================================================== */
+
+:deep(.dialog-detalle .p-dialog-header) {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--p-surface-200);
+}
+
+:deep(.dialog-detalle .p-dialog-content) {
+    padding: 20px;
+}
+
+.detalle-solicitud {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+
+/* DATOS GENERALES */
+
+.detalle-datos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--p-surface-200);
+    border-radius: 10px;
+    background: var(--p-surface-50);
+}
+
+.detalle-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.detalle-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--p-text-muted-color);
+}
+
+.detalle-valor {
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+
+/* SECCION */
+
+.detalle-seccion {
+    border: 1px solid var(--p-surface-200);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.detalle-seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 14px;
+
+    font-weight: 600;
+
+    background: var(--p-surface-100);
+    border-bottom: 1px solid var(--p-surface-200);
+}
+
+
+/* TABLA */
+
+:deep(.tabla-detalle .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-detalle .p-datatable-tbody > tr > td) {
+    padding: 7px 8px;
+    vertical-align: middle;
+}
+
+:deep(.tabla-detalle .nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-detalle .text-right) {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* PIE */
+
+.detalle-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.detalle-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+/* TOTALES */
+
+.detalle-totales {
+    width: 330px;
+    padding: 16px;
+
+    border: 1px solid var(--p-surface-200);
+    border-radius: 10px;
+
+    background: var(--p-surface-50);
+}
+
+.total-renglon {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 4px 0;
+
+    font-size: 14px;
+}
+
+.total-renglon strong {
+    font-variant-numeric: tabular-nums;
+}
+
+.total-separador {
+    border-top: 1px solid var(--p-surface-300);
+    margin: 10px 0;
+}
+
+.total-final {
+    font-size: 18px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+    .detalle-datos {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .detalle-pie {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .detalle-totales {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .detalle-datos {
+        grid-template-columns: 1fr;
+    }
+}

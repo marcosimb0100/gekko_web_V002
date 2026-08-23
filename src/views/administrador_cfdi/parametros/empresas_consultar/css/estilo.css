@@ -1,3 +1,11 @@
-.ejemplo{
-    color: red;
+:deep(.nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-encabezados .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr > td) {
+    padding: 6px 8px;
 }

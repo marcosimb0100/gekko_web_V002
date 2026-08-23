@@ -42,7 +42,7 @@ export const apiGetToken = async ({ commit }, { direccion }) => {
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -68,7 +68,7 @@ export const apiPostToken = async ({ commit }, { direccion, datosJson }) => {
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -94,7 +94,7 @@ export const apiPutToken = async ({ commit }, { direccion, datosJson }) => {
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -120,7 +120,7 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -145,7 +145,7 @@ export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) 
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -170,7 +170,7 @@ export const apiGetblob = async ({ commit }, { direccion }) => {
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace({ name: 'notfound' });
     }
     return {
         estatus,
@@ -189,7 +189,7 @@ export const apiGetblobSinCargando = async ({ commit }, { direccion }) => {
 
     if (estatus === 403) {
         router.replace({
-            name: 'notpagefound'
+            name: 'notfound'
         });
     }
 

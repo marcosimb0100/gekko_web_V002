@@ -1,3 +1,5 @@
-.ejemplo{
-    color: red;
+.btn-probar-correo {
+    white-space: nowrap;
+    width: auto !important;
+    min-width: 135px;
 }

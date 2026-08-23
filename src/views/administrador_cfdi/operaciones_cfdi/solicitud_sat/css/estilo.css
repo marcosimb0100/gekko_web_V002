@@ -1,3 +1,56 @@
-.ejemplo{
-    color: red;
+.form-solicitud-sat {
+    display: flex;
+    justify-content: center;
+
+    padding: 35px 20px;
+}
+
+.solicitud-card {
+    width: 100%;
+    max-width: 560px;
+
+    padding: 24px;
+
+    border: 1px solid var(--p-surface-200);
+    border-radius: 12px;
+
+    background: var(--p-surface-0);
+}
+
+.solicitud-titulo {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.campo-formulario {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 16px;
+}
+
+.acciones-formulario {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+    padding-top: 15px;
+
+    border-top: 1px solid var(--p-surface-200);
+}
+
+.acciones-formulario .p-button {
+    min-width: 110px;
+    white-space: nowrap;
 }

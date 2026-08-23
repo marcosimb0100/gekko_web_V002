@@ -1,13 +1,13 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 
 const frmAsignacionInit = () => ({
-    idprofilesUser: 0,
-    id_usuario: null,
-    idprofiles: null,
-    status: 1
+    _id: '',
+    id_usuario: '',
+    id_perfil: '',
+    activo: true
 });
 
 const useProceso = () => {
@@ -23,99 +23,130 @@ const useProceso = () => {
 
     const catUsuarios = ref([]);
     const catPerfiles = ref([]);
-    const catPerfilesUser = ref([]);
+    const tablaAsignaciones = ref([]);
 
     const mostrarTablaFormulario = ref(false);
     const movimiento = ref('');
 
     const frmAsignacion = reactive(frmAsignacionInit());
 
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // USUARIOS
+    // -------------------------------------------------------------------------
 
-    const handleInit = async () => {
-        await handleCatalogos();
-    };
-
-    handleInit();
-
-    const handleCatalogos = async () => {
-        const reqUsuarios = await store.dispatch('api/apiGetToken', {
-            direccion: `/api/profiles/users`
+    const handleCargarUsuarios = async () => {
+        const res = await store.dispatch('api/apiGetToken', {
+            direccion: `/usuarios/usuarios`
         });
 
-        if (reqUsuarios.estatus === 200) {
-            catUsuarios.value = reqUsuarios.datos?.users ?? [];
+        if (res.estatus === 200) {
+            catUsuarios.value = res.datos?.usuarios ?? [];
         } else {
             toast.add({
                 severity: 'error',
                 summary: 'Notificación',
-                detail: reqUsuarios.mensaje,
-                life: 3000
-            });
-        }
-
-        const reqPerfiles = await store.dispatch('api/apiGetToken', {
-            direccion: `/api/profiles/profiles`
-        });
-
-        if (reqPerfiles.estatus === 200) {
-            catPerfiles.value = reqPerfiles.datos?.profiles ?? [];
-        } else {
-            toast.add({
-                severity: 'error',
-                summary: 'Notificación',
-                detail: reqPerfiles.mensaje,
-                life: 3000
-            });
-        }
-
-        await handlePerfilesAsignados();
-    };
-
-    const handlePerfilesAsignados = async () => {
-        const reqPerfilesAsignados = await store.dispatch('api/apiGetToken', {
-            direccion: `/api/profiles/profile_assignment`
-        });
-
-        if (reqPerfilesAsignados.estatus === 200) {
-            catPerfilesUser.value = reqPerfilesAsignados.datos?.perfiles_asignados ?? [];
-        } else {
-            toast.add({
-                severity: 'error',
-                summary: 'Notificación',
-                detail: reqPerfilesAsignados.mensaje,
+                detail: res.mensaje,
                 life: 3000
             });
         }
     };
+
+    // -------------------------------------------------------------------------
+    // PERFILES
+    // -------------------------------------------------------------------------
+
+    const handleCargarPerfiles = async () => {
+        const res = await store.dispatch('api/apiGetToken', {
+            direccion: `/perfiles/perfiles`
+        });
+
+        if (res.estatus === 200) {
+            catPerfiles.value = res.datos?.perfiles ?? [];
+        } else {
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: res.mensaje,
+                life: 3000
+            });
+        }
+    };
+
+    // -------------------------------------------------------------------------
+    // ASIGNACIONES
+    // -------------------------------------------------------------------------
+
+    const handleCargarAsignaciones = async () => {
+        const res = await store.dispatch('api/apiGetToken', {
+            direccion: `/perfiles/perfiles_usuarios`
+        });
+
+        if (res.estatus !== 200) {
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: res.mensaje,
+                life: 3000
+            });
+
+            return;
+        }
+
+        const asignaciones = res.datos?.perfiles_usuarios ?? [];
+
+        tablaAsignaciones.value = asignaciones.map((item) => {
+            const usuario = catUsuarios.value.find((x) => String(x._id) === String(item.id_usuario));
+
+            const perfil = catPerfiles.value.find((x) => String(x._id) === String(item.id_perfil));
+
+            return {
+                ...item,
+                nombre_completo: usuario?.nombre_completo ?? '',
+                nombre_perfil: perfil?.nombre_perfil ?? ''
+            };
+        });
+    };
+
+    // -------------------------------------------------------------------------
+    // FILTRO
+    // -------------------------------------------------------------------------
 
     const handleLimpiarFiltro = () => {
         filtros.value.global.value = null;
     };
 
-    const handleLimpiarFormulario = () => {
+    // -------------------------------------------------------------------------
+    // LIMPIAR FORMULARIO
+    // -------------------------------------------------------------------------
+
+    const handleLimpiarFormulario = async () => {
         Object.assign(frmAsignacion, frmAsignacionInit());
+
+        await nextTick();
     };
+
+    // -------------------------------------------------------------------------
+    // MOSTRAR FORMULARIO
+    // -------------------------------------------------------------------------
 
     const handleMostrarFormulario = async (tipo, data) => {
         if (tipo === 'N') {
-            handleLimpiarFormulario();
+            await handleLimpiarFormulario();
 
             movimiento.value = 'N';
-            frmAsignacion.status = 1;
+            frmAsignacion.activo = true;
 
             mostrarTablaFormulario.value = true;
         } else if (tipo === 'E') {
-            handleLimpiarFormulario();
+            await handleLimpiarFormulario();
 
             movimiento.value = 'E';
 
             Object.assign(frmAsignacion, {
-                idprofilesUser: data?.idprofilesUser ?? 0,
-                id_usuario: data?.id_usuario ?? null,
-                idprofiles: data?.idprofiles ?? null,
-                status: data?.status ?? 1
+                _id: data?._id ?? data?.id_perfil_usuario ?? '',
+                id_usuario: data?.id_usuario ?? '',
+                id_perfil: data?.id_perfil ?? '',
+                activo: data?.activo ?? true
             });
 
             mostrarTablaFormulario.value = true;
@@ -123,15 +154,30 @@ const useProceso = () => {
             mostrarTablaFormulario.value = false;
             movimiento.value = '';
 
-            handleLimpiarFormulario();
-
-            await handlePerfilesAsignados();
+            await handleLimpiarFormulario();
+            await handleCargarAsignaciones();
         }
     };
 
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // VALIDACIONES
+    // -------------------------------------------------------------------------
+
+    const botonGuardarDeshabilitado = computed(() => {
+        if (!frmAsignacion.id_usuario) {
+            return true;
+        }
+
+        if (!frmAsignacion.id_perfil) {
+            return true;
+        }
+
+        return false;
+    });
+
+    // -------------------------------------------------------------------------
     // GUARDAR
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
     const handleGuardar = async () => {
         if (!frmAsignacion.id_usuario) {
@@ -145,7 +191,7 @@ const useProceso = () => {
             return;
         }
 
-        if (!frmAsignacion.idprofiles) {
+        if (!frmAsignacion.id_perfil) {
             toast.add({
                 severity: 'warn',
                 summary: 'Notificación',
@@ -157,111 +203,64 @@ const useProceso = () => {
         }
 
         const datosAsignacion = {
-            id_usuario: frmAsignacion.id_usuario,
-            idprofiles: frmAsignacion.idprofiles,
-            status: Number(frmAsignacion.status)
+            ...frmAsignacion
         };
 
-        // NUEVO
+        let res;
+
         if (movimiento.value === 'N') {
-            const res = await store.dispatch('api/apiPostToken', {
-                direccion: `/api/profiles/profiles_user`,
+            res = await store.dispatch('api/apiPostToken', {
+                direccion: `/perfiles/perfiles_usuarios`,
                 datosJson: datosAsignacion
             });
-
-            if (res.estatus !== 200) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Notificación',
-                    detail: res.mensaje,
-                    life: 3000
-                });
-
-                return;
-            }
-
-            toast.add({
-                severity: 'success',
-                summary: 'Notificación',
-                detail: res.mensaje,
-                life: 3000
+        } else if (movimiento.value === 'E') {
+            res = await store.dispatch('api/apiPutToken', {
+                direccion: `/perfiles/perfiles_usuarios`,
+                datosJson: datosAsignacion
             });
         }
 
-        // EDITAR
-        else if (movimiento.value === 'E') {
-            const res = await store.dispatch('api/apiPutToken', {
-                direccion: `/api/profiles/profiles_user/${frmAsignacion.idprofilesUser}`,
-                datosJson: datosAsignacion
-            });
-
-            if (res.estatus !== 200) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Notificación',
-                    detail: res.mensaje,
-                    life: 3000
-                });
-
-                return;
-            }
-
+        if (!res || res.estatus !== 200) {
             toast.add({
-                severity: 'success',
+                severity: 'error',
                 summary: 'Notificación',
-                detail: res.mensaje,
+                detail: res?.mensaje ?? 'No fue posible guardar la asignación.',
                 life: 3000
             });
+
+            return;
         }
+
+        toast.add({
+            severity: 'success',
+            summary: 'Notificación',
+            detail: res.mensaje,
+            life: 3000
+        });
 
         mostrarTablaFormulario.value = false;
         movimiento.value = '';
 
-        handleLimpiarFormulario();
-
-        await handlePerfilesAsignados();
+        await handleLimpiarFormulario();
+        await handleCargarAsignaciones();
     };
 
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // NOMBRES PARA TABLA
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // INICIAL
+    // -------------------------------------------------------------------------
 
-    const handleNombreUsuario = (idUsuario) => {
-        const usuario = catUsuarios.value.find((item) => item.id_usuario === idUsuario);
-
-        return usuario?.username ?? '';
+    const handleInit = async () => {
+        await handleCargarUsuarios();
+        await handleCargarPerfiles();
+        await handleCargarAsignaciones();
     };
 
-    const handleNombrePerfil = (idPerfil) => {
-        const perfil = catPerfiles.value.find((item) => item.idprofiles === idPerfil);
-
-        return perfil?.nameProfile ?? '';
-    };
-
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // VALIDACIONES
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-    const botonGuardarDeshabilitado = computed(() => {
-        if (!frmAsignacion.id_usuario) {
-            return true;
-        }
-
-        if (!frmAsignacion.idprofiles) {
-            return true;
-        }
-
-        return false;
-    });
-
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    handleInit();
 
     return {
         catUsuarios,
         catPerfiles,
-        catPerfilesUser,
-
+        tablaAsignaciones,
         filtros,
 
         mostrarTablaFormulario,
@@ -272,10 +271,7 @@ const useProceso = () => {
 
         handleMostrarFormulario,
         handleGuardar,
-        handleLimpiarFiltro,
-
-        handleNombreUsuario,
-        handleNombrePerfil
+        handleLimpiarFiltro
     };
 };
 

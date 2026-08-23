@@ -1,6 +1,28 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
 import AppMenuItem from './AppMenuItem.vue';
+
+const store = useStore();
+
+const modelMenu = ref([]);
+const nombreUsuario = ref(localStorage.getItem('nombre_completo') || 'Usuario');
+
+const handleCargarMenu = async () => {
+    const res = await store.dispatch('api/apiGetToken', {
+        direccion: `/perfiles/menus_perfil`
+    });
+
+    if (res.estatus === 200) {
+        modelMenu.value = res.datos?.menu_web ?? [];
+    } else {
+        modelMenu.value = [];
+    }
+};
+
+onMounted(async () => {
+    await handleCargarMenu();
+});
 
 const model = ref([
     {
@@ -111,7 +133,7 @@ const model = ref([
     },
     {
         label: 'Administrador de CFDI',
-        path: '/administrador_cfdi',
+        // path: '/administrador_cfdi',
         icon: 'fa-solid fa-list',
         items: [
             {
@@ -165,7 +187,7 @@ const model = ref([
                 class: 'icon-cyan',
                 items: [
                     {
-                        label: 'CFDI\'s',
+                        label: "CFDI's",
                         icon: 'fa-solid fa-file-code',
                         path: '/administrador_cfdi/reportes_cfdi',
                         to: '/administrador_cfdi/reportes_cfdi/cfdis',
@@ -179,7 +201,7 @@ const model = ref([
                         class: 'icon-cyan'
                     },
                     {
-                        label: 'CFDI\'s Cancelados',
+                        label: "CFDI's Cancelados",
                         icon: 'fa-solid fa-file-circle-xmark',
                         path: '/administrador_cfdi/reportes_cfdi',
                         to: '/administrador_cfdi/reportes_cfdi/cfdis_cancelados',
@@ -189,8 +211,6 @@ const model = ref([
             }
         ]
     }
-
-
 ]);
 </script>
 
@@ -199,8 +219,8 @@ const model = ref([
         <font-icon icon="fa-solid fa-user" />
         Nombre del usuario
     </span>
-    <ul class="layout-menu" style="border-top: 1px solid gray; margin-top: 10px;">
-        <template v-for="(item, i) in model" :key="item">
+    <ul class="layout-menu" style="border-top: 1px solid gray; margin-top: 10px">
+        <template v-for="(item, i) in modelMenu" :key="item">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>

@@ -15,12 +15,10 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 
             <h1>Página no encontrada</h1>
 
-            <p class="description">
-                La página que estás buscando no existe, fue movida o ya no se encuentra disponible.
-            </p>
+            <p class="description">La página que estás buscando no existe, fue movida o ya no se encuentra disponible.</p>
 
             <div class="actions">
-                <Button as="router-link" to="/bienvenida" class="home-button">
+                <Button as="router-link" to="/principal" class="home-button">
                     <font-icon icon="fa-solid fa-house" />
                     <span>Volver al inicio</span>
                 </Button>
@@ -51,8 +49,7 @@ import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
     padding: 2rem;
     overflow: hidden;
     background:
-        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--primary-color), transparent 88%), transparent 32%),
-        radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--primary-color), transparent 92%), transparent 30%),
+        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--primary-color), transparent 88%), transparent 32%), radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--primary-color), transparent 92%), transparent 30%),
         var(--surface-ground);
 }
 

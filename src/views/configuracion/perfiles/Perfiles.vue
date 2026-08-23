@@ -14,7 +14,6 @@
     </Encabezado>
 
     <div class="card p-0 m-0" style="height: 72vh">
-
         <!-- TABLA -->
         <ScrollPanel style="height: 65vh" v-if="!mostrarTablaFormulario">
             <DataTable
@@ -47,8 +46,13 @@
 
                 <Column header="Activo" headerClass="encabezado-columna">
                     <template #body="slotProps">
-                        <span v-if="slotProps.data.activo === false" style="font-size: 15px; color: red"><font-icon :icon="['fas', 'square-xmark']" /></span>
-                        <span v-if="slotProps.data.activo === true" style="font-size: 15px; color: green"><font-icon :icon="['fas', 'square-check']" /></span>
+                        <span v-if="slotProps.data.activo === false" style="font-size: 15px; color: red">
+                            <font-icon :icon="['fas', 'square-xmark']" />
+                        </span>
+
+                        <span v-if="slotProps.data.activo === true" style="font-size: 15px; color: green">
+                            <font-icon :icon="['fas', 'square-check']" />
+                        </span>
                     </template>
                 </Column>
 
@@ -70,13 +74,11 @@
             </TabList>
 
             <TabPanels>
-
                 <!-- DATOS -->
                 <TabPanel value="0">
                     <ScrollPanel style="height: 60vh">
                         <form id="formPerfil" @submit.prevent="handleGuardar">
                             <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px">
-
                                 <!-- NOMBRE -->
                                 <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
                                     <div style="display: flex; flex-direction: column; gap: 8px">
@@ -106,15 +108,9 @@
                                     </div>
 
                                     <div style="height: 280px; overflow: auto; border: 1px solid #ddd; border-radius: 6px; padding: 10px">
-                                        <Tree
-                                            v-model:selectionKeys="menusSeleccionados"
-                                            :value="arbolMenus"
-                                            selectionMode="checkbox"
-                                            class="w-full"
-                                        />
+                                        <Tree v-model:selectionKeys="menusSeleccionados" :value="arbolMenus" selectionMode="checkbox" class="w-full" />
                                     </div>
                                 </div>
-
                             </div>
                         </form>
                     </ScrollPanel>
@@ -124,7 +120,6 @@
                 <TabPanel value="1">
                     <p class="m-0">Aquí se mostrará el historial del perfil.</p>
                 </TabPanel>
-
             </TabPanels>
         </Tabs>
     </div>
@@ -137,7 +132,6 @@ import proceso from './js/proceso.js';
 export default {
     name: 'Perfiles',
     components: { Encabezado },
-
     setup() {
         return {
             ...proceso()
