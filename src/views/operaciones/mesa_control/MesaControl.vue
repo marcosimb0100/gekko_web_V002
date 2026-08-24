@@ -43,9 +43,9 @@
 
                 <Column field="created_at" header="Fecha" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 145px" />
 
-                <Column field="cliente" header="Cliente" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 220px" />
-
                 <Column field="compania" header="Empresa emisora" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 220px" />
+
+                <Column field="cliente" header="Cliente" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 220px" />
 
                 <Column field="uso_cfdi" header="Uso CFDI" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 95px" />
 
@@ -54,6 +54,9 @@
                 <!-- <Column field="cuenta_banco" header="Cuenta" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 135px" /> -->
 
                 <Column field="cantidad_conceptos" header="Conceptos" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 95px" />
+
+                <Column field="factura_serie" header="Factura Serie" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 95px" />
+                <Column field="factura_folio" header="Factura Folio" headerClass="encabezado-columna" bodyClass="col-no-wrap" style="min-width: 95px" />
 
                 <!-- <Column header="Subtotal" headerClass="encabezado-columna" bodyClass="col-no-wrap col-numero" style="min-width: 125px">
                     <template #body="slotProps">

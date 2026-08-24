@@ -233,31 +233,84 @@ const useProceso = () => {
     };
 
     const handleDescargarXml = async (rowData) => {
-        const esComplemento = tipoSolicitudFiltro.value === 'complementos_pago';
+        const esComplemento =
+            tipoSolicitudFiltro.value === 'complementos_pago';
+
+        const esTimbrada =
+            estatusFiltro.value === 'timbrada';
 
         const direccion = esComplemento
-            ? estatusFiltro.value === 'pendiente'
-                ? `/solicitud_detallada/complementos_pago/cfdi/${rowData._id}`
-                : `/solicitud_detallada/complementos_pago/cfdi_timbrado/${rowData._id}`
-            : estatusFiltro.value === 'pendiente'
-              ? `/solicitud_detallada/cfdi/${rowData._id}`
-              : `/solicitud_detallada/cfdi_timbrado/${rowData._id}`;
+            ? esTimbrada
+                ? `/solicitud_detallada/complementos_pago/cfdi_timbrado/${rowData._id}`
+                : `/solicitud_detallada/complementos_pago/cfdi/${rowData._id}`
+            : esTimbrada
+                ? `/solicitud_detallada/cfdi_timbrado/${rowData._id}`
+                : `/solicitud_detallada/cfdi/${rowData._id}`;
 
-        await handleDescargarBlob(direccion, esComplemento ? `complemento_pago_${rowData.uuid || rowData._id}.xml` : `cfdi_${rowData.uuid || rowData._id}.xml`);
+
+        let nombreArchivo = '';
+
+
+        // PENDIENTES
+        if (!esTimbrada) {
+            nombreArchivo = esComplemento
+                ? `complemento_pago_${rowData.uuid || rowData._id}.xml`
+                : `cfdi_${rowData.uuid || rowData._id}.xml`;
+        }
+
+        // TIMBRADAS
+        else {
+            nombreArchivo = esComplemento
+                ? `CP-${rowData.factura_folio || rowData._id}.xml`
+                : `F-${rowData.factura_folio || rowData._id}.xml`;
+        }
+
+
+        await handleDescargarBlob(
+            direccion,
+            nombreArchivo
+        );
     };
 
+
     const handleDescargarPdf = async (rowData) => {
-        const esComplemento = tipoSolicitudFiltro.value === 'complementos_pago';
+        const esComplemento =
+            tipoSolicitudFiltro.value === 'complementos_pago';
+
+        const esTimbrada =
+            estatusFiltro.value === 'timbrada';
 
         const direccion = esComplemento
-            ? estatusFiltro.value === 'pendiente'
-                ? `/solicitud_detallada/complementos_pago/pdf/${rowData._id}`
-                : `/solicitud_detallada/complementos_pago/pdf_timbrado/${rowData._id}`
-            : estatusFiltro.value === 'pendiente'
-              ? `/solicitud_detallada/pdf/${rowData._id}`
-              : `/solicitud_detallada/pdf_timbrado/${rowData._id}`;
+            ? esTimbrada
+                ? `/solicitud_detallada/complementos_pago/pdf_timbrado/${rowData._id}`
+                : `/solicitud_detallada/complementos_pago/pdf/${rowData._id}`
+            : esTimbrada
+                ? `/solicitud_detallada/pdf_timbrado/${rowData._id}`
+                : `/solicitud_detallada/pdf/${rowData._id}`;
 
-        await handleDescargarBlob(direccion, esComplemento ? `complemento_pago_${rowData.uuid || rowData._id}.pdf` : `factura_${rowData.uuid || rowData._id}.pdf`);
+
+        let nombreArchivo = '';
+
+
+        // PENDIENTES
+        if (!esTimbrada) {
+            nombreArchivo = esComplemento
+                ? `complemento_pago_${rowData.uuid || rowData._id}.pdf`
+                : `factura_${rowData.uuid || rowData._id}.pdf`;
+        }
+
+        // TIMBRADAS
+        else {
+            nombreArchivo = esComplemento
+                ? `CP-${rowData.factura_folio || rowData._id}.pdf`
+                : `F-${rowData.factura_folio || rowData._id}.pdf`;
+        }
+
+
+        await handleDescargarBlob(
+            direccion,
+            nombreArchivo
+        );
     };
 
     const handleMoney = (valor) => {
