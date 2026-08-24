@@ -1,11 +1,26 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import AppConfigurator from './AppConfigurator.vue';
+import { useConfirm } from 'primevue/useconfirm';
+import { useRouter } from 'vue-router';
+
+const confirm = useConfirm();
+const router = useRouter();
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
 const appCliente = import.meta.env.VITE_APP_CLIENT;
 
+const handleCerrarSesion = () => {
+    confirm.require({
+        message: 'Estas seguro de cerrar la sesion.',
+        header: 'Cierre de sesion',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+            localStorage.clear();
+            router.replace({ name: 'acceso' });
+        }
+    });
+};
 </script>
 
 <template>
@@ -15,33 +30,18 @@ const appCliente = import.meta.env.VITE_APP_CLIENT;
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <img
-                    src="@/assets/images/logo_empresa_cliente.png"
-                    alt="Logo Sociedad Ballfudr"
-                    width="40"
-                />
+                <img src="@/assets/images/logo_empresa_cliente.png" alt="Logo Sociedad Ballfudr" width="40" />
 
-                <span class="titulo" style="color: #6ac4ca" >{{appCliente}}</span>
+                <span class="titulo" style="color: #6ac4ca">{{ appCliente }}</span>
             </router-link>
         </div>
 
         <div class="layout-topbar-actions">
-
             <div class="layout-config-menu">
-
                 <!-- Modo claro / oscuro -->
-                <button
-                    type="button"
-                    class="layout-topbar-action"
-                    @click="toggleDarkMode"
-                    :title="isDarkTheme ? 'Modo claro' : 'Modo oscuro'"
-                >
-                    <font-icon
-                        :icon="isDarkTheme ? 'moon' : 'sun'"
-                        :class="isDarkTheme ? 'icon-luna' : 'icon-sol'"
-                    />
+                <button type="button" class="layout-topbar-action" @click="toggleDarkMode" :title="isDarkTheme ? 'Modo claro' : 'Modo oscuro'">
+                    <font-icon :icon="isDarkTheme ? 'moon' : 'sun'" :class="isDarkTheme ? 'icon-luna' : 'icon-sol'" />
                 </button>
-
 
                 <!-- Configurador de tema -->
                 <!-- <div class="relative">
@@ -63,9 +63,7 @@ const appCliente = import.meta.env.VITE_APP_CLIENT;
 
                     <AppConfigurator />
                 </div> -->
-
             </div>
-
 
             <!-- Menú responsive -->
             <button
@@ -85,7 +83,6 @@ const appCliente = import.meta.env.VITE_APP_CLIENT;
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-
                     <button type="button" class="layout-topbar-action topbar-primary" title="Calendario">
                         <font-icon icon="fa-solid fa-calendar-days" />
                         <span>Calendario</span>
@@ -101,14 +98,12 @@ const appCliente = import.meta.env.VITE_APP_CLIENT;
                         <span>Perfil</span>
                     </button>
 
-                    <button type="button" class="layout-topbar-action topbar-primary">
-                        <font-icon icon="fa-solid fa-right-from-bracket" title="Salir"/>
+                    <button type="button" class="layout-topbar-action topbar-primary" @click="handleCerrarSesion">
+                        <font-icon icon="fa-solid fa-right-from-bracket" title="Salir" />
                         <span>Salir</span>
                     </button>
-
                 </div>
             </div>
-            
         </div>
     </div>
 </template>
@@ -133,5 +128,4 @@ const appCliente = import.meta.env.VITE_APP_CLIENT;
 .icon-luna {
     color: #ffffff !important;
 }
-
 </style>

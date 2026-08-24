@@ -29,7 +29,7 @@ const useProceso = () => {
     const store = useStore();
     const toast = useToast();
 
-    const fechaActual = new Date();
+    const fechaActual = ref(new Date());
 
     const frmSolicitudSat = reactive(frmSolicitudSatInit());
 
@@ -78,27 +78,27 @@ const useProceso = () => {
     // -------------------------------------------------------------------------
 
     const empresaValida = computed(() => {
-        if (!frmSolicitudSat.empresa) {
-            return true;
-        }
-
-        return true;
+        return Boolean(frmSolicitudSat.empresa);
     });
 
     const fechaInicialValida = computed(() => {
         if (!frmSolicitudSat.fecha_inicial) {
-            return true;
+            return false;
         }
 
-        return frmSolicitudSat.fecha_inicial <= fechaActual;
+        const ahora = new Date();
+
+        return frmSolicitudSat.fecha_inicial <= ahora;
     });
 
     const fechaFinalValida = computed(() => {
         if (!frmSolicitudSat.fecha_final) {
-            return true;
+            return false;
         }
 
-        if (frmSolicitudSat.fecha_final > fechaActual) {
+        const ahora = new Date();
+
+        if (frmSolicitudSat.fecha_final > ahora) {
             return false;
         }
 
@@ -110,27 +110,7 @@ const useProceso = () => {
     });
 
     const botonSolicitarDeshabilitado = computed(() => {
-        if (!frmSolicitudSat.empresa) {
-            return true;
-        }
-
-        if (!frmSolicitudSat.fecha_inicial) {
-            return true;
-        }
-
-        if (!frmSolicitudSat.fecha_final) {
-            return true;
-        }
-
-        if (!fechaInicialValida.value) {
-            return true;
-        }
-
-        if (!fechaFinalValida.value) {
-            return true;
-        }
-
-        return false;
+        return !(empresaValida.value && fechaInicialValida.value && fechaFinalValida.value);
     });
 
     // -------------------------------------------------------------------------
@@ -237,6 +217,8 @@ const useProceso = () => {
 
     const handleCancelar = () => {
         Object.assign(frmSolicitudSat, frmSolicitudSatInit());
+
+        fechaActual.value = new Date();
     };
 
     // -------------------------------------------------------------------------
@@ -265,11 +247,15 @@ const useProceso = () => {
             fecha_final: formatFechaLocal(frmSolicitudSat.fecha_final)
         };
 
+        console.log('SOLICITUD SAT:', JSON.stringify(payload, null, 2));
+
         const res = await store.dispatch('api/apiPostToken', {
             direccion: `/operacion_sat/solicitudes_sat`,
 
             datosJson: payload
         });
+
+        console.log('RESPUESTA SOLICITUD SAT:', res);
 
         if (res.estatus !== 200) {
             toast.add({
@@ -297,6 +283,8 @@ const useProceso = () => {
     // -------------------------------------------------------------------------
 
     const handleInit = async () => {
+        fechaActual.value = new Date();
+
         await handleCargarCompanias();
     };
 

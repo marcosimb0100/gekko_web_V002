@@ -217,7 +217,7 @@ const model = ref([
 <template>
     <span class="usuario-menu">
         <font-icon icon="fa-solid fa-user" />
-        Nombre del usuario
+        {{ nombreUsuario }}
     </span>
     <ul class="layout-menu" style="border-top: 1px solid gray; margin-top: 10px">
         <template v-for="(item, i) in modelMenu" :key="item">

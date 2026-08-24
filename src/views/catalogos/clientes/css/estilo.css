@@ -1,3 +1,310 @@
-.ejemplo{
+/* =====================================================
+   TABLA
+===================================================== */
+
+:deep(.encabezado-columna) {
+    background: rgb(106, 196, 202) !important;
+    border-color: rgb(106, 196, 202) !important;
+    font-weight: 600 !important;
+}
+
+
+.logo-tabla {
+    width: 55px;
+    height: 55px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+
+/* =====================================================
+   FORMULARIO GENERAL
+===================================================== */
+
+.form-datos-cliente {
+    display: grid;
+
+    grid-template-columns:
+        230px 1fr;
+
+    gap: 30px;
+
+    padding: 20px;
+}
+
+
+.contenedor-logo {
+    padding: 10px;
+
+    text-align: center;
+}
+
+
+.logo-editor {
+    width: 200px;
+    height: 200px;
+
+    margin: 0 auto 8px auto;
+
+    border: 1px solid
+        var(--p-surface-300);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    background:
+        var(--p-surface-100);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.logo-editor:hover {
+    border-color:
+        rgb(106, 196, 202);
+
+    box-shadow:
+        0 0 0 2px
+        rgba(106, 196, 202, 0.15);
+}
+
+
+.logo-editor img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+.contenedor-logo small {
+    color:
+        var(--p-text-muted-color);
+}
+
+
+.grid-datos {
+    display: grid;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+
+.grid-3 {
+    grid-template-columns:
+        0.5fr 0.5fr 1fr;
+}
+
+
+.grid-4 {
+    grid-template-columns:
+        repeat(4, 1fr);
+}
+
+
+.grid-5 {
+    grid-template-columns:
+        repeat(5, 1fr);
+}
+
+
+.grid-direccion {
+    grid-template-columns:
+        2fr 1fr 1fr;
+}
+
+
+.seccion-formulario {
+    padding:
+        0 20px 20px 20px;
+}
+
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    min-width: 0;
+}
+
+
+.campo-formulario label {
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+.requerido {
     color: red;
+
+    margin-right: 2px;
+}
+
+
+/* =====================================================
+   CONCEPTOS
+===================================================== */
+
+.conceptos-agregar {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 15px;
+
+    padding: 15px;
+
+    margin-bottom: 10px;
+
+    border:
+        1px solid
+        var(--p-surface-200);
+
+    border-radius: 8px;
+}
+
+
+/* =====================================================
+   CIF
+===================================================== */
+
+.contenedor-cif {
+    width: 100%;
+
+    height: 46vh;
+
+    border:
+        1px solid
+        var(--p-surface-300);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+.contenedor-cif iframe {
+    width: 100%;
+    height: 100%;
+
+    border: none;
+}
+
+
+.sin-cif {
+    height: 300px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    border:
+        1px dashed
+        var(--p-surface-300);
+
+    border-radius: 8px;
+
+    color:
+        var(--p-text-muted-color);
+}
+
+
+.sin-cif svg {
+    font-size: 50px;
+}
+
+
+.archivo-seleccionado {
+    margin-top: 8px;
+
+    color:
+        var(--p-text-muted-color);
+}
+
+
+/* =====================================================
+   DIALOG
+===================================================== */
+
+.acciones-dialog {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid
+        var(--p-surface-200);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1100px) {
+
+    .form-datos-cliente {
+        grid-template-columns:
+            180px 1fr;
+    }
+
+
+    .logo-editor {
+        width: 160px;
+        height: 160px;
+    }
+
+
+    .grid-5 {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+}
+
+
+@media (max-width: 850px) {
+
+    .form-datos-cliente {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .grid-3,
+    .grid-4,
+    .grid-5,
+    .grid-direccion,
+    .conceptos-agregar {
+        grid-template-columns:
+            1fr;
+    }
+
 }

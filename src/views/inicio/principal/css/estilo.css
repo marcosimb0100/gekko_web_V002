@@ -1,3 +1,367 @@
-.ejemplo{
-    color: red;
+.principal {
+    padding: 5px;
+}
+
+
+/* =====================================================
+   BIENVENIDA
+===================================================== */
+
+.bienvenida {
+    min-height: 190px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 30px 40px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(106, 196, 202, 0.18),
+            rgba(106, 196, 202, 0.04)
+        );
+
+    border: 1px solid var(--surface-border);
+
+    margin-bottom: 25px;
+
+    overflow: hidden;
+}
+
+
+.bienvenida-contenido {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+
+.usuario-avatar {
+    width: 105px;
+    height: 105px;
+
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    border: 4px solid rgb(106, 196, 202);
+
+    flex-shrink: 0;
+
+    background: var(--surface-card);
+}
+
+
+.usuario-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+.bienvenida-etiqueta {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: rgb(72, 160, 167);
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+}
+
+
+.bienvenida-texto h1 {
+    margin: 0 0 5px 0;
+
+    font-size: 28px;
+
+    font-weight: 700;
+}
+
+
+.bienvenida-texto p {
+    margin: 0 0 12px 0;
+
+    color: var(--text-color-secondary);
+
+    font-size: 14px;
+}
+
+
+.fecha-actual {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--text-color-secondary);
+
+    font-size: 13px;
+
+    text-transform: capitalize;
+}
+
+
+.bienvenida-icono {
+    font-size: 120px;
+
+    color: rgba(106, 196, 202, 0.13);
+
+    transform: rotate(-5deg);
+}
+
+
+/* =====================================================
+   SECCIONES
+===================================================== */
+
+.seccion-principal {
+    margin-bottom: 30px;
+}
+
+
+.titulo-seccion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+
+.titulo-seccion h2 {
+    margin: 0 0 4px 0;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+
+.titulo-seccion p {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: var(--text-color-secondary);
+}
+
+
+/* =====================================================
+   ACCESOS RÁPIDOS
+===================================================== */
+
+.grid-accesos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(290px, 1fr));
+
+    gap: 15px;
+}
+
+
+.acceso-card {
+    display: flex;
+    align-items: center;
+
+    min-height: 95px;
+
+    padding: 17px;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--surface-border);
+
+    background: var(--surface-card);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.acceso-card:hover {
+    transform: translateY(-3px);
+
+    border-color: rgb(106, 196, 202);
+
+    box-shadow:
+        0 5px 15px
+        rgba(0, 0, 0, 0.08);
+}
+
+
+.acceso-icono {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    margin-right: 15px;
+
+    border-radius: 10px;
+
+    background: rgba(106, 196, 202, 0.15);
+
+    color: rgb(72, 160, 167);
+
+    font-size: 20px;
+}
+
+
+.acceso-contenido {
+    flex: 1;
+}
+
+
+.acceso-contenido h3 {
+    margin: 0 0 5px 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.acceso-contenido p {
+    margin: 0;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    color: var(--text-color-secondary);
+}
+
+
+.acceso-flecha {
+    margin-left: 10px;
+
+    color: var(--text-color-secondary);
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   MÓDULOS
+===================================================== */
+
+.grid-modulos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(250px, 1fr));
+
+    gap: 15px;
+}
+
+
+.modulo-card {
+    display: flex;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    min-height: 120px;
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+}
+
+
+.modulo-icono {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(106, 196, 202, 0.15);
+
+    color: rgb(72, 160, 167);
+
+    font-size: 18px;
+}
+
+
+.modulo-card h3 {
+    margin: 3px 0 8px 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.modulo-card p {
+    margin: 0;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+    color: var(--text-color-secondary);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .bienvenida {
+        padding: 25px;
+
+        min-height: auto;
+    }
+
+    .bienvenida-contenido {
+        align-items: flex-start;
+    }
+
+    .usuario-avatar {
+        width: 75px;
+        height: 75px;
+    }
+
+    .bienvenida-texto h1 {
+        font-size: 21px;
+    }
+
+    .bienvenida-icono {
+        display: none;
+    }
+
+    .grid-accesos,
+    .grid-modulos {
+        grid-template-columns: 1fr;
+    }
 }

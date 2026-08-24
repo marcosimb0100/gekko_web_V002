@@ -89,7 +89,7 @@
 
             <Column field="fecha_aplicacion" header="Fecha Consulta SAT" headerClass="encabezado-columna" bodyClass="nowrap" />
 
-            <Column field="id_consulta_sat" header="ID Consulta SAT" headerClass="encabezado-columna" bodyClass="nowrap" />
+            <Column field="id_respuesta_sat" header="ID Consulta SAT" headerClass="encabezado-columna" bodyClass="nowrap" />
 
             <Column field="numero_cfdis" header="Número CFDI" headerClass="encabezado-columna" bodyClass="nowrap" />
 
