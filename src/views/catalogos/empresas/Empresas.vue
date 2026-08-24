@@ -107,7 +107,10 @@
                 <Tab value="5">Plantillas</Tab>
                 <Tab value="6">Folios / Series</Tab>
                 <Tab value="7">Configuración</Tab>
-                <Tab value="8" v-if="movimiento === 'E'">Historial</Tab>
+                <Tab value="8">
+                    Correos Solicitudes
+                </Tab>
+                <Tab value="9" v-if="movimiento === 'E'">Historial</Tab>
             </TabList>
 
             <TabPanels>
@@ -518,7 +521,141 @@
                     </ScrollPanel>
                 </TabPanel>
 
-                <TabPanel value="8" v-if="movimiento === 'E'">
+                <TabPanel value="8">
+                    <ScrollPanel style="height: 58vh">
+
+                        <div style="padding: 20px">
+
+                            <!-- AGREGAR CORREO -->
+                            <div
+                                style="
+                                    display: grid;
+                                    grid-template-columns: 1fr auto;
+                                    gap: 10px;
+                                    align-items: end;
+                                    margin-bottom: 20px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 8px;
+                                    "
+                                >
+                                    <label for="correo_solicitud">
+                                        Correo Electrónico:
+                                    </label>
+
+                                    <InputText
+                                        id="correo_solicitud"
+                                        v-model="
+                                            frmCorreoSolicitud.correo_electronico
+                                        "
+                                        type="email"
+                                        placeholder="correo@dominio.com"
+                                        style="
+                                            width: 100%;
+                                            text-transform: lowercase;
+                                        "
+                                        :invalid="
+                                            frmCorreoSolicitud.correo_electronico &&
+                                            !correoSolicitudValido
+                                        "
+                                        @keyup.enter="
+                                            handleAgregarCorreoSolicitud
+                                        "
+                                    />
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    label="Agregar"
+                                    class="btn-nuevo"
+                                    :disabled="!correoSolicitudValido"
+                                    @click="handleAgregarCorreoSolicitud"
+                                >
+                                    <template #icon>
+                                        <font-icon
+                                            icon="fa-solid fa-plus"
+                                            class="mr-2"
+                                        />
+                                    </template>
+                                </Button>
+                            </div>
+
+
+                            <!-- LISTADO -->
+                            <DataTable
+                                :value="frmEmpresa.correos_solicitudes"
+                                size="small"
+                                paginator
+                                :rows="10"
+                                scrollable
+                                scrollHeight="38vh"
+                                class="tabla-encabezados"
+                            >
+                                <template #empty>
+                                    No se han registrado correos para
+                                    recibir solicitudes.
+                                </template>
+
+                                <Column
+                                    field="correo_electronico"
+                                    header="Correo Electrónico"
+                                    headerClass="encabezado-columna"
+                                />
+
+                                <Column
+                                    header="Activo"
+                                    headerClass="encabezado-columna"
+                                    style="width: 100px"
+                                >
+                                    <template #body="slotProps">
+                                        <font-icon
+                                            v-if="slotProps.data.activo"
+                                            icon="fa-solid fa-circle-check"
+                                            style="color: green"
+                                        />
+
+                                        <font-icon
+                                            v-else
+                                            icon="fa-solid fa-circle-minus"
+                                            style="color: red"
+                                        />
+                                    </template>
+                                </Column>
+
+                                <Column
+                                    header="Opciones"
+                                    headerClass="encabezado-columna"
+                                    style="width: 100px"
+                                >
+                                    <template #body="slotProps">
+                                        <Button
+                                            type="button"
+                                            severity="danger"
+                                            outlined
+                                            @click="
+                                                handleEliminarCorreoSolicitud(
+                                                    slotProps.index
+                                                )
+                                            "
+                                        >
+                                            <font-icon
+                                                icon="fa-solid fa-trash"
+                                            />
+                                        </Button>
+                                    </template>
+                                </Column>
+                            </DataTable>
+
+                        </div>
+
+                    </ScrollPanel>
+                </TabPanel>
+
+                <TabPanel value="9" v-if="movimiento === 'E'">
                     <p class="m-0">Historial de la empresa.</p>
                 </TabPanel>
             </TabPanels>

@@ -29,6 +29,8 @@ const frmEmpresaInit = () => ({
     bancos: [],
     prod_serv: [],
 
+    correos_solicitudes: [],
+
     csd: {
         _id: '',
         archivoCer: '',
@@ -135,6 +137,12 @@ const frmPlantillaInit = () => ({
     nombre_archivo: ''
 });
 
+const frmCorreoSolicitudInit = () => ({
+    _id: '',
+    correo_electronico: '',
+    activo: true
+});
+
 const useProceso = () => {
     const store = useStore();
     const toast = useToast();
@@ -227,6 +235,10 @@ const useProceso = () => {
 
     const frmPlantilla = reactive(frmPlantillaInit());
 
+    const frmCorreoSolicitud = reactive(frmCorreoSolicitudInit());
+
+    const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     const indiceBanco = ref(-1);
     const indiceConcepto = ref(-1);
 
@@ -257,6 +269,7 @@ const useProceso = () => {
             });
         }
     };
+
 
     const handleVerBancos = async (data) => {
         const resRegistro = await store.dispatch('api/apiGetToken', {
@@ -465,15 +478,43 @@ const useProceso = () => {
     // CARGAR EMPRESA EN FORMULARIO
     // ------------------------------------------------------------------
 
+    // const handleCargarEmpresa = (data) => {
+    //     const inicial = frmEmpresaInit();
+
+    //     Object.assign(frmEmpresa, inicial, data, {
+    //         bancos: data?.bancos ?? [],
+
+    //         prod_serv: data?.prod_serv ?? [],
+
+    //         plantillas: data?.plantillas ?? [],
+
+    //         csd: {
+    //             ...inicial.csd,
+    //             ...(data?.csd ?? {})
+    //         },
+
+    //         fiel: {
+    //             ...inicial.fiel,
+    //             ...(data?.fiel ?? {})
+    //         }
+    //     });
+    // };
+
     const handleCargarEmpresa = (data) => {
         const inicial = frmEmpresaInit();
 
         Object.assign(frmEmpresa, inicial, data, {
-            bancos: data?.bancos ?? [],
+            bancos:
+                data?.bancos ?? [],
 
-            prod_serv: data?.prod_serv ?? [],
+            prod_serv:
+                data?.prod_serv ?? [],
 
-            plantillas: data?.plantillas ?? [],
+            correos_solicitudes:
+                data?.correos_solicitudes ?? [],
+
+            plantillas:
+                data?.plantillas ?? [],
 
             csd: {
                 ...inicial.csd,
@@ -1535,15 +1576,37 @@ const useProceso = () => {
             return copia;
         });
 
-        formData.append('bancos', JSON.stringify(frmEmpresa.bancos ?? []));
+        formData.append(
+            'bancos',
+            JSON.stringify(frmEmpresa.bancos ?? [])
+        );
 
-        formData.append('prod_serv', JSON.stringify(frmEmpresa.prod_serv ?? []));
+        formData.append(
+            'prod_serv',
+            JSON.stringify(frmEmpresa.prod_serv ?? [])
+        );
 
-        formData.append('csd', JSON.stringify(csdJson));
+        formData.append(
+            'correos_solicitudes',
+            JSON.stringify(
+                frmEmpresa.correos_solicitudes ?? []
+            )
+        );
 
-        formData.append('fiel', JSON.stringify(fielJson));
+        formData.append(
+            'csd',
+            JSON.stringify(csdJson)
+        );
 
-        formData.append('plantillas', JSON.stringify(plantillasJson));
+        formData.append(
+            'fiel',
+            JSON.stringify(fielJson)
+        );
+
+        formData.append(
+            'plantillas',
+            JSON.stringify(plantillasJson)
+        );
 
         if (frmEmpresa.csd?.archivo_cer instanceof File) {
             formData.append('archivo_cer_csd', frmEmpresa.csd.archivo_cer);
@@ -1560,6 +1623,7 @@ const useProceso = () => {
         if (frmEmpresa.fiel?.archivo_key instanceof File) {
             formData.append('archivo_key_fiel', frmEmpresa.fiel.archivo_key);
         }
+        
 
         frmEmpresa.plantillas.forEach((item) => {
             if (item?.archivo instanceof File && item?.campo_file) {
@@ -1694,6 +1758,81 @@ const useProceso = () => {
     cargarInicial();
 
     // ------------------------------------------------------------------
+    // CORREOS SOLICITUD
+    // ------------------------------------------------------------------
+
+    const correoSolicitudValido = computed(() => {
+        const correo = (
+            frmCorreoSolicitud.correo_electronico || ''
+        )
+            .trim()
+            .toLowerCase();
+
+        if (!correo) {
+            return false;
+        }
+
+        return regexCorreo.test(correo);
+    });
+
+
+    const handleAgregarCorreoSolicitud = () => {
+        const correo = (
+            frmCorreoSolicitud.correo_electronico || ''
+        )
+            .trim()
+            .toLowerCase();
+
+        if (!correoSolicitudValido.value) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Ingrese un correo electrónico válido.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        const existe = frmEmpresa.correos_solicitudes.some(
+            (item) =>
+                (item.correo_electronico || '')
+                    .toLowerCase()
+                    .trim() === correo
+        );
+
+        if (existe) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'El correo ya está registrado.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        frmEmpresa.correos_solicitudes.push({
+            _id: '',
+            correo_electronico: correo,
+            activo: true
+        });
+
+        Object.assign(
+            frmCorreoSolicitud,
+            frmCorreoSolicitudInit()
+        );
+    };
+
+
+    const handleEliminarCorreoSolicitud = (index) => {
+        frmEmpresa.correos_solicitudes.splice(
+            index,
+            1
+        );
+    };
+
+    // ------------------------------------------------------------------
     // RETURN
     // ------------------------------------------------------------------
 
@@ -1804,7 +1943,15 @@ const useProceso = () => {
         handleGuardarPlantilla,
 
         handleActualizarConceptos,
-        handleGuardar
+        handleGuardar,
+
+        frmEmpresa,
+        frmCorreoSolicitud,
+
+        correoSolicitudValido,
+
+        handleAgregarCorreoSolicitud,
+        handleEliminarCorreoSolicitud,
     };
 };
 
