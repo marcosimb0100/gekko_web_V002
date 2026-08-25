@@ -109,7 +109,9 @@
 
                 <Tab value="2"> Código de Identificación Fiscal </Tab>
 
-                <Tab value="3" v-if="movimiento === 'E'"> Historial </Tab>
+                <Tab value="3" v-if="movimiento === 'E'"> Acceso Cliente </Tab>
+
+                <Tab value="4" v-if="movimiento === 'E'"> Historial </Tab>
             </TabList>
 
             <TabPanels>
@@ -428,10 +430,73 @@
                 </TabPanel>
 
                 <!-- ================================================= -->
-                <!-- HISTORIAL -->
+                <!-- ACCESO CLIENTE -->
                 <!-- ================================================= -->
 
                 <TabPanel value="3" v-if="movimiento === 'E'">
+                    <ScrollPanel style="height: 58vh">
+                        <div class="acceso-cliente-container">
+                            <!-- USUARIO -->
+                            <div class="acceso-fila">
+                                <label for="usuario_acceso"> Usuario: </label>
+
+                                <InputText id="usuario_acceso" v-model="frmAccesoCliente.usuario" class="w-full" autocomplete="off" />
+                            </div>
+
+                            <!-- CONTRASEÑA -->
+                            <div class="acceso-fila">
+                                <label for="password_acceso"> Contraseña: </label>
+
+                                <div class="w-full">
+                                    <Password id="password_acceso" v-model="frmAccesoCliente.password" :feedback="false" toggleMask class="w-full" inputClass="w-full" autocomplete="new-password" />
+
+                                    <small v-if="accesoClienteExiste" class="texto-ayuda"> Déjala vacía si no quieres cambiarla. </small>
+                                </div>
+                            </div>
+
+                            <!-- ACTIVO -->
+                            <div class="acceso-fila acceso-fila-check">
+                                <label> Acceso: </label>
+
+                                <div class="acceso-check">
+                                    <Checkbox inputId="activoAcceso" v-model="frmAccesoCliente.activo" binary />
+
+                                    <label for="activoAcceso"> Acceso activo para este cliente </label>
+                                </div>
+                            </div>
+
+                            <!-- RUTA DE ACCESO -->
+                            <div v-if="accesoClienteExiste" class="acceso-fila">
+                                <label> Ruta de acceso: </label>
+
+                                <div class="ruta-acceso-container">
+                                    <InputText :modelValue="urlAccesoCliente" readonly class="w-full" />
+
+                                    <Button type="button" severity="secondary" outlined v-tooltip.top="'Copiar ruta'" @click="handleCopiarRutaAcceso">
+                                        <template #icon>
+                                            <font-icon icon="fa-solid fa-copy" />
+                                        </template>
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <!-- BOTÓN -->
+                            <div class="acciones-acceso">
+                                <Button type="button" label="Guardar acceso" class="btn-guardar" :disabled="botonGuardarAccesoDeshabilitado" @click="handleGuardarAccesoCliente">
+                                    <template #icon>
+                                        <font-icon icon="fa-solid fa-key" class="mr-2" />
+                                    </template>
+                                </Button>
+                            </div>
+                        </div>
+                    </ScrollPanel>
+                </TabPanel>
+
+                <!-- ================================================= -->
+                <!-- HISTORIAL -->
+                <!-- ================================================= -->
+
+                <TabPanel value="4" v-if="movimiento === 'E'">
                     <p class="m-0">Aquí se mostrará el historial del cliente.</p>
                 </TabPanel>
             </TabPanels>

@@ -123,6 +123,14 @@ const useProceso = () => {
 
     const cifPreview = ref(null);
 
+    const frmAccesoCliente = reactive({
+        usuario: '',
+        password: '',
+        activo: false
+    });
+
+    const accesoClienteExiste = ref(false);
+
     // =========================================================
     // CARGAR CLIENTES
     // =========================================================
@@ -324,6 +332,8 @@ const useProceso = () => {
 
             await handleCargarCIF(data);
 
+            await handleCargarAccesoCliente(data._id);
+
             mostrarTablaFormulario.value = true;
         } else if (tipo === 'C') {
             mostrarTablaFormulario.value = false;
@@ -368,6 +378,12 @@ const useProceso = () => {
         cifArchivo.value = null;
 
         visibleCIF.value = false;
+
+        frmAccesoCliente.usuario = '';
+        frmAccesoCliente.password = '';
+        frmAccesoCliente.activo = false;
+
+        accesoClienteExiste.value = false;
     };
 
     // =========================================================
@@ -924,6 +940,149 @@ const useProceso = () => {
 
     handleInit();
 
+    const botonGuardarAccesoDeshabilitado = computed(() => {
+        if (!frmCliente._id) {
+            return true;
+        }
+
+        if (!frmAccesoCliente.usuario.trim()) {
+            return true;
+        }
+
+        /*
+         * Si todavía no existe acceso,
+         * la contraseña sí es obligatoria.
+         */
+        if (!accesoClienteExiste.value && !frmAccesoCliente.password.trim()) {
+            return true;
+        }
+
+        return false;
+    });
+
+    const handleCargarAccesoCliente = async (clientId) => {
+        frmAccesoCliente.usuario = '';
+        frmAccesoCliente.password = '';
+        frmAccesoCliente.activo = false;
+
+        accesoClienteExiste.value = false;
+
+        if (!clientId) {
+            return;
+        }
+
+        const res = await store.dispatch('api/apiGetTokenSinCargando', {
+            direccion: `/clientes/acceso/${clientId}`
+        });
+
+        /*
+         * Si no existe acceso todavía,
+         * no es realmente un error para la pantalla.
+         */
+        if (res.estatus === 404) {
+            return;
+        }
+
+        if (res.estatus !== 200) {
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: res.mensaje,
+                life: 3000
+            });
+
+            return;
+        }
+
+        const acceso = res.datos?.acceso ?? null;
+
+        if (!acceso) {
+            return;
+        }
+
+        accesoClienteExiste.value = true;
+
+        frmAccesoCliente.usuario = acceso.usuario ?? '';
+
+        frmAccesoCliente.password = '';
+
+        frmAccesoCliente.activo = acceso.activo === true;
+    };
+
+    const handleGuardarAccesoCliente = async () => {
+        if (botonGuardarAccesoDeshabilitado.value) {
+            return;
+        }
+
+        const payload = {
+            client_id: frmCliente._id,
+            usuario: frmAccesoCliente.usuario.trim().toLowerCase(),
+            password: frmAccesoCliente.password,
+            activo: frmAccesoCliente.activo
+        };
+
+        const accion = accesoClienteExiste.value ? 'api/apiPutToken' : 'api/apiPostToken';
+
+        const res = await store.dispatch(accion, {
+            direccion: '/clientes/acceso',
+            datosJson: payload
+        });
+
+        if (res.estatus !== 200) {
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: res.mensaje,
+                life: 3000
+            });
+
+            return;
+        }
+
+        toast.add({
+            severity: 'success',
+            summary: 'Notificación',
+            detail: res.mensaje,
+            life: 3000
+        });
+
+        frmAccesoCliente.password = '';
+
+        await handleCargarAccesoCliente(frmCliente._id);
+    };
+
+    const urlAccesoCliente = computed(() => {
+        if (!frmCliente._id) {
+            return '';
+        }
+
+        return `${window.location.origin}/clientes/acceso/${frmCliente._id}`;
+    });
+
+    const handleCopiarRutaAcceso = async () => {
+        if (!urlAccesoCliente.value) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(urlAccesoCliente.value);
+
+            toast.add({
+                severity: 'success',
+                summary: 'Notificación',
+                detail: 'Ruta de acceso copiada.',
+                life: 3000
+            });
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: 'No fue posible copiar la ruta.',
+                life: 3000
+            });
+        }
+    };
+
     return {
         // GENERAL
         mostrarTablaFormulario,
@@ -991,7 +1150,17 @@ const useProceso = () => {
         handleMostrarCIF,
         handleCancelarCIF,
         handleSeleccionarCIF,
-        handleGuardarCIF
+        handleGuardarCIF,
+
+        // ACCESO CLIENTE
+        frmAccesoCliente,
+        accesoClienteExiste,
+        botonGuardarAccesoDeshabilitado,
+
+        handleCargarAccesoCliente,
+        handleGuardarAccesoCliente,
+        urlAccesoCliente,
+        handleCopiarRutaAcceso
     };
 };
 

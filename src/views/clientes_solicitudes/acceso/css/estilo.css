@@ -1,0 +1,97 @@
+.acceso-cliente-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        var(--surface-ground);
+}
+
+.acceso-cliente-card {
+    width: 100%;
+    max-width: 420px;
+
+    background:
+        var(--surface-card);
+
+    border: 1px solid
+        var(--surface-border);
+
+    border-radius: 14px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 0, 0, 0.08);
+}
+
+.logo-cliente {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 20px;
+}
+
+.logo-cliente img {
+    max-width: 180px;
+    max-height: 100px;
+
+    object-fit: contain;
+}
+
+.logo-placeholder {
+    width: 80px;
+    height: 80px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 32px;
+
+    background:
+        var(--surface-100);
+}
+
+.titulo-acceso {
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+.titulo-acceso h2 {
+    margin: 0 0 8px 0;
+}
+
+.titulo-acceso p {
+    margin: 0;
+
+    color:
+        var(--text-color-secondary);
+}
+
+.form-acceso {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+.campo-acceso {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.btn-ingresar {
+    margin-top: 10px;
+}

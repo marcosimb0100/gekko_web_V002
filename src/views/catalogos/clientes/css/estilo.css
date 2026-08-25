@@ -308,3 +308,72 @@
     }
 
 }
+
+
+
+
+
+.acceso-cliente-container {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.acceso-fila {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: start;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.acceso-fila > label {
+    padding-top: 9px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.acceso-fila-check {
+    align-items: center;
+}
+
+.acceso-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+}
+
+.acceso-check label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.texto-ayuda {
+    display: block;
+    margin-top: 5px;
+    color: var(--p-text-muted-color);
+}
+
+.acciones-acceso {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--p-surface-200);
+    padding-top: 20px;
+    margin-top: 10px;
+}
+
+
+
+
+.ruta-acceso-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.ruta-acceso-container .p-inputtext {
+    flex: 1;
+    font-size: 12px;
+}

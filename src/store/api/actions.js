@@ -218,3 +218,13 @@ export const apiGetTokenSinCargando = async ({ commit }, { direccion }) => {
         datos
     };
 };
+
+export const apiPostSinToken = async ({ commit }, { direccion, datosJson }) => {
+    const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, datosJson);
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
