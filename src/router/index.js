@@ -127,6 +127,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "administrador_cfdi_parametros_empresas_consultar" */ '../views/administrador_cfdi/parametros/empresas_consultar/EmpresasConsultar.vue')
                 },
                 {
+                    path: '/administrador_cfdi/parametros/conexion_ssh_sat',
+                    name: 'administrador_cfdi_parametros_conexion_ssh_sat',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_parametros_conexion_ssh_sat" */ '../views/administrador_cfdi/parametros/conexion_ssh_sat/ConexionSshSat.vue')
+                },
+                {
                     path: '/administrador_cfdi/operaciones_cfdi/solicitud_sat',
                     name: 'administrador_cfdi_operaciones_cfdi_solicitud_sat',
                     beforeEnter: permisoRutas,

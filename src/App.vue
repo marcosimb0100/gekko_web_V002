@@ -1,12 +1,11 @@
 <script setup>
-    import cargando from './components/cargando/Cargando.vue';
-    import Toast from 'primevue/toast';
+import cargando from './components/cargando/Cargando.vue';
 </script>
 
 <template>
     <cargando></cargando>
     <ConfirmDialog></ConfirmDialog>
-    <Toast />
+    <!-- <Toast /> -->
     <router-view />
 </template>
 

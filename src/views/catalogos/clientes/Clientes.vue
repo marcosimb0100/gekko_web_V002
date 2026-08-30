@@ -351,10 +351,10 @@
                                     Producto / Servicio:
                                 </label>
 
-                                <div class="flex gap-2">
-                                    <Select v-model="prodServ" :options="catProdServ" optionValue="_id" optionLabel="descripcion" placeholder="Seleccione concepto" filter class="w-full" />
+                                <div class="concepto-selector">
+                                    <Select v-model="prodServ" :options="catProdServ" optionValue="_id" optionLabel="descripcion" placeholder="Seleccione concepto" filter class="concepto-select" />
 
-                                    <Button type="button" label="Agregar" class="btn-nuevo" :disabled="!empresaProdServ || !prodServ" @click="handleAgregarProdServ">
+                                    <Button type="button" label="Agregar" class="btn-nuevo concepto-btn-agregar" :disabled="!empresaProdServ || !prodServ" @click="handleAgregarProdServ">
                                         <template #icon>
                                             <font-icon icon="fa-solid fa-plus" class="mr-2" />
                                         </template>

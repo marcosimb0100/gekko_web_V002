@@ -377,3 +377,55 @@
     flex: 1;
     font-size: 12px;
 }
+
+
+
+
+
+
+
+
+
+
+
+/* =====================================================
+   SELECT PRODUCTO / SERVICIO + BOTÓN AGREGAR
+===================================================== */
+
+.concepto-selector {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    gap: 8px;
+
+    width: 100%;
+
+    align-items: end;
+}
+
+
+.concepto-select {
+    width: 100%;
+
+    min-width: 0;
+}
+
+
+.concepto-btn-agregar {
+    flex-shrink: 0;
+
+    white-space: nowrap;
+}
+
+
+/* Evita que una descripción larga expanda el Select */
+:deep(.concepto-select .p-select-label) {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
