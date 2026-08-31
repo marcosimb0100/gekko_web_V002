@@ -147,6 +147,10 @@ const useProceso = () => {
     const store = useStore();
     const toast = useToast();
 
+    const fechaDepositoCfdi = ref(new Date());
+
+    const depositandoCfdi = ref(false);
+
     // ------------------------------------------------------------------
     // ESTADO GENERAL
     // ------------------------------------------------------------------
@@ -249,6 +253,106 @@ const useProceso = () => {
     // CARGAR EMPRESAS
     // ------------------------------------------------------------------
 
+    const handleFechaYmd = (fecha) => {
+        if (!fecha) {
+            return '';
+        }
+
+        const anio = fecha.getFullYear();
+
+        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+
+        const dia = String(fecha.getDate()).padStart(2, '0');
+
+        return `${anio}-${mes}-${dia}`;
+    };
+
+    const handleDepositarCfdiEmpresa = async () => {
+        if (!frmEmpresa._id) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'No se encontró la empresa seleccionada.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        if (!fechaDepositoCfdi.value) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Seleccione la fecha de los CFDI.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        const fecha = handleFechaYmd(fechaDepositoCfdi.value);
+
+        depositandoCfdi.value = true;
+
+        try {
+            const res = await store.dispatch('api/apiPostToken', {
+                direccion: '/conexion_ssh_sat/depositar_cfdi_empresa_fecha',
+
+                datosJson: {
+                    company_id: frmEmpresa._id,
+
+                    fecha: fecha
+                }
+            });
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+
+                    summary: 'Depósito CFDI',
+
+                    detail: res.mensaje,
+
+                    life: 5000
+                });
+
+                return;
+            }
+
+            const datos = res.datos ?? {};
+
+            toast.add({
+                severity: 'success',
+
+                summary: 'Depósito CFDI',
+
+                detail: res.mensaje,
+
+                life: 5000
+            });
+
+            console.log('Resultado depósito CFDI:', datos);
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+
+                summary: 'Depósito CFDI',
+
+                detail: 'Ocurrió un error al depositar los CFDI.',
+
+                life: 5000
+            });
+        } finally {
+            depositandoCfdi.value = false;
+        }
+    };
+
     const handleCargarEmpresas = async (silencioso = false) => {
         const accion = silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken';
 
@@ -269,7 +373,6 @@ const useProceso = () => {
             });
         }
     };
-
 
     const handleVerBancos = async (data) => {
         const resRegistro = await store.dispatch('api/apiGetToken', {
@@ -504,17 +607,13 @@ const useProceso = () => {
         const inicial = frmEmpresaInit();
 
         Object.assign(frmEmpresa, inicial, data, {
-            bancos:
-                data?.bancos ?? [],
+            bancos: data?.bancos ?? [],
 
-            prod_serv:
-                data?.prod_serv ?? [],
+            prod_serv: data?.prod_serv ?? [],
 
-            correos_solicitudes:
-                data?.correos_solicitudes ?? [],
+            correos_solicitudes: data?.correos_solicitudes ?? [],
 
-            plantillas:
-                data?.plantillas ?? [],
+            plantillas: data?.plantillas ?? [],
 
             csd: {
                 ...inicial.csd,
@@ -1576,37 +1675,17 @@ const useProceso = () => {
             return copia;
         });
 
-        formData.append(
-            'bancos',
-            JSON.stringify(frmEmpresa.bancos ?? [])
-        );
+        formData.append('bancos', JSON.stringify(frmEmpresa.bancos ?? []));
 
-        formData.append(
-            'prod_serv',
-            JSON.stringify(frmEmpresa.prod_serv ?? [])
-        );
+        formData.append('prod_serv', JSON.stringify(frmEmpresa.prod_serv ?? []));
 
-        formData.append(
-            'correos_solicitudes',
-            JSON.stringify(
-                frmEmpresa.correos_solicitudes ?? []
-            )
-        );
+        formData.append('correos_solicitudes', JSON.stringify(frmEmpresa.correos_solicitudes ?? []));
 
-        formData.append(
-            'csd',
-            JSON.stringify(csdJson)
-        );
+        formData.append('csd', JSON.stringify(csdJson));
 
-        formData.append(
-            'fiel',
-            JSON.stringify(fielJson)
-        );
+        formData.append('fiel', JSON.stringify(fielJson));
 
-        formData.append(
-            'plantillas',
-            JSON.stringify(plantillasJson)
-        );
+        formData.append('plantillas', JSON.stringify(plantillasJson));
 
         if (frmEmpresa.csd?.archivo_cer instanceof File) {
             formData.append('archivo_cer_csd', frmEmpresa.csd.archivo_cer);
@@ -1623,7 +1702,6 @@ const useProceso = () => {
         if (frmEmpresa.fiel?.archivo_key instanceof File) {
             formData.append('archivo_key_fiel', frmEmpresa.fiel.archivo_key);
         }
-        
 
         frmEmpresa.plantillas.forEach((item) => {
             if (item?.archivo instanceof File && item?.campo_file) {
@@ -1762,11 +1840,7 @@ const useProceso = () => {
     // ------------------------------------------------------------------
 
     const correoSolicitudValido = computed(() => {
-        const correo = (
-            frmCorreoSolicitud.correo_electronico || ''
-        )
-            .trim()
-            .toLowerCase();
+        const correo = (frmCorreoSolicitud.correo_electronico || '').trim().toLowerCase();
 
         if (!correo) {
             return false;
@@ -1775,13 +1849,8 @@ const useProceso = () => {
         return regexCorreo.test(correo);
     });
 
-
     const handleAgregarCorreoSolicitud = () => {
-        const correo = (
-            frmCorreoSolicitud.correo_electronico || ''
-        )
-            .trim()
-            .toLowerCase();
+        const correo = (frmCorreoSolicitud.correo_electronico || '').trim().toLowerCase();
 
         if (!correoSolicitudValido.value) {
             toast.add({
@@ -1794,12 +1863,7 @@ const useProceso = () => {
             return;
         }
 
-        const existe = frmEmpresa.correos_solicitudes.some(
-            (item) =>
-                (item.correo_electronico || '')
-                    .toLowerCase()
-                    .trim() === correo
-        );
+        const existe = frmEmpresa.correos_solicitudes.some((item) => (item.correo_electronico || '').toLowerCase().trim() === correo);
 
         if (existe) {
             toast.add({
@@ -1818,18 +1882,11 @@ const useProceso = () => {
             activo: true
         });
 
-        Object.assign(
-            frmCorreoSolicitud,
-            frmCorreoSolicitudInit()
-        );
+        Object.assign(frmCorreoSolicitud, frmCorreoSolicitudInit());
     };
 
-
     const handleEliminarCorreoSolicitud = (index) => {
-        frmEmpresa.correos_solicitudes.splice(
-            index,
-            1
-        );
+        frmEmpresa.correos_solicitudes.splice(index, 1);
     };
 
     // ------------------------------------------------------------------
@@ -1952,6 +2009,11 @@ const useProceso = () => {
 
         handleAgregarCorreoSolicitud,
         handleEliminarCorreoSolicitud,
+
+        fechaDepositoCfdi,
+        depositandoCfdi,
+
+        handleDepositarCfdiEmpresa
     };
 };
 

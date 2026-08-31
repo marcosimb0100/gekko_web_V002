@@ -84,13 +84,13 @@
                                     </div>
                                 </div>
 
-                                <div class="acciones-cfdi-ssh">
+                                <!-- <div class="acciones-cfdi-ssh">
                                     <Button type="button" label="Depositar CFDI en Directorio" class="btn-depositar-cfdi" @click="handleDepositarCfdi" :disabled="botonDepositarDeshabilitado">
                                         <template #icon>
                                             <font-icon icon="fa-solid fa-folder-tree" class="mr-2" />
                                         </template>
                                     </Button>
-                                </div>
+                                </div> -->
                             </div>
                         </form>
                     </ScrollPanel>

@@ -107,9 +107,7 @@
                 <Tab value="5">Plantillas</Tab>
                 <Tab value="6">Folios / Series</Tab>
                 <Tab value="7">Configuración</Tab>
-                <Tab value="8">
-                    Correos Solicitudes
-                </Tab>
+                <Tab value="8"> Correos Solicitudes </Tab>
                 <Tab value="9" v-if="movimiento === 'E'">Historial</Tab>
             </TabList>
 
@@ -505,16 +503,53 @@
                 <TabPanel value="7">
                     <ScrollPanel style="height: 58vh">
                         <div style="padding: 20px">
-                            <Fieldset legend="Conceptos de Facturación">
-                                <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 20px; align-items: center">
+                            <!-- ================================================= -->
+                            <!-- CONCEPTOS DE FACTURACIÓN -->
+                            <!-- ================================================= -->
+
+                            <Fieldset legend="Conceptos de Facturación" style="margin-bottom: 25px">
+                                <div style="display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: center">
                                     <div>
                                         <Button type="button" label="Actualizar Conceptos" severity="warn" @click="handleActualizarConceptos">
-                                            <template #icon><font-icon icon="fa-solid fa-arrows-rotate" class="mr-2" /></template>
+                                            <template #icon>
+                                                <font-icon icon="fa-solid fa-arrows-rotate" class="mr-2" />
+                                            </template>
                                         </Button>
                                     </div>
+
                                     <div>
-                                        <span>Sincroniza los conceptos de facturación relacionados con esta empresa.</span>
+                                        <span> Sincroniza los conceptos de facturación relacionados con esta empresa. </span>
                                     </div>
+                                </div>
+                            </Fieldset>
+
+                            <!-- ================================================= -->
+                            <!-- DEPOSITO CFDI SSH -->
+                            <!-- ================================================= -->
+
+                            <Fieldset legend="Depósito CFDI SSH">
+                                <div style="display: grid; grid-template-columns: 250px 260px 1fr; gap: 20px; align-items: end">
+                                    <!-- FECHA -->
+
+                                    <div style="display: flex; flex-direction: column; gap: 8px">
+                                        <label for="fecha_deposito_cfdi"> Fecha CFDI: </label>
+
+                                        <DatePicker id="fecha_deposito_cfdi" v-model="fechaDepositoCfdi" dateFormat="dd/mm/yy" showIcon iconDisplay="input" :maxDate="new Date()" placeholder="Seleccione fecha" class="w-full" />
+                                    </div>
+
+                                    <!-- BOTON -->
+
+                                    <div>
+                                        <Button type="button" label="Depositar CFDI en Directorio" class="btn-nuevo" :disabled="!fechaDepositoCfdi || depositandoCfdi" :loading="depositandoCfdi" @click="handleDepositarCfdiEmpresa">
+                                            <template #icon>
+                                                <font-icon icon="fa-solid fa-folder-tree" class="mr-2" />
+                                            </template>
+                                        </Button>
+                                    </div>
+
+                                    <!-- TEXTO -->
+
+                                    <div style="padding-bottom: 7px; color: var(--p-text-muted-color)">Deposita las facturas y complementos de pago timbrados de esta empresa correspondientes al día seleccionado.</div>
                                 </div>
                             </Fieldset>
                         </div>
@@ -523,135 +558,53 @@
 
                 <TabPanel value="8">
                     <ScrollPanel style="height: 58vh">
-
                         <div style="padding: 20px">
-
                             <!-- AGREGAR CORREO -->
-                            <div
-                                style="
-                                    display: grid;
-                                    grid-template-columns: 1fr auto;
-                                    gap: 10px;
-                                    align-items: end;
-                                    margin-bottom: 20px;
-                                "
-                            >
-                                <div
-                                    style="
-                                        display: flex;
-                                        flex-direction: column;
-                                        gap: 8px;
-                                    "
-                                >
-                                    <label for="correo_solicitud">
-                                        Correo Electrónico:
-                                    </label>
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 20px">
+                                <div style="display: flex; flex-direction: column; gap: 8px">
+                                    <label for="correo_solicitud"> Correo Electrónico: </label>
 
                                     <InputText
                                         id="correo_solicitud"
-                                        v-model="
-                                            frmCorreoSolicitud.correo_electronico
-                                        "
+                                        v-model="frmCorreoSolicitud.correo_electronico"
                                         type="email"
                                         placeholder="correo@dominio.com"
-                                        style="
-                                            width: 100%;
-                                            text-transform: lowercase;
-                                        "
-                                        :invalid="
-                                            frmCorreoSolicitud.correo_electronico &&
-                                            !correoSolicitudValido
-                                        "
-                                        @keyup.enter="
-                                            handleAgregarCorreoSolicitud
-                                        "
+                                        style="width: 100%; text-transform: lowercase"
+                                        :invalid="frmCorreoSolicitud.correo_electronico && !correoSolicitudValido"
+                                        @keyup.enter="handleAgregarCorreoSolicitud"
                                     />
                                 </div>
 
-                                <Button
-                                    type="button"
-                                    label="Agregar"
-                                    class="btn-nuevo"
-                                    :disabled="!correoSolicitudValido"
-                                    @click="handleAgregarCorreoSolicitud"
-                                >
+                                <Button type="button" label="Agregar" class="btn-nuevo" :disabled="!correoSolicitudValido" @click="handleAgregarCorreoSolicitud">
                                     <template #icon>
-                                        <font-icon
-                                            icon="fa-solid fa-plus"
-                                            class="mr-2"
-                                        />
+                                        <font-icon icon="fa-solid fa-plus" class="mr-2" />
                                     </template>
                                 </Button>
                             </div>
 
-
                             <!-- LISTADO -->
-                            <DataTable
-                                :value="frmEmpresa.correos_solicitudes"
-                                size="small"
-                                paginator
-                                :rows="10"
-                                scrollable
-                                scrollHeight="38vh"
-                                class="tabla-encabezados"
-                            >
-                                <template #empty>
-                                    No se han registrado correos para
-                                    recibir solicitudes.
-                                </template>
+                            <DataTable :value="frmEmpresa.correos_solicitudes" size="small" paginator :rows="10" scrollable scrollHeight="38vh" class="tabla-encabezados">
+                                <template #empty> No se han registrado correos para recibir solicitudes. </template>
 
-                                <Column
-                                    field="correo_electronico"
-                                    header="Correo Electrónico"
-                                    headerClass="encabezado-columna"
-                                />
+                                <Column field="correo_electronico" header="Correo Electrónico" headerClass="encabezado-columna" />
 
-                                <Column
-                                    header="Activo"
-                                    headerClass="encabezado-columna"
-                                    style="width: 100px"
-                                >
+                                <Column header="Activo" headerClass="encabezado-columna" style="width: 100px">
                                     <template #body="slotProps">
-                                        <font-icon
-                                            v-if="slotProps.data.activo"
-                                            icon="fa-solid fa-circle-check"
-                                            style="color: green"
-                                        />
+                                        <font-icon v-if="slotProps.data.activo" icon="fa-solid fa-circle-check" style="color: green" />
 
-                                        <font-icon
-                                            v-else
-                                            icon="fa-solid fa-circle-minus"
-                                            style="color: red"
-                                        />
+                                        <font-icon v-else icon="fa-solid fa-circle-minus" style="color: red" />
                                     </template>
                                 </Column>
 
-                                <Column
-                                    header="Opciones"
-                                    headerClass="encabezado-columna"
-                                    style="width: 100px"
-                                >
+                                <Column header="Opciones" headerClass="encabezado-columna" style="width: 100px">
                                     <template #body="slotProps">
-                                        <Button
-                                            type="button"
-                                            severity="danger"
-                                            outlined
-                                            @click="
-                                                handleEliminarCorreoSolicitud(
-                                                    slotProps.index
-                                                )
-                                            "
-                                        >
-                                            <font-icon
-                                                icon="fa-solid fa-trash"
-                                            />
+                                        <Button type="button" severity="danger" outlined @click="handleEliminarCorreoSolicitud(slotProps.index)">
+                                            <font-icon icon="fa-solid fa-trash" />
                                         </Button>
                                     </template>
                                 </Column>
                             </DataTable>
-
                         </div>
-
                     </ScrollPanel>
                 </TabPanel>
 
