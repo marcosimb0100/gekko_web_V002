@@ -62,7 +62,7 @@
                                     </div>
                                 </div>
 
-                                <!-- TIMEOUT / ACTIVO -->
+                                <!-- TIMEOUT / RUTA INICIAL / ACTIVO -->
 
                                 <div class="grid-ssh grid-config">
                                     <div class="campo-ssh">
@@ -71,11 +71,25 @@
                                         <InputNumber id="timeout" v-model="frmSSH.timeout" :useGrouping="false" :min="1" :max="300" suffix=" s" class="w-full" />
                                     </div>
 
+                                    <div class="campo-ssh">
+                                        <label for="ruta_inicial_cfdi"> Ruta Inicial CFDI: </label>
+
+                                        <InputText id="ruta_inicial_cfdi" v-model="frmSSH.ruta_inicial_cfdi" placeholder="/home/server/cfdi" class="w-full" />
+                                    </div>
+
                                     <div class="campo-activo">
                                         <Checkbox inputId="activo" v-model="frmSSH.activo" binary />
 
                                         <label for="activo"> Activo </label>
                                     </div>
+                                </div>
+
+                                <div class="acciones-cfdi-ssh">
+                                    <Button type="button" label="Depositar CFDI en Directorio" class="btn-depositar-cfdi" @click="handleDepositarCfdi" :disabled="botonDepositarDeshabilitado">
+                                        <template #icon>
+                                            <font-icon icon="fa-solid fa-folder-tree" class="mr-2" />
+                                        </template>
+                                    </Button>
                                 </div>
                             </div>
                         </form>

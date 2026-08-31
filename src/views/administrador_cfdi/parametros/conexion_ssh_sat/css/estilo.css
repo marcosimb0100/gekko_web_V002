@@ -38,8 +38,18 @@
 
 .grid-config {
     grid-template-columns:
-        1fr
-        200px;
+        90px
+        minmax(0, 1fr)
+        100px;
+
+    gap: 20px;
+}
+
+.grid-config .campo-ssh:first-child,
+.grid-config .campo-ssh:first-child :deep(.p-inputnumber),
+.grid-config .campo-ssh:first-child :deep(.p-inputnumber-input) {
+    width: 90px;
+    min-width: 0;
 }
 
 
@@ -125,4 +135,28 @@
 
 .btn-probar-ssh .p-button-label {
     white-space: nowrap !important;
+}
+
+
+.acciones-cfdi-ssh {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid
+        var(--p-surface-200);
+}
+
+
+.btn-depositar-cfdi {
+    width: auto !important;
+
+    min-width: 230px;
+
+    white-space: nowrap;
 }

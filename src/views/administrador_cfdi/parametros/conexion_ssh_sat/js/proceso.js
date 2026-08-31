@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useToast } from 'primevue/usetoast';
 
@@ -15,6 +15,8 @@ const frmSSHInit = () => ({
 
     timeout: 30,
 
+    ruta_inicial_cfdi: '',
+
     activo: false
 });
 
@@ -24,6 +26,8 @@ const useProceso = () => {
     const toast = useToast();
 
     const frmSSH = reactive(frmSSHInit());
+
+    const procesandoCfdi = ref(false);
 
     // ============================================================
     // VALIDACIONES
@@ -102,6 +106,10 @@ const useProceso = () => {
             return true;
         }
 
+        if (!frmSSH.ruta_inicial_cfdi.trim()) {
+            return true;
+        }
+
         return false;
     });
 
@@ -109,9 +117,75 @@ const useProceso = () => {
         return botonGuardarDeshabilitado.value;
     });
 
+    const botonDepositarDeshabilitado = computed(() => {
+        if (procesandoCfdi.value) {
+            return true;
+        }
+
+        if (!frmSSH.host.trim()) {
+            return true;
+        }
+
+        if (!frmSSH.usuario.trim()) {
+            return true;
+        }
+
+        if (!frmSSH.clave) {
+            return true;
+        }
+
+        if (!frmSSH.ruta_inicial_cfdi.trim()) {
+            return true;
+        }
+
+        return false;
+    });
+
     // ============================================================
     // CARGAR CONFIGURACION
     // ============================================================
+
+    const handleDepositarCfdi = async () => {
+        if (botonDepositarDeshabilitado.value) {
+            return;
+        }
+
+        procesandoCfdi.value = true;
+
+        try {
+            const res = await store.dispatch('api/apiPostToken', {
+                direccion: '/conexion_ssh_sat/depositar_cfdi',
+
+                datosJson: {}
+            });
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+
+                    summary: 'CFDI',
+
+                    detail: res.mensaje,
+
+                    life: 5000
+                });
+
+                return;
+            }
+
+            toast.add({
+                severity: 'success',
+
+                summary: 'CFDI',
+
+                detail: res.mensaje,
+
+                life: 5000
+            });
+        } finally {
+            procesandoCfdi.value = false;
+        }
+    };
 
     const handleCargarSSH = async () => {
         const res = await store.dispatch('api/apiGetToken', {
@@ -119,11 +193,6 @@ const useProceso = () => {
         });
 
         if (res.estatus !== 200) {
-            /*
-             * Si todavía no existe configuración
-             * no lo tratamos como error grave.
-             */
-
             return;
         }
 
@@ -143,6 +212,8 @@ const useProceso = () => {
             clave: data.clave ?? '',
 
             timeout: Number(data.timeout ?? 30),
+
+            ruta_inicial_cfdi: data.ruta_inicial_cfdi ?? '',
 
             activo: data.activo ?? false
         });
@@ -176,7 +247,9 @@ const useProceso = () => {
 
             clave: frmSSH.clave,
 
-            timeout: Number(frmSSH.timeout || 30)
+            timeout: Number(frmSSH.timeout || 30),
+
+            ruta_inicial_cfdi: frmSSH.ruta_inicial_cfdi.trim()
         };
 
         const res = await store.dispatch('api/apiPostToken', {
@@ -239,6 +312,8 @@ const useProceso = () => {
             clave: frmSSH.clave,
 
             timeout: Number(frmSSH.timeout || 30),
+
+            ruta_inicial_cfdi: frmSSH.ruta_inicial_cfdi.trim(),
 
             activo: frmSSH.activo
         };
@@ -305,7 +380,9 @@ const useProceso = () => {
 
         handleProbar,
 
-        handleGuardar
+        handleGuardar,
+        botonDepositarDeshabilitado,
+        handleDepositarCfdi
     };
 };
 
