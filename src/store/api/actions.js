@@ -1,4 +1,16 @@
-import { apiGet_blob, apiGet_token, apiPost_sinToken, apiPost_token, apiPost_token_formdata, apiPut_token, apiPut_token_formdata } from '../../helpers/funcionesApi';
+import {
+    apiGet_blob,
+    apiGet_blobTokenCliente,
+    apiGet_token,
+    apiGet_tokenCliente,
+    apiPost_sinToken,
+    apiPost_token,
+    apiPost_token_formdata,
+    apiPost_tokenCliente_formdata,
+    apiPut_token,
+    apiPut_token_formdata,
+    apiPut_tokenCliente_formdata
+} from '../../helpers/funcionesApi';
 // import { notify } from "@kyvg/vue3-notification";
 import router from '../../router/index';
 
@@ -221,6 +233,125 @@ export const apiGetTokenSinCargando = async ({ commit }, { direccion }) => {
 
 export const apiPostSinToken = async ({ commit }, { direccion, datosJson }) => {
     const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, datosJson);
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
+
+export const apiGetTokenCliente = async ({ commit }, { direccion, clientId }) => {
+    commit('visibleCargandoMutation');
+
+    const { estatus, mensaje, datos } = await apiGet_tokenCliente(direccion);
+
+    commit('visibleCargandoMutation');
+
+    if (estatus === 401 || estatus === 402) {
+        localStorage.removeItem('token_cliente');
+
+        localStorage.removeItem('client_id');
+
+        localStorage.removeItem('nombre_cliente');
+
+        router.replace({
+            name: 'cliente_acceso',
+
+            params: {
+                clientId: clientId
+            }
+        });
+    }
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
+
+export const apiGetBlobTokenCliente = async ({ commit }, { direccion, clientId }) => {
+    commit('visibleCargandoMutation');
+
+    const { estatus, mensaje, datos } = await apiGet_blobTokenCliente(direccion);
+
+    commit('visibleCargandoMutation');
+
+    if (estatus === 401 || estatus === 402) {
+        localStorage.removeItem('token_cliente');
+
+        localStorage.removeItem('client_id');
+
+        localStorage.removeItem('nombre_cliente');
+
+        router.replace({
+            name: 'cliente_acceso',
+
+            params: {
+                clientId: clientId
+            }
+        });
+    }
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
+
+export const apiPutTokenClienteFormData = async ({ commit }, { direccion, datosFormData, clientId }) => {
+    commit('visibleCargandoMutation');
+
+    const { estatus, mensaje, datos } = await apiPut_tokenCliente_formdata(direccion, datosFormData);
+
+    commit('visibleCargandoMutation');
+
+    if (estatus === 401 || estatus === 402) {
+        localStorage.removeItem('token_cliente');
+
+        localStorage.removeItem('client_id');
+
+        localStorage.removeItem('nombre_cliente');
+
+        router.replace({
+            name: 'cliente_acceso',
+
+            params: {
+                clientId: clientId
+            }
+        });
+    }
+
+    return {
+        estatus,
+        mensaje,
+        datos
+    };
+};
+
+export const apiPostTokenClienteFormData = async ({ commit }, { direccion, formData, clientId }) => {
+    commit('visibleCargandoMutation');
+
+    const { estatus, mensaje, datos } = await apiPost_tokenCliente_formdata(direccion, formData);
+
+    commit('visibleCargandoMutation');
+
+    if (estatus === 401 || estatus === 402) {
+        localStorage.removeItem('token_cliente');
+
+        localStorage.removeItem('client_id');
+
+        localStorage.removeItem('nombre_cliente');
+
+        router.replace({
+            name: 'cliente_acceso',
+            params: {
+                clientId
+            }
+        });
+    }
 
     return {
         estatus,

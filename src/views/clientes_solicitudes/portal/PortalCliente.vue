@@ -3,21 +3,15 @@
         <div class="portal-contenedor">
             <!-- ENCABEZADO -->
             <div class="portal-header">
-                <div class="portal-logo">
-                    <img v-if="logoUrl" :src="logoUrl" alt="Logo cliente" />
-
-                    <div v-else class="portal-logo-placeholder">
-                        <font-icon icon="fa-solid fa-building" />
-                    </div>
-                </div>
-
-                <div>
-                    <h2>Portal de Clientes</h2>
+                <div class="portal-header-info">
+                    <h2>Portal del cliente</h2>
 
                     <p v-if="nombreCliente">
                         {{ nombreCliente }}
                     </p>
                 </div>
+
+                <Button label="Cerrar sesión" icon="pi pi-sign-out" severity="danger" outlined @click="handleCerrarSesion" />
             </div>
 
             <!-- OPCIONES -->

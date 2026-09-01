@@ -33,6 +33,24 @@ const router = createRouter({
         },
 
         {
+            path: '/clientes/portal/:clientId/conceptos',
+            name: 'cliente_conceptos',
+            component: () => import('../views/clientes_solicitudes/conceptos/ConceptosCliente.vue')
+        },
+
+        {
+            path: '/clientes/portal/:clientId/cif',
+            name: 'cliente_cif',
+            component: () => import('../views/clientes_solicitudes/cif/CifCliente.vue')
+        },
+
+        {
+            path: '/clientes/portal/:clientId/solicitud',
+            name: 'cliente_solicitud',
+            component: () => import('../views/clientes_solicitudes/solicitud/SolicitudCliente.vue')
+        },
+
+        {
             path: '/',
             redirect: '/acceso',
             name: 'app',

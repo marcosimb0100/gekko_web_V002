@@ -1,0 +1,344 @@
+/* =====================================================
+   CONTENEDOR GENERAL
+===================================================== */
+
+.conceptos-cliente {
+    min-height: 100vh;
+
+    background:
+        var(--surface-ground);
+
+    padding: 30px;
+}
+
+
+.conceptos-contenedor {
+    max-width: 1350px;
+
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.conceptos-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 22px;
+
+    margin-bottom: 20px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 14px;
+}
+
+
+.header-izquierda {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.header-icono {
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    font-size: 20px;
+
+    background:
+        var(--surface-100);
+}
+
+
+.conceptos-header h2 {
+    margin:
+        0 0 4px 0;
+
+    font-size:
+        21px;
+}
+
+
+.conceptos-header p {
+    margin: 0;
+
+    color:
+        var(--text-color-secondary);
+}
+
+
+.cliente-nombre {
+    max-width: 350px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-weight: 600;
+
+    color:
+        var(--text-color-secondary);
+}
+
+
+/* =====================================================
+   FILTROS
+===================================================== */
+
+.conceptos-filtros {
+    display: grid;
+
+    grid-template-columns:
+        minmax(300px, 450px)
+        1fr;
+
+    gap: 20px;
+
+    align-items: end;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 14px;
+}
+
+
+.campo {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.campo label {
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.empresa-opcion {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.empresa-opcion small {
+    color:
+        var(--text-color-secondary);
+}
+
+
+/* =====================================================
+   EMPRESA SELECCIONADA
+===================================================== */
+
+.empresa-seleccionada {
+    min-height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 10px 15px;
+
+    border-left:
+        4px solid
+        rgb(106, 196, 202);
+
+    border-radius: 6px;
+
+    background:
+        var(--surface-50);
+}
+
+
+.empresa-seleccionada > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.empresa-etiqueta {
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    color:
+        var(--text-color-secondary);
+}
+
+
+.empresa-seleccionada small {
+    color:
+        var(--text-color-secondary);
+}
+
+
+/* =====================================================
+   TABLA
+===================================================== */
+
+.tabla-contenedor {
+    overflow: hidden;
+
+    padding: 15px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 14px;
+}
+
+
+:deep(.encabezado-columna) {
+    background:
+        rgb(106, 196, 202) !important;
+
+    border-color:
+        rgb(106, 196, 202) !important;
+
+    font-weight:
+        600 !important;
+}
+
+
+.tabla-vacia {
+    min-height: 250px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    color:
+        var(--text-color-secondary);
+}
+
+
+.tabla-vacia svg {
+    font-size: 35px;
+}
+
+
+/* =====================================================
+   OBJETO IMPUESTO
+===================================================== */
+
+.objeto-impuesto {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.objeto-clave {
+    min-width: 30px;
+
+    padding:
+        3px 6px;
+
+    text-align: center;
+
+    border-radius: 5px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    background:
+        var(--surface-100);
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (
+    max-width: 900px
+) {
+
+    .conceptos-cliente {
+        padding: 15px;
+    }
+
+
+    .conceptos-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .conceptos-filtros {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .cliente-nombre {
+        max-width:
+            100%;
+    }
+
+}

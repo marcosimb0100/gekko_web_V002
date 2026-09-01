@@ -77,6 +77,21 @@ const useProceso = () => {
         await handleCargarLogo();
     });
 
+    const handleCerrarSesion = () => {
+        localStorage.removeItem('token_cliente');
+
+        localStorage.removeItem('client_id');
+
+        localStorage.removeItem('nombre_cliente');
+
+        router.replace({
+            name: 'cliente_acceso',
+            params: {
+                clientId
+            }
+        });
+    };
+
     return {
         clientId,
 
@@ -85,7 +100,8 @@ const useProceso = () => {
 
         handleIrConceptos,
         handleIrCif,
-        handleIrSolicitud
+        handleIrSolicitud,
+        handleCerrarSesion
     };
 };
 

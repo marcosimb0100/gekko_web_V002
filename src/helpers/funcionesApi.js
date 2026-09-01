@@ -178,3 +178,158 @@ export const apiGet_blob = async (direccion) => {
             };
         });
 };
+
+export const apiGet_tokenCliente = async (direccion) => {
+    const token = localStorage.getItem('token_cliente') || '';
+
+    const Authorization = token ? `Bearer ${token}` : '';
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: Authorization
+        }
+    });
+
+    return await consumir
+        .get(direccion)
+        .then((response) => {
+            const { status, data } = response;
+
+            return {
+                estatus: status,
+
+                mensaje: data.mensaje,
+
+                datos: data.datos
+            };
+        })
+        .catch((error) => {
+            return {
+                estatus: error.response?.status ?? 500,
+
+                mensaje: error.response?.data?.mensaje ?? error.message ?? 'No se pudo conectar con el servidor.',
+
+                datos: {}
+            };
+        });
+};
+
+export const apiGet_blobTokenCliente = async (direccion) => {
+    const token = localStorage.getItem('token_cliente') || '';
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+        },
+
+        responseType: 'blob'
+    });
+
+    try {
+        const response = await consumir.get(direccion);
+
+        return {
+            estatus: response.status,
+
+            datos: response.data,
+
+            mensaje: ''
+        };
+    } catch (error) {
+        let mensaje = 'No fue posible consultar el archivo.';
+
+        const data = error.response?.data;
+
+        // ---------------------------------------------
+        // CUANDO EL BACKEND REGRESA JSON PERO AXIOS
+        // LO RECIBE COMO BLOB
+        // ---------------------------------------------
+
+        if (data instanceof Blob) {
+            try {
+                const texto = await data.text();
+
+                const json = JSON.parse(texto);
+
+                mensaje = json.mensaje || mensaje;
+            } catch {
+                mensaje = error.message || mensaje;
+            }
+        } else {
+            mensaje = data?.mensaje || error.message || mensaje;
+        }
+
+        return {
+            estatus: error.response?.status ?? 500,
+
+            mensaje: mensaje,
+
+            datos: null
+        };
+    }
+};
+
+export const apiPut_tokenCliente_formdata = async (direccion, datosFormData) => {
+    const token = localStorage.getItem('token_cliente') || '';
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+        }
+    });
+
+    try {
+        const response = await consumir.put(direccion, datosFormData);
+
+        const { status, data } = response;
+
+        return {
+            estatus: status,
+
+            mensaje: data.mensaje,
+
+            datos: data.datos
+        };
+    } catch (error) {
+        return {
+            estatus: error.response?.status ?? 500,
+
+            mensaje: error.response?.data?.mensaje ?? error.message ?? 'No fue posible actualizar el CIF.',
+
+            datos: {}
+        };
+    }
+};
+
+export const apiPost_tokenCliente_formdata = async (direccion, formData) => {
+    const token = localStorage.getItem('token_cliente') || '';
+
+    const consumir = axios.create({
+        baseURL: url,
+        headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+        }
+    });
+
+    try {
+        const response = await consumir.post(direccion, formData);
+
+        return {
+            estatus: response.status,
+            mensaje: response.data?.mensaje ?? '',
+            datos: response.data?.datos ?? {}
+        };
+    } catch (error) {
+        return {
+            estatus: error.response?.status ?? 500,
+            mensaje: error.response?.data?.mensaje ?? error.message ?? 'No fue posible guardar la solicitud.',
+            datos: {}
+        };
+    }
+};

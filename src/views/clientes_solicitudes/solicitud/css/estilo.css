@@ -1,0 +1,632 @@
+/* =====================================================
+   CONTENEDOR GENERAL
+===================================================== */
+
+.solicitud-cliente {
+    min-height: 100vh;
+
+    padding: 25px;
+    padding-bottom: 50px;
+
+    background: var(--surface-ground);
+}
+
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.solicitud-header {
+    max-width: 1500px;
+
+    margin: 0 auto 18px auto;
+
+    padding: 17px 20px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 14px;
+}
+
+
+.header-izquierda {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.header-icono {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    font-size: 21px;
+
+    color: rgb(44, 151, 158);
+
+    background: rgba(
+        106,
+        196,
+        202,
+        0.15
+    );
+}
+
+
+.solicitud-header h2 {
+    margin: 0 0 3px 0;
+
+    font-size: 21px;
+}
+
+
+.solicitud-header p {
+    margin: 0;
+
+    color: var(
+        --text-color-secondary
+    );
+}
+
+
+/* =====================================================
+   CARD PRINCIPAL
+===================================================== */
+
+.solicitud-card {
+    max-width: 1500px;
+
+    margin: 0 auto;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 14px;
+
+    overflow: visible;
+}
+
+
+/* =====================================================
+   CONTENEDOR INTERNO
+===================================================== */
+
+.scroll-solicitud {
+    width: 100%;
+
+    height: auto;
+
+    overflow: visible;
+}
+
+
+.solicitud-contenedor {
+    padding: 18px 18px 40px 18px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+/* =====================================================
+   BLOQUES
+===================================================== */
+
+.bloque-formulario {
+    padding: 16px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 12px;
+}
+
+
+.bloque-titulo {
+    margin-bottom: 14px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    color: var(--text-color);
+}
+
+
+/* =====================================================
+   DATOS PRINCIPALES
+===================================================== */
+
+.grid-datos-principales {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 14px;
+}
+
+
+.campo-formulario {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+
+.campo-formulario label {
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: var(--text-color);
+}
+
+
+.requerido {
+    margin-right: 3px;
+
+    color: #dc3545;
+}
+
+
+.campo-comprobante {
+    grid-column: span 1;
+}
+
+
+/* =====================================================
+   ARCHIVO
+===================================================== */
+
+.archivo-contenedor {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    min-width: 0;
+}
+
+
+/* =====================================================
+   BANCO
+===================================================== */
+
+.banco-opcion {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.banco-opcion span,
+.banco-opcion small {
+    color: var(
+        --text-color-secondary
+    );
+}
+
+
+/* =====================================================
+   CONCEPTO
+===================================================== */
+
+.grid-concepto {
+    display: grid;
+
+    grid-template-columns:
+        minmax(
+            300px,
+            1fr
+        )
+        135px
+        180px
+        45px;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+
+.concepto-opcion {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.btn-agregar-concepto {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   TABLA + RESUMEN
+===================================================== */
+
+.grid-tabla-totales {
+    display: grid;
+
+    grid-template-columns:
+        minmax(
+            0,
+            1fr
+        )
+        285px;
+
+    gap: 15px;
+
+    align-items: start;
+}
+
+
+/* =====================================================
+   TABLA
+===================================================== */
+
+.tabla-conceptos {
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 12px;
+}
+
+
+:deep(
+    .tabla-conceptos
+    .p-datatable-header-cell
+) {
+    white-space: nowrap;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+:deep(
+    .tabla-conceptos
+    .p-datatable-tbody
+    > tr
+    > td
+) {
+    white-space: nowrap;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   RESUMEN CFDI
+===================================================== */
+
+.resumen-cfdi {
+    width: 100%;
+
+    padding: 17px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    align-self: start;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 12px;
+
+    overflow: visible;
+}
+
+
+.resumen-titulo {
+    padding-bottom: 10px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    border-bottom:
+        1px solid
+        var(
+            --surface-border
+        );
+}
+
+
+.resumen-renglon {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    font-size: 13px;
+}
+
+
+.resumen-renglon span {
+    color: var(
+        --text-color-secondary
+    );
+}
+
+
+.resumen-renglon strong {
+    white-space: nowrap;
+}
+
+
+.resumen-separador {
+    border-top:
+        1px solid
+        var(
+            --surface-border
+        );
+}
+
+
+.resumen-total {
+    font-size: 16px;
+}
+
+
+.resumen-total span,
+.resumen-total strong {
+    color: var(--text-color);
+}
+
+
+/* =====================================================
+   BOTON GUARDAR
+===================================================== */
+
+.btn-guardar {
+    width: 100%;
+
+    min-height: 40px;
+
+    margin-top: 8px;
+    margin-bottom: 5px;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   PRIMEVUE
+===================================================== */
+
+:deep(.p-dropdown),
+:deep(.p-select),
+:deep(.p-datepicker),
+:deep(.p-inputnumber),
+:deep(.p-inputnumber-input) {
+    width: 100%;
+}
+
+
+:deep(.p-fileupload-basic) {
+    width: 100%;
+}
+
+
+:deep(
+    .p-fileupload-choose-button
+) {
+    width: 100%;
+
+    overflow: hidden;
+}
+
+
+:deep(
+    .p-fileupload-choose-button
+    .p-button-label
+) {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   DATATABLE
+===================================================== */
+
+:deep(.p-datatable-wrapper) {
+    width: 100%;
+}
+
+
+:deep(.p-datatable-table) {
+    min-width: 950px;
+}
+
+
+:deep(
+    .p-datatable-thead
+    > tr
+    > th
+) {
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+
+:deep(
+    .p-datatable-tbody
+    > tr
+    > td
+) {
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (
+    max-width: 1100px
+) {
+
+    .grid-datos-principales {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+
+    .grid-tabla-totales {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .resumen-cfdi {
+        max-width: none;
+    }
+
+}
+
+
+@media (
+    max-width: 850px
+) {
+
+    .solicitud-cliente {
+        padding: 14px;
+
+        padding-bottom: 40px;
+    }
+
+
+    .grid-concepto {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+
+    .grid-concepto
+    > :first-child {
+        grid-column:
+            1 / -1;
+    }
+
+
+    .btn-agregar-concepto {
+        width: 100%;
+    }
+
+}
+
+
+@media (
+    max-width: 600px
+) {
+
+    .grid-datos-principales {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .grid-concepto {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .grid-concepto
+    > :first-child {
+        grid-column:
+            auto;
+    }
+
+
+    .solicitud-header {
+        align-items:
+            flex-start;
+    }
+
+
+    .header-icono {
+        display: none;
+    }
+
+
+    .solicitud-contenedor {
+        padding:
+            12px
+            12px
+            35px
+            12px;
+    }
+
+}
