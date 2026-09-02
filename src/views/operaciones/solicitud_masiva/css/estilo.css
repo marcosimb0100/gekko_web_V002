@@ -1,0 +1,752 @@
+/* =====================================================
+   GENERAL
+===================================================== */
+
+.carga-masiva {
+    min-height: 100vh;
+
+    padding: 25px;
+
+    background:
+        var(--surface-ground);
+}
+
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.carga-header {
+    max-width: 1500px;
+
+    margin:
+        0 auto 18px auto;
+
+    padding:
+        17px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 20px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius:
+        14px;
+}
+
+
+.carga-header-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+}
+
+
+.header-icono {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    font-size: 22px;
+
+    color:
+        #217346;
+
+    background:
+        rgba(
+            33,
+            115,
+            70,
+            0.12
+        );
+}
+
+
+.carga-header h2 {
+    margin:
+        0 0 3px 0;
+
+    font-size: 21px;
+}
+
+
+.carga-header p {
+    margin: 0;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+/* =====================================================
+   CARD CARGA
+===================================================== */
+
+.card-carga {
+    max-width: 1500px;
+
+    margin:
+        0 auto 18px auto;
+
+    padding: 20px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius:
+        14px;
+}
+
+
+.card-titulo {
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    margin-bottom: 16px;
+}
+
+
+.card-titulo h3 {
+    margin:
+        0 0 4px 0;
+
+    font-size: 16px;
+}
+
+
+.card-titulo p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+/* =====================================================
+   INPUT ARCHIVO
+===================================================== */
+
+.input-archivo {
+    display: none;
+}
+
+
+/* =====================================================
+   DROP ZONE
+===================================================== */
+
+.zona-carga {
+    min-height: 175px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 25px;
+
+    cursor: pointer;
+
+    border:
+        2px dashed
+        var(--surface-border);
+
+    border-radius:
+        12px;
+
+    transition:
+        border-color 0.2s,
+        background 0.2s;
+}
+
+
+.zona-carga:hover {
+    border-color:
+        rgb(
+            106,
+            196,
+            202
+        );
+
+    background:
+        rgba(
+            106,
+            196,
+            202,
+            0.06
+        );
+}
+
+
+.zona-icono {
+    width: 55px;
+    height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        center;
+
+    margin-bottom: 4px;
+
+    border-radius: 50%;
+
+    font-size: 23px;
+
+    color:
+        #217346;
+
+    background:
+        rgba(
+            33,
+            115,
+            70,
+            0.10
+        );
+}
+
+
+.zona-carga strong {
+    font-size: 15px;
+}
+
+
+.zona-carga span {
+    font-size: 13px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+/* =====================================================
+   ARCHIVO SELECCIONADO
+===================================================== */
+
+.archivo-seleccionado {
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 15px;
+
+    padding: 15px 17px;
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 12px;
+
+    background:
+        var(--surface-50);
+}
+
+
+.archivo-info {
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.archivo-excel-icono {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    font-size: 21px;
+
+    color:
+        #217346;
+
+    background:
+        rgba(
+            33,
+            115,
+            70,
+            0.10
+        );
+}
+
+
+.archivo-texto {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction:
+        column;
+
+    gap: 3px;
+}
+
+
+.archivo-texto strong {
+    overflow: hidden;
+
+    text-overflow:
+        ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.archivo-texto span {
+    font-size: 12px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+.archivo-acciones {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    flex-shrink: 0;
+}
+
+
+/* =====================================================
+   VALIDACION
+===================================================== */
+
+.acciones-validacion {
+    display: flex;
+
+    justify-content:
+        flex-end;
+
+    margin-top: 15px;
+}
+
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.resumen-grid {
+    max-width: 1500px;
+
+    margin:
+        0 auto 18px auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 12px;
+}
+
+
+.resumen-card {
+    min-height: 90px;
+
+    padding: 16px;
+
+    display: flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    gap: 5px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius:
+        12px;
+}
+
+
+.resumen-label {
+    font-size: 12px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+.resumen-card strong {
+    font-size: 24px;
+}
+
+
+.resumen-correcto {
+    border-left:
+        4px solid
+        #22c55e;
+}
+
+
+.resumen-error {
+    border-left:
+        4px solid
+        #ef4444;
+}
+
+
+/* =====================================================
+   RESULTADOS
+===================================================== */
+
+.resultado-card {
+    max-width: 1500px;
+
+    margin:
+        0 auto 18px auto;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius:
+        14px;
+
+    overflow: hidden;
+}
+
+
+.resultado-header {
+    padding:
+        16px 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 15px;
+
+    border-bottom:
+        1px solid
+        var(--surface-border);
+}
+
+
+.resultado-header h3 {
+    margin:
+        0 0 3px 0;
+
+    font-size: 16px;
+}
+
+
+.resultado-header p {
+    margin: 0;
+
+    font-size: 12px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+/* =====================================================
+   TABLAS
+===================================================== */
+
+.tabla-carga,
+.tabla-errores {
+    width: 100%;
+}
+
+
+:deep(
+    .p-datatable-table
+) {
+    width: 100%;
+}
+
+
+:deep(
+    .p-datatable-thead
+    > tr
+    > th
+) {
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+
+:deep(
+    .p-datatable-tbody
+    > tr
+    > td
+) {
+    font-size: 12px;
+
+    vertical-align: top;
+}
+
+
+:deep(
+    .tabla-carga
+    .p-datatable-table
+) {
+    min-width: 1350px;
+}
+
+
+/* =====================================================
+   ERRORES
+===================================================== */
+
+.resultado-error {
+    border-left:
+        3px solid
+        #ef4444;
+}
+
+
+.mensaje-error {
+    display: flex;
+
+    align-items:
+        flex-start;
+
+    gap: 8px;
+
+    color:
+        #dc2626;
+
+    white-space: normal;
+
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer-carga {
+    max-width: 1500px;
+
+    margin:
+        0 auto 30px auto;
+
+    padding: 16px 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 20px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 14px;
+}
+
+
+.footer-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    color:
+        var(
+            --text-color-secondary
+        );
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (
+    max-width: 950px
+) {
+
+    .resumen-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+}
+
+
+@media (
+    max-width: 650px
+) {
+
+    .carga-masiva {
+        padding: 14px;
+    }
+
+
+    .carga-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .carga-header
+    > .p-button {
+        width: 100%;
+    }
+
+
+    .archivo-seleccionado {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .archivo-acciones {
+        width: 100%;
+
+        justify-content:
+            flex-end;
+    }
+
+
+    .resumen-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .resultado-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .footer-carga {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .footer-carga
+    > .p-button {
+        width: 100%;
+    }
+
+}

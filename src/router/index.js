@@ -132,6 +132,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "operaciones_solicitud_detallada" */ '../views/operaciones/solicitud_detallada/SolicitudDetallada.vue')
                 },
                 {
+                    path: '/operaciones/solicitud_masiva',
+                    name: 'operaciones_solicitud_masiva',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "operaciones_solicitud_masiva" */ '../views/operaciones/solicitud_masiva/SolicitudMasiva.vue')
+                },
+                {
                     path: '/operaciones/solicitud_pago',
                     name: 'operaciones_solicitud_pago',
                     beforeEnter: permisoRutas,
