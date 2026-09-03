@@ -446,7 +446,7 @@ const useProceso = () => {
 
         const minimo = new Date();
 
-        minimo.setHours(minimo.getHours() - 72);
+        minimo.setHours(minimo.getHours() - 96);
 
         if (frmSolicitud.fecha_factura < minimo) {
             toast.add({
