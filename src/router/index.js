@@ -191,6 +191,13 @@ const router = createRouter({
                     name: 'administrador_cfdi_reportes_cfdi_cfdis_cancelados',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_cfdis_cancelados" */ '../views/administrador_cfdi/reportes_cfdi/cfdis_cancelados/CfdisCancelados.vue')
+                },
+
+                {
+                    path: '/reportes/contabilidad_fac',
+                    name: 'reportes_contabilidad_fac',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "reportes_contabilidad_fac" */ '../views/reportes/contabilidad_fac/ContabilidadFac.vue')
                 }
             ]
         }
