@@ -1,96 +1,822 @@
+/* =====================================================
+   CONTENEDOR PRINCIPAL
+===================================================== */
+
+.contenedor-consultas {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+/* =====================================================
+   PANEL FILTROS
+===================================================== */
+
+.panel-filtros {
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    padding: 16px 20px;
+}
+
+
 .filtros-consultas {
     display: grid;
-    grid-template-columns:
-        minmax(260px, 1.3fr)
-        minmax(180px, 1fr)
-        minmax(180px, 1fr)
-        130px;
 
-    gap: 15px;
+    grid-template-columns:
+        minmax(280px, 1.45fr)
+        minmax(190px, 0.85fr)
+        minmax(190px, 0.85fr)
+        135px;
+
+    gap: 14px;
 
     align-items: end;
-
-    padding: 20px 28px 12px 28px;
 }
+
 
 .campo-filtro {
     display: flex;
     flex-direction: column;
+
     gap: 6px;
 }
 
+
 .campo-filtro label {
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
+
+    color: var(--text-color);
 }
+
 
 .campo-boton {
     display: flex;
+
     align-items: flex-end;
 }
 
+
 .campo-boton .p-button {
     width: 100%;
+
     white-space: nowrap;
 }
 
-.barra-tabla {
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.resumen-consultas {
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(150px, 1fr));
+
+    gap: 10px;
+}
+
+
+.resumen-card {
     display: flex;
-    justify-content: flex-end;
+
     align-items: center;
 
-    gap: 8px;
+    gap: 12px;
 
-    padding: 0 28px 8px 28px;
+    min-height: 78px;
+
+    padding: 12px 15px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
-:deep(.tabla-consultas .p-datatable-thead > tr > th) {
+
+.resumen-card:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 3px 10px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+.resumen-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.12
+        );
+
+    font-size: 17px;
+}
+
+
+.resumen-card > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.resumen-card span {
+    font-size: 10px;
+
+    opacity: 0.7;
+
     white-space: nowrap;
 }
 
-:deep(.tabla-consultas .p-datatable-tbody > tr > td) {
-    padding: 6px 8px;
+
+.resumen-card strong {
+    margin-top: 2px;
+
+    font-size: 21px;
+    font-weight: 600;
 }
 
-:deep(.tabla-consultas .nowrap) {
+
+.resumen-proceso {
+    border-left:
+        4px solid
+        #f59e0b;
+}
+
+
+.resumen-descargadas {
+    border-left:
+        4px solid
+        #0ea5e9;
+}
+
+
+.resumen-procesadas {
+    border-left:
+        4px solid
+        #22c55e;
+}
+
+
+.resumen-error {
+    border-left:
+        4px solid
+        #ef4444;
+}
+
+
+/* =====================================================
+   PANEL TABLA
+===================================================== */
+
+.panel-tabla {
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   CABECERA TABLA
+===================================================== */
+
+.cabecera-tabla {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 12px 16px;
+
+    border-bottom:
+        1px solid
+        var(--surface-border);
+}
+
+
+.cabecera-tabla > div:first-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.cabecera-tabla h3 {
+    margin: 0;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.cabecera-tabla span {
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+
+.acciones-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.buscador-tabla {
+    width: 270px;
+}
+
+
+/* =====================================================
+   TABLA
+===================================================== */
+
+:deep(.tabla-consultas) {
+    font-size: 10px;
+}
+
+
+:deep(
+    .tabla-consultas
+    .p-datatable-wrapper
+) {
+    border-radius: 0;
+}
+
+
+:deep(
+    .tabla-consultas
+    .p-datatable-thead
+    > tr
+    > th
+) {
+    padding: 7px 8px;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+:deep(
+    .tabla-consultas
+    .p-datatable-tbody
+    > tr
+    > td
+) {
+    padding: 7px 8px;
+
+    vertical-align: middle;
+}
+
+
+:deep(
+    .tabla-consultas
+    .p-datatable-tbody
+    > tr
+) {
+    transition:
+        background-color
+        0.1s ease;
+}
+
+
+:deep(
+    .tabla-consultas
+    .p-datatable-tbody
+    > tr:hover
+) {
+    background:
+        var(--surface-hover);
+}
+
+
+:deep(
+    .tabla-consultas
+    .nowrap
+) {
     white-space: nowrap;
 }
 
-.estatus-sat {
-    display: inline-block;
+
+/* =====================================================
+   PAGINADOR
+===================================================== */
+
+:deep(
+    .tabla-consultas
+    .p-paginator
+) {
+    padding: 8px;
+
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   EMPRESA
+===================================================== */
+
+.empresa-tabla {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+
+.empresa-tabla strong {
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+.empresa-tabla small {
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+
+/* =====================================================
+   PERIODO
+===================================================== */
+
+.periodo-tabla {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    white-space: nowrap;
+}
+
+
+.periodo-tabla span {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    font-size: 9px;
+}
+
+
+.periodo-tabla i {
+    font-size: 8px;
+
+    opacity: 0.65;
+}
+
+
+/* =====================================================
+   ID SAT
+===================================================== */
+
+.id-sat {
+    display: block;
+
+    max-width: 220px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 9px;
+}
+
+
+/* =====================================================
+   NUMERO CFDI
+===================================================== */
+
+.numero-cfdi {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   PAQUETES
+===================================================== */
+
+.contador-paquetes {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 26px;
+    height: 22px;
+
+    padding: 0 7px;
+
+    border-radius: 12px;
+
+    background:
+        var(--surface-100);
+
+    font-size: 9px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   TIPO DESCARGA
+===================================================== */
+
+.tipo-descarga {
+    display: inline-flex;
+
+    align-items: center;
 
     padding: 4px 7px;
 
     border-radius: 5px;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
 
     white-space: nowrap;
 }
 
-.estatus-completado {
-    background: rgba(0, 128, 0, 0.18);
+
+.tipo-recibido {
+    background:
+        rgba(
+            14,
+            165,
+            233,
+            0.15
+        );
 }
+
+
+.tipo-emitido {
+    background:
+        rgba(
+            139,
+            92,
+            246,
+            0.15
+        );
+}
+
+
+.tipo-metadata {
+    background:
+        rgba(
+            100,
+            116,
+            139,
+            0.16
+        );
+}
+
+
+.tipo-default {
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.15
+        );
+}
+
+
+/* =====================================================
+   ESTATUS SAT
+===================================================== */
+
+.estatus-sat {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 8px;
+
+    border-radius: 5px;
+
+    font-size: 9px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+.estatus-sat i {
+    font-size: 9px;
+}
+
+
+.estatus-completado {
+    background:
+        rgba(
+            34,
+            197,
+            94,
+            0.17
+        );
+}
+
+
+.estatus-descargado {
+    background:
+        rgba(
+            14,
+            165,
+            233,
+            0.17
+        );
+}
+
 
 .estatus-proceso {
-    background: rgba(255, 165, 0, 0.22);
+    background:
+        rgba(
+            245,
+            158,
+            11,
+            0.18
+        );
 }
+
 
 .estatus-error {
-    background: rgba(255, 0, 0, 0.18);
+    background:
+        rgba(
+            239,
+            68,
+            68,
+            0.17
+        );
 }
+
 
 .estatus-default {
-    background: rgba(42, 194, 211, 0.18);
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.16
+        );
 }
+
+
+/* =====================================================
+   MENSAJE SAT
+===================================================== */
+
+.mensaje-sat {
+    display: block;
+
+    max-width: 300px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 9px;
+}
+
+
+/* =====================================================
+   TABLA VACIA
+===================================================== */
+
+.tabla-vacia {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    min-height: 160px;
+
+    opacity: 0.65;
+}
+
+
+.tabla-vacia i {
+    margin-bottom: 4px;
+
+    font-size: 28px;
+}
+
+
+.tabla-vacia strong {
+    font-size: 12px;
+}
+
+
+.tabla-vacia span {
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   BOTONES ENCABEZADO
+===================================================== */
 
 .btn-consulta {
-    white-space: nowrap;
     width: auto !important;
+
+    white-space: nowrap;
 }
 
-@media (max-width: 1000px) {
+
+/* =====================================================
+   PRIMEVUE INPUTS
+===================================================== */
+
+:deep(
+    .panel-filtros
+    .p-inputtext
+) {
+    font-size: 11px;
+}
+
+
+:deep(
+    .panel-filtros
+    .p-select-label
+) {
+    font-size: 11px;
+}
+
+
+:deep(
+    .panel-filtros
+    .p-datepicker-input
+) {
+    font-size: 11px;
+}
+
+
+/* =====================================================
+   RESPONSIVE 1200
+===================================================== */
+
+@media (
+    max-width: 1200px
+) {
+
     .filtros-consultas {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr
+            1fr;
     }
+
+
+    .resumen-consultas {
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE 800
+===================================================== */
+
+@media (
+    max-width: 800px
+) {
+
+    .resumen-consultas {
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+
+
+    .cabecera-tabla {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .acciones-tabla {
+        width: 100%;
+
+        flex-wrap: wrap;
+    }
+
+
+    .buscador-tabla {
+        width: 100%;
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE 600
+===================================================== */
+
+@media (
+    max-width: 600px
+) {
+
+    .filtros-consultas {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .resumen-consultas {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .panel-filtros {
+        padding:
+            12px;
+    }
+
+
+    .cabecera-tabla {
+        padding:
+            10px 12px;
+    }
+
 }

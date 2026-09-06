@@ -20,66 +20,115 @@ const getFechaFinalDefault = () => {
 
 const frmSolicitudSatInit = () => ({
     empresa: '',
+
     tipo: 'todos',
+
     fecha_inicial: getFechaInicialDefault(),
+
     fecha_final: getFechaFinalDefault()
 });
 
 const useProceso = () => {
     const store = useStore();
+
     const toast = useToast();
 
-    const fechaActual = ref(new Date());
+    // ==========================================================
+    // FORMULARIO
+    // ==========================================================
 
     const frmSolicitudSat = reactive(frmSolicitudSatInit());
+
+    // ==========================================================
+    // CATALOGOS
+    // ==========================================================
 
     const catCompaniasSat = ref([]);
 
     const tipos = [
         {
             id: 'todos',
-            descripcion: 'Todos'
+            descripcion: 'Emitidos y recibidos'
         },
+
         {
-            id: 'vigentes',
-            descripcion: 'Vigentes'
+            id: 'emitidos',
+            descripcion: 'Emitidos'
         },
+
         {
-            id: 'cancelados',
-            descripcion: 'Cancelados'
+            id: 'recibidos',
+            descripcion: 'Recibidos'
         }
     ];
 
-    // -------------------------------------------------------------------------
-    // CARGAR EMPRESAS
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // FECHA ACTUAL
+    // ==========================================================
+
+    const fechaActual = ref(new Date());
+
+    // ==========================================================
+    // LOADING
+    // ==========================================================
+
+    const solicitando = ref(false);
+
+    // ==========================================================
+    // CARGAR COMPAÑIAS
+    // ==========================================================
 
     const handleCargarCompanias = async () => {
-        const res = await store.dispatch('api/apiGetToken', {
-            direccion: `/operacion_sat/companias_descarga_cfdi_sat`
-        });
+        try {
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: `/operacion_sat/companias_descarga_cfdi_sat`
+            });
 
-        if (res.estatus === 200) {
-            catCompaniasSat.value = res.datos?.companias ?? [];
-        } else {
+            if (res.estatus === 200) {
+                catCompaniasSat.value = res.datos?.companias ?? [];
+
+                return;
+            }
+
             catCompaniasSat.value = [];
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Notificación',
+
                 detail: res.mensaje,
+
+                life: 3000
+            });
+        } catch (error) {
+            console.error(error);
+
+            catCompaniasSat.value = [];
+
+            toast.add({
+                severity: 'error',
+
+                summary: 'Notificación',
+
+                detail: 'Ocurrió un error al cargar las empresas.',
+
                 life: 3000
             });
         }
     };
 
-    // -------------------------------------------------------------------------
-    // VALIDACIONES
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // VALIDAR EMPRESA
+    // ==========================================================
 
     const empresaValida = computed(() => {
         return Boolean(frmSolicitudSat.empresa);
     });
+
+    // ==========================================================
+    // VALIDAR FECHA INICIAL
+    // ==========================================================
 
     const fechaInicialValida = computed(() => {
         if (!frmSolicitudSat.fecha_inicial) {
@@ -90,6 +139,10 @@ const useProceso = () => {
 
         return frmSolicitudSat.fecha_inicial <= ahora;
     });
+
+    // ==========================================================
+    // VALIDAR FECHA FINAL
+    // ==========================================================
 
     const fechaFinalValida = computed(() => {
         if (!frmSolicitudSat.fecha_final) {
@@ -109,13 +162,73 @@ const useProceso = () => {
         return true;
     });
 
+    // ==========================================================
+    // BOTON SOLICITAR
+    // ==========================================================
+
     const botonSolicitarDeshabilitado = computed(() => {
-        return !(empresaValida.value && fechaInicialValida.value && fechaFinalValida.value);
+        return !(empresaValida.value && fechaInicialValida.value && fechaFinalValida.value && frmSolicitudSat.tipo);
     });
 
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // EMPRESA SELECCIONADA
+    // ==========================================================
+
+    const empresaSeleccionada = computed(() => {
+        return catCompaniasSat.value.find((item) => item._id === frmSolicitudSat.empresa) || null;
+    });
+
+    const nombreEmpresaSeleccionada = computed(() => {
+        if (!empresaSeleccionada.value) {
+            return 'Sin seleccionar';
+        }
+
+        return empresaSeleccionada.value.razon_social_nombre_completo || empresaSeleccionada.value.rfc || 'Sin nombre';
+    });
+
+    // ==========================================================
+    // TIPO SELECCIONADO
+    // ==========================================================
+
+    const tipoSeleccionado = computed(() => {
+        return tipos.find((item) => item.id === frmSolicitudSat.tipo) || null;
+    });
+
+    const nombreTipoSeleccionado = computed(() => {
+        return tipoSeleccionado.value?.descripcion || 'Sin seleccionar';
+    });
+
+    // ==========================================================
+    // DESCRIPCION TIPO
+    // ==========================================================
+
+    const descripcionTipoSeleccionado = computed(() => {
+        if (frmSolicitudSat.tipo === 'emitidos') {
+            return {
+                titulo: 'CFDI emitidos',
+
+                descripcion: 'Se solicitarán los CFDI emitidos por la empresa y su Metadata correspondiente.'
+            };
+        }
+
+        if (frmSolicitudSat.tipo === 'recibidos') {
+            return {
+                titulo: 'CFDI recibidos',
+
+                descripcion: 'Se solicitarán los CFDI recibidos por la empresa y su Metadata correspondiente.'
+            };
+        }
+
+        return {
+            titulo: 'Emitidos y recibidos',
+
+            descripcion: 'Se generarán solicitudes para CFDI emitidos, recibidos y la Metadata de ambos.'
+        };
+    });
+
+    // ==========================================================
     // VALIDAR FECHA INICIAL
-    // -------------------------------------------------------------------------
+    // ==========================================================
 
     const handleValidarFechaInicial = () => {
         if (!frmSolicitudSat.fecha_inicial) {
@@ -127,8 +240,11 @@ const useProceso = () => {
         if (frmSolicitudSat.fecha_inicial > ahora) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'No puedes seleccionar una fecha mayor a la actual.',
+
                 life: 3000
             });
 
@@ -140,8 +256,11 @@ const useProceso = () => {
         if (frmSolicitudSat.fecha_final && frmSolicitudSat.fecha_inicial > frmSolicitudSat.fecha_final) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'La fecha inicial no puede ser mayor a la fecha final.',
+
                 life: 3000
             });
 
@@ -149,9 +268,9 @@ const useProceso = () => {
         }
     };
 
-    // -------------------------------------------------------------------------
+    // ==========================================================
     // VALIDAR FECHA FINAL
-    // -------------------------------------------------------------------------
+    // ==========================================================
 
     const handleValidarFechaFinal = () => {
         if (!frmSolicitudSat.fecha_final) {
@@ -163,8 +282,11 @@ const useProceso = () => {
         if (frmSolicitudSat.fecha_final > ahora) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'No puedes seleccionar una fecha mayor a la actual.',
+
                 life: 3000
             });
 
@@ -176,8 +298,11 @@ const useProceso = () => {
         if (frmSolicitudSat.fecha_inicial && frmSolicitudSat.fecha_final < frmSolicitudSat.fecha_inicial) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'La fecha final no puede ser menor a la fecha inicial.',
+
                 life: 3000
             });
 
@@ -185,16 +310,18 @@ const useProceso = () => {
         }
     };
 
-    // -------------------------------------------------------------------------
-    // FORMATO FECHA
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // FORMATO FECHA LOCAL
+    // ==========================================================
 
     const formatFechaLocal = (fecha) => {
         if (!fecha) {
             return null;
         }
 
-        const pad = (n) => String(n).padStart(2, '0');
+        const pad = (numero) => {
+            return String(numero).padStart(2, '0');
+        };
 
         const year = fecha.getFullYear();
 
@@ -208,12 +335,40 @@ const useProceso = () => {
 
         const seconds = pad(fecha.getSeconds());
 
-        return `${year}-${month}-${day}T` + `${hours}:${minutes}:${seconds}-06:00`;
+        return `${year}-${month}-${day}T` + `${hours}:${minutes}:${seconds}`;
     };
 
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // FORMATO FECHA PARA MOSTRAR
+    // ==========================================================
+
+    const formatFechaTexto = (fecha) => {
+        if (!fecha) {
+            return '-';
+        }
+
+        const pad = (numero) => {
+            return String(numero).padStart(2, '0');
+        };
+
+        return `${fecha.getFullYear()}-` + `${pad(fecha.getMonth() + 1)}-` + `${pad(fecha.getDate())} ` + `${pad(fecha.getHours())}:` + `${pad(fecha.getMinutes())}`;
+    };
+
+    // ==========================================================
+    // PERIODO
+    // ==========================================================
+
+    const periodoTexto = computed(() => {
+        if (!frmSolicitudSat.fecha_inicial || !frmSolicitudSat.fecha_final) {
+            return '-';
+        }
+
+        return `${formatFechaTexto(frmSolicitudSat.fecha_inicial)}` + ' a ' + `${formatFechaTexto(frmSolicitudSat.fecha_final)}`;
+    });
+
+    // ==========================================================
     // CANCELAR
-    // -------------------------------------------------------------------------
+    // ==========================================================
 
     const handleCancelar = () => {
         Object.assign(frmSolicitudSat, frmSolicitudSatInit());
@@ -221,66 +376,83 @@ const useProceso = () => {
         fechaActual.value = new Date();
     };
 
-    // -------------------------------------------------------------------------
+    // ==========================================================
     // SOLICITAR
-    // -------------------------------------------------------------------------
+    // ==========================================================
 
     const handleSolicitar = async () => {
-        if (botonSolicitarDeshabilitado.value) {
-            toast.add({
-                severity: 'warn',
-                summary: 'Notificación',
-                detail: 'Complete correctamente la información de la solicitud.',
-                life: 3000
-            });
-
+        if (botonSolicitarDeshabilitado.value || solicitando.value) {
             return;
         }
 
-        const payload = {
-            empresa: frmSolicitudSat.empresa,
+        solicitando.value = true;
 
-            tipo: frmSolicitudSat.tipo,
+        try {
+            const payload = {
+                empresa: frmSolicitudSat.empresa,
 
-            fecha_inicial: formatFechaLocal(frmSolicitudSat.fecha_inicial),
+                tipo: frmSolicitudSat.tipo,
 
-            fecha_final: formatFechaLocal(frmSolicitudSat.fecha_final)
-        };
+                fecha_inicial: formatFechaLocal(frmSolicitudSat.fecha_inicial),
 
-        console.log('SOLICITUD SAT:', JSON.stringify(payload, null, 2));
+                fecha_final: formatFechaLocal(frmSolicitudSat.fecha_final)
+            };
 
-        const res = await store.dispatch('api/apiPostToken', {
-            direccion: `/operacion_sat/solicitudes_sat`,
+            console.log('SOLICITUD SAT:', payload);
 
-            datosJson: payload
-        });
+            const res = await store.dispatch('api/apiPostToken', {
+                direccion: `/operacion_sat/solicitudes_sat`,
 
-        console.log('RESPUESTA SOLICITUD SAT:', res);
+                datosJson: payload
+            });
 
-        if (res.estatus !== 200) {
+            console.log('RESPUESTA SOLICITUD SAT:', res);
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+
+                    summary: 'Solicitud SAT',
+
+                    detail: res.mensaje,
+
+                    life: 4000
+                });
+
+                return;
+            }
+
+            toast.add({
+                severity: 'success',
+
+                summary: 'Solicitud SAT',
+
+                detail: res.mensaje,
+
+                life: 4000
+            });
+
+            handleCancelar();
+        } catch (error) {
+            console.error(error);
+
             toast.add({
                 severity: 'error',
-                summary: 'Notificación',
-                detail: res.mensaje,
-                life: 3000
+
+                summary: 'Solicitud SAT',
+
+                detail: 'Ocurrió un error al generar la solicitud.',
+
+                life: 4000
             });
-
-            return;
+        } finally {
+            solicitando.value = false;
         }
-
-        toast.add({
-            severity: 'success',
-            summary: 'Notificación',
-            detail: res.mensaje,
-            life: 3000
-        });
-
-        handleCancelar();
     };
 
-    // -------------------------------------------------------------------------
-    // INICIAL
-    // -------------------------------------------------------------------------
+    // ==========================================================
+    // INIT
+    // ==========================================================
 
     const handleInit = async () => {
         fechaActual.value = new Date();
@@ -289,6 +461,10 @@ const useProceso = () => {
     };
 
     handleInit();
+
+    // ==========================================================
+    // RETURN
+    // ==========================================================
 
     return {
         frmSolicitudSat,
@@ -299,11 +475,20 @@ const useProceso = () => {
 
         fechaActual,
 
+        solicitando,
+
         empresaValida,
         fechaInicialValida,
         fechaFinalValida,
 
         botonSolicitarDeshabilitado,
+
+        nombreEmpresaSeleccionada,
+        nombreTipoSeleccionado,
+
+        descripcionTipoSeleccionado,
+
+        periodoTexto,
 
         handleValidarFechaInicial,
         handleValidarFechaFinal,
