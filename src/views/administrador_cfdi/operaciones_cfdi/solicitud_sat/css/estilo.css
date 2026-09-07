@@ -1,56 +1,422 @@
+/* =====================================================
+   CONTENEDOR
+===================================================== */
+
+.solicitud-sat-contenedor {
+    height: 72vh;
+}
+
+
+/* =====================================================
+   FORMULARIO
+===================================================== */
+
 .form-solicitud-sat {
     display: flex;
+
     justify-content: center;
 
-    padding: 35px 20px;
+    padding: 28px 20px 40px 20px;
 }
+
+
+/* =====================================================
+   CARD PRINCIPAL
+===================================================== */
 
 .solicitud-card {
     width: 100%;
-    max-width: 560px;
+
+    max-width: 720px;
 
     padding: 24px;
 
-    border: 1px solid var(--p-surface-200);
+    border:
+        1px solid
+        var(--surface-border);
+
     border-radius: 12px;
 
-    background: var(--p-surface-0);
+    background:
+        var(--surface-card);
+
+    box-shadow:
+        0 2px 8px
+        rgba(
+            0,
+            0,
+            0,
+            0.04
+        );
 }
+
+
+/* =====================================================
+   TITULO
+===================================================== */
 
 .solicitud-titulo {
     display: flex;
+
     align-items: center;
 
-    gap: 10px;
+    gap: 12px;
 
-    margin-bottom: 25px;
+    margin-bottom: 24px;
 
-    font-size: 18px;
+    padding-bottom: 16px;
+
+    border-bottom:
+        1px solid
+        var(--surface-border);
+}
+
+
+.solicitud-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.14
+        );
+
+    font-size: 17px;
+}
+
+
+.solicitud-titulo-texto {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.solicitud-titulo-texto span {
+    font-size: 16px;
+
     font-weight: 600;
 }
 
-.campo-formulario {
-    display: flex;
-    flex-direction: column;
 
-    gap: 7px;
+.solicitud-titulo-texto small {
+    font-size: 10px;
 
-    margin-bottom: 16px;
+    opacity: 0.7;
 }
 
-.acciones-formulario {
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.campo-formulario {
     display: flex;
-    justify-content: flex-end;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    margin-bottom: 17px;
+}
+
+
+.campo-formulario label {
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.ayuda-campo {
+    margin-top: 1px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+
+/* =====================================================
+   FECHAS
+===================================================== */
+
+.fechas-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 12px;
+}
+
+
+.fechas-grid
+.campo-formulario {
+    margin-bottom: 0;
+}
+
+
+/* =====================================================
+   INFORMACION TIPO
+===================================================== */
+
+.informacion-tipo {
+    display: flex;
+
+    align-items: flex-start;
 
     gap: 10px;
 
-    margin-top: 25px;
-    padding-top: 15px;
+    margin:
+        2px
+        0
+        18px
+        0;
 
-    border-top: 1px solid var(--p-surface-200);
+    padding: 11px 12px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.09
+        );
+
+    border:
+        1px solid
+        rgba(
+            42,
+            194,
+            211,
+            0.18
+        );
 }
 
-.acciones-formulario .p-button {
-    min-width: 110px;
+
+.informacion-tipo-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    flex-shrink: 0;
+
+    font-size: 13px;
+}
+
+
+.informacion-tipo > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.informacion-tipo strong {
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+.informacion-tipo span {
+    font-size: 9px;
+
+    line-height: 1.4;
+
+    opacity: 0.75;
+}
+
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.resumen-solicitud {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr
+        1.4fr;
+
+    gap: 8px;
+
+    margin-top: 20px;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    background:
+        var(--surface-50);
+
+    border:
+        1px solid
+        var(--surface-border);
+}
+
+
+.resumen-item {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+
+.resumen-item span {
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+
+.resumen-item strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
     white-space: nowrap;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.acciones-formulario {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    margin-top: 22px;
+
+    padding-top: 16px;
+
+    border-top:
+        1px solid
+        var(--surface-border);
+}
+
+
+.acciones-formulario
+.p-button {
+    min-width: 115px;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   PRIMEVUE
+===================================================== */
+
+:deep(
+    .solicitud-card
+    .p-inputtext
+) {
+    font-size: 11px;
+}
+
+
+:deep(
+    .solicitud-card
+    .p-select-label
+) {
+    font-size: 11px;
+}
+
+
+:deep(
+    .solicitud-card
+    .p-datepicker-input
+) {
+    font-size: 11px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (
+    max-width: 750px
+) {
+
+    .form-solicitud-sat {
+        padding:
+            18px
+            12px
+            30px
+            12px;
+    }
+
+
+    .solicitud-card {
+        padding: 18px;
+    }
+
+
+    .fechas-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .resumen-solicitud {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .acciones-formulario {
+        flex-direction:
+            column-reverse;
+    }
+
+
+    .acciones-formulario
+    .p-button {
+        width: 100%;
+    }
+
 }
