@@ -1360,27 +1360,43 @@ const useProceso = () => {
             return;
         }
 
-        const formData = new FormData();
+        try {
+            const formData = new FormData();
 
-        formData.append('archivo_cer_csd', frmCSD.archivo_cer);
+            formData.append('archivo_cer_csd', frmCSD.archivo_cer);
 
-        formData.append('archivo_key_csd', frmCSD.archivo_key);
+            formData.append('archivo_key_csd', frmCSD.archivo_key);
 
-        formData.append('clave', frmCSD.clave);
+            formData.append('clave', frmCSD.clave);
 
-        formData.append('activo', frmCSD.activo ? '1' : '0');
+            formData.append('activo', frmCSD.activo ? '1' : '0');
 
-        formData.append('_id', frmEmpresa.csd?._id || '');
+            formData.append('_id', frmEmpresa.csd?._id || '');
 
-        formData.append('fecha_vencimiento', frmEmpresa.csd?.fecha_vencimiento || '');
+            const res = await store.dispatch('api/apiPostTokenFormData', {
+                direccion: `/companias/verificarcsd/`,
 
-        const res = await store.dispatch('api/apiPostTokenFormData', {
-            direccion: `/companias/verificarcsd/`,
-            formData
-        });
+                formData
+            });
 
-        if (res.estatus === 200) {
-            Object.assign(frmEmpresa.csd, res.datos ?? {}, {
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'CSD',
+                    detail: res.mensaje,
+                    life: 4000
+                });
+
+                return;
+            }
+
+            const csdAnterior = {
+                ...(frmEmpresa.csd || {})
+            };
+
+            Object.assign(frmEmpresa.csd, csdAnterior, res.datos ?? {}, {
+                _id: csdAnterior._id || '',
+
                 archivo_cer: frmCSD.archivo_cer,
 
                 archivo_key: frmCSD.archivo_key,
@@ -1394,16 +1410,18 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
-                summary: 'Notificación',
-                detail: res.mensaje,
-                life: 3000
+                summary: 'CSD',
+                detail: 'CSD validado correctamente. Presione Guardar para aplicar los cambios.',
+                life: 4000
             });
-        } else {
+        } catch (error) {
+            console.error('Error verificando CSD:', error);
+
             toast.add({
                 severity: 'error',
-                summary: 'Notificación',
-                detail: res.mensaje,
-                life: 3000
+                summary: 'CSD',
+                detail: 'Ocurrió un error al verificar el sello digital.',
+                life: 4000
             });
         }
     };
