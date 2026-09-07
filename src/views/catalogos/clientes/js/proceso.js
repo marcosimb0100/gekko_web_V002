@@ -13,6 +13,7 @@ const regex_codigo_postal = /^\d{5}$/;
 
 const regex_telefono = /^\(\d{3}\)-\d{3}-\d{4}$/;
 
+import * as XLSX from 'xlsx';
 /* ============================================================
    FORM CLIENTE
 ============================================================ */
@@ -1083,6 +1084,157 @@ const useProceso = () => {
         }
     };
 
+    // =========================================================
+    // EXPORTAR CLIENTES A EXCEL
+    // =========================================================
+
+    const handleExportarExcel = () => {
+        if (!tablaClientes.value?.length) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Excel',
+                detail: 'No existen clientes para exportar.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        try {
+            const datosExcel = tablaClientes.value.map((cliente) => {
+                const empresa = companias.value.find((item) => String(item._id) === String(cliente.empresa_facturadora));
+
+                const promotor = promotores.value.find((item) => String(item._id) === String(cliente.promotor));
+
+                const regimen = (catalogoSat.value?.regimen_fiscal ?? []).find((item) => String(item.regimen_fiscal) === String(cliente.regimen_fiscal));
+
+                return {
+                    'Tipo Persona': String(cliente.tipo_persona ?? '').toUpperCase(),
+
+                    'R.F.C.': cliente.rfc ?? '',
+
+                    'Razón Social / Nombre': cliente.razon_social_nombre_completo ?? '',
+
+                    Calle: cliente.calle ?? '',
+
+                    'Número Exterior': cliente.numero_ext ?? '',
+
+                    'Número Interior': cliente.numero_int ?? '',
+
+                    Colonia: cliente.colonia ?? '',
+
+                    Población: cliente.poblacion ?? '',
+
+                    Municipio: cliente.municipio ?? '',
+
+                    'Código Postal': cliente.codigo_postal ?? '',
+
+                    País: cliente.pais ?? '',
+
+                    Estado: cliente.estado ?? '',
+
+                    'Correo Electrónico': cliente.correo_electronico ?? '',
+
+                    'Contacto Principal': cliente.numero_contacto_principal ?? '',
+
+                    'Contacto Alterno': cliente.numero_contacto_alterno ?? '',
+
+                    'Régimen Fiscal': regimen ? `${regimen.regimen_fiscal} - ${regimen.descripcion}` : (cliente.regimen_fiscal ?? ''),
+
+                    Promotor: promotor?.nombre_completo ?? '',
+
+                    'Empresa Facturadora': empresa?.razon_social_nombre_completo ?? '',
+
+                    Activo: cliente.activo === true ? 'SI' : 'NO'
+                };
+            });
+
+            // =====================================================
+            // CREAR HOJA
+            // =====================================================
+
+            const hoja = XLSX.utils.json_to_sheet(datosExcel);
+
+            // =====================================================
+            // ANCHOS DE COLUMNAS
+            // =====================================================
+
+            hoja['!cols'] = [
+                { wch: 16 }, // Tipo Persona
+                { wch: 18 }, // RFC
+                { wch: 40 }, // Nombre
+                { wch: 30 }, // Calle
+                { wch: 15 }, // Numero Ext
+                { wch: 15 }, // Numero Int
+                { wch: 25 }, // Colonia
+                { wch: 25 }, // Poblacion
+                { wch: 25 }, // Municipio
+                { wch: 14 }, // CP
+                { wch: 14 }, // Pais
+                { wch: 20 }, // Estado
+                { wch: 35 }, // Correo
+                { wch: 20 }, // Contacto
+                { wch: 20 }, // Alterno
+                { wch: 45 }, // Regimen
+                { wch: 35 }, // Promotor
+                { wch: 40 }, // Empresa
+                { wch: 12 } // Activo
+            ];
+
+            // =====================================================
+            // AUTOFILTRO
+            // =====================================================
+
+            hoja['!autofilter'] = {
+                ref: `A1:S${datosExcel.length + 1}`
+            };
+
+            // =====================================================
+            // LIBRO
+            // =====================================================
+
+            const libro = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(libro, hoja, 'Clientes');
+
+            // =====================================================
+            // NOMBRE
+            // =====================================================
+
+            const fecha = new Date();
+
+            const yyyy = fecha.getFullYear();
+
+            const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+
+            const dd = String(fecha.getDate()).padStart(2, '0');
+
+            const nombreArchivo = `Clientes_${yyyy}-${mm}-${dd}.xlsx`;
+
+            // =====================================================
+            // DESCARGAR
+            // =====================================================
+
+            XLSX.writeFile(libro, nombreArchivo);
+
+            toast.add({
+                severity: 'success',
+                summary: 'Excel',
+                detail: 'Archivo Excel generado correctamente.',
+                life: 3000
+            });
+        } catch (error) {
+            console.error('EXPORTAR CLIENTES:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Excel',
+                detail: 'No fue posible generar el archivo Excel.',
+                life: 3000
+            });
+        }
+    };
+
     return {
         // GENERAL
         mostrarTablaFormulario,
@@ -1160,7 +1312,9 @@ const useProceso = () => {
         handleCargarAccesoCliente,
         handleGuardarAccesoCliente,
         urlAccesoCliente,
-        handleCopiarRutaAcceso
+        handleCopiarRutaAcceso,
+
+        handleExportarExcel
     };
 };
 
