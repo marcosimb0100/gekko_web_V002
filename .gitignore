@@ -15,3 +15,5 @@ dist
 api-generator/typedoc.json
 **/.DS_Store
 public/
+yml_dist/
+src/assets/images/
