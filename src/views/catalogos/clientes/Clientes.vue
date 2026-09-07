@@ -1,6 +1,6 @@
 <template>
     <Encabezado titulo="Clientes" subtitulo="Administración de clientes del sistema" icono="pi pi-users">
-        <Button type="button" label="Exportar Excel" class="w-full btn-excel" @click="handleExportarExcel" v-if="!mostrarTablaFormulario">
+        <Button type="button" label="Exportar Excel" class="btn-excel" @click="handleExportarExcel" v-if="!mostrarTablaFormulario">
             <template #icon>
                 <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
             </template>

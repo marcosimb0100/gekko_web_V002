@@ -356,6 +356,10 @@
     background: #21a366 !important;
     border-color: #21a366 !important;
     color: #ffffff !important;
+
+    white-space: nowrap !important;
+    width: auto !important;
+    min-width: max-content;
 }
 
 .btn-excel:hover {
