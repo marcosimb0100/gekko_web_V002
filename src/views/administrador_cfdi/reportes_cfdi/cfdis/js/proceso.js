@@ -1,6 +1,7 @@
 import { useToast } from 'primevue/usetoast';
 import { computed, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
+import * as XLSX from 'xlsx';
 
 const getFechaInicialDefault = () => {
     const fecha = new Date();
@@ -384,6 +385,119 @@ const useProceso = () => {
     };
 
     // -------------------------------------------------------------------------
+    // EXPORTAR EXCEL
+    // -------------------------------------------------------------------------
+
+    const handleExportarExcel = () => {
+        if (!catCfdisFiltrados.value.length) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Excel',
+                detail: 'No existen CFDI para exportar.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        try {
+            const datosExcel = catCfdisFiltrados.value.map((item) => ({
+                UUID: item.uuid ?? '',
+
+                Fecha: handleFormatFecha(item.fecha),
+
+                Serie: item.serie ?? '',
+
+                Folio: item.folio ?? '',
+
+                'Tipo Comprobante': item.tipoDeComprobante ?? '',
+
+                'Forma Pago': item.formaPago ?? '',
+
+                'Método Pago': item.metodoPago ?? '',
+
+                Moneda: item.moneda ?? '',
+
+                'RFC Emisor': item.emisorRfc ?? '',
+
+                'Nombre Emisor': item.emisorNombre ?? '',
+
+                'RFC Receptor': item.receptorRfc ?? '',
+
+                'Nombre Receptor': item.receptorNombre ?? '',
+
+                Subtotal: Number(item.subTotal ?? 0),
+
+                Descuento: Number(item.descuento ?? 0),
+
+                'Impuestos Trasladados': Number(item.totalImpuestosTrasladados ?? 0),
+
+                'Impuestos Retenidos': Number(item.totalImpuestosRetenidos ?? 0),
+
+                Total: Number(item.total ?? 0),
+
+                Estatus: Number(item.estatusCFDI) === 1 ? 'VIGENTE' : 'CANCELADO',
+
+                'Fecha Timbrado': item.fechaTimbrado ?? ''
+            }));
+
+            const hoja = XLSX.utils.json_to_sheet(datosExcel);
+
+            hoja['!cols'] = [
+                { wch: 38 }, // UUID
+                { wch: 14 }, // Fecha
+                { wch: 10 }, // Serie
+                { wch: 10 }, // Folio
+                { wch: 18 }, // Tipo
+                { wch: 15 }, // Forma
+                { wch: 15 }, // Metodo
+                { wch: 10 }, // Moneda
+                { wch: 18 }, // RFC emisor
+                { wch: 38 }, // emisor
+                { wch: 18 }, // RFC receptor
+                { wch: 38 }, // receptor
+                { wch: 16 }, // subtotal
+                { wch: 16 }, // descuento
+                { wch: 20 }, // traslados
+                { wch: 20 }, // retenciones
+                { wch: 16 }, // total
+                { wch: 14 }, // estatus
+                { wch: 22 } // timbrado
+            ];
+
+            hoja['!autofilter'] = {
+                ref: `A1:S${datosExcel.length + 1}`
+            };
+
+            const libro = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(libro, hoja, 'CFDI');
+
+            const fecha = new Date();
+
+            const nombreArchivo = `CFDI_${frmFiltros.empresa}_` + `${fecha.getFullYear()}-` + `${String(fecha.getMonth() + 1).padStart(2, '0')}-` + `${String(fecha.getDate()).padStart(2, '0')}.xlsx`;
+
+            XLSX.writeFile(libro, nombreArchivo);
+
+            toast.add({
+                severity: 'success',
+                summary: 'Excel',
+                detail: `${datosExcel.length} CFDI exportados correctamente.`,
+                life: 3000
+            });
+        } catch (error) {
+            console.error('EXPORTAR CFDI:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Excel',
+                detail: 'No fue posible generar el archivo Excel.',
+                life: 3000
+            });
+        }
+    };
+
+    // -------------------------------------------------------------------------
     // INIT
     // -------------------------------------------------------------------------
 
@@ -422,7 +536,8 @@ const useProceso = () => {
         handleFormatMX,
         handleFormatFecha,
 
-        handleDescargaXml
+        handleDescargaXml,
+        handleExportarExcel
     };
 };
 

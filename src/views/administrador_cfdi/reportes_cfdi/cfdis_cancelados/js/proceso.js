@@ -1,6 +1,7 @@
 import { useToast } from 'primevue/usetoast';
 import { computed, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
+import * as XLSX from 'xlsx';
 
 const getFechaInicialDefault = () => {
     const fecha = new Date();
@@ -250,6 +251,81 @@ const useProceso = () => {
         return String(fecha).substring(0, 10);
     };
 
+    const handleExportarExcel = () => {
+        if (!catCfdisFiltrados.value.length) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Excel',
+                detail: 'No existen CFDI cancelados para exportar.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        try {
+            const datosExcel = catCfdisFiltrados.value.map((item) => ({
+                UUID: item.uuid ?? '',
+
+                'Fecha Emisión': handleFormatFecha(item.fecha),
+
+                'Fecha Cancelación': handleFormatFecha(item.fechaCancelacion ?? item.fecha_cancelacion),
+
+                Serie: item.serie ?? '',
+
+                Folio: item.folio ?? '',
+
+                Comprobante: item.tipoDeComprobante ?? '',
+
+                'RFC Emisor': item.emisorRfc ?? '',
+
+                'Nombre Emisor': item.emisorNombre ?? '',
+
+                'RFC Receptor': item.receptorRfc ?? '',
+
+                'Nombre Receptor': item.receptorNombre ?? '',
+
+                Total: Number(item.total ?? 0),
+
+                Estatus: 'CANCELADO'
+            }));
+
+            const hoja = XLSX.utils.json_to_sheet(datosExcel);
+
+            hoja['!cols'] = [{ wch: 38 }, { wch: 16 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 15 }, { wch: 18 }, { wch: 38 }, { wch: 18 }, { wch: 38 }, { wch: 16 }, { wch: 14 }];
+
+            hoja['!autofilter'] = {
+                ref: `A1:L${datosExcel.length + 1}`
+            };
+
+            const libro = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(libro, hoja, 'CFDI Cancelados');
+
+            const fecha = new Date();
+
+            const nombre = `CFDI_Cancelados_` + `${fecha.getFullYear()}-` + `${String(fecha.getMonth() + 1).padStart(2, '0')}-` + `${String(fecha.getDate()).padStart(2, '0')}.xlsx`;
+
+            XLSX.writeFile(libro, nombre);
+
+            toast.add({
+                severity: 'success',
+                summary: 'Excel',
+                detail: `${datosExcel.length} CFDI cancelados exportados.`,
+                life: 3000
+            });
+        } catch (error) {
+            console.error('EXPORTAR CANCELADOS:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Excel',
+                detail: 'No fue posible generar el archivo Excel.',
+                life: 3000
+            });
+        }
+    };
+
     // -------------------------------------------------------------------------
     // INIT
     // -------------------------------------------------------------------------
@@ -281,7 +357,8 @@ const useProceso = () => {
         handleCancelar,
 
         handleFormatMX,
-        handleFormatFecha
+        handleFormatFecha,
+        handleExportarExcel
     };
 };
 

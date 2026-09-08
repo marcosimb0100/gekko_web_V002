@@ -1,6 +1,7 @@
 import { useToast } from 'primevue/usetoast';
 import { computed, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
+import * as XLSX from 'xlsx';
 
 const getFechaInicialDefault = () => {
     const fecha = new Date();
@@ -292,6 +293,83 @@ const useProceso = () => {
         return String(fecha).substring(0, 10);
     };
 
+    const handleExportarExcel = () => {
+        if (!catCfdisFiltrados.value.length) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Excel',
+                detail: 'No existen registros para exportar.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        try {
+            const datosExcel = catCfdisFiltrados.value.map((item) => ({
+                UUID: item.uuid ?? '',
+
+                Fecha: handleFormatFecha(item.fecha),
+
+                'RFC Emisor': item.emisorRfc ?? '',
+
+                'Nombre Emisor': item.emisorNombre ?? '',
+
+                'RFC Receptor': item.receptorRfc ?? '',
+
+                'Nombre Receptor': item.receptorNombre ?? '',
+
+                Comprobante: item.tipoDeComprobante ?? '',
+
+                Total: Number(item.total ?? 0),
+
+                'Número Pagos': Number(item.numeroPagos ?? item.numero_pagos ?? 0),
+
+                'Total Pagos': Number(item.montoPagos ?? item.monto_pagos ?? 0),
+
+                'Saldo Insoluto': Number(item.saldoInsolutoPagos ?? item.saldo_insoluto_pagos ?? 0),
+
+                'Método Pago': item.metodoPago ?? '',
+
+                Estatus: Number(item.estatusCFDI) === 1 ? 'VIGENTE' : 'CANCELADO'
+            }));
+
+            const hoja = XLSX.utils.json_to_sheet(datosExcel);
+
+            hoja['!cols'] = [{ wch: 38 }, { wch: 14 }, { wch: 18 }, { wch: 38 }, { wch: 18 }, { wch: 38 }, { wch: 15 }, { wch: 16 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 14 }];
+
+            hoja['!autofilter'] = {
+                ref: `A1:M${datosExcel.length + 1}`
+            };
+
+            const libro = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(libro, hoja, 'Complementos');
+
+            const fecha = new Date();
+
+            const nombreArchivo = `Complementos_Pago_${fecha.getFullYear()}-` + `${String(fecha.getMonth() + 1).padStart(2, '0')}-` + `${String(fecha.getDate()).padStart(2, '0')}.xlsx`;
+
+            XLSX.writeFile(libro, nombreArchivo);
+
+            toast.add({
+                severity: 'success',
+                summary: 'Excel',
+                detail: `${datosExcel.length} registros exportados.`,
+                life: 3000
+            });
+        } catch (error) {
+            console.error('EXPORTAR COMPLEMENTOS:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Excel',
+                detail: 'No fue posible generar el archivo Excel.',
+                life: 3000
+            });
+        }
+    };
+
     // -------------------------------------------------------------------------
     // INIT
     // -------------------------------------------------------------------------
@@ -327,7 +405,8 @@ const useProceso = () => {
         handleCancelar,
 
         handleFormatMX,
-        handleFormatFecha
+        handleFormatFecha,
+        handleExportarExcel
     };
 };
 

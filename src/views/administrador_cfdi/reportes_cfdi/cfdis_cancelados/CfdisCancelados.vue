@@ -1,5 +1,11 @@
 <template>
-    <Encabezado titulo="CFDIs Cancelados" subtitulo="Consulta de comprobantes fiscales cancelados" icono="pi pi-file" />
+    <Encabezado titulo="CFDIs Cancelados" subtitulo="Consulta de comprobantes fiscales cancelados" icono="pi pi-file">
+        <Button type="button" label="Exportar Excel" class="btn-excel" :disabled="!catCfdisFiltrados.length" @click="handleExportarExcel">
+            <template #icon>
+                <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
+            </template>
+        </Button>
+    </Encabezado>
 
     <div class="card p-0 m-0" style="height: 72vh">
         <!-- FILTROS -->
