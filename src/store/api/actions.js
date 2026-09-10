@@ -140,29 +140,100 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
     };
 };
 
+// export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) => {
+//     commit('visibleCargandoMutation');
+//     const { estatus, mensaje } = await apiPost_token_formdata(direccion, formData);
+//     if (estatus === 200) {
+//         commit('visibleCargandoMutation');
+//     } else {
+//         commit('visibleCargandoMutation');
+//     }
+//     if (estatus === 401) {
+//         localStorage.clear();
+//         router.replace({ name: 'acceso' });
+//     }
+//     if (estatus === 402) {
+//         localStorage.clear();
+//         router.replace({ name: 'acceso' });
+//     }
+//     if (estatus === 403) {
+//         router.replace({ name: 'notfound' });
+//     }
+//     return {
+//         estatus,
+//         mensaje
+//     };
+// };
+
 export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje } = await apiPost_token_formdata(direccion, formData);
-    if (estatus === 200) {
+
+    try {
+        // ========================================================
+        // VALIDAR
+        // ========================================================
+
+        if (!(formData instanceof FormData)) {
+            throw new Error('apiPostTokenFormData esperaba un FormData.');
+        }
+
+        // ========================================================
+        // API
+        // ========================================================
+
+        const { estatus, mensaje, datos } = await apiPost_token_formdata(direccion, formData);
+
+        console.log('RESPUESTA ACTION FORMDATA:', {
+            estatus,
+            mensaje,
+            datos
+        });
+
+        // ========================================================
+        // SESION
+        // ========================================================
+
+        if (estatus === 401 || estatus === 402) {
+            localStorage.clear();
+
+            router.replace({
+                name: 'acceso'
+            });
+        }
+
+        if (estatus === 403) {
+            router.replace({
+                name: 'notpagefound'
+            });
+        }
+
+        // ========================================================
+        // RESPUESTA
+        //
+        // IMPORTANTE:
+        // antes aquí se estaba perdiendo "datos".
+        // ========================================================
+
+        return {
+            estatus: estatus,
+
+            mensaje: mensaje,
+
+            datos: datos ?? {}
+        };
+    } catch (error) {
+        console.error('ERROR apiPostTokenFormData:', error);
+
+        return {
+            estatus: 500,
+
+            mensaje: error?.message || 'No fue posible ' + 'realizar la petición.',
+
+            datos: {}
+        };
+    } finally {
         commit('visibleCargandoMutation');
-    } else {
-        commit('visibleCargandoMutation');
     }
-    if (estatus === 401) {
-        localStorage.clear();
-        router.replace({ name: 'acceso' });
-    }
-    if (estatus === 402) {
-        localStorage.clear();
-        router.replace({ name: 'acceso' });
-    }
-    if (estatus === 403) {
-        router.replace({ name: 'notfound' });
-    }
-    return {
-        estatus,
-        mensaje
-    };
 };
 
 export const apiGetblob = async ({ commit }, { direccion }) => {

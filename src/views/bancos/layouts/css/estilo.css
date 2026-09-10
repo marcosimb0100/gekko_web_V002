@@ -1,0 +1,455 @@
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
+
+.card-layouts {
+    height: 72vh;
+
+    padding: 0 28px 0 28px !important;
+}
+
+/* =========================================================
+   BARRA DE TABLA
+   ========================================================= */
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 8px;
+
+    padding: 34px 6px 6px 6px;
+}
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.buscador {
+    width: 200px;
+}
+
+/* =========================================================
+   DATATABLE
+   ========================================================= */
+
+:deep(.tabla-encabezados .p-datatable-header) {
+    padding: 0 !important;
+
+    border: 0 !important;
+}
+
+:deep(.tabla-encabezados .p-datatable-thead > tr > th) {
+    padding: 6px 8px;
+
+    white-space: nowrap;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: white !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr > td) {
+    padding: 7px 8px;
+
+    font-size: 11px;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr) {
+    border-bottom: 1px solid var(--p-surface-200);
+}
+
+:deep(.nowrap) {
+    white-space: nowrap;
+}
+
+/* =========================================================
+   CONTADOR LAYOUTS
+   ========================================================= */
+
+.contador-layouts {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 26px;
+
+    height: 22px;
+
+    padding: 0 7px;
+
+    border-radius: 12px;
+
+    background: rgba(120, 120, 120, 0.15);
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+.contador-layouts-activo {
+    background: rgba(0, 180, 220, 0.18);
+}
+
+/* =========================================================
+   ESTADO CONFIGURACION
+   ========================================================= */
+
+.estado-configuracion {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.estado-configuracion.configurado {
+    background: rgba(0, 150, 70, 0.16);
+
+    color: green;
+}
+
+.estado-configuracion.pendiente {
+    background: rgba(255, 165, 0, 0.2);
+
+    color: #a46800;
+}
+
+/* =========================================================
+   BOTONES OPCIONES
+   ========================================================= */
+
+.acciones-tabla {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+.btn-opcion {
+    width: 38px !important;
+
+    min-width: 38px !important;
+
+    height: 30px !important;
+
+    padding: 0 !important;
+
+    background: rgb(37, 44, 50) !important;
+
+    border-color: rgb(37, 44, 50) !important;
+
+    color: white !important;
+
+    border-radius: 6px !important;
+}
+
+/* =========================================================
+   BANCO SELECCIONADO
+   ========================================================= */
+
+.detalle-banco {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin: 22px 6px 0 6px;
+
+    padding: 12px 16px;
+
+    border: 1px solid var(--p-surface-200);
+
+    border-radius: 8px;
+}
+
+.detalle-banco-titulo {
+    font-size: 15px;
+
+    font-weight: 600;
+}
+
+.detalle-banco-subtitulo {
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    opacity: 0.75;
+}
+
+.separador {
+    margin: 0 8px;
+}
+
+.badge-total-layouts {
+    padding: 5px 10px;
+
+    border-radius: 14px;
+
+    background: rgba(0, 180, 220, 0.15);
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   EXTENSIONES
+   ========================================================= */
+
+.extensiones {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 4px;
+}
+
+.extension {
+    padding: 2px 6px;
+
+    border-radius: 5px;
+
+    background: rgba(100, 100, 100, 0.14);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   ACTIVO
+   ========================================================= */
+
+.icono-activo {
+    color: green;
+}
+
+.icono-inactivo {
+    color: #c33;
+}
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.formulario-layout {
+    height: 72vh;
+
+    padding: 0 !important;
+}
+
+.contenido-formulario {
+    padding: 24px 32px 40px 32px;
+}
+
+.titulo-formulario-principal {
+    margin-bottom: 20px;
+
+    font-size: 18px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
+
+.seccion-formulario {
+    margin-bottom: 20px;
+
+    padding: 18px;
+
+    border: 1px solid var(--p-surface-200);
+
+    border-radius: 8px;
+}
+
+.titulo-seccion {
+    margin-bottom: 14px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.titulo-seccion-boton {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+.texto-ayuda {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    font-weight: normal;
+
+    opacity: 0.7;
+}
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.grid-formulario {
+    display: grid;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+}
+
+.grid-formulario:last-child {
+    margin-bottom: 0;
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.campo-doble {
+    grid-column: span 2;
+}
+
+.campo-triple {
+    grid-column: span 3;
+}
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.campo-formulario label {
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+.campo-formulario :deep(.p-inputtext),
+.campo-formulario :deep(.p-select),
+.campo-formulario :deep(.p-dropdown),
+.campo-formulario :deep(.p-inputnumber),
+.campo-formulario :deep(.p-inputnumber-input) {
+    width: 100%;
+}
+
+.requerido {
+    color: red;
+}
+
+/* =========================================================
+   CHECKBOX
+   ========================================================= */
+
+.contenedor-checkbox {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 34px;
+}
+
+/* =========================================================
+   TABLAS CONFIGURACION
+   ========================================================= */
+
+.tabla-configuracion {
+    margin-top: 8px;
+}
+
+.tabla-configuracion :deep(.p-inputtext),
+.tabla-configuracion :deep(.p-select),
+.tabla-configuracion :deep(.p-dropdown),
+.tabla-configuracion :deep(.p-inputnumber),
+.tabla-configuracion :deep(.p-inputnumber-input) {
+    width: 100%;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .grid-4,
+    .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .campo-triple {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 700px) {
+    .grid-4,
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-doble,
+    .campo-triple {
+        grid-column: span 1;
+    }
+
+    .detalle-banco {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .titulo-seccion-boton {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+}

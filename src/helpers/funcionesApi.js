@@ -96,28 +96,100 @@ export const apiPut_token = async (direccion, datos) => {
         });
 };
 
-export const apiPost_token_formdata = async (direccion, datos) => {
+export const apiPost_token_formdata = async (direccion, formData) => {
     const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');
-    const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
-    const consumir = axios.create({ baseURL: url, headers: { Authorization: Authorization, rutaActual: rutaActual, 'Content-Type': 'multipart/form-data' } });
 
-    return await consumir
-        .post(direccion, datos)
-        .then((response) => {
-            const { status, data } = response;
-            return {
-                estatus: status,
-                mensaje: data.mensaje
-            };
-        })
-        .catch((error) => {
-            const { response } = error;
-            return {
-                estatus: response.status === 0 ? 500 : response.status,
-                mensaje: response.status === 0 ? `[Api] Error ${error}` : response.data.mensaje
-            };
+    const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
+
+    try {
+        // ========================================================
+        // VALIDAR FORMDATA
+        // ========================================================
+
+        if (!(formData instanceof FormData)) {
+            throw new Error('La información recibida no es FormData.');
+        }
+
+        // ========================================================
+        // AXIOS
+        // ========================================================
+
+        const consumir = axios.create({
+            baseURL: url,
+
+            headers: {
+                Authorization: Authorization,
+
+                rutaActual: rutaActual,
+
+                'Content-Type': 'multipart/form-data'
+            }
         });
+
+        // ========================================================
+        // PETICION
+        // ========================================================
+
+        const response = await consumir.post(direccion, formData);
+
+        const { status, data } = response;
+
+        // ========================================================
+        // RESPUESTA
+        // ========================================================
+
+        return {
+            estatus: status,
+
+            mensaje: data?.mensaje ?? '',
+
+            datos: data?.datos ?? {}
+        };
+    } catch (error) {
+        console.error('ERROR apiPost_token_formdata:', error);
+
+        if (!error.response) {
+            return {
+                estatus: 500,
+
+                mensaje: 'Error de conexión con el servidor.',
+
+                datos: {}
+            };
+        }
+
+        return {
+            estatus: error.response?.status ?? 500,
+
+            mensaje: error.response?.data?.mensaje ?? 'Error inesperado.',
+
+            datos: error.response?.data?.datos ?? {}
+        };
+    }
 };
+
+// export const apiPost_token_formdata = async (direccion, datos) => {
+//     const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');
+//     const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
+//     const consumir = axios.create({ baseURL: url, headers: { Authorization: Authorization, rutaActual: rutaActual, 'Content-Type': 'multipart/form-data' } });
+
+//     return await consumir
+//         .post(direccion, datos)
+//         .then((response) => {
+//             const { status, data } = response;
+//             return {
+//                 estatus: status,
+//                 mensaje: data.mensaje
+//             };
+//         })
+//         .catch((error) => {
+//             const { response } = error;
+//             return {
+//                 estatus: response.status === 0 ? 500 : response.status,
+//                 mensaje: response.status === 0 ? `[Api] Error ${error}` : response.data.mensaje
+//             };
+//         });
+// };
 
 export const apiPut_token_formdata = async (direccion, datos) => {
     const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');

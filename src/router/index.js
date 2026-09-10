@@ -194,6 +194,20 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/bancos/layouts',
+                    name: 'bancos_layouts',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "bancos_layouts" */ '../views/bancos/layouts/Layouts.vue')
+                },
+
+                {
+                    path: '/bancos/estados_cuenta',
+                    name: 'bancos_estados_cuenta',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "bancos_estados_cuenta" */ '../views/bancos/carga/Carga.vue')
+                },
+
+                {
                     path: '/reportes/contabilidad_fac',
                     name: 'reportes_contabilidad_fac',
                     beforeEnter: permisoRutas,

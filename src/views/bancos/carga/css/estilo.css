@@ -1,0 +1,883 @@
+/* =========================================================
+   CARD GENERAL
+   ========================================================= */
+
+.card-carga {
+    padding: 0 28px 30px 28px !important;
+}
+
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.contenedor-formulario-carga {
+    display: flex;
+
+    justify-content: center;
+
+    padding: 28px 20px 36px 20px;
+}
+
+/* =========================================================
+   CARD FORMULARIO
+   ========================================================= */
+
+.card-formulario-carga {
+    width: 100%;
+
+    max-width: 760px;
+
+    padding: 24px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================================
+   ENCABEZADO FORM
+   ========================================================= */
+
+.encabezado-formulario {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.icono-formulario {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 9px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 17px;
+}
+
+.titulo-formulario {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.subtitulo-formulario {
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   SEPARADOR
+   ========================================================= */
+
+.separador-formulario {
+    height: 1px;
+
+    margin: 18px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+.campo-carga {
+    margin-bottom: 17px;
+}
+
+.campo-carga label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 11px;
+
+    font-weight: 500;
+}
+
+.texto-campo {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   DROPDOWNS
+   ========================================================= */
+
+:deep(.campo-carga .p-dropdown) {
+    width: 100%;
+}
+
+:deep(.campo-carga .p-select) {
+    width: 100%;
+}
+
+/* =========================================================
+   EMPRESA
+   ========================================================= */
+
+.opcion-empresa {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.opcion-empresa-nombre {
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.opcion-empresa small {
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+.valor-empresa {
+    min-width: 0;
+}
+
+.valor-empresa strong {
+    display: block;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   CUENTAS
+   ========================================================= */
+
+.opcion-cuenta {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    width: 100%;
+}
+
+.opcion-cuenta-superior {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.clave-banco {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 38px;
+
+    padding: 3px 6px;
+
+    border-radius: 5px;
+
+    background: rgba(100, 100, 100, 0.12);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+.datos-opcion-cuenta {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.datos-opcion-cuenta strong {
+    font-size: 11px;
+}
+
+.datos-opcion-cuenta small {
+    margin-top: 1px;
+
+    font-size: 8px;
+
+    opacity: 0.65;
+}
+
+.opcion-cuenta-detalle {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding-left: 46px;
+
+    font-size: 8px;
+
+    opacity: 0.65;
+}
+
+.valor-cuenta {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    min-width: 0;
+}
+
+.valor-cuenta strong {
+    flex-shrink: 0;
+}
+
+.valor-cuenta span {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.valor-cuenta-numero {
+    opacity: 0.65;
+}
+
+/* =========================================================
+   INFORMACION CUENTA
+   ========================================================= */
+
+.info-cuenta-seleccionada {
+    display: grid;
+
+    grid-template-columns:
+        38px
+        1.3fr
+        1fr
+        1fr
+        70px;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 17px;
+
+    padding: 11px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.04);
+}
+
+.info-cuenta-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+}
+
+.info-cuenta-item {
+    min-width: 0;
+}
+
+.info-cuenta-item span {
+    display: block;
+
+    margin-bottom: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.info-cuenta-item strong {
+    display: block;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   FILEUPLOAD
+   ========================================================= */
+
+.archivo-upload {
+    width: 100%;
+}
+
+:deep(.archivo-upload .p-button) {
+    width: 100%;
+}
+
+:deep(.p-fileupload-basic .p-fileupload-filename),
+:deep(.p-fileupload-basic .p-fileupload-file-name) {
+    display: none !important;
+}
+
+/* =========================================================
+   ARCHIVO SELECCIONADO
+   ========================================================= */
+
+.archivo-seleccionado-form {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-top: 5px;
+
+    margin-bottom: 18px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+}
+
+.archivo-form-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.archivo-form-icono-contenedor {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+}
+
+.archivo-form-icon {
+    font-size: 17px;
+}
+
+.archivo-form-datos {
+    min-width: 0;
+}
+
+.archivo-form-nombre {
+    max-width: 540px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.archivo-form-info small {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   RESUMEN PREVIO
+   ========================================================= */
+
+.resumen-previo {
+    display: grid;
+
+    grid-template-columns:
+        2fr
+        1fr
+        1fr
+        70px;
+
+    gap: 12px;
+
+    padding: 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+}
+
+.resumen-previo-item {
+    min-width: 0;
+}
+
+.resumen-previo-item span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+.resumen-previo-item strong {
+    display: block;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.acciones-formulario {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+}
+
+/* =========================================================
+   RESULTADOS
+   ========================================================= */
+
+.seccion-resultado,
+.seccion-resumen,
+.seccion-metadata,
+.seccion-movimientos,
+.seccion-validaciones {
+    margin-top: 22px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.titulo-seccion {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+}
+
+.titulo-seccion-principal {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.texto-ayuda {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   DATOS RESULTADO
+   ========================================================= */
+
+.grid-datos-resultado {
+    display: grid;
+
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.dato-resultado {
+    display: flex;
+
+    flex-direction: column;
+
+    min-height: 58px;
+
+    padding: 9px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 7px;
+}
+
+.dato-resultado span {
+    margin-bottom: 4px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.dato-resultado strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.grid-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.tarjeta-resumen {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-height: 72px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 7px;
+}
+
+.tarjeta-resumen > span {
+    margin-bottom: 5px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-resumen > strong {
+    font-size: 14px;
+}
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.estado-analisis {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 7px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.estado-correcto {
+    background: rgba(0, 150, 70, 0.15);
+
+    color: green;
+}
+
+.estado-observacion {
+    background: rgba(255, 165, 0, 0.18);
+
+    color: #a46800;
+}
+
+/* =========================================================
+   METADATA
+   ========================================================= */
+
+.grid-metadata {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 8px;
+}
+
+.metadata-item {
+    display: flex;
+
+    flex-direction: column;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 6px;
+}
+
+.metadata-item span {
+    margin-bottom: 4px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.metadata-item strong {
+    font-size: 11px;
+}
+
+/* =========================================================
+   BARRA TABLA
+   ========================================================= */
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 6px;
+}
+
+.buscador {
+    width: 210px;
+}
+
+.contador-registros {
+    margin-left: auto;
+
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 180, 220, 0.12);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   DATATABLE
+   ========================================================= */
+
+:deep(.tabla-encabezados .p-datatable-thead > tr > th) {
+    padding: 6px 8px;
+
+    white-space: nowrap;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: white !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr > td) {
+    padding: 7px 8px;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   IMPORTES
+   ========================================================= */
+
+.importe {
+    display: inline-block;
+
+    min-width: 100px;
+
+    text-align: right;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.importe-ingreso {
+    color: #16823d;
+}
+
+.importe-egreso {
+    color: #c0392b;
+}
+
+.importe-saldo {
+    font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+    .grid-resumen {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-datos-resultado {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-metadata {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .info-cuenta-seleccionada {
+        grid-template-columns:
+            38px
+            repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .card-carga {
+        padding: 0 12px 20px 12px !important;
+    }
+
+    .contenedor-formulario-carga {
+        padding: 18px 0;
+    }
+
+    .card-formulario-carga {
+        max-width: 100%;
+
+        padding: 18px;
+    }
+
+    .resumen-previo {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-datos-resultado,
+    .grid-resumen,
+    .grid-metadata {
+        grid-template-columns: 1fr;
+    }
+
+    .info-cuenta-seleccionada {
+        grid-template-columns: 1fr;
+    }
+
+    .info-cuenta-icono {
+        display: none;
+    }
+
+    .archivo-form-nombre {
+        max-width: 260px;
+    }
+
+    .acciones-formulario {
+        flex-direction: column-reverse;
+    }
+
+    .acciones-formulario :deep(.p-button) {
+        width: 100%;
+    }
+
+    .barra-tabla {
+        flex-wrap: wrap;
+    }
+
+    .contador-registros {
+        margin-left: 0;
+    }
+
+    .opcion-cuenta-detalle {
+        padding-left: 0;
+
+        flex-direction: column;
+
+        gap: 2px;
+    }
+}
