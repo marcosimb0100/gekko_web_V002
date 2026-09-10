@@ -1,0 +1,587 @@
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
+
+.card-historial {
+    margin: 0 !important;
+
+    padding: 24px 28px 30px 28px !important;
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.contenedor-filtros {
+    width: 100%;
+
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+/* =========================================================
+   ENCABEZADO FILTROS
+   ========================================================= */
+
+.encabezado-filtros {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.icono-filtros {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 40px;
+
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 16px;
+}
+
+.titulo-filtros {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.subtitulo-filtros {
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   SEPARADOR
+   ========================================================= */
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+   GRID FILTROS
+   ========================================================= */
+
+.grid-filtros {
+    display: grid;
+
+    grid-template-columns:
+        2fr
+        1.2fr
+        180px;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.campo-filtro {
+    min-width: 0;
+}
+
+.campo-filtro label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+:deep(.campo-filtro .p-dropdown) {
+    width: 100%;
+}
+
+:deep(.campo-filtro .p-select) {
+    width: 100%;
+}
+
+/* =========================================================
+   EMPRESA DROPDOWN
+   ========================================================= */
+
+.opcion-empresa {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.opcion-empresa strong {
+    font-size: 11px;
+}
+
+.opcion-empresa small {
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.grid-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-top: 16px;
+}
+
+.tarjeta-resumen {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 68px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+}
+
+.tarjeta-resumen > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.tarjeta-resumen span {
+    margin-bottom: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-resumen strong {
+    font-size: 16px;
+}
+
+.texto-correcto {
+    color: #16823d;
+}
+
+.texto-observacion {
+    color: #b97800;
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.contenedor-tabla {
+    margin-top: 18px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+/* =========================================================
+   BARRA TABLA
+   ========================================================= */
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 6px;
+}
+
+.buscador {
+    width: 220px;
+}
+
+.contador-registros {
+    margin-left: auto;
+
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 180, 220, 0.12);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   DATATABLE
+   ========================================================= */
+
+:deep(.tabla-encabezados .p-datatable-thead > tr > th) {
+    padding: 6px 8px;
+
+    white-space: nowrap;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: white !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr > td) {
+    padding: 7px 8px;
+
+    white-space: nowrap;
+
+    font-size: 11px;
+}
+
+/* =========================================================
+   EMPRESA TABLA
+   ========================================================= */
+
+.celda-empresa {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.celda-empresa strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+.celda-empresa small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   BANCO TABLA
+   ========================================================= */
+
+.celda-banco {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.badge-banco {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 34px;
+
+    padding: 2px 5px;
+
+    border-radius: 4px;
+
+    background: rgba(100, 100, 100, 0.12);
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   CUENTA
+   ========================================================= */
+
+.celda-cuenta {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.celda-cuenta strong {
+    font-size: 10px;
+}
+
+.celda-cuenta small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   ARCHIVO
+   ========================================================= */
+
+.celda-archivo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-width: 0;
+}
+
+.archivo-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 30px;
+
+    height: 30px;
+
+    flex-shrink: 0;
+
+    border-radius: 6px;
+
+    background: rgba(0, 180, 210, 0.1);
+}
+
+.celda-archivo > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.celda-archivo strong {
+    max-width: 220px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+.celda-archivo small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   MOVIMIENTOS
+   ========================================================= */
+
+.numero-movimientos {
+    font-weight: 600;
+}
+
+/* =========================================================
+   NUEVOS
+   ========================================================= */
+
+.badge-nuevos {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 32px;
+
+    padding: 3px 7px;
+
+    border-radius: 10px;
+
+    background: rgba(0, 150, 70, 0.12);
+
+    color: #16823d;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   DUPLICADOS
+   ========================================================= */
+
+.badge-duplicados {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 32px;
+
+    padding: 3px 7px;
+
+    border-radius: 10px;
+
+    background: rgba(100, 100, 100, 0.1);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+.badge-duplicados-activo {
+    background: rgba(255, 165, 0, 0.18);
+
+    color: #a46800;
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.acciones-tabla {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+.btn-eliminar-carga {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 34px;
+
+    height: 30px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #bd3f3f;
+
+    color: white;
+
+    cursor: pointer;
+}
+
+.btn-eliminar-carga:hover {
+    background: #a93535;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+    .grid-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-filtros {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .card-historial {
+        padding: 15px !important;
+    }
+
+    .grid-filtros,
+    .grid-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .barra-tabla {
+        flex-wrap: wrap;
+    }
+
+    .buscador {
+        width: 100%;
+    }
+
+    .contador-registros {
+        width: 100%;
+
+        margin-left: 0;
+
+        text-align: center;
+    }
+}

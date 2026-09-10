@@ -208,6 +208,20 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/bancos/movimientos',
+                    name: 'bancos_movimientos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "bancos_movimientos" */ '../views/bancos/movimientos/Movimientos.vue')
+                },
+
+                {
+                    path: '/bancos/historial_cargas',
+                    name: 'bancos_historial_cargas',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "bancos_historial_cargas" */ '../views/bancos/historial/Historial.vue')
+                },
+
+                {
                     path: '/reportes/contabilidad_fac',
                     name: 'reportes_contabilidad_fac',
                     beforeEnter: permisoRutas,
