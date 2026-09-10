@@ -1,0 +1,601 @@
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
+
+.card-dashboard {
+    margin: 0 !important;
+
+    padding: 24px 28px 30px 28px !important;
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.contenedor-filtros {
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.encabezado-filtros {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.icono-filtros {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 16px;
+}
+
+.titulo-filtros {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.encabezado-filtros small {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+   GRID FILTROS
+   ========================================================= */
+
+.grid-filtros {
+    display: grid;
+
+    grid-template-columns:
+        minmax(280px, 2fr)
+        minmax(170px, 0.8fr)
+        minmax(170px, 0.8fr)
+        auto;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.campo-filtro label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+:deep(.campo-filtro .p-dropdown),
+:deep(.campo-filtro .p-calendar) {
+    width: 100%;
+}
+
+.acciones-filtros {
+    display: flex;
+
+    gap: 8px;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.btn-consultar {
+    background: #198b68 !important;
+
+    border-color: #198b68 !important;
+}
+
+.btn-limpiar {
+    background: #bd3f3f !important;
+
+    border-color: #bd3f3f !important;
+
+    color: white !important;
+}
+
+.btn-exportar {
+    background: #24a766 !important;
+
+    border-color: #24a766 !important;
+}
+
+/* =========================================================
+   RESUMEN FINANCIERO
+   ========================================================= */
+
+.grid-resumen-financiero {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+.tarjeta-dashboard {
+    position: relative;
+
+    min-height: 105px;
+
+    padding: 16px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-dashboard::before {
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 4px;
+
+    height: 100%;
+
+    content: '';
+}
+
+.tarjeta-facturado::before {
+    background: #00aeca;
+}
+
+.tarjeta-pagado::before {
+    background: #24a766;
+}
+
+.tarjeta-saldo::before {
+    background: #e8a317;
+}
+
+.tarjeta-avance::before {
+    background: #607d8b;
+}
+
+.tarjeta-label {
+    margin-bottom: 7px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-valor {
+    margin-bottom: 5px;
+
+    font-size: 20px;
+
+    font-weight: 700;
+}
+
+.tarjeta-dashboard small {
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   BARRA AVANCE
+   ========================================================= */
+
+.barra-avance,
+.barra-avance-tabla {
+    width: 100%;
+
+    height: 6px;
+
+    margin-top: 10px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: rgba(120, 120, 120, 0.15);
+}
+
+.barra-avance-contenido {
+    height: 100%;
+
+    border-radius: 10px;
+
+    transition: width 0.3s ease;
+}
+
+.avance-bajo {
+    background: #e24b4b;
+}
+
+.avance-medio {
+    background: #e5a91b;
+}
+
+.avance-alto {
+    background: #23a55a;
+}
+
+/* =========================================================
+   SOLICITUDES
+   ========================================================= */
+
+.grid-resumen-solicitudes {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 12px;
+}
+
+.tarjeta-solicitud {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 72px;
+
+    padding: 12px 15px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-solicitud-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+}
+
+.solicitud-pendiente .tarjeta-solicitud-icono {
+    background: rgba(229, 169, 27, 0.15);
+
+    color: #b47c00;
+}
+
+.solicitud-rechazada .tarjeta-solicitud-icono {
+    background: rgba(226, 75, 75, 0.12);
+
+    color: #c43c3c;
+}
+
+.solicitud-timbrada .tarjeta-solicitud-icono {
+    background: rgba(35, 165, 90, 0.12);
+
+    color: #16833f;
+}
+
+.tarjeta-solicitud > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.tarjeta-solicitud span {
+    margin-bottom: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-solicitud strong {
+    font-size: 18px;
+}
+
+/* =========================================================
+   SECCION EMPRESAS
+   ========================================================= */
+
+.seccion-empresas {
+    margin-top: 20px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.titulo-seccion {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 13px;
+}
+
+.titulo-seccion h3 {
+    margin: 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.titulo-seccion small {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   BUSQUEDA
+   ========================================================= */
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 6px;
+}
+
+.buscador {
+    width: 230px;
+}
+
+.contador {
+    margin-left: auto;
+
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+:deep(.tabla-dashboard .p-datatable-thead > tr > th) {
+    padding: 6px 8px;
+
+    white-space: nowrap;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: white !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-dashboard .p-datatable-tbody > tr > td) {
+    padding: 7px 8px;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   EMPRESA
+   ========================================================= */
+
+.celda-empresa {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.celda-empresa strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.celda-empresa small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   IMPORTES
+   ========================================================= */
+
+.importe-pagado {
+    color: #16833f;
+
+    font-weight: 600;
+}
+
+.importe-pendiente {
+    color: #c78400;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+
+.badge-dashboard {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 30px;
+
+    padding: 3px 7px;
+
+    border-radius: 10px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+.badge-pendiente {
+    background: rgba(229, 169, 27, 0.15);
+
+    color: #a76f00;
+}
+
+.badge-rechazada {
+    background: rgba(226, 75, 75, 0.13);
+
+    color: #bd3838;
+}
+
+.badge-timbrada {
+    background: rgba(35, 165, 90, 0.13);
+
+    color: #16833f;
+}
+
+/* =========================================================
+   AVANCE TABLA
+   ========================================================= */
+
+.avance-tabla {
+    width: 145px;
+}
+
+.avance-tabla-superior {
+    display: flex;
+
+    justify-content: flex-end;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+.barra-avance-tabla {
+    height: 5px;
+
+    margin-top: 3px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1250px) {
+    .grid-filtros {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .grid-resumen-financiero {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .card-dashboard {
+        padding: 14px !important;
+    }
+
+    .grid-filtros,
+    .grid-resumen-financiero,
+    .grid-resumen-solicitudes {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-filtros {
+        justify-content: flex-end;
+    }
+
+    .barra-tabla {
+        flex-wrap: wrap;
+    }
+
+    .buscador {
+        width: 100%;
+    }
+
+    .contador {
+        width: 100%;
+
+        margin-left: 0;
+
+        text-align: center;
+    }
+}

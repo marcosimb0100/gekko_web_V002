@@ -226,6 +226,13 @@ const router = createRouter({
                     name: 'reportes_contabilidad_fac',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "reportes_contabilidad_fac" */ '../views/reportes/contabilidad_fac/ContabilidadFac.vue')
+                },
+
+                {
+                    path: '/reportes/dashBoard_facturacion',
+                    name: 'reportes_dashBoard_facturacion',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "reportes_dashBoard_facturacion" */ '../views/reportes/dashboard_facturacion/DashboardFacturacion.vue')
                 }
             ]
         }
