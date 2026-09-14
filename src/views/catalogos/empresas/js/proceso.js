@@ -85,6 +85,7 @@ const frmBancoInit = () => ({
     banco: '',
     clabe_banco: '',
     cuenta_banco: '',
+    nombre_hoja: '',
     activo: true
 });
 
@@ -769,7 +770,7 @@ const useProceso = () => {
     const handleCambioCuentaBanco = (valor) => {
         frmBanco.cuenta_banco = String(valor || '')
             .replace(/\D/g, '')
-            .slice(0, 11);
+            .slice(0, 12);
     };
 
     // ------------------------------------------------------------------
@@ -935,8 +936,11 @@ const useProceso = () => {
         if (!frmBanco.clabe_banco) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'Ingrese la CLABE bancaria.',
+
                 life: 3000
             });
 
@@ -946,8 +950,11 @@ const useProceso = () => {
         if (!clabeValida.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
-                detail: 'La CLABE bancaria debe contener 18 dígitos.',
+
+                detail: 'La CLABE bancaria debe ' + 'contener 18 dígitos.',
+
                 life: 3000
             });
 
@@ -957,8 +964,11 @@ const useProceso = () => {
         if (!frmBanco.banco) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
-                detail: 'No se encontró el banco correspondiente a la CLABE.',
+
+                detail: 'No se encontró el banco ' + 'correspondiente a la CLABE.',
+
                 life: 3000
             });
 
@@ -968,8 +978,11 @@ const useProceso = () => {
         if (!frmBanco.cuenta_banco) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
+
                 detail: 'Ingrese la cuenta bancaria.',
+
                 life: 3000
             });
 
@@ -979,21 +992,29 @@ const useProceso = () => {
         if (!cuentaBancoValida.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
-                detail: 'La cuenta bancaria debe contener 11 dígitos.',
+
+                detail: 'La cuenta bancaria debe contener entre 10 y 12 dígitos.',
+
                 life: 3000
             });
 
             return;
         }
 
-        const existe = frmEmpresa.bancos.some((item, index) => index !== indiceBanco.value && (item.clabe_banco === frmBanco.clabe_banco || item.cuenta_banco === frmBanco.cuenta_banco));
+        const existe = frmEmpresa.bancos.some((item, index) => {
+            return index !== indiceBanco.value && (item.clabe_banco === frmBanco.clabe_banco || item.cuenta_banco === frmBanco.cuenta_banco);
+        });
 
         if (existe) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Notificación',
-                detail: 'La CLABE o la cuenta bancaria ya están registradas.',
+
+                detail: 'La CLABE o la cuenta ' + 'bancaria ya están registradas.',
+
                 life: 3000
             });
 
@@ -1007,7 +1028,9 @@ const useProceso = () => {
 
             clabe_banco: frmBanco.clabe_banco.trim(),
 
-            cuenta_banco: frmBanco.cuenta_banco.trim()
+            cuenta_banco: frmBanco.cuenta_banco.trim(),
+
+            nombre_hoja: String(frmBanco.nombre_hoja || '').trim()
         };
 
         if (indiceBanco.value >= 0) {

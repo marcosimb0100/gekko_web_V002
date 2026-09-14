@@ -239,6 +239,7 @@
                         <Column field="banco" header="Banco" headerClass="encabezado-columna" />
                         <Column field="clabe_banco" header="CLABE Bancaria" headerClass="encabezado-columna" />
                         <Column field="cuenta_banco" header="Cuenta Bancaria" headerClass="encabezado-columna" />
+                        <Column field="nombre_hoja" header="Hoja Excel" headerClass="encabezado-columna" />
                         <Column header="Activo" headerClass="encabezado-columna">
                             <template #body="slotProps">
                                 <font-icon v-if="slotProps.data.activo" icon="fa-solid fa-circle-check" style="color: green" />
@@ -627,24 +628,38 @@
 
             <!-- CLABE / CUENTA -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+                <!-- CLABE -->
                 <div style="display: flex; flex-direction: column; gap: 8px">
                     <label for="clabe_banco"> CLABE: </label>
 
                     <InputText id="clabe_banco" v-model="frmBanco.clabe_banco" maxlength="18" inputmode="numeric" :invalid="!clabeValida" @keydown="soloNumeros" @update:modelValue="handleCambioClabe" />
                 </div>
 
+                <!-- CUENTA BANCARIA -->
                 <div style="display: flex; flex-direction: column; gap: 8px">
                     <label for="cuenta_banco"> Cuenta Bancaria: </label>
 
-                    <InputText id="cuenta_banco" v-model="frmBanco.cuenta_banco" maxlength="11" inputmode="numeric" :invalid="!cuentaBancoValida" @keydown="soloNumeros" @update:modelValue="handleCambioCuentaBanco" />
+                    <InputText id="cuenta_banco" v-model="frmBanco.cuenta_banco" maxlength="12" inputmode="numeric" :invalid="!cuentaBancoValida" @keydown="soloNumeros" @update:modelValue="handleCambioCuentaBanco" />
                 </div>
             </div>
 
-            <!-- ACTIVO -->
-            <div class="flex align-items-center">
-                <Checkbox inputId="banco_activo" v-model="frmBanco.activo" binary />
+            <!-- NOMBRE HOJA / ACTIVO -->
+            <div style="display: grid; grid-template-columns: 1.5fr 0.5fr; gap: 20px; align-items: start">
+                <!-- NOMBRE DE HOJA EXCEL -->
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                    <label for="nombre_hoja"> Nombre de la hoja Excel: </label>
 
-                <label for="banco_activo" class="ml-2"> Activo </label>
+                    <InputText id="nombre_hoja" v-model="frmBanco.nombre_hoja" placeholder="Ej. ConsultaMovimientos" style="width: 100%" />
+
+                    <small style="opacity: 0.65; font-size: 10px; line-height: 1.2"> Opcional. Si se captura, se usará esta hoja al procesar archivos Excel de esta cuenta. </small>
+                </div>
+
+                <!-- ACTIVO -->
+                <div style="display: flex; align-items: center; height: 38px; margin-top: 28px">
+                    <Checkbox inputId="banco_activo" v-model="frmBanco.activo" binary />
+
+                    <label for="banco_activo" class="ml-2" style="margin-bottom: 0"> Activo </label>
+                </div>
             </div>
 
             <!-- BOTONES -->
