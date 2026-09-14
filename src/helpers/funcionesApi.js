@@ -405,3 +405,70 @@ export const apiPost_tokenCliente_formdata = async (direccion, formData) => {
         };
     }
 };
+
+export const apiPost_token_file = async (direccion, datos) => {
+    const Authorization = localStorage.getItem('token') || '';
+
+    const rutaActual = localStorage.getItem('rutaActual') || '';
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: Authorization,
+
+            rutaActual: rutaActual,
+
+            'Content-Type': 'application/json'
+        },
+
+        responseType: 'blob'
+    });
+
+    try {
+        const response = await consumir.post(direccion, datos);
+
+        return {
+            estatus: response.status,
+
+            mensaje: '',
+
+            data: response.data,
+
+            headers: response.headers
+        };
+    } catch (error) {
+        const response = error.response;
+
+        let mensaje = 'No fue posible generar el archivo.';
+
+        // ========================================================
+        // EL BACKEND MANDA JSON
+        // PERO AXIOS LO RECIBE COMO BLOB
+        // ========================================================
+
+        if (response?.data instanceof Blob) {
+            try {
+                const texto = await response.data.text();
+
+                const json = JSON.parse(texto);
+
+                mensaje = json.mensaje || mensaje;
+            } catch {
+                mensaje = error.message || mensaje;
+            }
+        } else {
+            mensaje = response?.data?.mensaje || error.message || mensaje;
+        }
+
+        return {
+            estatus: response?.status ?? 500,
+
+            mensaje: mensaje,
+
+            data: response?.data ?? null,
+
+            headers: response?.headers ?? {}
+        };
+    }
+};

@@ -268,9 +268,9 @@ const useProceso = () => {
             }
         };
 
-        if (!banco.configurado) {
-            handleNuevoLayout();
-        }
+        // if (!banco.configurado) {
+        //     handleNuevoLayout();
+        // }
     };
 
     // ============================================================

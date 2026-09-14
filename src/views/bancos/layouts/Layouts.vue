@@ -14,11 +14,11 @@
 
         <!-- NUEVO LAYOUT -->
 
-        <Button v-if="bancoSeleccionado && !mostrarFormulario" type="button" label="Nuevo Layout" class="btn-nuevo" @click="handleNuevoLayout">
+        <!-- <Button v-if="bancoSeleccionado && !mostrarFormulario" type="button" label="Nuevo Layout" class="btn-nuevo" @click="handleNuevoLayout">
             <template #icon>
                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
             </template>
-        </Button>
+        </Button> -->
 
         <!-- CANCELAR -->
 
@@ -30,18 +30,19 @@
 
         <!-- GUARDAR -->
 
-        <Button v-if="mostrarFormulario" type="button" label="Guardar" class="btn-guardar" :disabled="guardando" @click="handleGuardar">
+        <!-- <Button v-if="mostrarFormulario" type="button" label="Guardar" class="btn-guardar" :disabled="guardando" @click="handleGuardar">
             <template #icon>
                 <font-icon icon="fa-solid fa-floppy-disk" class="mr-2" />
             </template>
-        </Button>
+        </Button> -->
     </Encabezado>
 
     <!-- ========================================================= -->
     <!-- TABLA DE BANCOS -->
     <!-- ========================================================= -->
 
-    <div v-if="!bancoSeleccionado && !mostrarFormulario" class="card p-0 m-0 card-layouts">
+    <div v-if="!bancoSeleccionado && !mostrarFormulario" class="card p-0 m-0 card-layouts" style="margin-top: 10px">
+        <br />
         <div class="barra-tabla">
             <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined @click="handleLimpiarFiltro" />
 
@@ -109,9 +110,14 @@
             <Column header="Opciones" headerClass="encabezado-columna" style="width: 100px">
                 <template #body="slotProps">
                     <div class="acciones-tabla">
-                        <Button type="button" class="btn-opcion" v-tooltip.top="slotProps.data.configurado ? 'Ver layouts' : 'Configurar layout'" @click="handleAbrirBanco(slotProps.data)">
+                        <!-- <Button type="button" class="btn-opcion" v-tooltip.top="slotProps.data.configurado ? 'Ver layouts' : 'Configurar layout'" @click="handleAbrirBanco(slotProps.data)">
                             <template #icon>
                                 <font-icon :icon="slotProps.data.configurado ? 'fa-solid fa-list' : 'fa-solid fa-plus'" />
+                            </template>
+                        </Button> -->
+                        <Button type="button" class="btn-opcion" v-tooltip.top="'Ver layouts'" @click="handleAbrirBanco(slotProps.data)">
+                            <template #icon>
+                                <font-icon :icon="'fa-solid fa-list'" />
                             </template>
                         </Button>
                     </div>
@@ -124,7 +130,8 @@
     <!-- LAYOUTS DEL BANCO -->
     <!-- ========================================================= -->
 
-    <div v-else-if="bancoSeleccionado && !mostrarFormulario" class="card p-0 m-0 card-layouts">
+    <div v-else-if="bancoSeleccionado && !mostrarFormulario" class="card p-10 m-0 card-layouts">
+        <br />
         <div class="detalle-banco">
             <div>
                 <div class="detalle-banco-titulo">
@@ -265,7 +272,7 @@
                                 Nombre Layout:
                             </label>
 
-                            <InputText v-model="frmLayout.nombre" />
+                            <InputText v-model="frmLayout.nombre" disabled />
                         </div>
                     </div>
 
@@ -273,13 +280,13 @@
                         <div class="campo-formulario campo-triple">
                             <label> Descripción: </label>
 
-                            <InputText v-model="frmLayout.descripcion" />
+                            <InputText v-model="frmLayout.descripcion" disabled />
                         </div>
 
                         <div class="campo-formulario">
                             <label> Orden Layout: </label>
 
-                            <InputNumber v-model="frmLayout.orden_layout" :min="1" :useGrouping="false" />
+                            <InputNumber v-model="frmLayout.orden_layout" :min="1" :useGrouping="false" disabled />
                         </div>
                     </div>
                 </div>
@@ -298,13 +305,13 @@
                                 Tipo Archivo:
                             </label>
 
-                            <Dropdown v-model="frmLayout.tipo_archivo" :options="catalogoTiposArchivo" optionLabel="label" optionValue="value" class="w-full" @change="handleCambiarTipoArchivo" />
+                            <Dropdown v-model="frmLayout.tipo_archivo" :options="catalogoTiposArchivo" optionLabel="label" optionValue="value" class="w-full" @change="handleCambiarTipoArchivo" disabled />
                         </div>
 
                         <div class="campo-formulario">
                             <label> Extensiones: </label>
 
-                            <InputText v-model="frmLayout.extensionesTexto" placeholder=".xls, .xlsx" />
+                            <InputText v-model="frmLayout.extensionesTexto" placeholder=".xls, .xlsx" disabled />
                         </div>
 
                         <div class="campo-formulario">
@@ -313,7 +320,7 @@
                                 Fila Encabezados:
                             </label>
 
-                            <InputNumber v-model="frmLayout.fila_encabezados" :min="1" :useGrouping="false" />
+                            <InputNumber v-model="frmLayout.fila_encabezados" :min="1" :useGrouping="false" disabled />
                         </div>
 
                         <div class="campo-formulario">
@@ -322,7 +329,7 @@
                                 Fila Inicial:
                             </label>
 
-                            <InputNumber v-model="frmLayout.fila_inicial" :min="1" :useGrouping="false" />
+                            <InputNumber v-model="frmLayout.fila_inicial" :min="1" :useGrouping="false" disabled />
                         </div>
                     </div>
 
@@ -330,26 +337,26 @@
                         <div class="campo-formulario">
                             <label> Orden Movimientos: </label>
 
-                            <Dropdown v-model="frmLayout.orden" :options="catalogoOrden" optionLabel="label" optionValue="value" class="w-full" />
+                            <Dropdown v-model="frmLayout.orden" :options="catalogoOrden" optionLabel="label" optionValue="value" class="w-full" disabled />
                         </div>
 
                         <div class="campo-formulario">
                             <label> Separador: </label>
 
-                            <Dropdown v-model="frmLayout.separador" :options="catalogoSeparadores" optionLabel="label" optionValue="value" placeholder="No aplica" showClear class="w-full" />
+                            <Dropdown v-model="frmLayout.separador" :options="catalogoSeparadores" optionLabel="label" optionValue="value" placeholder="No aplica" showClear class="w-full" disabled />
                         </div>
 
                         <div class="campo-formulario">
                             <label> Filas Vacías Fin: </label>
 
-                            <InputNumber v-model="frmLayout.filas_vacias_fin" :min="1" :useGrouping="false" />
+                            <InputNumber v-model="frmLayout.filas_vacias_fin" :min="1" :useGrouping="false" disabled />
                         </div>
 
                         <div class="campo-formulario">
                             <label> Activo: </label>
 
                             <div class="contenedor-checkbox">
-                                <Checkbox v-model="frmLayout.activo" binary />
+                                <Checkbox v-model="frmLayout.activo" binary disabled />
 
                                 <span> Layout activo </span>
                             </div>
@@ -368,13 +375,13 @@
                         <div class="campo-formulario">
                             <label> Selección: </label>
 
-                            <Dropdown v-model="frmLayout.hoja.modo" :options="catalogoModoHoja" optionLabel="label" optionValue="value" class="w-full" />
+                            <Dropdown v-model="frmLayout.hoja.modo" :options="catalogoModoHoja" optionLabel="label" optionValue="value" class="w-full" disabled />
                         </div>
 
                         <div v-if="frmLayout.hoja.modo !== 'primera'" class="campo-formulario campo-doble">
                             <label> Nombre / Contenido: </label>
 
-                            <InputText v-model="frmLayout.hoja.valor" />
+                            <InputText v-model="frmLayout.hoja.valor" disabled />
                         </div>
                     </div>
                 </div>
@@ -391,11 +398,11 @@
                             <small class="texto-ayuda"> Se utilizan para identificar automáticamente el layout. </small>
                         </div>
 
-                        <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarEncabezado">
+                        <!-- <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarEncabezado">
                             <template #icon>
                                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
                             </template>
-                        </Button>
+                        </Button> -->
                     </div>
 
                     <DataTable :value="frmLayout.encabezadosArray" size="small" class="tabla-encabezados tabla-configuracion">
@@ -403,21 +410,21 @@
 
                         <Column header="Índice" headerClass="encabezado-columna" style="width: 150px">
                             <template #body="slotProps">
-                                <InputNumber v-model="slotProps.data.indice" :min="0" :useGrouping="false" class="w-full" />
+                                <InputNumber v-model="slotProps.data.indice" :min="0" :useGrouping="false" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Texto Esperado" headerClass="encabezado-columna">
                             <template #body="slotProps">
-                                <InputText v-model="slotProps.data.texto" class="w-full" />
+                                <InputText v-model="slotProps.data.texto" class="w-full" disabled />
                             </template>
                         </Column>
 
-                        <Column header="" headerClass="encabezado-columna" style="width: 65px">
+                        <!-- <Column header="" headerClass="encabezado-columna" style="width: 65px">
                             <template #body="slotProps">
                                 <Button type="button" icon="pi pi-trash" severity="danger" text rounded @click="handleEliminarEncabezado(slotProps.index)" />
                             </template>
-                        </Column>
+                        </Column> -->
                     </DataTable>
                 </div>
 
@@ -433,11 +440,11 @@
                             <small class="texto-ayuda"> Define qué representa cada columna del archivo. </small>
                         </div>
 
-                        <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarColumna">
+                        <!-- <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarColumna">
                             <template #icon>
                                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
                             </template>
-                        </Button>
+                        </Button> -->
                     </div>
 
                     <DataTable :value="frmLayout.columnas" size="small" class="tabla-encabezados tabla-configuracion">
@@ -445,27 +452,27 @@
 
                         <Column header="Campo" headerClass="encabezado-columna">
                             <template #body="slotProps">
-                                <InputText v-model="slotProps.data.campo" placeholder="fecha" class="w-full" />
+                                <InputText v-model="slotProps.data.campo" placeholder="fecha" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Índice" headerClass="encabezado-columna" style="width: 160px">
                             <template #body="slotProps">
-                                <InputNumber v-model="slotProps.data.indice" :min="0" :useGrouping="false" class="w-full" />
+                                <InputNumber v-model="slotProps.data.indice" :min="0" :useGrouping="false" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Tipo" headerClass="encabezado-columna" style="width: 230px">
                             <template #body="slotProps">
-                                <Dropdown v-model="slotProps.data.tipo" :options="catalogoTiposDato" optionLabel="label" optionValue="value" class="w-full" />
+                                <Dropdown v-model="slotProps.data.tipo" :options="catalogoTiposDato" optionLabel="label" optionValue="value" class="w-full" disabled />
                             </template>
                         </Column>
 
-                        <Column header="" headerClass="encabezado-columna" style="width: 65px">
+                        <!-- <Column header="" headerClass="encabezado-columna" style="width: 65px">
                             <template #body="slotProps">
-                                <Button type="button" icon="pi pi-trash" severity="danger" text rounded @click="handleEliminarColumna(slotProps.index)" />
+                                <Button type="button" icon="pi pi-trash" severity="danger" text rounded @click="handleEliminarColumna(slotProps.index)" disabled />
                             </template>
-                        </Column>
+                        </Column> -->
                     </DataTable>
                 </div>
 
@@ -481,11 +488,11 @@
                             <small class="texto-ayuda"> Datos adicionales del estado de cuenta: cuenta, periodo, RFC, saldos, etc. </small>
                         </div>
 
-                        <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarMetadata">
+                        <!-- <Button type="button" label="Agregar" class="btn-nuevo" @click="handleAgregarMetadata">
                             <template #icon>
                                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
                             </template>
-                        </Button>
+                        </Button> -->
                     </div>
 
                     <DataTable :value="frmLayout.metadataArray" size="small" class="tabla-encabezados tabla-configuracion">
@@ -493,33 +500,33 @@
 
                         <Column header="Campo" headerClass="encabezado-columna" style="min-width: 180px">
                             <template #body="slotProps">
-                                <InputText v-model="slotProps.data.campo" placeholder="cuenta" class="w-full" />
+                                <InputText v-model="slotProps.data.campo" placeholder="cuenta" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Celda" headerClass="encabezado-columna" style="width: 140px">
                             <template #body="slotProps">
-                                <InputText v-model="slotProps.data.celda" placeholder="B2" class="w-full" />
+                                <InputText v-model="slotProps.data.celda" placeholder="B2" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Tipo" headerClass="encabezado-columna" style="width: 190px">
                             <template #body="slotProps">
-                                <Dropdown v-model="slotProps.data.tipo" :options="catalogoTiposDato" optionLabel="label" optionValue="value" class="w-full" />
+                                <Dropdown v-model="slotProps.data.tipo" :options="catalogoTiposDato" optionLabel="label" optionValue="value" class="w-full" disabled />
                             </template>
                         </Column>
 
                         <Column header="Regex" headerClass="encabezado-columna" style="min-width: 300px">
                             <template #body="slotProps">
-                                <InputText v-model="slotProps.data.regex" placeholder="Opcional" class="w-full" />
+                                <InputText v-model="slotProps.data.regex" placeholder="Opcional" class="w-full" disabled />
                             </template>
                         </Column>
 
-                        <Column header="" headerClass="encabezado-columna" style="width: 65px">
+                        <!-- <Column header="" headerClass="encabezado-columna" style="width: 65px">
                             <template #body="slotProps">
                                 <Button type="button" icon="pi pi-trash" severity="danger" text rounded @click="handleEliminarMetadata(slotProps.index)" />
                             </template>
-                        </Column>
+                        </Column> -->
                     </DataTable>
                 </div>
 
@@ -535,7 +542,7 @@
                             <label> Saldo: </label>
 
                             <div class="contenedor-checkbox">
-                                <Checkbox v-model="frmLayout.validaciones.saldo" binary />
+                                <Checkbox v-model="frmLayout.validaciones.saldo" binary disabled />
 
                                 <span> Validar continuidad de saldo </span>
                             </div>
@@ -545,7 +552,7 @@
                             <label> Totales: </label>
 
                             <div class="contenedor-checkbox">
-                                <Checkbox v-model="frmLayout.validaciones.totales" binary />
+                                <Checkbox v-model="frmLayout.validaciones.totales" binary disabled />
 
                                 <span> Validar totales </span>
                             </div>
@@ -554,7 +561,7 @@
                         <div class="campo-formulario">
                             <label> Tolerancia: </label>
 
-                            <InputNumber v-model="frmLayout.validaciones.tolerancia" :min="0" :minFractionDigits="2" :maxFractionDigits="4" />
+                            <InputNumber v-model="frmLayout.validaciones.tolerancia" :min="0" :minFractionDigits="2" :maxFractionDigits="4" disabled />
                         </div>
                     </div>
                 </div>

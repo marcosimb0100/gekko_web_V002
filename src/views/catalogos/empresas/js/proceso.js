@@ -932,15 +932,12 @@ const useProceso = () => {
         visibleBanco.value = true;
     };
 
-    const handleGuardarBanco = () => {
+    const handleGuardarBanco = async () => {
         if (!frmBanco.clabe_banco) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
                 detail: 'Ingrese la CLABE bancaria.',
-
                 life: 3000
             });
 
@@ -950,11 +947,8 @@ const useProceso = () => {
         if (!clabeValida.value) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
-                detail: 'La CLABE bancaria debe ' + 'contener 18 dígitos.',
-
+                detail: 'La CLABE bancaria debe contener 18 dígitos.',
                 life: 3000
             });
 
@@ -964,11 +958,8 @@ const useProceso = () => {
         if (!frmBanco.banco) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
-                detail: 'No se encontró el banco ' + 'correspondiente a la CLABE.',
-
+                detail: 'No se encontró el banco correspondiente a la CLABE.',
                 life: 3000
             });
 
@@ -978,11 +969,8 @@ const useProceso = () => {
         if (!frmBanco.cuenta_banco) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
                 detail: 'Ingrese la cuenta bancaria.',
-
                 life: 3000
             });
 
@@ -992,12 +980,33 @@ const useProceso = () => {
         if (!cuentaBancoValida.value) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
                 detail: 'La cuenta bancaria debe contener entre 10 y 12 dígitos.',
-
                 life: 3000
+            });
+
+            return;
+        }
+
+        const nombreHoja = String(frmBanco.nombre_hoja || '').trim();
+
+        if (nombreHoja.length > 31) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'El nombre de la hoja Excel no puede exceder 31 caracteres.',
+                life: 3500
+            });
+
+            return;
+        }
+
+        if (/[\\/:?*\[\]]/.test(nombreHoja)) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'El nombre de la hoja Excel contiene caracteres no permitidos.',
+                life: 3500
             });
 
             return;
@@ -1010,39 +1019,103 @@ const useProceso = () => {
         if (existe) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
-                detail: 'La CLABE o la cuenta ' + 'bancaria ya están registradas.',
-
+                detail: 'La CLABE o la cuenta bancaria ya están registradas.',
                 life: 3000
             });
 
             return;
         }
 
-        const registro = {
-            ...frmBanco,
+        if (nombreHoja) {
+            const hojaRepetida = frmEmpresa.bancos.some((item, index) => {
+                return (
+                    index !== indiceBanco.value &&
+                    String(item.nombre_hoja || '')
+                        .trim()
+                        .toUpperCase() === nombreHoja.toUpperCase()
+                );
+            });
 
-            banco: frmBanco.banco.trim().toUpperCase(),
+            if (hojaRepetida) {
+                toast.add({
+                    severity: 'warn',
+                    summary: 'Notificación',
+                    detail: 'El nombre de la hoja Excel ya está asignado a otra cuenta bancaria de esta empresa.',
+                    life: 4000
+                });
 
-            clabe_banco: frmBanco.clabe_banco.trim(),
-
-            cuenta_banco: frmBanco.cuenta_banco.trim(),
-
-            nombre_hoja: String(frmBanco.nombre_hoja || '').trim()
-        };
-
-        if (indiceBanco.value >= 0) {
-            frmEmpresa.bancos.splice(indiceBanco.value, 1, registro);
-        } else {
-            frmEmpresa.bancos.push(registro);
+                return;
+            }
         }
 
+        const registro = {
+            ...frmBanco,
+            banco: frmBanco.banco.trim().toUpperCase(),
+            clabe_banco: frmBanco.clabe_banco.trim(),
+            cuenta_banco: frmBanco.cuenta_banco.trim(),
+            nombre_hoja: nombreHoja
+        };
+
+        /*
+         * EMPRESA NUEVA
+         * Todavía no existe company_id, por lo que el banco se conserva
+         * localmente y se enviará en el POST inicial de la compañía.
+         */
+        if (!frmEmpresa._id || movimiento.value === 'N') {
+            if (indiceBanco.value >= 0) {
+                frmEmpresa.bancos.splice(indiceBanco.value, 1, registro);
+            } else {
+                frmEmpresa.bancos.push(registro);
+            }
+
+            visibleBanco.value = false;
+            Object.assign(frmBanco, frmBancoInit());
+            indiceBanco.value = -1;
+
+            return;
+        }
+
+        /*
+         * EMPRESA EXISTENTE
+         * Se guarda únicamente la sección bancaria. Este endpoint NO toca
+         * folios ni ningún otro dato de la compañía.
+         */
+        const res = await store.dispatch('api/apiPutToken', {
+            direccion: `/companias/bancos/${frmEmpresa._id}`,
+            datosJson: {
+                banco: registro
+            }
+        });
+
+        if (res.estatus !== 200) {
+            toast.add({
+                severity: res.estatus === 409 ? 'warn' : 'error',
+                summary: 'Notificación',
+                detail: res.mensaje || 'No fue posible guardar la cuenta bancaria.',
+                life: 4000
+            });
+
+            return;
+        }
+
+        const bancoGuardado = res.datos?.banco ?? registro;
+
+        if (indiceBanco.value >= 0) {
+            frmEmpresa.bancos.splice(indiceBanco.value, 1, bancoGuardado);
+        } else {
+            frmEmpresa.bancos.push(bancoGuardado);
+        }
+
+        toast.add({
+            severity: 'success',
+            summary: 'Notificación',
+            detail: res.mensaje || 'Cuenta bancaria guardada correctamente.',
+            life: 3000
+        });
+
         visibleBanco.value = false;
-
         Object.assign(frmBanco, frmBancoInit());
-
         indiceBanco.value = -1;
     };
 
@@ -1651,9 +1724,14 @@ const useProceso = () => {
     // CONSTRUIR FORMDATA
     // ------------------------------------------------------------------
 
-    const construirFormDataEmpresa = () => {
+    const construirFormDataEmpresa = (esNuevo = false) => {
         const formData = new FormData();
 
+        /*
+         * CAMPOS GENERALES
+         * En edición NO enviamos series/folios ni bancos.
+         * Esas secciones tienen endpoints independientes.
+         */
         const campos = [
             '_id',
             'tipo_persona',
@@ -1673,14 +1751,12 @@ const useProceso = () => {
             'numero_contacto_alterno',
             'regimen_fiscal',
             'correo_electronico_agente',
-            'ruta_contpaq',
-            'factura_serie',
-            'factura_folio',
-            'nota_credito_serie',
-            'nota_credito_folio',
-            'complemento_pago_serie',
-            'complemento_pago_folio'
+            'ruta_contpaq'
         ];
+
+        if (esNuevo) {
+            campos.push('factura_serie', 'factura_folio', 'nota_credito_serie', 'nota_credito_folio', 'complemento_pago_serie', 'complemento_pago_folio');
+        }
 
         campos.forEach((campo) => {
             const valor = frmEmpresa[campo] ?? '';
@@ -1695,7 +1771,6 @@ const useProceso = () => {
         };
 
         delete csdJson.archivo_cer;
-
         delete csdJson.archivo_key;
 
         const fielJson = {
@@ -1703,7 +1778,6 @@ const useProceso = () => {
         };
 
         delete fielJson.archivo_cer;
-
         delete fielJson.archivo_key;
 
         const plantillasJson = frmEmpresa.plantillas.map((item) => {
@@ -1716,16 +1790,18 @@ const useProceso = () => {
             return copia;
         });
 
-        formData.append('bancos', JSON.stringify(frmEmpresa.bancos ?? []));
+        /*
+         * Los bancos solo viajan en la creación inicial.
+         * En edición se guardan con /companias/bancos/<company_id>.
+         */
+        if (esNuevo) {
+            formData.append('bancos', JSON.stringify(frmEmpresa.bancos ?? []));
+        }
 
         formData.append('prod_serv', JSON.stringify(frmEmpresa.prod_serv ?? []));
-
         formData.append('correos_solicitudes', JSON.stringify(frmEmpresa.correos_solicitudes ?? []));
-
         formData.append('csd', JSON.stringify(csdJson));
-
         formData.append('fiel', JSON.stringify(fielJson));
-
         formData.append('plantillas', JSON.stringify(plantillasJson));
 
         if (frmEmpresa.csd?.archivo_cer instanceof File) {
@@ -1751,6 +1827,94 @@ const useProceso = () => {
         });
 
         return formData;
+    };
+
+    // ------------------------------------------------------------------
+    // GUARDAR SERIES / FOLIOS
+    // ------------------------------------------------------------------
+
+    const handleGuardarFolios = async () => {
+        /*
+         * En alta inicial todavía no existe la compañía.
+         * Los folios se enviarán dentro del POST de creación.
+         */
+        if (!frmEmpresa._id || movimiento.value === 'N') {
+            toast.add({
+                severity: 'info',
+                summary: 'Notificación',
+                detail: 'Los folios se guardarán al crear la empresa.',
+                life: 3000
+            });
+
+            return true;
+        }
+
+        const payload = {
+            factura_serie: String(frmEmpresa.factura_serie || '')
+                .trim()
+                .toUpperCase(),
+            factura_folio: Number(frmEmpresa.factura_folio || 0),
+            nota_credito_serie: String(frmEmpresa.nota_credito_serie || '')
+                .trim()
+                .toUpperCase(),
+            nota_credito_folio: Number(frmEmpresa.nota_credito_folio || 0),
+            complemento_pago_serie: String(frmEmpresa.complemento_pago_serie || '')
+                .trim()
+                .toUpperCase(),
+            complemento_pago_folio: Number(frmEmpresa.complemento_pago_folio || 0)
+        };
+
+        const res = await store.dispatch('api/apiPutToken', {
+            direccion: `/companias/folios/${frmEmpresa._id}`,
+            datosJson: payload
+        });
+
+        if (res.estatus !== 200) {
+            /*
+             * 409 = otro proceso ya movió los folios.
+             * Recargamos los valores reales que devuelve el backend para que
+             * la pantalla no siga mostrando números obsoletos.
+             */
+            if (res.estatus === 409 && res.datos?.folios_actuales) {
+                const actuales = res.datos.folios_actuales;
+
+                frmEmpresa.factura_serie = actuales.factura_serie ?? frmEmpresa.factura_serie;
+                frmEmpresa.factura_folio = Number(actuales.factura_folio ?? 0);
+                frmEmpresa.nota_credito_serie = actuales.nota_credito_serie ?? frmEmpresa.nota_credito_serie;
+                frmEmpresa.nota_credito_folio = Number(actuales.nota_credito_folio ?? 0);
+                frmEmpresa.complemento_pago_serie = actuales.complemento_pago_serie ?? frmEmpresa.complemento_pago_serie;
+                frmEmpresa.complemento_pago_folio = Number(actuales.complemento_pago_folio ?? 0);
+            }
+
+            toast.add({
+                severity: res.estatus === 409 ? 'warn' : 'error',
+                summary: 'Folios',
+                detail: res.mensaje || 'No fue posible actualizar los folios.',
+                life: 5000
+            });
+
+            return false;
+        }
+
+        const folios = res.datos?.folios;
+
+        if (folios) {
+            frmEmpresa.factura_serie = folios.factura_serie ?? frmEmpresa.factura_serie;
+            frmEmpresa.factura_folio = Number(folios.factura_folio ?? 0);
+            frmEmpresa.nota_credito_serie = folios.nota_credito_serie ?? frmEmpresa.nota_credito_serie;
+            frmEmpresa.nota_credito_folio = Number(folios.nota_credito_folio ?? 0);
+            frmEmpresa.complemento_pago_serie = folios.complemento_pago_serie ?? frmEmpresa.complemento_pago_serie;
+            frmEmpresa.complemento_pago_folio = Number(folios.complemento_pago_folio ?? 0);
+        }
+
+        toast.add({
+            severity: 'success',
+            summary: 'Folios',
+            detail: res.mensaje || 'Series y folios actualizados correctamente.',
+            life: 3000
+        });
+
+        return true;
     };
 
     // ------------------------------------------------------------------
@@ -1805,7 +1969,7 @@ const useProceso = () => {
 
         const rfcActual = frmEmpresa.rfc;
 
-        const formData = construirFormDataEmpresa();
+        const formData = construirFormDataEmpresa(esNuevo);
 
         let res;
 
@@ -2041,6 +2205,7 @@ const useProceso = () => {
         handleGuardarPlantilla,
 
         handleActualizarConceptos,
+        handleGuardarFolios,
         handleGuardar,
 
         frmEmpresa,

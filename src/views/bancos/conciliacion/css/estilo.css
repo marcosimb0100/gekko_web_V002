@@ -1,0 +1,607 @@
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.card-conciliacion {
+    margin: 0 !important;
+
+    padding: 24px 28px 30px 28px !important;
+}
+
+/* =========================================================
+   PANEL PRINCIPAL
+   ========================================================= */
+
+.panel-conciliacion {
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.encabezado-panel {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.icono-panel {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.11);
+
+    color: var(--primary-color);
+}
+
+.titulo-panel {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.subtitulo-panel {
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.grid-filtros {
+    display: grid;
+
+    grid-template-columns:
+        minmax(180px, 0.8fr)
+        minmax(180px, 0.8fr)
+        1.4fr;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.campo-filtro {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.campo-filtro label {
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+.acciones-filtros {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.btn-exportar,
+.btn-exportar-principal {
+    background: #26996c !important;
+
+    border-color: #26996c !important;
+
+    color: white !important;
+}
+
+.btn-limpiar {
+    background: #bd3f3f !important;
+
+    border-color: #bd3f3f !important;
+
+    color: white !important;
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.grid-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+.tarjeta-resumen {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 75px;
+
+    padding: 13px 16px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 40px;
+
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    color: var(--primary-color);
+}
+
+.tarjeta-resumen > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.tarjeta-resumen span {
+    margin-bottom: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-resumen strong {
+    font-size: 18px;
+}
+
+.tarjeta-resumen .texto-archivo {
+    font-size: 14px;
+}
+
+/* =========================================================
+   PANEL EMPRESAS
+   ========================================================= */
+
+.panel-empresas {
+    margin-top: 18px;
+
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.encabezado-listado {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 14px;
+}
+
+.encabezado-listado h3 {
+    margin: 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.encabezado-listado small {
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.contador {
+    padding: 5px 10px;
+
+    border-radius: 14px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   BARRA EMPRESAS
+   ========================================================= */
+
+.barra-empresas {
+    display: grid;
+
+    grid-template-columns:
+        auto
+        minmax(300px, 1fr)
+        auto;
+
+    gap: 10px;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.seleccionar-todas {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.campo-busqueda {
+    width: 100%;
+}
+
+:deep(.campo-busqueda .p-inputtext) {
+    width: 100%;
+}
+
+/* =========================================================
+   ESTADO LISTADO
+   ========================================================= */
+
+.estado-listado {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 120px;
+
+    font-size: 11px;
+
+    opacity: 0.7;
+}
+
+/* =========================================================
+   LISTA EMPRESAS
+   ========================================================= */
+
+.lista-empresas {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    max-height: 58vh;
+
+    overflow-y: auto;
+
+    padding-right: 4px;
+}
+
+.empresa-item {
+    overflow: hidden;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.empresa-seleccionada {
+    border-color: rgba(0, 180, 210, 0.55);
+
+    box-shadow: 0 0 0 1px rgba(0, 180, 210, 0.08);
+}
+
+/* =========================================================
+   CABECERA EMPRESA
+   ========================================================= */
+
+.empresa-cabecera {
+    display: grid;
+
+    grid-template-columns:
+        auto
+        1fr
+        auto;
+
+    gap: 10px;
+
+    align-items: center;
+
+    padding: 11px 13px;
+
+    background: rgba(125, 125, 125, 0.035);
+}
+
+.empresa-check {
+    display: flex;
+
+    align-items: center;
+}
+
+.empresa-datos {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    cursor: pointer;
+}
+
+.empresa-datos strong {
+    overflow: hidden;
+
+    font-size: 11px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.empresa-datos small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+.empresa-cuentas-contador {
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   CUENTAS
+   ========================================================= */
+
+.cuentas-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 8px;
+
+    padding: 10px 13px 13px 43px;
+}
+
+.cuenta-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-width: 0;
+
+    padding: 9px 10px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 7px;
+
+    background: rgba(0, 180, 210, 0.025);
+}
+
+.cuenta-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 31px;
+
+    height: 31px;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    background: rgba(0, 180, 210, 0.11);
+
+    color: var(--primary-color);
+
+    font-size: 11px;
+}
+
+.cuenta-datos {
+    min-width: 0;
+}
+
+.cuenta-banco {
+    overflow: hidden;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.cuenta-numero {
+    margin-top: 2px;
+
+    overflow: hidden;
+
+    font-size: 8px;
+
+    opacity: 0.65;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.cuenta-hoja {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+
+    margin-top: 4px;
+
+    color: #218c5c;
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+.cuenta-hoja span {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1250px) {
+    .cuentas-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .grid-filtros {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .acciones-filtros {
+        grid-column: 1 / -1;
+    }
+
+    .grid-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .barra-empresas {
+        grid-template-columns: 1fr;
+    }
+
+    .cuentas-grid {
+        grid-template-columns: 1fr;
+
+        padding-left: 13px;
+    }
+}
+
+@media (max-width: 600px) {
+    .card-conciliacion {
+        padding: 12px !important;
+    }
+
+    .grid-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-filtros {
+        flex-direction: column;
+    }
+
+    .encabezado-listado {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+}

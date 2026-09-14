@@ -222,6 +222,12 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/bancos/exportar_conciliacion',
+                    name: 'bancos_exportar_conciliacion',
+                    component: () => import(/* webpackChunkName: "bancos_exportar_conciliacion" */ '../views/bancos/conciliacion/Conciliacion.vue')
+                },
+
+                {
                     path: '/reportes/contabilidad_fac',
                     name: 'reportes_contabilidad_fac',
                     beforeEnter: permisoRutas,

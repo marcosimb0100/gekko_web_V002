@@ -5,6 +5,7 @@ import {
     apiGet_tokenCliente,
     apiPost_sinToken,
     apiPost_token,
+    apiPost_token_file,
     apiPost_token_formdata,
     apiPost_tokenCliente_formdata,
     apiPut_token,
@@ -429,4 +430,60 @@ export const apiPostTokenClienteFormData = async ({ commit }, { direccion, formD
         mensaje,
         datos
     };
+};
+
+// ============================================================
+// POST TOKEN - ARCHIVO / BLOB
+// ============================================================
+
+export const apiPostTokenFile = async ({ commit }, { direccion, datosJson }) => {
+    commit('visibleCargandoMutation');
+
+    try {
+        const respuesta = await apiPost_token_file(direccion, datosJson);
+
+        const { estatus, mensaje, data, headers } = respuesta;
+
+        // ========================================================
+        // SESION
+        // ========================================================
+
+        if (estatus === 401 || estatus === 402) {
+            localStorage.clear();
+
+            router.replace({
+                name: 'acceso'
+            });
+        }
+
+        if (estatus === 403) {
+            router.replace({
+                name: 'notfound'
+            });
+        }
+
+        return {
+            estatus: estatus,
+
+            mensaje: mensaje,
+
+            data: data,
+
+            headers: headers
+        };
+    } catch (error) {
+        console.error('ERROR apiPostTokenFile:', error);
+
+        return {
+            estatus: 500,
+
+            mensaje: error?.message || 'No fue posible generar el archivo.',
+
+            data: null,
+
+            headers: {}
+        };
+    } finally {
+        commit('visibleCargandoMutation');
+    }
 };
