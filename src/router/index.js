@@ -228,6 +228,13 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/bancos/conceptos_conciliacion',
+                    name: 'bancos_conceptos_conciliacion',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
+                },
+
+                {
                     path: '/reportes/contabilidad_fac',
                     name: 'reportes_contabilidad_fac',
                     beforeEnter: permisoRutas,

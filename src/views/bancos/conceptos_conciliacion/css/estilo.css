@@ -1,0 +1,600 @@
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.card-conceptos {
+    margin: 0 !important;
+
+    padding: 20px !important;
+}
+
+/* =========================================================
+   PANEL SUPERIOR
+   ========================================================= */
+
+.panel-superior {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
+
+    padding: 16px 18px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.informacion-modulo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.icono-modulo {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.11);
+
+    color: var(--primary-color);
+}
+
+.titulo-modulo {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.subtitulo-modulo {
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.acciones-superiores {
+    display: flex;
+
+    gap: 6px;
+}
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.barra-busqueda {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.campo-busqueda {
+    width: min(550px, 100%);
+}
+
+:deep(.campo-busqueda .p-inputtext) {
+    width: 100%;
+}
+
+.contador-conceptos {
+    padding: 5px 12px;
+
+    border-radius: 14px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.tabla-conceptos {
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+:deep(.tabla-conceptos .p-treetable-thead > tr > th) {
+    background: rgb(106, 196, 202) !important;
+
+    border-color: rgb(106, 196, 202) !important;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-conceptos .p-treetable-tbody > tr > td) {
+    padding-top: 9px;
+
+    padding-bottom: 9px;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   CONCEPTO
+   ========================================================= */
+
+.concepto-principal {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-width: 0;
+}
+
+.indicador-nivel {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 25px;
+
+    height: 25px;
+
+    flex-shrink: 0;
+
+    border-radius: 7px;
+
+    color: white;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
+
+.nivel-1 {
+    background: #2563eb;
+}
+
+.nivel-2 {
+    background: #0891b2;
+}
+
+.nivel-3 {
+    background: #16a34a;
+}
+
+.nivel-4 {
+    background: #ca8a04;
+}
+
+.nivel-5 {
+    background: #9333ea;
+}
+
+.concepto-texto {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.concepto-texto strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.concepto-texto small {
+    margin-top: 2px;
+
+    overflow: hidden;
+
+    opacity: 0.6;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.clave-concepto {
+    font-family: monospace;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   CHIPS
+   ========================================================= */
+
+.chips-resumen {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 4px;
+}
+
+.chip-empresa,
+.chip-banco,
+.chip-mas {
+    max-width: 150px;
+
+    padding: 3px 7px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    font-size: 8px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.chip-empresa {
+    background: rgba(37, 99, 235, 0.11);
+
+    color: #2563eb;
+}
+
+.chip-banco {
+    background: rgba(22, 163, 74, 0.11);
+
+    color: #15803d;
+}
+
+.chip-mas {
+    background: rgba(125, 125, 125, 0.12);
+}
+
+.texto-vacio,
+.texto-heredado {
+    font-size: 8px;
+
+    opacity: 0.55;
+}
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.estado {
+    display: inline-block;
+
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+.estado-activo {
+    background: rgba(22, 163, 74, 0.12);
+
+    color: #15803d;
+}
+
+.estado-inactivo {
+    background: rgba(220, 38, 38, 0.12);
+
+    color: #dc2626;
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.acciones-fila {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 2px;
+}
+
+/* =========================================================
+   DIALOG
+   ========================================================= */
+
+.dialog-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.dialog-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.11);
+
+    color: var(--primary-color);
+}
+
+.dialog-titulo {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.dialog-header small {
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.formulario-concepto {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.grid-formulario {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+}
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.campo-formulario label {
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+.campo-formulario small {
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+.requerido {
+    color: #dc2626;
+}
+
+.switch-activo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-height: 38px;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+   NIVEL 1
+   ========================================================= */
+
+.asignaciones-nivel-uno {
+    margin-top: 5px;
+
+    padding: 16px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: rgba(0, 180, 210, 0.025);
+}
+
+.titulo-seccion {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+}
+
+.titulo-seccion > div {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.titulo-seccion strong {
+    font-size: 11px;
+}
+
+.titulo-seccion small {
+    margin-top: 2px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+}
+
+.badge-nivel {
+    padding: 4px 10px;
+
+    border-radius: 12px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 8px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   OPCIONES
+   ========================================================= */
+
+.opcion-empresa,
+.opcion-banco {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1px;
+}
+
+.opcion-empresa strong,
+.opcion-banco strong {
+    font-size: 10px;
+}
+
+.opcion-empresa small,
+.opcion-banco small,
+.opcion-banco span {
+    font-size: 8px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   HERENCIA
+   ========================================================= */
+
+.mensaje-herencia {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    border: 1px solid rgba(37, 99, 235, 0.18);
+
+    border-radius: 8px;
+
+    background: rgba(37, 99, 235, 0.05);
+
+    color: #2563eb;
+}
+
+.mensaje-herencia > div {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.mensaje-herencia strong {
+    font-size: 10px;
+}
+
+.mensaje-herencia span {
+    margin-top: 2px;
+
+    font-size: 8px;
+}
+
+/* =========================================================
+   VACÍO
+   ========================================================= */
+
+.tabla-vacia {
+    padding: 35px;
+
+    text-align: center;
+
+    font-size: 11px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+    .panel-superior {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .barra-busqueda {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .campo-busqueda {
+        width: 100%;
+    }
+
+    .grid-formulario {
+        grid-template-columns: 1fr;
+    }
+}
