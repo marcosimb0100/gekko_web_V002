@@ -8,6 +8,10 @@
     </Encabezado>
 
     <div class="card card-movimientos">
+        <!-- =====================================================
+             FILTROS
+             ===================================================== -->
+
         <div class="panel-filtros">
             <div class="encabezado-filtros">
                 <div class="icono-filtros">
@@ -16,6 +20,7 @@
 
                 <div>
                     <div class="titulo-filtros">Consulta de Movimientos Bancarios</div>
+
                     <div class="subtitulo-filtros">Selecciona empresa, cuenta bancaria y periodo a consultar.</div>
                 </div>
             </div>
@@ -23,8 +28,10 @@
             <div class="separador"></div>
 
             <div class="grid-filtros">
+                <!-- EMPRESA -->
+
                 <div class="campo-filtro campo-empresa">
-                    <label>Empresa</label>
+                    <label> Empresa </label>
 
                     <Dropdown
                         v-model="empresaSeleccionada"
@@ -40,15 +47,23 @@
                     >
                         <template #option="slotProps">
                             <div class="opcion-empresa">
-                                <strong>{{ slotProps.option.razon_social }}</strong>
-                                <small> RFC: {{ slotProps.option.rfc || 'Sin RFC' }} </small>
+                                <strong>
+                                    {{ slotProps.option.razon_social }}
+                                </strong>
+
+                                <small>
+                                    RFC:
+                                    {{ slotProps.option.rfc || 'Sin RFC' }}
+                                </small>
                             </div>
                         </template>
                     </Dropdown>
                 </div>
 
+                <!-- CUENTA -->
+
                 <div class="campo-filtro campo-cuenta">
-                    <label>Banco / Cuenta Bancaria</label>
+                    <label> Banco / Cuenta Bancaria </label>
 
                     <Dropdown
                         v-model="cuentaSeleccionada"
@@ -69,12 +84,21 @@
                                     </span>
 
                                     <div class="datos-opcion-cuenta">
-                                        <strong>{{ slotProps.option.banco }}</strong>
-                                        <small> Cuenta: {{ slotProps.option.cuenta_banco || 'Sin número' }} </small>
+                                        <strong>
+                                            {{ slotProps.option.banco }}
+                                        </strong>
+
+                                        <small>
+                                            Cuenta:
+                                            {{ slotProps.option.cuenta_banco || 'Sin número' }}
+                                        </small>
                                     </div>
                                 </div>
 
-                                <small class="clabe-opcion"> CLABE: {{ slotProps.option.clabe_bancaria }} </small>
+                                <small class="clabe-opcion">
+                                    CLABE:
+                                    {{ slotProps.option.clabe_bancaria }}
+                                </small>
                             </div>
                         </template>
 
@@ -84,23 +108,36 @@
                             </span>
 
                             <div v-else class="valor-cuenta">
-                                <strong>{{ slotProps.value.clave_banco }}</strong>
-                                <span>{{ slotProps.value.banco }}</span>
-                                <span class="cuenta-separador">-</span>
-                                <span>{{ slotProps.value.cuenta_banco || 'Sin cuenta' }}</span>
+                                <strong>
+                                    {{ slotProps.value.clave_banco }}
+                                </strong>
+
+                                <span>
+                                    {{ slotProps.value.banco }}
+                                </span>
+
+                                <span class="cuenta-separador"> - </span>
+
+                                <span>
+                                    {{ slotProps.value.cuenta_banco || 'Sin cuenta' }}
+                                </span>
                             </div>
                         </template>
                     </Dropdown>
                 </div>
 
+                <!-- FECHA INICIAL -->
+
                 <div class="campo-filtro">
-                    <label>Fecha Inicial</label>
+                    <label> Fecha Inicial </label>
 
                     <Calendar v-model="fechaInicial" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :maxDate="fechaFinal" :disabled="consultando" class="w-full" />
                 </div>
 
+                <!-- FECHA FINAL -->
+
                 <div class="campo-filtro">
-                    <label>Fecha Final</label>
+                    <label> Fecha Final </label>
 
                     <Calendar v-model="fechaFinal" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :minDate="fechaInicial" :disabled="consultando" class="w-full" />
                 </div>
@@ -121,50 +158,117 @@
             </div>
         </div>
 
+        <!-- =====================================================
+             RESULTADO
+             ===================================================== -->
+
         <template v-if="consultado">
+            <!-- RESUMEN -->
+
             <div class="grid-resumen">
                 <div class="tarjeta-resumen">
-                    <span>Movimientos</span>
-                    <strong>{{ resumen.movimientos }}</strong>
+                    <span> Movimientos </span>
+
+                    <strong>
+                        {{ resumen.movimientos }}
+                    </strong>
                 </div>
 
                 <div class="tarjeta-resumen">
-                    <span>Ingresos</span>
+                    <span> Ingresos </span>
+
                     <strong class="importe-ingreso">
                         {{ handleFormatoMoneda(resumen.total_ingresos) }}
                     </strong>
                 </div>
 
                 <div class="tarjeta-resumen">
-                    <span>Egresos</span>
+                    <span> Egresos </span>
+
                     <strong class="importe-egreso">
                         {{ handleFormatoMoneda(resumen.total_egresos) }}
                     </strong>
                 </div>
 
                 <div class="tarjeta-resumen">
-                    <span>Banco / Cuenta</span>
-                    <strong> {{ cuentaSeleccionada?.clave_banco }} - {{ cuentaSeleccionada?.banco }} </strong>
+                    <span> Banco / Cuenta </span>
+
+                    <strong>
+                        {{ cuentaSeleccionada?.clave_banco }}
+                        -
+                        {{ cuentaSeleccionada?.banco }}
+                    </strong>
+
                     <small>
                         {{ cuentaSeleccionada?.cuenta_banco || handleCuentaEnmascarada(cuentaSeleccionada?.clabe_bancaria) }}
                     </small>
                 </div>
             </div>
 
+            <!-- =================================================
+                 TABLA
+                 ================================================= -->
+
             <div class="contenedor-tabla">
+                <!-- BARRA SUPERIOR -->
+
                 <div class="barra-tabla">
-                    <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined @click="handleLimpiarFiltrosTabla" />
+                    <!-- BUSCADOR -->
 
-                    <IconField iconPosition="left">
-                        <InputIcon>
-                            <i class="pi pi-search" />
-                        </InputIcon>
+                    <div class="barra-busqueda">
+                        <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined @click="handleLimpiarFiltrosTabla" />
 
-                        <InputText v-model="filtros.global.value" placeholder="Buscar..." class="buscador" />
-                    </IconField>
+                        <IconField iconPosition="left">
+                            <InputIcon>
+                                <i class="pi pi-search" />
+                            </InputIcon>
+
+                            <InputText v-model="filtros.global.value" placeholder="Buscar..." class="buscador" />
+                        </IconField>
+                    </div>
+
+                    <!-- =================================================
+                         CONCEPTO CONCILIACIÓN
+                         ================================================= -->
+
+                    <div class="barra-conciliacion">
+                        <div class="campo-concepto">
+                            <span class="titulo-concepto"> Concepto Conciliación </span>
+
+                            <TreeSelect
+                                v-model="conceptoSeleccionado"
+                                :options="conceptosDisponibles"
+                                placeholder="Seleccione un concepto"
+                                class="selector-concepto"
+                                filter
+                                :loading="cargandoConceptos"
+                                :disabled="cargandoConceptos || movimientosSeleccionados.length === 0"
+                            />
+                        </div>
+
+                        <Button
+                            type="button"
+                            label="Aplicar"
+                            icon="pi pi-check"
+                            class="btn-aplicar-concepto"
+                            :loading="aplicandoConcepto"
+                            :disabled="aplicandoConcepto || !conceptoSeleccionado || movimientosSeleccionados.length === 0"
+                            @click="handleAplicarConcepto"
+                        />
+
+                        <span v-if="movimientosSeleccionados.length > 0" class="contador-seleccionados">
+                            {{ movimientosSeleccionados.length }}
+                            seleccionado(s)
+                        </span>
+                    </div>
+
+                    <!-- EXPORTAR -->
 
                     <div class="acciones-tabla-superior">
-                        <span class="contador-registros"> {{ movimientos.length }} movimiento(s) </span>
+                        <span class="contador-registros">
+                            {{ movimientos.length }}
+                            movimiento(s)
+                        </span>
 
                         <Button type="button" label="Exportar Excel" class="btn-exportar-tabla" :disabled="movimientos.length === 0" @click="handleExportarExcel">
                             <template #icon>
@@ -174,28 +278,66 @@
                     </div>
                 </div>
 
+                <!-- =================================================
+                     DATATABLE
+                     ================================================= -->
+
                 <DataTable
                     v-model:filters="filtros"
+                    v-model:selection="movimientosSeleccionados"
                     :value="movimientos"
                     :globalFilterFields="camposBusqueda"
+                    dataKey="_id"
                     paginator
                     :rows="100"
                     :rowsPerPageOptions="[50, 100, 250, 500, 700]"
                     scrollable
                     scrollHeight="55vh"
                     size="small"
-                    class="tabla-encabezados"
-                    style="font-size: 12px"
+                    class="tabla-encabezados tabla-movimientos-homologada"
+                    tableStyle="
+                        width: 100%;
+                        table-layout: fixed;
+                    "
                 >
                     <template #empty> No se encontraron movimientos para el periodo seleccionado. </template>
 
+                    <!-- SELECCIÓN -->
+
+                    <Column
+                        selectionMode="multiple"
+                        headerStyle="
+                            width: 36px;
+                            max-width: 36px;
+                        "
+                        bodyStyle="
+                            width: 36px;
+                            max-width: 36px;
+                        "
+                    />
+
+                    <!-- COLUMNAS -->
+
                     <Column v-for="columna in columnasMovimientos" :key="columna.field" :field="columna.field" :header="columna.header" headerClass="encabezado-columna" :style="columna.style">
                         <template #body="slotProps">
+                            <!-- MONEDA -->
                             <span v-if="columna.tipo === 'moneda'" :class="handleClaseImporte(columna.field, slotProps.data[columna.field])">
                                 {{ handleFormatoMoneda(slotProps.data[columna.field]) }}
                             </span>
 
-                            <span v-else>
+                            <!-- CONCEPTO CONCILIACIÓN -->
+                            <div v-else-if="columna.tipo === 'conciliacion'" class="celda-conciliacion">
+                                <span v-if="slotProps.data.conciliacion" class="concepto-conciliado" v-tooltip.top="handleNombreConciliacion(slotProps.data.conciliacion)">
+                                    <i class="pi pi-check-circle"></i>
+
+                                    {{ handleNombreConciliacion(slotProps.data.conciliacion) }}
+                                </span>
+
+                                <span v-else class="sin-conciliar"> Sin conciliar </span>
+                            </div>
+
+                            <!-- TEXTO -->
+                            <span v-else class="texto-celda" v-tooltip.top="String(slotProps.data[columna.field] ?? '-')">
                                 {{ slotProps.data[columna.field] ?? '-' }}
                             </span>
                         </template>
@@ -208,6 +350,7 @@
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
+
 import proceso from './js/proceso.js';
 
 export default {

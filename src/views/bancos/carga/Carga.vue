@@ -132,7 +132,7 @@
                         ref="fileUpload"
                         mode="basic"
                         name="archivo"
-                        accept=".xls,.xlsx,.csv,.txt"
+                        accept=".xls,.xlsx,.csv,.txt,.xml"
                         chooseLabel="Seleccionar archivo"
                         chooseIcon="pi pi-file"
                         :auto="false"
@@ -142,7 +142,7 @@
                         class="archivo-upload"
                         @select="handleSeleccionarArchivo"
                     />
-                    <small class="texto-campo">Formatos permitidos: XLS, XLSX, CSV y TXT.</small>
+                    <small class="texto-campo">Formatos permitidos: XLS, XLSX, CSV, TXT y XML.</small>
                 </div>
 
                 <div v-if="archivoSeleccionado" class="archivo-seleccionado-form">
