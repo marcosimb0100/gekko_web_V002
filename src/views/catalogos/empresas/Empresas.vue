@@ -528,31 +528,55 @@
                             <!-- DEPOSITO CFDI SSH -->
                             <!-- ================================================= -->
 
-                            <Fieldset legend="Depósito CFDI SSH">
-                                <div style="display: grid; grid-template-columns: 250px 260px 1fr; gap: 20px; align-items: end">
+                            <fieldset class="fieldset-deposito-cfdi">
+                                <legend class="legend-deposito-cfdi">Depósito CFDI SSH</legend>
+
+                                <div class="deposito-cfdi-grid">
                                     <!-- FECHA -->
 
-                                    <div style="display: flex; flex-direction: column; gap: 8px">
-                                        <label for="fecha_deposito_cfdi"> Fecha CFDI: </label>
+                                    <div class="campo-configuracion">
+                                        <label for="fechaDepositoCfdi"> Fecha CFDI: </label>
 
-                                        <DatePicker id="fecha_deposito_cfdi" v-model="fechaDepositoCfdi" dateFormat="dd/mm/yy" showIcon iconDisplay="input" :maxDate="new Date()" placeholder="Seleccione fecha" class="w-full" />
+                                        <Calendar id="fechaDepositoCfdi" v-model="fechaDepositoCfdi" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" class="w-full" />
                                     </div>
 
-                                    <!-- BOTON -->
+                                    <!-- NOMBRE EMPRESA -->
 
-                                    <div>
-                                        <Button type="button" label="Depositar CFDI en Directorio" class="btn-nuevo" :disabled="!fechaDepositoCfdi || depositandoCfdi" :loading="depositandoCfdi" @click="handleDepositarCfdiEmpresa">
+                                    <div class="campo-configuracion">
+                                        <label for="nombre_empresa"> Nombre Empresa: </label>
+
+                                        <InputText
+                                            id="nombre_empresa"
+                                            v-model="frmEmpresa.nombre_empresa"
+                                            placeholder="EJ. BALLFUDR"
+                                            class="w-full"
+                                            style="text-transform: uppercase"
+                                            @update:modelValue="frmEmpresa.nombre_empresa = ($event || '').toUpperCase()"
+                                        />
+                                    </div>
+
+                                    <!-- BOTÓN -->
+
+                                    <div class="campo-boton-deposito">
+                                        <Button
+                                            type="button"
+                                            label="Depositar CFDI en Directorio"
+                                            class="btn-depositar-cfdi"
+                                            :loading="depositandoCfdi"
+                                            :disabled="!fechaDepositoCfdi || !frmEmpresa._id || depositandoCfdi"
+                                            @click="handleDepositarCfdiEmpresa"
+                                        >
                                             <template #icon>
                                                 <font-icon icon="fa-solid fa-folder-tree" class="mr-2" />
                                             </template>
                                         </Button>
                                     </div>
 
-                                    <!-- TEXTO -->
+                                    <!-- DESCRIPCIÓN -->
 
-                                    <div style="padding-bottom: 7px; color: var(--p-text-muted-color)">Deposita las facturas y complementos de pago timbrados de esta empresa correspondientes al día seleccionado.</div>
+                                    <div class="descripcion-deposito">Deposita las facturas y complementos de pago timbrados de esta empresa correspondientes al día seleccionado.</div>
                                 </div>
-                            </Fieldset>
+                            </fieldset>
                         </div>
                     </ScrollPanel>
                 </TabPanel>

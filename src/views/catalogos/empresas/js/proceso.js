@@ -10,6 +10,7 @@ const frmEmpresaInit = () => ({
     tipo_persona: '',
     rfc: '',
     razon_social_nombre_completo: '',
+    nombre_empresa: '',
     calle: '',
     numero_ext: '',
     numero_int: '',
@@ -678,6 +679,9 @@ const useProceso = () => {
 
     const handleLimpiarFormulario = () => {
         Object.assign(frmEmpresa, frmEmpresaInit());
+
+        // Siempre regresar al día actual
+        fechaDepositoCfdi.value = new Date();
 
         logoArchivo.value = null;
 
@@ -1737,6 +1741,7 @@ const useProceso = () => {
             'tipo_persona',
             'rfc',
             'razon_social_nombre_completo',
+            'nombre_empresa',
             'calle',
             'numero_ext',
             'numero_int',

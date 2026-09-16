@@ -17,6 +17,8 @@ const frmSSHInit = () => ({
 
     ruta_inicial_cfdi: '',
 
+    estructura_ruta_cfdi: 'EMPRESA_ANIO_MES_DIA',
+
     activo: false
 });
 
@@ -28,6 +30,10 @@ const useProceso = () => {
     const frmSSH = reactive(frmSSHInit());
 
     const procesandoCfdi = ref(false);
+
+    const estructurasRuta = ref([]);
+
+    const cargandoEstructurasRuta = ref(false);
 
     // ============================================================
     // VALIDACIONES
@@ -215,6 +221,8 @@ const useProceso = () => {
 
             ruta_inicial_cfdi: data.ruta_inicial_cfdi ?? '',
 
+            estructura_ruta_cfdi: data.estructura_ruta_cfdi ?? 'EMPRESA_ANIO_MES_DIA',
+
             activo: data.activo ?? false
         });
     };
@@ -230,7 +238,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Complete correctamente la configuración SSH.',
+                detail: 'Complete correctamente ' + 'la configuración SSH.',
 
                 life: 3000
             });
@@ -249,7 +257,9 @@ const useProceso = () => {
 
             timeout: Number(frmSSH.timeout || 30),
 
-            ruta_inicial_cfdi: frmSSH.ruta_inicial_cfdi.trim()
+            ruta_inicial_cfdi: frmSSH.ruta_inicial_cfdi.trim(),
+
+            estructura_ruta_cfdi: frmSSH.estructura_ruta_cfdi
         };
 
         const res = await store.dispatch('api/apiPostToken', {
@@ -294,7 +304,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Complete correctamente la configuración SSH.',
+                detail: 'Complete correctamente ' + 'la configuración SSH.',
 
                 life: 3000
             });
@@ -314,6 +324,8 @@ const useProceso = () => {
             timeout: Number(frmSSH.timeout || 30),
 
             ruta_inicial_cfdi: frmSSH.ruta_inicial_cfdi.trim(),
+
+            estructura_ruta_cfdi: frmSSH.estructura_ruta_cfdi,
 
             activo: frmSSH.activo
         };
@@ -351,11 +363,61 @@ const useProceso = () => {
         await handleCargarSSH();
     };
 
+    const handleCargarEstructurasRuta = async () => {
+        cargandoEstructurasRuta.value = true;
+
+        try {
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: '/conexion_ssh_sat/estructuras_ruta'
+            });
+
+            if (res.estatus !== 200) {
+                estructurasRuta.value = [];
+
+                toast.add({
+                    severity: 'error',
+
+                    summary: 'Rutas CFDI',
+
+                    detail: res.mensaje || 'No fue posible consultar ' + 'las estructuras de ruta.',
+
+                    life: 3000
+                });
+
+                return false;
+            }
+
+            estructurasRuta.value = Array.isArray(res.datos?.estructuras) ? res.datos.estructuras : [];
+
+            return true;
+        } catch (error) {
+            console.error('ERROR CARGANDO ESTRUCTURAS:', error);
+
+            estructurasRuta.value = [];
+
+            toast.add({
+                severity: 'error',
+
+                summary: 'Rutas CFDI',
+
+                detail: 'Ocurrió un error consultando ' + 'las estructuras de ruta.',
+
+                life: 3000
+            });
+
+            return false;
+        } finally {
+            cargandoEstructurasRuta.value = false;
+        }
+    };
+
     // ============================================================
     // INIT
     // ============================================================
 
     const handleInit = async () => {
+        await handleCargarEstructurasRuta();
+
         await handleCargarSSH();
     };
 
@@ -363,6 +425,10 @@ const useProceso = () => {
 
     return {
         frmSSH,
+
+        estructurasRuta,
+
+        cargandoEstructurasRuta,
 
         hostValido,
 
@@ -381,8 +447,12 @@ const useProceso = () => {
         handleProbar,
 
         handleGuardar,
+
         botonDepositarDeshabilitado,
-        handleDepositarCfdi
+
+        handleDepositarCfdi,
+
+        handleCargarEstructurasRuta
     };
 };
 

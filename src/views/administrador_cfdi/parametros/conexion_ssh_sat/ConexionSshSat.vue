@@ -64,6 +64,43 @@
 
                                 <!-- TIMEOUT / RUTA INICIAL / ACTIVO -->
 
+                                <div class="grid-ruta-cfdi">
+                                    <div class="campo-ssh">
+                                        <label for="estructura_ruta_cfdi"> Organización de directorios CFDI: </label>
+
+                                        <Dropdown
+                                            id="estructura_ruta_cfdi"
+                                            v-model="frmSSH.estructura_ruta_cfdi"
+                                            :options="estructurasRuta"
+                                            optionLabel="nombre"
+                                            optionValue="clave"
+                                            placeholder="Seleccione una organización"
+                                            :loading="cargandoEstructurasRuta"
+                                            class="w-full"
+                                        >
+                                            <template #option="slotProps">
+                                                <div class="opcion-ruta-cfdi">
+                                                    <strong>
+                                                        {{ slotProps.option.nombre }}
+                                                    </strong>
+
+                                                    <small>
+                                                        {{ slotProps.option.ejemplo }}
+                                                    </small>
+                                                </div>
+                                            </template>
+                                        </Dropdown>
+                                    </div>
+
+                                    <div class="vista-previa-ruta">
+                                        <span class="titulo-vista-previa"> Ejemplo: </span>
+
+                                        <strong>
+                                            {{ estructurasRuta.find((item) => item.clave === frmSSH.estructura_ruta_cfdi)?.ejemplo || '-' }}
+                                        </strong>
+                                    </div>
+                                </div>
+
                                 <div class="grid-ssh grid-config">
                                     <div class="campo-ssh">
                                         <label for="timeout"> Timeout: </label>
