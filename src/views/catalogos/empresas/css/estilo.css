@@ -95,3 +95,201 @@
 
     color: var(--text-color-secondary);
 }
+
+/* =========================================================
+   ASIGNACIÓN MASIVA DE CONCEPTOS
+   ========================================================= */
+
+.acciones-concepto {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    white-space: nowrap;
+}
+
+.btn-asignar-concepto {
+    white-space: nowrap;
+}
+
+/* =========================================================
+   INFORMACIÓN DEL CONCEPTO
+   ========================================================= */
+
+.concepto-asignacion-info {
+    display: grid;
+
+    grid-template-columns:
+        180px
+        minmax(300px, 1fr);
+
+    gap: 20px;
+
+    padding: 14px 16px;
+
+    margin-bottom: 15px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: var(--surface-ground);
+}
+
+.concepto-asignacion-info > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.concepto-asignacion-label {
+    font-size: 12px;
+
+    color: var(--text-color-secondary);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.asignacion-clientes-toolbar {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 12px;
+}
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.estado-concepto-asignado {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    font-weight: 600;
+
+    color: green;
+}
+
+.estado-concepto-disponible {
+    font-size: 12px;
+
+    color: var(--text-color-secondary);
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.resumen-asignacion {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 25px;
+
+    padding-top: 12px;
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+    .concepto-asignacion-info {
+        grid-template-columns: 1fr;
+    }
+
+    .asignacion-clientes-toolbar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .acciones-concepto {
+        flex-wrap: wrap;
+    }
+}
+
+/* =========================================================
+   FUENTE TABLA CONCEPTOS
+   ========================================================= */
+
+:deep(.tabla-conceptos .p-datatable-table) {
+    font-size: 10px !important;
+}
+
+:deep(.tabla-conceptos .p-datatable-thead > tr > th) {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+
+:deep(.tabla-conceptos .p-datatable-tbody > tr > td) {
+    font-size: 10px !important;
+}
+
+:deep(.tabla-conceptos .p-datatable-tbody > tr > td span) {
+    font-size: 10px !important;
+}
+
+:deep(.tabla-conceptos .p-button) {
+    font-size: 9px !important;
+}
+
+:deep(.tabla-conceptos .p-paginator) {
+    font-size: 10px !important;
+}
+
+/* =========================================================
+   TABLA CUENTAS BANCARIAS
+   ========================================================= */
+
+:deep(.tabla-bancos .p-datatable-table) {
+    font-size: 10px !important;
+}
+
+/* ENCABEZADOS */
+
+:deep(.tabla-bancos .p-datatable-thead > tr > th) {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+
+/* CUERPO */
+
+:deep(.tabla-bancos .p-datatable-tbody > tr > td) {
+    font-size: 10px !important;
+}
+
+/* TEXTO INTERNO */
+
+:deep(.tabla-bancos .p-datatable-tbody > tr > td span) {
+    font-size: 10px !important;
+}
+
+/* PAGINADOR */
+
+:deep(.tabla-bancos .p-paginator) {
+    font-size: 10px !important;
+}
+
+/* BOTONES DE OPCIONES */
+
+:deep(.tabla-bancos .p-button) {
+    font-size: 9px !important;
+}

@@ -1,0 +1,536 @@
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
+
+.card-reporte-conceptos {
+    margin: 0 !important;
+
+    padding: 24px 28px 30px 28px !important;
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.contenedor-filtros {
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.encabezado-filtros {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.icono-filtros {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    font-size: 16px;
+}
+
+.titulo-filtros {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.encabezado-filtros small {
+    display: block;
+
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+   GRID FILTROS
+   ========================================================= */
+
+.grid-filtros {
+    display: grid;
+
+    grid-template-columns:
+        minmax(280px, 2fr)
+        minmax(170px, 0.8fr)
+        minmax(170px, 0.8fr)
+        auto;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.campo-filtro label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+:deep(.campo-filtro .p-dropdown),
+:deep(.campo-filtro .p-calendar) {
+    width: 100%;
+}
+
+.acciones-filtros {
+    display: flex;
+
+    gap: 8px;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.btn-consultar {
+    background: #198b68 !important;
+
+    border-color: #198b68 !important;
+}
+
+.btn-limpiar {
+    background: #bd3f3f !important;
+
+    border-color: #bd3f3f !important;
+
+    color: white !important;
+}
+
+.btn-exportar {
+    background: #24a766 !important;
+
+    border-color: #24a766 !important;
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.grid-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 16px;
+}
+
+.tarjeta-resumen {
+    position: relative;
+
+    min-height: 100px;
+
+    padding: 16px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-resumen::before {
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 4px;
+
+    height: 100%;
+
+    content: '';
+}
+
+.tarjeta-empresas::before {
+    background: #00aeca;
+}
+
+.tarjeta-conceptos::before {
+    background: #607d8b;
+}
+
+.tarjeta-utilizados::before {
+    background: #24a766;
+}
+
+.tarjeta-sin-uso::before {
+    background: #e8a317;
+}
+
+.tarjeta-total-usos::before {
+    background: #6f63c2;
+}
+
+.tarjeta-label {
+    margin-bottom: 7px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-valor {
+    margin-bottom: 5px;
+
+    font-size: 20px;
+
+    font-weight: 700;
+}
+
+.tarjeta-resumen small {
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   DESTACADOS
+   ========================================================= */
+
+.grid-destacados {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-top: 12px;
+}
+
+.tarjeta-destacada {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-height: 82px;
+
+    padding: 13px 15px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.destacado-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 38px;
+
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+}
+
+.destacado-mayor .destacado-icono {
+    background: rgba(35, 165, 90, 0.12);
+
+    color: #16833f;
+}
+
+.destacado-menor .destacado-icono {
+    background: rgba(229, 169, 27, 0.15);
+
+    color: #b47c00;
+}
+
+.destacado-info {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.destacado-info span {
+    margin-bottom: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+
+    text-transform: uppercase;
+}
+
+.destacado-info strong {
+    overflow: hidden;
+
+    font-size: 11px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.destacado-info small {
+    margin-top: 3px;
+
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.seccion-conceptos {
+    margin-top: 18px;
+}
+
+.titulo-seccion h3 {
+    margin: 0;
+
+    font-size: 14px;
+}
+
+.titulo-seccion small {
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   BARRA TABLA
+   ========================================================= */
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin: 12px 0 10px 0;
+}
+
+.buscador {
+    width: 260px;
+}
+
+.contador {
+    margin-left: auto;
+
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   DATATABLE
+   ========================================================= */
+
+:deep(.tabla-conceptos .p-datatable-table) {
+    font-size: 10px !important;
+}
+
+:deep(.tabla-conceptos .p-datatable-thead > tr > th) {
+    font-size: 10px !important;
+
+    font-weight: 600 !important;
+}
+
+:deep(.tabla-conceptos .p-datatable-tbody > tr > td) {
+    font-size: 10px !important;
+
+    padding-top: 6px !important;
+
+    padding-bottom: 6px !important;
+}
+
+:deep(.tabla-conceptos .p-paginator) {
+    font-size: 10px !important;
+}
+
+/* =========================================================
+   EMPRESA
+   ========================================================= */
+
+.celda-empresa {
+    display: flex;
+
+    flex-direction: column;
+}
+
+.celda-empresa strong {
+    font-size: 10px;
+}
+
+.celda-empresa small {
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.6;
+}
+
+/* =========================================================
+   RANKING
+   ========================================================= */
+
+.ranking {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 24px;
+
+    height: 24px;
+
+    padding: 0 6px;
+
+    border-radius: 12px;
+
+    background: rgba(120, 120, 120, 0.12);
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+.ranking-primero {
+    background: rgba(232, 163, 23, 0.18);
+}
+
+.ranking-segundo {
+    background: rgba(96, 125, 139, 0.16);
+}
+
+.ranking-tercero {
+    background: rgba(177, 112, 58, 0.16);
+}
+
+/* =========================================================
+   NUMERO FACTURADO
+   ========================================================= */
+
+.badge-uso {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 38px;
+
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    background: rgba(35, 165, 90, 0.12);
+
+    color: #16833f;
+
+    font-weight: 600;
+}
+
+.badge-sin-uso {
+    background: rgba(120, 120, 120, 0.12);
+
+    color: var(--text-color-secondary);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1250px) {
+    .grid-resumen {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1000px) {
+    .grid-filtros {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .acciones-filtros {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .grid-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-filtros {
+        grid-column: auto;
+
+        flex-wrap: wrap;
+    }
+
+    .grid-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-destacados {
+        grid-template-columns: 1fr;
+    }
+
+    .barra-tabla {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .buscador {
+        width: 100%;
+    }
+
+    .contador {
+        margin-left: 0;
+    }
+}

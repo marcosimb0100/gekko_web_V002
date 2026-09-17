@@ -235,7 +235,7 @@
                         </Button>
                     </div>
 
-                    <DataTable :value="frmEmpresa.bancos" size="small" paginator :rows="10" scrollable scrollHeight="40vh" class="tabla-encabezados">
+                    <DataTable :value="frmEmpresa.bancos" size="small" paginator :rows="10" scrollable scrollHeight="40vh" class="tabla-encabezados tabla-bancos">
                         <Column field="banco" header="Banco" headerClass="encabezado-columna" />
                         <Column field="clabe_banco" header="CLABE Bancaria" headerClass="encabezado-columna" />
                         <Column field="cuenta_banco" header="Cuenta Bancaria" headerClass="encabezado-columna" />
@@ -265,7 +265,7 @@
                         </Button>
                     </div>
 
-                    <DataTable :value="frmEmpresa.prod_serv" paginator :rows="100" :rowsPerPageOptions="[100, 200, 300, 400]" scrollable scrollHeight="42vh" size="small" tableStyle="min-width: 70rem" class="tabla-encabezados">
+                    <DataTable :value="frmEmpresa.prod_serv" paginator :rows="100" :rowsPerPageOptions="[100, 200, 300, 400]" scrollable scrollHeight="42vh" size="small" tableStyle="min-width: 70rem" class="tabla-conceptos">
                         <template #empty> No se encontraron conceptos. </template>
                         <Column field="prod_serv" header="ProdServ" headerClass="encabezado-columna" />
                         <Column field="descripcion" header="Descripción" headerClass="encabezado-columna" />
@@ -277,7 +277,13 @@
                                 {{ handleObjetoImpDesc(slotProps.data) }}
                             </template>
                         </Column>
-                        <Column field="num_uso" header="Número Facturado" headerClass="encabezado-columna" />
+                        <Column field="numero_facturado" header="Número Facturado" headerClass="encabezado-columna" style="width: 110px; text-align: center">
+                            <template #body="slotProps">
+                                <strong>
+                                    {{ slotProps.data.numero_facturado ?? 0 }}
+                                </strong>
+                            </template>
+                        </Column>
                         <Column header="Activo" headerClass="encabezado-columna">
                             <template #body="slotProps">
                                 <span v-if="slotProps.data.activo" style="font-size: 15px; color: green">
@@ -289,11 +295,21 @@
                                 </span>
                             </template>
                         </Column>
-                        <Column header="Opciones" headerClass="encabezado-columna">
+                        <Column header="Opciones" headerClass="encabezado-columna" style="min-width: 190px">
                             <template #body="slotProps">
-                                <Button type="button" class="btn-nuevo" @click="handleEditarConcepto(slotProps.data, slotProps.index)">
-                                    <font-icon :icon="['fas', 'pen-to-square']" />
-                                </Button>
+                                <div class="acciones-concepto">
+                                    <!-- EDITAR -->
+                                    <Button type="button" class="btn-nuevo" title="Editar concepto" @click="handleEditarConcepto(slotProps.data, slotProps.index)">
+                                        <font-icon :icon="['fas', 'pen-to-square']" />
+                                    </Button>
+
+                                    <!-- ASIGNAR -->
+                                    <Button type="button" class="btn-asignar-concepto" :disabled="!slotProps.data._id" @click="handleMostrarAsignarConcepto(slotProps.data)">
+                                        <template #icon>
+                                            <font-icon icon="fa-solid fa-users" class="mr-2" />
+                                        </template>
+                                    </Button>
+                                </div>
                             </template>
                         </Column>
                     </DataTable>
@@ -1098,6 +1114,150 @@
                 </template>
             </Column>
         </DataTable>
+    </Dialog>
+
+    <!-- =========================================================
+     DIALOG ASIGNAR CONCEPTO A CLIENTES
+     ========================================================= -->
+
+    <Dialog v-model:visible="visibleAsignarConcepto" modal header="Asignar concepto a clientes" :style="{ width: '75rem' }" :draggable="false" :closable="!guardandoAsignacionConcepto">
+        <!-- =====================================================
+         CONCEPTO
+         ===================================================== -->
+
+        <div class="concepto-asignacion-info">
+            <div>
+                <span class="concepto-asignacion-label"> ProdServ </span>
+
+                <strong>
+                    {{ conceptoAsignacion?.prod_serv || '' }}
+                </strong>
+            </div>
+
+            <div>
+                <span class="concepto-asignacion-label"> Descripción </span>
+
+                <strong>
+                    {{ conceptoAsignacion?.descripcion || '' }}
+                </strong>
+            </div>
+        </div>
+
+        <!-- =====================================================
+         HERRAMIENTAS
+         ===================================================== -->
+
+        <div class="asignacion-clientes-toolbar">
+            <IconField iconPosition="left">
+                <InputIcon>
+                    <i class="pi pi-search" />
+                </InputIcon>
+
+                <InputText v-model="filtroClientesAsignacion" placeholder="Buscar cliente, RFC o correo..." style="width: 330px" />
+            </IconField>
+
+            <div class="flex gap-2">
+                <Button type="button" label="Seleccionar todos" severity="secondary" outlined @click="handleSeleccionarTodosClientes">
+                    <template #icon>
+                        <font-icon icon="fa-solid fa-check-double" class="mr-2" />
+                    </template>
+                </Button>
+
+                <Button type="button" label="Limpiar" severity="secondary" outlined @click="handleLimpiarClientesSeleccionados">
+                    <template #icon>
+                        <font-icon icon="fa-solid fa-eraser" class="mr-2" />
+                    </template>
+                </Button>
+            </div>
+        </div>
+
+        <!-- =====================================================
+         TABLA
+         ===================================================== -->
+
+        <DataTable
+            v-model:selection="clientesSeleccionados"
+            :value="clientesAsignacionFiltrados"
+            dataKey="_id"
+            paginator
+            :rows="25"
+            :rowsPerPageOptions="[25, 50, 100, 200]"
+            scrollable
+            scrollHeight="420px"
+            size="small"
+            class="tabla-encabezados"
+            :loading="cargandoClientesAsignacion"
+        >
+            <template #empty> No se encontraron clientes. </template>
+
+            <!-- CHECKBOX -->
+
+            <Column selectionMode="multiple" headerStyle="width: 3rem" headerClass="encabezado-columna" />
+
+            <!-- RFC -->
+
+            <Column field="rfc" header="R.F.C." headerClass="encabezado-columna" style="min-width: 150px" />
+
+            <!-- CLIENTE -->
+
+            <Column field="razon_social_nombre_completo" header="Cliente" headerClass="encabezado-columna" style="min-width: 300px" />
+
+            <!-- CORREO -->
+
+            <Column field="correo_electronico" header="Correo Electrónico" headerClass="encabezado-columna" style="min-width: 250px" />
+
+            <!-- ESTADO -->
+
+            <Column header="Estado" headerClass="encabezado-columna" style="width: 150px">
+                <template #body="slotProps">
+                    <span v-if="slotProps.data.asignado" class="estado-concepto-asignado">
+                        <font-icon icon="fa-solid fa-circle-check" />
+
+                        Asignado
+                    </span>
+
+                    <span v-else class="estado-concepto-disponible"> Disponible </span>
+                </template>
+            </Column>
+        </DataTable>
+
+        <!-- =====================================================
+         RESUMEN
+         ===================================================== -->
+
+        <div class="resumen-asignacion">
+            <span>
+                Clientes:
+                <strong>
+                    {{ clientesAsignacion.length }}
+                </strong>
+            </span>
+
+            <span>
+                Seleccionados:
+                <strong>
+                    {{ clientesSeleccionados.length }}
+                </strong>
+            </span>
+        </div>
+
+        <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+        <template #footer>
+            <Button type="button" label="Cancelar" class="btn-cancelar" :disabled="guardandoAsignacionConcepto" @click="handleCancelarAsignarConcepto">
+                <template #icon>
+                    <font-icon icon="fa-solid fa-xmark" class="mr-2" />
+                </template>
+            </Button>
+
+            <Button type="button" label="Asignar" class="btn-guardar" :loading="guardandoAsignacionConcepto" :disabled="clientesSeleccionados.length === 0 || guardandoAsignacionConcepto" @click="handleGuardarAsignacionConcepto">
+                <template #icon>
+                    <font-icon icon="fa-solid fa-users" class="mr-2" />
+                </template>
+            </Button>
+        </template>
     </Dialog>
 </template>
 

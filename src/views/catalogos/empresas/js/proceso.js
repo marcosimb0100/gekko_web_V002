@@ -212,6 +212,13 @@ const useProceso = () => {
 
     const visibleBanco = ref(false);
     const visibleConcepto = ref(false);
+    const visibleAsignarConcepto = ref(false);
+    const conceptoAsignacion = ref(null);
+    const clientesAsignacion = ref([]);
+    const clientesSeleccionados = ref([]);
+    const filtroClientesAsignacion = ref('');
+    const cargandoClientesAsignacion = ref(false);
+    const guardandoAsignacionConcepto = ref(false);
     const visibleCSD = ref(false);
     const visibleFIEL = ref(false);
     const visiblePlantilla = ref(false);
@@ -2099,6 +2106,186 @@ const useProceso = () => {
         frmEmpresa.correos_solicitudes.splice(index, 1);
     };
 
+    const clientesAsignacionFiltrados = computed(() => {
+        const texto = String(filtroClientesAsignacion.value || '')
+            .trim()
+            .toUpperCase();
+
+        if (!texto) {
+            return clientesAsignacion.value;
+        }
+
+        return clientesAsignacion.value.filter((cliente) => {
+            const razonSocial = String(cliente.razon_social_nombre_completo || '').toUpperCase();
+
+            const rfc = String(cliente.rfc || '').toUpperCase();
+
+            const correo = String(cliente.correo_electronico || '').toUpperCase();
+
+            return razonSocial.includes(texto) || rfc.includes(texto) || correo.includes(texto);
+        });
+    });
+
+    const handleMostrarAsignarConcepto = async (concepto) => {
+        if (!frmEmpresa._id) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Primero debe guardar la empresa.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        if (!concepto?._id) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Primero debe guardar el concepto antes de asignarlo.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        conceptoAsignacion.value = {
+            ...concepto
+        };
+
+        clientesAsignacion.value = [];
+
+        clientesSeleccionados.value = [];
+
+        filtroClientesAsignacion.value = '';
+
+        visibleAsignarConcepto.value = true;
+
+        cargandoClientesAsignacion.value = true;
+
+        try {
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: `/companias/clientes_asignacion_concepto/${frmEmpresa._id}/${concepto._id}`
+            });
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Notificación',
+                    detail: res.mensaje,
+                    life: 3000
+                });
+
+                visibleAsignarConcepto.value = false;
+
+                return;
+            }
+
+            clientesAsignacion.value = res.datos?.clientes ?? [];
+
+            /*
+             * Los que ya tienen el concepto aparecen
+             * seleccionados desde que abre el Dialog.
+             */
+            clientesSeleccionados.value = clientesAsignacion.value.filter((cliente) => cliente.asignado === true);
+        } catch (error) {
+            console.error(error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: 'No fue posible consultar los clientes.',
+                life: 3000
+            });
+
+            visibleAsignarConcepto.value = false;
+        } finally {
+            cargandoClientesAsignacion.value = false;
+        }
+    };
+
+    const handleCancelarAsignarConcepto = () => {
+        visibleAsignarConcepto.value = false;
+
+        conceptoAsignacion.value = null;
+
+        clientesAsignacion.value = [];
+
+        clientesSeleccionados.value = [];
+
+        filtroClientesAsignacion.value = '';
+    };
+
+    const handleGuardarAsignacionConcepto = async () => {
+        if (!conceptoAsignacion.value?._id) {
+            return;
+        }
+
+        if (!clientesSeleccionados.value || clientesSeleccionados.value.length === 0) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Seleccione al menos un cliente.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        guardandoAsignacionConcepto.value = true;
+
+        try {
+            const clientes = clientesSeleccionados.value.map((cliente) => cliente._id);
+
+            const res = await store.dispatch('api/apiPutToken', {
+                direccion: `/companias/asignar_concepto_clientes/${frmEmpresa._id}/${conceptoAsignacion.value._id}`,
+
+                datosJson: {
+                    clientes
+                }
+            });
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Notificación',
+                    detail: res.mensaje,
+                    life: 4000
+                });
+
+                return;
+            }
+
+            toast.add({
+                severity: 'success',
+                summary: 'Notificación',
+                detail: res.mensaje,
+                life: 4000
+            });
+
+            handleCancelarAsignarConcepto();
+        } catch (error) {
+            console.error(error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: 'No fue posible realizar la asignación.',
+                life: 4000
+            });
+        } finally {
+            guardandoAsignacionConcepto.value = false;
+        }
+    };
+
+    const handleSeleccionarTodosClientes = () => {
+        clientesSeleccionados.value = [...clientesAsignacionFiltrados.value];
+    };
+
+    const handleLimpiarClientesSeleccionados = () => {
+        clientesSeleccionados.value = clientesAsignacion.value.filter((cliente) => cliente.asignado === true);
+    };
+
     // ------------------------------------------------------------------
     // RETURN
     // ------------------------------------------------------------------
@@ -2160,6 +2347,22 @@ const useProceso = () => {
         visibleConsultaBancos,
         visibleConsultaConceptos,
         empresaConsulta,
+
+        visibleAsignarConcepto,
+        conceptoAsignacion,
+        clientesAsignacion,
+        clientesSeleccionados,
+        filtroClientesAsignacion,
+        cargandoClientesAsignacion,
+        guardandoAsignacionConcepto,
+
+        clientesAsignacionFiltrados,
+
+        handleMostrarAsignarConcepto,
+        handleCancelarAsignarConcepto,
+        handleGuardarAsignacionConcepto,
+        handleSeleccionarTodosClientes,
+        handleLimpiarClientesSeleccionados,
 
         handleVerBancos,
         handleVerConceptos,

@@ -246,6 +246,13 @@ const router = createRouter({
                     name: 'reportes_dashBoard_facturacion',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "reportes_dashBoard_facturacion" */ '../views/reportes/dashboard_facturacion/DashboardFacturacion.vue')
+                },
+
+                {
+                    path: '/reportes/conceptos_facturados',
+                    name: 'reportes_conceptos_facturados',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "reportes_conceptos_facturados" */ '../views/reportes/conceptos_facturacion/ConceptosFacturacion.vue')
                 }
             ]
         }
