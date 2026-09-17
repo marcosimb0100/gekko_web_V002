@@ -1,0 +1,139 @@
+/* =========================================================
+   TABLA PARAMETROS DINAMICOS
+   ========================================================= */
+
+:deep(.nowrap) {
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ENCABEZADOS
+   ========================================================= */
+
+:deep(.tabla-parametros .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+
+    font-size: 10px !important;
+
+    font-weight: 600 !important;
+}
+
+/* =========================================================
+   CUERPO
+   ========================================================= */
+
+:deep(.tabla-parametros .p-datatable-tbody > tr > td) {
+    padding: 6px 8px !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.2;
+}
+
+/* =========================================================
+   PAGINADOR
+   ========================================================= */
+
+:deep(.tabla-parametros .p-paginator) {
+    font-size: 10px !important;
+}
+
+/* =========================================================
+   PARAMETRO
+   ========================================================= */
+
+.parametro-codigo {
+    display: inline-block;
+
+    padding: 4px 8px;
+
+    border-radius: 5px;
+
+    background: var(--surface-100);
+
+    font-family: Consolas, Monaco, monospace;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   EJEMPLO
+   ========================================================= */
+
+.parametro-ejemplo {
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* =========================================================
+   ACTIVO
+   ========================================================= */
+
+.estado-activo {
+    font-size: 15px;
+
+    color: green;
+}
+
+.estado-inactivo {
+    font-size: 15px;
+
+    color: red;
+}
+
+/* =========================================================
+   PARAMETRO COPIABLE
+   ========================================================= */
+
+.parametro-codigo {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 4px 8px;
+
+    border-radius: 5px;
+
+    background: var(--surface-100);
+
+    font-family: Consolas, Monaco, monospace;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    transition:
+        background 0.15s ease,
+        transform 0.1s ease;
+}
+
+.parametro-codigo:hover {
+    background: var(--surface-200);
+}
+
+.parametro-codigo:active {
+    transform: scale(0.97);
+}
+
+.icono-copiar {
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+.parametro-codigo:hover .icono-copiar {
+    opacity: 1;
+}

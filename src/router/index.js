@@ -118,6 +118,12 @@ const router = createRouter({
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "catalogos_catalogo_sat" */ '../views/catalogos/catalogo_sat/CatalogoSat.vue')
                 },
+                {
+                    path: '/catalogos/parametros_dinamicos',
+                    name: 'catalogos_parametros_dinamicos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "catalogos_parametros_dinamicos" */ '../views/catalogos/parametros_dinamicos/ParametrosDinamicos.vue')
+                },
 
                 {
                     path: '/operaciones/mesa_control',
