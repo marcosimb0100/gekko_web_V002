@@ -30,7 +30,7 @@ const handleCerrarSesion = () => {
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <img src="@/assets/images/logo_empresa_cliente.png" alt="Logo Sociedad Ballfudr" width="40" />
+                <img src="@/assets/images/logo_empresa_cliente.png" alt="Logo" width="40" />
 
                 <span class="titulo" style="color: #6ac4ca">{{ appCliente }}</span>
             </router-link>

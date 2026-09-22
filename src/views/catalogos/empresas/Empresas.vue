@@ -1,6 +1,6 @@
 <template>
     <Encabezado titulo="Empresas" subtitulo="Administración de empresas del sistema" icono="pi pi-building">
-        <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleMostrarFormulario('N')" v-if="!mostrarTablaFormulario">
+        <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleNuevaEmpresa()" v-if="!mostrarTablaFormulario">
             <template #icon>
                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
             </template>
@@ -564,7 +564,7 @@
                                         <InputText
                                             id="nombre_empresa"
                                             v-model="frmEmpresa.nombre_empresa"
-                                            placeholder="EJ. BALLFUDR"
+                                            placeholder="Nombre Empresa Contabilidad"
                                             class="w-full"
                                             style="text-transform: uppercase"
                                             @update:modelValue="frmEmpresa.nombre_empresa = ($event || '').toUpperCase()"

@@ -3,7 +3,7 @@
         <div class="login-box">
             <div class="login-left">
                 <div class="overlay">
-                    <img src="@/assets/images/logo_empresa_cliente.png" alt="Logo Sociedad Ballfudr" class="login-logo-top"/>
+                    <img src="@/assets/images/logo_empresa_cliente.png" alt="Logo" class="login-logo-top" />
 
                     <div class="login-content">
                         <h1>Bienvenido</h1>
@@ -11,7 +11,7 @@
                         <p>Administración de las cuentas bancarias y conciliacion.</p>
                     </div>
 
-                    <img src="@/assets/images/logo.png" alt="Logo Gekko" class="login-logo-footer"/>
+                    <img src="@/assets/images/logo.png" alt="Logo Gekko" class="login-logo-footer" />
                 </div>
             </div>
 
@@ -39,24 +39,10 @@
                         <div class="field">
                             <label for="clave">Contraseña</label>
 
-                            <Password
-                                id="clave"
-                                v-model="frmAcceso.clave"
-                                class="custom-password"
-                                inputClass="w-full"
-                                :invalid="!claveValida"
-                                :feedback="false"
-                                placeholder="Ingresa tu contraseña"
-                            />
+                            <Password id="clave" v-model="frmAcceso.clave" class="custom-password" inputClass="w-full" :invalid="!claveValida" :feedback="false" placeholder="Ingresa tu contraseña" />
                         </div>
 
-                        <Button
-                            type="submit"
-                            label="Ingresar"
-                            icon="pi pi-sign-in"
-                            class="w-full login-button"
-                            :disabled="botonEntrarDeshabilitado"
-                        />
+                        <Button type="submit" label="Ingresar" icon="pi pi-sign-in" class="w-full login-button" :disabled="botonEntrarDeshabilitado" />
                     </form>
                 </div>
             </div>

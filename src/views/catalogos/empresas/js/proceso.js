@@ -636,6 +636,52 @@ const useProceso = () => {
         });
     };
 
+    const handleNuevaEmpresa = async () => {
+        try {
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: '/companias/validar_limite'
+            });
+
+            if (res.estatus !== 200) {
+                toast.add({
+                    severity: 'warn',
+                    summary: 'Límite de empresas',
+                    detail: res.mensaje,
+                    life: 5000
+                });
+
+                return;
+            }
+
+            const datos = res.datos ?? {};
+
+            console.log('VALIDACIÓN LÍMITE EMPRESAS:', datos);
+
+            if (datos.puede_crear !== true) {
+                toast.add({
+                    severity: 'warn',
+                    summary: 'Límite de empresas',
+                    detail: res.mensaje || 'Ya se alcanzó el límite de empresas permitidas.',
+                    life: 5000
+                });
+
+                return;
+            }
+
+            // Puede crear empresa
+            handleMostrarFormulario('N');
+        } catch (error) {
+            console.error('ERROR VALIDANDO LIMITE DE EMPRESAS:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: 'No fue posible validar el límite de empresas.',
+                life: 4000
+            });
+        }
+    };
+
     // ------------------------------------------------------------------
     // MOSTRAR FORMULARIO
     // ------------------------------------------------------------------
@@ -2357,6 +2403,8 @@ const useProceso = () => {
         guardandoAsignacionConcepto,
 
         clientesAsignacionFiltrados,
+
+        handleNuevaEmpresa,
 
         handleMostrarAsignarConcepto,
         handleCancelarAsignarConcepto,
