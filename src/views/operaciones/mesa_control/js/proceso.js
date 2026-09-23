@@ -23,7 +23,7 @@ const useProceso = () => {
     const fechaFinal = ref(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()));
 
     // ============================================================
-    // FILTROS PRINCIPALES
+    // FILTROS
     // ============================================================
 
     const tipoSolicitudFiltro = ref('facturas');
@@ -33,12 +33,18 @@ const useProceso = () => {
     const empresaFiltro = ref('');
 
     // ============================================================
-    // SOLICITUDES TABLA
+    // TABLA
     // ============================================================
 
     const solicitudes = ref([]);
 
     const cargandoSolicitudes = ref(false);
+
+    // ============================================================
+    // SELECCION FACTURAS PENDIENTES
+    // ============================================================
+
+    const facturasSeleccionadas = ref([]);
 
     // ============================================================
     // DASHBOARD
@@ -127,6 +133,40 @@ const useProceso = () => {
     ];
 
     // ============================================================
+    // TOTAL REGISTRO
+    // ============================================================
+
+    const handleObtenerTotal = (item) => {
+        if (!item) {
+            return 0;
+        }
+
+        return Number(item.montoTotal ?? item.total ?? item.monto_total_pagos ?? item.monto ?? 0);
+    };
+
+    // ============================================================
+    // SELECCION
+    // ============================================================
+
+    const mostrarSeleccionFacturas = computed(() => {
+        return tipoSolicitudFiltro.value === 'facturas' && estatusFiltro.value === 'pendiente';
+    });
+
+    const cantidadFacturasSeleccionadas = computed(() => {
+        return facturasSeleccionadas.value.length;
+    });
+
+    const totalFacturasSeleccionadas = computed(() => {
+        return facturasSeleccionadas.value.reduce((total, item) => {
+            return total + handleObtenerTotal(item);
+        }, 0);
+    });
+
+    const handleLimpiarSeleccionFacturas = () => {
+        facturasSeleccionadas.value = [];
+    };
+
+    // ============================================================
     // FECHA API
     // ============================================================
 
@@ -197,7 +237,7 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // ENDPOINT TABLA
+    // ENDPOINT
     // ============================================================
 
     const handleEndpointSolicitudes = () => {
@@ -209,7 +249,7 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // OBTENER SOLICITUDES RESPUESTA
+    // RESPUESTA SOLICITUDES
     // ============================================================
 
     const handleObtenerSolicitudesRespuesta = (respuesta) => {
@@ -221,7 +261,7 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // CONSULTA TABLA
+    // CONSULTAR TABLA
     // ============================================================
 
     const handleRecargarSolicitudes = async () => {
@@ -234,13 +274,9 @@ const useProceso = () => {
         try {
             const direccion = handleEndpointSolicitudes() + '?' + handleParametrosFecha();
 
-            console.log('CONSULTANDO TABLA:', direccion);
-
             const res = await store.dispatch('api/apiGetToken', {
                 direccion
             });
-
-            console.log('RESPUESTA TABLA:', res);
 
             if (res.estatus === 200) {
                 solicitudes.value = res.datos?.solicitudes ?? [];
@@ -258,7 +294,7 @@ const useProceso = () => {
                 });
             }
         } catch (error) {
-            console.error('ERROR CONSULTANDO TABLA:', error);
+            console.error('ERROR CONSULTANDO SOLICITUDES:', error);
 
             solicitudes.value = [];
 
@@ -267,7 +303,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Ocurrió un error al ' + 'consultar las solicitudes.',
+                detail: 'Ocurrió un error al consultar ' + 'las solicitudes.',
 
                 life: 3000
             });
@@ -327,19 +363,7 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // TOTAL
-    // ============================================================
-
-    const handleObtenerTotal = (item) => {
-        if (!item) {
-            return 0;
-        }
-
-        return Number(item.montoTotal ?? item.total ?? item.monto_total_pagos ?? item.monto ?? 0);
-    };
-
-    // ============================================================
-    // FILTRO EMPRESA
+    // FILTRAR EMPRESA
     // ============================================================
 
     const handleFiltrarEmpresa = (registros) => {
@@ -371,11 +395,9 @@ const useProceso = () => {
 
         const todos = [...facturas, ...complementos];
 
-        const importe = todos.reduce(
-            (total, item) => total + handleObtenerTotal(item),
-
-            0
-        );
+        const importe = todos.reduce((total, item) => {
+            return total + handleObtenerTotal(item);
+        }, 0);
 
         return {
             pendientes: pendientes.length,
@@ -405,11 +427,7 @@ const useProceso = () => {
                 nombre: item.compania
             }));
 
-        return empresas
-
-            .filter((item, index, array) => index === array.findIndex((empresa) => String(empresa._id) === String(item._id)))
-
-            .sort((a, b) => a.nombre.localeCompare(b.nombre));
+        return empresas.filter((item, index, array) => index === array.findIndex((empresa) => String(empresa._id) === String(item._id))).sort((a, b) => a.nombre.localeCompare(b.nombre));
     });
 
     // ============================================================
@@ -483,6 +501,8 @@ const useProceso = () => {
 
         filtros.value.global.value = null;
 
+        handleLimpiarSeleccionFacturas();
+
         await handleRecargarSolicitudes();
     };
 
@@ -493,7 +513,17 @@ const useProceso = () => {
     const handleCambiarEstatus = async () => {
         filtros.value.global.value = null;
 
+        handleLimpiarSeleccionFacturas();
+
         await handleRecargarSolicitudes();
+    };
+
+    // ============================================================
+    // CAMBIAR EMPRESA
+    // ============================================================
+
+    const handleCambiarEmpresa = () => {
+        handleLimpiarSeleccionFacturas();
     };
 
     // ============================================================
@@ -519,6 +549,8 @@ const useProceso = () => {
 
         filtros.value.global.value = null;
 
+        handleLimpiarSeleccionFacturas();
+
         await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
     };
 
@@ -540,6 +572,8 @@ const useProceso = () => {
         empresaFiltro.value = '';
 
         filtros.value.global.value = null;
+
+        handleLimpiarSeleccionFacturas();
 
         await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
     };
@@ -655,6 +689,8 @@ const useProceso = () => {
             life: 3000
         });
 
+        handleLimpiarSeleccionFacturas();
+
         await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
     };
 
@@ -708,6 +744,8 @@ const useProceso = () => {
         }
 
         handleCerrarRechazo();
+
+        handleLimpiarSeleccionFacturas();
 
         toast.add({
             severity: 'success',
@@ -966,7 +1004,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Cantidad y valor ' + 'unitario deben ser mayores a 0.',
+                detail: 'Cantidad y valor unitario ' + 'deben ser mayores a 0.',
 
                 life: 3000
             });
@@ -1044,6 +1082,8 @@ const useProceso = () => {
 
         dialogEditarConceptos.value = false;
 
+        handleLimpiarSeleccionFacturas();
+
         await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
     };
 
@@ -1105,6 +1145,8 @@ const useProceso = () => {
         tipoSolicitudFiltro.value = 'facturas';
 
         estatusFiltro.value = 'pendiente';
+
+        handleLimpiarSeleccionFacturas();
 
         await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
     };
@@ -1170,6 +1212,18 @@ const useProceso = () => {
 
         valorUnitarioNuevo,
 
+        // SELECCION
+
+        facturasSeleccionadas,
+
+        mostrarSeleccionFacturas,
+
+        cantidadFacturasSeleccionadas,
+
+        totalFacturasSeleccionadas,
+
+        // FUNCIONES
+
         handleFechaApi,
 
         handleMoney,
@@ -1183,6 +1237,8 @@ const useProceso = () => {
         handleCambiarTipoSolicitud,
 
         handleCambiarEstatus,
+
+        handleCambiarEmpresa,
 
         handleSeleccionarTipoResumen,
 

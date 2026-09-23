@@ -175,7 +175,7 @@
                 <div class="campo-filtro">
                     <label> Empresa emisora </label>
 
-                    <Dropdown v-model="empresaFiltro" :options="empresasFiltro" optionLabel="nombre" optionValue="_id" placeholder="Todas las empresas" showClear filter class="w-full" />
+                    <Dropdown v-model="empresaFiltro" :options="empresasFiltro" optionLabel="nombre" optionValue="_id" placeholder="Todas las empresas" showClear filter class="w-full" @change="handleCambiarEmpresa" />
                 </div>
 
                 <!-- CONSULTAR -->
@@ -224,7 +224,7 @@
         </div>
 
         <!-- =====================================================
-             BARRA TABLA
+             TITULO TABLA
         ====================================================== -->
 
         <div class="barra-tabla">
@@ -251,13 +251,44 @@
         </div>
 
         <!-- =====================================================
+             RESUMEN SELECCION
+             SOLO FACTURAS PENDIENTES
+        ====================================================== -->
+
+        <div v-if="mostrarSeleccionFacturas && cantidadFacturasSeleccionadas > 0" class="resumen-seleccion">
+            <div class="resumen-seleccion-info">
+                <div class="resumen-seleccion-icono">
+                    <font-icon :icon="['fas', 'square-check']" />
+                </div>
+
+                <div class="resumen-seleccion-texto">
+                    <span> Facturas seleccionadas </span>
+
+                    <strong>
+                        {{ cantidadFacturasSeleccionadas }}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="resumen-seleccion-total">
+                <span> Total seleccionado </span>
+
+                <strong>
+                    {{ handleMoney(totalFacturasSeleccionadas) }}
+                </strong>
+            </div>
+        </div>
+
+        <!-- =====================================================
              TABLA
         ====================================================== -->
 
         <div class="contenedor-tabla">
             <DataTable
                 v-model:filters="filtros"
+                v-model:selection="facturasSeleccionadas"
                 :value="solicitudesFiltradas"
+                dataKey="_id"
                 :globalFilterFields="['created_at', 'cliente', 'compania', 'uso_cfdi', 'banco', 'cuenta_banco', 'estatus', 'factura_serie', 'factura_folio', 'uuid']"
                 paginator
                 :rows="100"
@@ -282,6 +313,13 @@
                         <span> No existen registros para el periodo seleccionado. </span>
                     </div>
                 </template>
+
+                <!-- =================================================
+                     CHECK
+                     SOLO FACTURAS PENDIENTES
+                ================================================== -->
+
+                <Column v-if="mostrarSeleccionFacturas" selectionMode="multiple" headerClass="col-seleccion" bodyClass="col-seleccion" headerStyle="width:3rem" bodyStyle="width:3rem" />
 
                 <!-- FECHA -->
 
@@ -323,7 +361,7 @@
                     style="min-width: 110px"
                 />
 
-                <!-- CONCEPTOS FACTURA -->
+                <!-- CONCEPTOS -->
 
                 <Column
                     v-if="tipoSolicitudFiltro === 'facturas'"
@@ -341,7 +379,7 @@
                     style="min-width: 90px"
                 />
 
-                <!-- DOCUMENTOS COMPLEMENTO -->
+                <!-- DOCUMENTOS -->
 
                 <Column
                     v-if="tipoSolicitudFiltro === 'complementos_pago'"
@@ -397,10 +435,7 @@
                     style="min-width: 85px"
                 />
 
-                <!-- =================================================
-                     UUID
-                     SOLO TIMBRADAS
-                ================================================== -->
+                <!-- UUID -->
 
                 <Column
                     v-if="estatusFiltro === 'timbrada'"
@@ -521,8 +556,6 @@
         class="dialog-detalle"
     >
         <div v-if="solicitudDetalle" class="detalle-solicitud">
-            <!-- DATOS -->
-
             <div class="detalle-datos">
                 <div class="detalle-item">
                     <span class="detalle-label"> Cliente </span>
@@ -548,10 +581,7 @@
                     </span>
                 </div>
 
-                <!-- =================================================
-                     SERIE / FOLIO
-                     SOLO TIMBRADA
-                ================================================== -->
+                <!-- SERIE / FOLIO SOLO TIMBRADA -->
 
                 <div v-if="estatusFiltro === 'timbrada'" class="detalle-item">
                     <span class="detalle-label"> Serie / Folio </span>
@@ -710,8 +740,6 @@
                     <Button label="PDF" severity="warn" outlined @click="handleDescargarPdf(solicitudDetalle)" />
                 </div>
 
-                <!-- TOTALES -->
-
                 <div class="detalle-totales">
                     <template v-if="tipoSolicitudFiltro === 'facturas'">
                         <div class="total-renglon">
@@ -806,8 +834,6 @@
         }"
     >
         <div class="editar-conceptos">
-            <!-- NUEVO -->
-
             <div class="nuevo-concepto-card">
                 <div class="nuevo-concepto-titulo">
                     <font-icon :icon="['fas', 'plus']" />
@@ -837,8 +863,6 @@
                     <Button icon="pi pi-plus" severity="success" @click="handleAgregarConceptoEditable" />
                 </div>
             </div>
-
-            <!-- TABLA -->
 
             <DataTable
                 :value="conceptosEditables"
@@ -902,7 +926,6 @@
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
-
 import proceso from './js/proceso.js';
 
 export default {

@@ -4,7 +4,6 @@
 
 .panel-control {
     display: flex;
-
     flex-direction: column;
 
     min-height: 72vh;
@@ -81,7 +80,6 @@
 
 .resumen-icono {
     width: 50px;
-
     height: 50px;
 
     flex: 0 0 50px;
@@ -99,15 +97,11 @@
     background: var(--p-surface-100);
 }
 
-/* PENDIENTES */
-
 .resumen-pendientes .resumen-icono {
     color: #d97706;
 
     background: rgba(245, 158, 11, 0.14);
 }
-
-/* FACTURAS */
 
 .resumen-facturas .resumen-icono {
     color: #0891b2;
@@ -115,23 +109,17 @@
     background: rgba(8, 145, 178, 0.12);
 }
 
-/* COMPLEMENTOS */
-
 .resumen-complementos .resumen-icono {
     color: #16a34a;
 
     background: rgba(34, 197, 94, 0.13);
 }
 
-/* TOTAL */
-
 .resumen-total .resumen-icono {
     color: #7c3aed;
 
     background: rgba(124, 58, 237, 0.12);
 }
-
-/* IMPORTE */
 
 .resumen-importe .resumen-icono {
     color: #0284c7;
@@ -205,7 +193,6 @@
 
 .periodo-icono {
     width: 29px;
-
     height: 29px;
 
     display: flex;
@@ -392,7 +379,6 @@
 
 .indicador-punto {
     width: 9px;
-
     height: 9px;
 
     border-radius: 50%;
@@ -432,6 +418,107 @@
     font-weight: 600;
 
     color: var(--p-text-muted-color);
+}
+
+/* ============================================================
+   SELECCION FACTURAS
+============================================================ */
+
+.resumen-seleccion {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 10px 14px;
+
+    margin-bottom: 10px;
+
+    border: 1px solid var(--p-primary-200);
+
+    border-radius: 10px;
+
+    background: var(--p-primary-50);
+}
+
+.resumen-seleccion-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.resumen-seleccion-icono {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 8px;
+
+    color: var(--p-primary-color);
+
+    background: var(--p-primary-100);
+}
+
+.resumen-seleccion-texto {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.resumen-seleccion-texto span {
+    font-size: 12px;
+
+    color: var(--p-text-muted-color);
+}
+
+.resumen-seleccion-texto strong {
+    font-size: 18px;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.resumen-seleccion-total {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+.resumen-seleccion-total span {
+    font-size: 12px;
+
+    color: var(--p-text-muted-color);
+}
+
+.resumen-seleccion-total strong {
+    font-size: 20px;
+
+    font-weight: 700;
+
+    color: var(--p-primary-color);
+
+    font-variant-numeric: tabular-nums;
+}
+
+:deep(.col-seleccion) {
+    text-align: center;
+}
+
+:deep(.col-seleccion .p-checkbox) {
+    margin: auto;
 }
 
 /* ============================================================
@@ -1009,6 +1096,22 @@
         flex-direction: column;
 
         align-items: flex-start;
+    }
+
+    /* SELECCION */
+
+    .resumen-seleccion {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .resumen-seleccion-total {
+        justify-content: space-between;
+
+        padding-top: 9px;
+
+        border-top: 1px solid var(--p-primary-200);
     }
 
     :deep(.col-mobile-hide) {
