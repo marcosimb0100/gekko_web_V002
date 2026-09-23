@@ -192,7 +192,7 @@
             </div>
 
             <!-- =================================================
-                 SEGUNDA FILA
+                 BUSCADOR / EXCEL
             ================================================== -->
 
             <div class="filtros-secundarios">
@@ -224,7 +224,7 @@
         </div>
 
         <!-- =====================================================
-             TITULO TABLA
+             BARRA TABLA
         ====================================================== -->
 
         <div class="barra-tabla">
@@ -271,6 +271,8 @@
                 tableClass="tabla-control"
                 class="tabla-encabezados tabla-mesa-control"
             >
+                <!-- VACIO -->
+
                 <template #empty>
                     <div class="tabla-vacia">
                         <font-icon :icon="['fas', 'inbox']" class="tabla-vacia-icono" />
@@ -321,7 +323,7 @@
                     style="min-width: 110px"
                 />
 
-                <!-- CONCEPTOS -->
+                <!-- CONCEPTOS FACTURA -->
 
                 <Column
                     v-if="tipoSolicitudFiltro === 'facturas'"
@@ -357,9 +359,13 @@
                     style="min-width: 100px"
                 />
 
-                <!-- SERIE -->
+                <!-- =================================================
+                     SERIE
+                     SOLO TIMBRADAS
+                ================================================== -->
 
                 <Column
+                    v-if="estatusFiltro === 'timbrada'"
                     field="factura_serie"
                     header="Serie"
                     headerClass="
@@ -374,9 +380,13 @@
                     style="min-width: 80px"
                 />
 
-                <!-- FOLIO -->
+                <!-- =================================================
+                     FOLIO
+                     SOLO TIMBRADAS
+                ================================================== -->
 
                 <Column
+                    v-if="estatusFiltro === 'timbrada'"
                     field="factura_folio"
                     header="Folio"
                     headerClass="encabezado-columna"
@@ -387,7 +397,10 @@
                     style="min-width: 85px"
                 />
 
-                <!-- UUID -->
+                <!-- =================================================
+                     UUID
+                     SOLO TIMBRADAS
+                ================================================== -->
 
                 <Column
                     v-if="estatusFiltro === 'timbrada'"
@@ -461,7 +474,7 @@
                                 <font-icon :icon="['fas', 'file-pdf']" />
                             </Button>
 
-                            <!-- PENDIENTES -->
+                            <!-- ACCIONES PENDIENTES -->
 
                             <template v-if="estatusFiltro === 'pendiente'">
                                 <!-- ACEPTAR -->
@@ -476,7 +489,7 @@
                                     <font-icon :icon="['fas', 'xmark']" />
                                 </Button>
 
-                                <!-- EDITAR -->
+                                <!-- EDITAR FACTURA -->
 
                                 <Button v-if="tipoSolicitudFiltro === 'facturas'" size="small" severity="contrast" v-tooltip.top="'Editar conceptos'" @click="handleEditarConceptos(slotProps.data)">
                                     <font-icon :icon="['fas', 'pen-to-square']" />
@@ -508,6 +521,8 @@
         class="dialog-detalle"
     >
         <div v-if="solicitudDetalle" class="detalle-solicitud">
+            <!-- DATOS -->
+
             <div class="detalle-datos">
                 <div class="detalle-item">
                     <span class="detalle-label"> Cliente </span>
@@ -533,7 +548,12 @@
                     </span>
                 </div>
 
-                <div class="detalle-item">
+                <!-- =================================================
+                     SERIE / FOLIO
+                     SOLO TIMBRADA
+                ================================================== -->
+
+                <div v-if="estatusFiltro === 'timbrada'" class="detalle-item">
                     <span class="detalle-label"> Serie / Folio </span>
 
                     <span class="detalle-valor">
@@ -553,6 +573,7 @@
 
                         <span v-if="solicitudDetalle.cuenta_banco">
                             -
+
                             {{ solicitudDetalle.cuenta_banco }}
                         </span>
                     </span>
@@ -574,7 +595,9 @@
                     </span>
                 </div>
 
-                <div v-if="solicitudDetalle.uuid" class="detalle-item detalle-item-amplio">
+                <!-- UUID SOLO TIMBRADA -->
+
+                <div v-if="estatusFiltro === 'timbrada' && solicitudDetalle.uuid" class="detalle-item detalle-item-amplio">
                     <span class="detalle-label"> UUID </span>
 
                     <span class="detalle-valor detalle-uuid">
@@ -676,9 +699,7 @@
                 </DataTable>
             </div>
 
-            <!-- =====================================================
-                 PIE
-            ====================================================== -->
+            <!-- PIE -->
 
             <div class="detalle-pie">
                 <div class="detalle-acciones">
@@ -688,6 +709,8 @@
 
                     <Button label="PDF" severity="warn" outlined @click="handleDescargarPdf(solicitudDetalle)" />
                 </div>
+
+                <!-- TOTALES -->
 
                 <div class="detalle-totales">
                     <template v-if="tipoSolicitudFiltro === 'facturas'">
@@ -783,6 +806,8 @@
         }"
     >
         <div class="editar-conceptos">
+            <!-- NUEVO -->
+
             <div class="nuevo-concepto-card">
                 <div class="nuevo-concepto-titulo">
                     <font-icon :icon="['fas', 'plus']" />
@@ -812,6 +837,8 @@
                     <Button icon="pi pi-plus" severity="success" @click="handleAgregarConceptoEditable" />
                 </div>
             </div>
+
+            <!-- TABLA -->
 
             <DataTable
                 :value="conceptosEditables"
@@ -875,6 +902,7 @@
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
+
 import proceso from './js/proceso.js';
 
 export default {
