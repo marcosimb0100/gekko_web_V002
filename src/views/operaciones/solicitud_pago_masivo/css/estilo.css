@@ -1,0 +1,370 @@
+/* ============================================================
+   CONTENEDOR
+============================================================ */
+
+.contenedor-principal {
+    height: 74vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+/* ============================================================
+   FILTROS
+============================================================ */
+
+.filtros-pagos {
+    display: grid;
+
+    grid-template-columns:
+        minmax(260px, 2fr)
+        130px
+        minmax(180px, 1fr)
+        155px
+        155px
+        42px
+        42px;
+
+    gap: 8px;
+
+    align-items: end;
+
+    padding: 16px 20px 8px 20px;
+}
+
+.campo-filtro {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.campo-filtro label {
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+.boton-filtro {
+    width: 40px !important;
+
+    height: 40px;
+
+    padding: 0 !important;
+}
+
+/* ============================================================
+   RESUMEN
+============================================================ */
+
+.resumen-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin: 5px 20px 8px 20px;
+}
+
+.resumen-card {
+    min-height: 68px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--p-surface-200);
+
+    border-radius: 9px;
+
+    background: var(--p-surface-50);
+}
+
+.resumen-icono {
+    width: 42px;
+
+    height: 42px;
+
+    flex: 0 0 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    font-size: 18px;
+}
+
+.resumen-icono.monto {
+    color: #0284c7;
+
+    background: rgba(14, 165, 233, 0.12);
+}
+
+.resumen-icono.facturas {
+    color: #0891b2;
+
+    background: rgba(8, 145, 178, 0.12);
+}
+
+.resumen-icono.clientes {
+    color: #7c3aed;
+
+    background: rgba(124, 58, 237, 0.12);
+}
+
+.resumen-icono.complementos {
+    color: #16a34a;
+
+    background: rgba(34, 197, 94, 0.13);
+}
+
+.resumen-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    min-width: 0;
+}
+
+.resumen-info span {
+    font-size: 11px;
+
+    color: var(--p-text-muted-color);
+}
+
+.resumen-info strong {
+    font-size: 19px;
+
+    font-weight: 700;
+
+    line-height: 1.1;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   DATOS PAGO
+============================================================ */
+
+.datos-pago {
+    display: grid;
+
+    grid-template-columns:
+        minmax(220px, 1fr)
+        minmax(300px, 1.2fr)
+        minmax(320px, 1.4fr)
+        auto;
+
+    gap: 10px;
+
+    align-items: end;
+
+    margin: 0 20px 8px 20px;
+
+    padding: 12px;
+
+    border: 1px solid var(--p-surface-200);
+
+    border-radius: 8px;
+
+    background: var(--p-surface-50);
+}
+
+.btn-generar {
+    height: 40px;
+
+    white-space: nowrap;
+}
+
+/* ============================================================
+   RESULTADOS
+============================================================ */
+
+.barra-resultados {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin: 0 20px 6px 20px;
+
+    padding: 4px 2px;
+
+    font-size: 11px;
+
+    color: var(--p-text-muted-color);
+}
+
+.barra-resultados > div {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+/* ============================================================
+   TABLA
+============================================================ */
+
+:deep(.tabla-pagos .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-pagos .p-datatable-tbody > tr > td) {
+    padding: 5px 7px;
+
+    vertical-align: middle;
+}
+
+:deep(.tabla-pagos .nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-pagos .total-numero) {
+    text-align: right;
+
+    font-variant-numeric: tabular-nums;
+}
+
+.celda-resaltada {
+    padding: 4px 6px;
+
+    border-radius: 4px;
+
+    background: rgba(194, 24, 23, 0.1);
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.input-abonar {
+    width: 115px;
+
+    text-align: right;
+
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   SIN REGISTROS
+============================================================ */
+
+.sin-registros {
+    min-height: 130px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    color: var(--p-text-muted-color);
+}
+
+.sin-registros i {
+    font-size: 28px;
+
+    opacity: 0.55;
+}
+
+.sin-registros strong {
+    font-size: 13px;
+
+    color: var(--p-text-color);
+}
+
+.sin-registros span {
+    font-size: 11px;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1350px) {
+    .filtros-pagos {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .resumen-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .datos-pago {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .contenedor-principal {
+        height: auto;
+
+        min-height: 74vh;
+    }
+
+    .filtros-pagos {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .resumen-grid {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .datos-pago {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-generar {
+        width: 100%;
+    }
+
+    .barra-resultados {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 520px) {
+    .filtros-pagos {
+        grid-template-columns: 1fr;
+    }
+
+    .resumen-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .boton-filtro {
+        width: 100% !important;
+    }
+}

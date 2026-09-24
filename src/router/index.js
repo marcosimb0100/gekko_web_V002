@@ -149,6 +149,12 @@ const router = createRouter({
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "operaciones_solicitud_pago" */ '../views/operaciones/solicitud_pago/SolicitudPago.vue')
                 },
+                {
+                    path: '/operaciones/solicitud_pago_masivo',
+                    name: 'operaciones_solicitud_pago_masivo',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "operaciones_solicitud_pago_masivo" */ '../views/operaciones/solicitud_pago_masivo/SolicitudPagoMasivo.vue')
+                },
 
                 {
                     path: '/administrador_cfdi/parametros/empresas_consultar',
