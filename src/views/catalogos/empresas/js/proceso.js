@@ -2263,7 +2263,25 @@ const useProceso = () => {
     };
 
     const handleGuardarAsignacionConcepto = async () => {
+        if (!frmEmpresa._id) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'No se encontró la empresa seleccionada.',
+                life: 3000
+            });
+
+            return;
+        }
+
         if (!conceptoAsignacion.value?._id) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'No se encontró el concepto seleccionado.',
+                life: 3000
+            });
+
             return;
         }
 
@@ -2283,19 +2301,27 @@ const useProceso = () => {
         try {
             const clientes = clientesSeleccionados.value.map((cliente) => cliente._id);
 
+            const payload = {
+                company_id: frmEmpresa._id,
+
+                prod_serv_id: conceptoAsignacion.value._id,
+
+                clientes: clientes
+            };
+
+            console.log('ASIGNACION CONCEPTO:', payload);
+
             const res = await store.dispatch('api/apiPutToken', {
                 direccion: `/companias/asignar_concepto_clientes/${frmEmpresa._id}/${conceptoAsignacion.value._id}`,
 
-                datosJson: {
-                    clientes
-                }
+                datosJson: payload
             });
 
             if (res.estatus !== 200) {
                 toast.add({
                     severity: 'error',
                     summary: 'Notificación',
-                    detail: res.mensaje,
+                    detail: res.mensaje || 'No fue posible realizar la asignación.',
                     life: 4000
                 });
 
@@ -2311,7 +2337,7 @@ const useProceso = () => {
 
             handleCancelarAsignarConcepto();
         } catch (error) {
-            console.error(error);
+            console.error('ERROR ASIGNACION CONCEPTO:', error);
 
             toast.add({
                 severity: 'error',
