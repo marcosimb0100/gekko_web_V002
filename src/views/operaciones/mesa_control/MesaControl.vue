@@ -509,6 +509,12 @@
                                 <font-icon :icon="['fas', 'file-pdf']" />
                             </Button>
 
+                            <!-- VISUALIZAR PDF -->
+
+                            <Button size="small" class="btn-pdf-preview" v-tooltip.top="'Visualizar PDF'" @click="handleVisualizarPdf(slotProps.data)">
+                                <font-icon :icon="['fas', 'magnifying-glass']" />
+                            </Button>
+
                             <!-- ACCIONES PENDIENTES -->
 
                             <template v-if="estatusFiltro === 'pendiente'">
@@ -921,6 +927,43 @@
                 <Button label="Guardar cambios" icon="pi pi-save" @click="handleGuardarConceptosEditados" />
             </div>
         </div>
+    </Dialog>
+
+    <Dialog
+        v-model:visible="dialogPdf"
+        modal
+        :header="pdfNombre || 'Visualizar PDF'"
+        :style="{ width: '94vw' }"
+        :breakpoints="{
+            '1200px': '96vw',
+            '768px': '98vw'
+        }"
+        :draggable="false"
+        :closable="true"
+        class="dialog-pdf"
+        @hide="handleCerrarPdf"
+    >
+        <div class="visor-pdf">
+            <div v-if="pdfCargando" class="visor-pdf-cargando">
+                <ProgressSpinner style="width: 52px; height: 52px" strokeWidth="4" />
+
+                <span>Cargando PDF...</span>
+            </div>
+
+            <iframe v-else-if="pdfUrl" :src="pdfUrl" class="visor-pdf-frame" :title="pdfNombre || 'Vista previa del PDF'"></iframe>
+
+            <div v-else class="visor-pdf-vacio">
+                <font-icon :icon="['fas', 'file-pdf']" />
+
+                <span>No fue posible cargar el PDF.</span>
+            </div>
+        </div>
+
+        <template #footer>
+            <Button label="Cerrar" severity="secondary" outlined @click="handleCerrarPdf" />
+
+            <Button label="Descargar PDF" icon="pi pi-download" severity="warn" :disabled="!pdfUrl || pdfCargando" @click="handleDescargarPdfVisualizado" />
+        </template>
     </Dialog>
 </template>
 

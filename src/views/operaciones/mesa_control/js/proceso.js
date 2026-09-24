@@ -84,6 +84,14 @@ const useProceso = () => {
 
     const motivoRechazo = ref('');
 
+    const dialogPdf = ref(false);
+
+    const pdfUrl = ref('');
+
+    const pdfNombre = ref('');
+
+    const pdfCargando = ref(false);
+
     // ============================================================
     // CONCEPTOS
     // ============================================================
@@ -977,6 +985,123 @@ const useProceso = () => {
         dialogEditarConceptos.value = true;
     };
 
+    const handleObtenerDatosPdf = (rowData) => {
+        const complemento = tipoSolicitudFiltro.value === 'complementos_pago';
+
+        const timbrada = estatusFiltro.value === 'timbrada';
+
+        let direccion = '';
+        let nombre = '';
+
+        if (complemento) {
+            direccion = timbrada ? `/solicitud_detallada/complementos_pago/pdf_timbrado/${rowData._id}` : `/solicitud_detallada/complementos_pago/pdf/${rowData._id}`;
+
+            nombre = timbrada ? `CP-${rowData.factura_folio || rowData._id}.pdf` : `complemento_pago_${rowData.uuid || rowData._id}.pdf`;
+        } else {
+            direccion = timbrada ? `/solicitud_detallada/pdf_timbrado/${rowData._id}` : `/solicitud_detallada/pdf/${rowData._id}`;
+
+            nombre = timbrada ? `F-${rowData.factura_folio || rowData._id}.pdf` : `factura_${rowData.uuid || rowData._id}.pdf`;
+        }
+
+        return {
+            direccion,
+            nombre
+        };
+    };
+
+    const handleVisualizarPdf = async (rowData) => {
+        if (!rowData?._id) {
+            return;
+        }
+
+        if (pdfUrl.value) {
+            window.URL.revokeObjectURL(pdfUrl.value);
+
+            pdfUrl.value = '';
+        }
+
+        const { direccion, nombre } = handleObtenerDatosPdf(rowData);
+
+        pdfNombre.value = nombre;
+
+        pdfCargando.value = true;
+
+        dialogPdf.value = true;
+
+        try {
+            const res = await store.dispatch('api/apiGetblob', {
+                direccion
+            });
+
+            if (res.estatus !== 200 || !res.data) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Notificación',
+                    detail: res.mensaje || 'No fue posible visualizar el PDF.',
+                    life: 3000
+                });
+
+                handleCerrarPdf();
+
+                return;
+            }
+
+            const blobPdf =
+                res.data.type === 'application/pdf'
+                    ? res.data
+                    : new Blob([res.data], {
+                          type: 'application/pdf'
+                      });
+
+            pdfUrl.value = window.URL.createObjectURL(blobPdf);
+        } catch (error) {
+            console.error('Error al visualizar PDF:', error);
+
+            toast.add({
+                severity: 'error',
+                summary: 'Notificación',
+                detail: 'No fue posible visualizar el PDF.',
+                life: 3000
+            });
+
+            handleCerrarPdf();
+        } finally {
+            pdfCargando.value = false;
+        }
+    };
+
+    const handleCerrarPdf = () => {
+        dialogPdf.value = false;
+
+        if (pdfUrl.value) {
+            window.URL.revokeObjectURL(pdfUrl.value);
+        }
+
+        pdfUrl.value = '';
+
+        pdfNombre.value = '';
+
+        pdfCargando.value = false;
+    };
+
+    const handleDescargarPdfVisualizado = () => {
+        if (!pdfUrl.value) {
+            return;
+        }
+
+        const link = document.createElement('a');
+
+        link.href = pdfUrl.value;
+
+        link.download = pdfNombre.value || 'documento.pdf';
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+    };
+
     const handleAgregarConceptoEditable = () => {
         const concepto = conceptosDisponibles.value.find((item) => item._id === conceptoNuevoId.value);
 
@@ -1276,7 +1401,13 @@ const useProceso = () => {
 
         handleGuardarConceptosEditados,
 
-        handleExportarExcel
+        dialogPdf,
+        pdfNombre,
+        pdfCargando,
+        pdfUrl,
+        handleVisualizarPdf,
+        handleCerrarPdf,
+        handleDescargarPdfVisualizado
     };
 };
 
