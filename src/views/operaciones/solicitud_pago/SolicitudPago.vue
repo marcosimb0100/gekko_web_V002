@@ -90,7 +90,7 @@
 
         <!-- TABLA -->
         <DataTable
-            v-model:selection="cfdisSeleccionados"
+            :selection="cfdisSeleccionados"
             :value="catCfdis"
             dataKey="uuid"
             paginator

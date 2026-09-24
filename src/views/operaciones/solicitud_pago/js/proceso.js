@@ -365,22 +365,88 @@ const useProceso = () => {
     // SELECCION CFDI
     // -------------------------------------------------------------------------
 
+    // const handleSeleccionCfdis = (seleccionados) => {
+    //     const nuevos = (seleccionados ?? []).map((item) => {
+    //         const existente = cfdisSeleccionados.value.find((x) => x.uuid === item.uuid);
+
+    //         if (existente) {
+    //             return existente;
+    //         }
+
+    //         return {
+    //             ...item,
+
+    //             abonar: Number(item.saldoInsolutoPagos || item.total || 0)
+    //         };
+    //     });
+
+    //     cfdisSeleccionados.value = nuevos;
+
+    //     catCfdis.value = catCfdis.value.map((item) => {
+    //         const seleccionado = nuevos.find((x) => x.uuid === item.uuid);
+
+    //         return {
+    //             ...item,
+
+    //             abonar: seleccionado ? seleccionado.abonar : 0
+    //         };
+    //     });
+
+    //     if (!nuevos.length) {
+    //         fechaHoraPago.value = null;
+
+    //         formaPago.value = '03';
+    //     }
+    // };
+
+    // -------------------------------------------------------------------------
+    // SELECCION CFDI
+    // -------------------------------------------------------------------------
+
     const handleSeleccionCfdis = (seleccionados) => {
-        const nuevos = (seleccionados ?? []).map((item) => {
+        const seleccionNueva = seleccionados ?? [];
+
+        const nuevos = seleccionNueva.map((item) => {
+            // =========================================================
+            // SI YA ESTABA SELECCIONADO
+            // CONSERVAR EL MONTO CAPTURADO
+            // =========================================================
+
             const existente = cfdisSeleccionados.value.find((x) => x.uuid === item.uuid);
 
             if (existente) {
-                return existente;
+                return {
+                    ...item,
+                    abonar: Number(existente.abonar || 0)
+                };
             }
+
+            // =========================================================
+            // NUEVA SELECCION
+            // TOMAR AUTOMATICAMENTE EL RESTANTE
+            // =========================================================
+
+            const restante = Number(item.saldoInsolutoPagos || item.total || 0);
 
             return {
                 ...item,
 
-                abonar: Number(item.saldoInsolutoPagos || item.total || 0)
+                abonar: Number(restante.toFixed(2))
             };
         });
 
+        // =============================================================
+        // ACTUALIZAR SELECCION
+        // =============================================================
+
         cfdisSeleccionados.value = nuevos;
+
+        // =============================================================
+        // ACTUALIZAR TABLA
+        //
+        // SELECCIONADO   -> MONTO A ABONAR
+        // DESELECCIONADO -> 0
+        // =============================================================
 
         catCfdis.value = catCfdis.value.map((item) => {
             const seleccionado = nuevos.find((x) => x.uuid === item.uuid);
@@ -388,9 +454,14 @@ const useProceso = () => {
             return {
                 ...item,
 
-                abonar: seleccionado ? seleccionado.abonar : 0
+                abonar: seleccionado ? Number(seleccionado.abonar || 0) : 0
             };
         });
+
+        // =============================================================
+        // SI NO HAY SELECCION
+        // LIMPIAR DATOS DEL PAGO
+        // =============================================================
 
         if (!nuevos.length) {
             fechaHoraPago.value = null;
