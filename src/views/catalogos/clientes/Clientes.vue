@@ -272,19 +272,13 @@
                                 </div>
 
                                 <div class="campo-formulario">
-                                    <label>
-                                        <span class="requerido">*</span>
-                                        Correo Electrónico:
-                                    </label>
+                                    <label> Correo Electrónico: </label>
 
                                     <InputText v-model="frmCliente.correo_electronico" type="email" style="text-transform: lowercase" />
                                 </div>
 
                                 <div class="campo-formulario">
-                                    <label>
-                                        <span class="requerido">*</span>
-                                        Contacto Principal:
-                                    </label>
+                                    <label> Contacto Principal: </label>
 
                                     <InputMask v-model="frmCliente.numero_contacto_principal" mask="(999)-999-9999" placeholder="(###)-###-####" />
                                 </div>
@@ -316,16 +310,16 @@
                                     <Select v-model="frmCliente.promotor" :options="promotores" optionValue="_id" optionLabel="nombre_completo" placeholder="Seleccione" filter showClear class="w-full" />
                                 </div>
 
-                                <div class="campo-formulario">
-                                    <label>
+                                <!-- <div class="campo-formulario"> -->
+                                <!-- <label>
                                         <span class="requerido">*</span>
                                         Empresa Facturadora:
                                     </label>
 
-                                    <Select v-model="frmCliente.empresa_facturadora" :options="companias" optionValue="_id" optionLabel="razon_social_nombre_completo" placeholder="Seleccione" filter class="w-full" />
-                                </div>
+                                    <Select v-model="frmCliente.empresa_facturadora" :options="companias" optionValue="_id" optionLabel="razon_social_nombre_completo" placeholder="Seleccione" filter class="w-full" /> -->
+                                <!-- </div> -->
 
-                                <div class="flex align-items-center mt-4">
+                                <div class="flex align-items-center mt-9">
                                     <Checkbox inputId="activo" v-model="frmCliente.activo" binary />
 
                                     <label for="activo" class="ml-2"> Activo </label>

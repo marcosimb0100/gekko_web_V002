@@ -526,10 +526,7 @@ const useProceso = () => {
             !frmCliente.codigo_postal.trim() ||
             !frmCliente.pais ||
             !frmCliente.estado ||
-            !frmCliente.correo_electronico.trim() ||
-            !frmCliente.numero_contacto_principal.trim() ||
-            !frmCliente.regimen_fiscal ||
-            !frmCliente.empresa_facturadora
+            !frmCliente.regimen_fiscal
         ) {
             return true;
         }
