@@ -1407,7 +1407,8 @@ const useProceso = () => {
         pdfUrl,
         handleVisualizarPdf,
         handleCerrarPdf,
-        handleDescargarPdfVisualizado
+        handleDescargarPdfVisualizado,
+        handleExportarExcel
     };
 };
 
