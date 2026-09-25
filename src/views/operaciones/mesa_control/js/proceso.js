@@ -1,6 +1,9 @@
 import { FilterMatchMode } from '@primevue/core/api';
+
 import { useToast } from 'primevue/usetoast';
+
 import { computed, ref } from 'vue';
+
 import { useStore } from 'vuex';
 
 import * as XLSX from 'xlsx';
@@ -11,7 +14,9 @@ const useProceso = () => {
     const toast = useToast();
 
     // ============================================================
+
     // FECHAS
+
     // ============================================================
 
     const ahora = new Date();
@@ -23,7 +28,9 @@ const useProceso = () => {
     const fechaFinal = ref(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()));
 
     // ============================================================
+
     // FILTROS
+
     // ============================================================
 
     const tipoSolicitudFiltro = ref('facturas');
@@ -33,7 +40,9 @@ const useProceso = () => {
     const empresaFiltro = ref('');
 
     // ============================================================
+
     // TABLA
+
     // ============================================================
 
     const solicitudes = ref([]);
@@ -41,13 +50,23 @@ const useProceso = () => {
     const cargandoSolicitudes = ref(false);
 
     // ============================================================
+
     // SELECCION FACTURAS PENDIENTES
+
     // ============================================================
 
     const facturasSeleccionadas = ref([]);
 
+    const procesandoMasivo = ref(false);
+
+    const dialogRechazoMasivo = ref(false);
+
+    const motivoRechazoMasivo = ref('');
+
     // ============================================================
+
     // DASHBOARD
+
     // ============================================================
 
     const dashboardFacturasPendientes = ref([]);
@@ -59,7 +78,9 @@ const useProceso = () => {
     const dashboardComplementosTimbrados = ref([]);
 
     // ============================================================
+
     // BUSCADOR
+
     // ============================================================
 
     const filtros = ref({
@@ -71,7 +92,9 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // DIALOGS
+
     // ============================================================
 
     const dialogDetalle = ref(false);
@@ -93,7 +116,9 @@ const useProceso = () => {
     const pdfCargando = ref(false);
 
     // ============================================================
+
     // CONCEPTOS
+
     // ============================================================
 
     const conceptosEditables = ref([]);
@@ -109,7 +134,9 @@ const useProceso = () => {
     const valorUnitarioNuevo = ref('');
 
     // ============================================================
+
     // CATALOGOS
+
     // ============================================================
 
     const tiposSolicitud = [
@@ -141,7 +168,9 @@ const useProceso = () => {
     ];
 
     // ============================================================
+
     // TOTAL REGISTRO
+
     // ============================================================
 
     const handleObtenerTotal = (item) => {
@@ -153,7 +182,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // SELECCION
+
     // ============================================================
 
     const mostrarSeleccionFacturas = computed(() => {
@@ -175,7 +206,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // FECHA API
+
     // ============================================================
 
     const handleFechaApi = (fecha) => {
@@ -195,7 +228,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // PARAMETROS FECHA
+
     // ============================================================
 
     const handleParametrosFecha = () => {
@@ -209,7 +244,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // VALIDAR FECHAS
+
     // ============================================================
 
     const handleValidarFechas = () => {
@@ -245,7 +282,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // ENDPOINT
+
     // ============================================================
 
     const handleEndpointSolicitudes = () => {
@@ -257,7 +296,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // RESPUESTA SOLICITUDES
+
     // ============================================================
 
     const handleObtenerSolicitudesRespuesta = (respuesta) => {
@@ -269,7 +310,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CONSULTAR TABLA
+
     // ============================================================
 
     const handleRecargarSolicitudes = async () => {
@@ -321,7 +364,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // DASHBOARD
+
     // ============================================================
 
     const handleCargarDashboard = async () => {
@@ -371,7 +416,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // FILTRAR EMPRESA
+
     // ============================================================
 
     const handleFiltrarEmpresa = (registros) => {
@@ -383,7 +430,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // DASHBOARD COMPUTED
+
     // ============================================================
 
     const resumenDashboard = computed(() => {
@@ -421,14 +470,18 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // EMPRESAS
+
     // ============================================================
 
     const empresasFiltro = computed(() => {
         const todos = [...dashboardFacturasPendientes.value, ...dashboardFacturasTimbradas.value, ...dashboardComplementosPendientes.value, ...dashboardComplementosTimbrados.value];
 
         const empresas = todos
+
             .filter((item) => item.company_id && item.compania)
+
             .map((item) => ({
                 _id: item.company_id,
 
@@ -439,7 +492,9 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // SOLICITUDES FILTRADAS
+
     // ============================================================
 
     const solicitudesFiltradas = computed(() => {
@@ -447,7 +502,9 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // EXPORTABLES
+
     // ============================================================
 
     const solicitudesExportables = computed(() => {
@@ -455,6 +512,7 @@ const useProceso = () => {
 
         const busqueda = String(filtros.value?.global?.value ?? '')
             .trim()
+
             .toLowerCase();
 
         if (!busqueda) {
@@ -467,13 +525,16 @@ const useProceso = () => {
             campos.some((campo) =>
                 String(item?.[campo] ?? '')
                     .toLowerCase()
+
                     .includes(busqueda)
             )
         );
     });
 
     // ============================================================
+
     // TITULO TABLA
+
     // ============================================================
 
     const tituloTabla = computed(() => {
@@ -485,7 +546,9 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // MONEY
+
     // ============================================================
 
     const handleMoney = (valor) => {
@@ -501,7 +564,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CAMBIAR TIPO
+
     // ============================================================
 
     const handleCambiarTipoSolicitud = async () => {
@@ -515,7 +580,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CAMBIAR ESTATUS
+
     // ============================================================
 
     const handleCambiarEstatus = async () => {
@@ -527,7 +594,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CAMBIAR EMPRESA
+
     // ============================================================
 
     const handleCambiarEmpresa = () => {
@@ -535,7 +604,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // TARJETA TIPO
+
     // ============================================================
 
     const handleSeleccionarTipoResumen = async (tipo) => {
@@ -545,7 +616,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CONSULTAR
+
     // ============================================================
 
     const handleConsultar = async () => {
@@ -563,7 +636,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // LIMPIAR
+
     // ============================================================
 
     const handleLimpiarFiltroCompleto = async () => {
@@ -587,7 +662,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // ESTATUS
+
     // ============================================================
 
     const handleNombreEstatus = (estatus) => {
@@ -623,7 +700,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // DETALLE
+
     // ============================================================
 
     const handleAbrirDetalle = (rowData) => {
@@ -639,7 +718,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // RECHAZO
+
     // ============================================================
 
     const handleAbrirRechazo = (rowData) => {
@@ -659,7 +740,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // ACEPTAR
+
     // ============================================================
 
     const handleAceptarSolicitud = async (rowData) => {
@@ -703,7 +786,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // RECHAZAR
+
     // ============================================================
 
     const handleRechazarSolicitud = async () => {
@@ -769,7 +854,153 @@ const useProceso = () => {
     };
 
     // ============================================================
+    // PROCESO MASIVO - FACTURAR / RECHAZAR
+    //
+    // Reutiliza los endpoints individuales actuales.
+    // No requiere cambios en la API.
+    // ============================================================
+
+    const handleAceptarSolicitudesMasivo = async () => {
+        if (!facturasSeleccionadas.value.length || procesandoMasivo.value) {
+            return;
+        }
+
+        const seleccionadas = [...facturasSeleccionadas.value];
+
+        let correctas = 0;
+        let errores = 0;
+
+        procesandoMasivo.value = true;
+
+        try {
+            for (const solicitud of seleccionadas) {
+                try {
+                    const res = await store.dispatch('api/apiPutToken', {
+                        direccion: '/solicitud_detallada/aceptar',
+                        datosJson: {
+                            solicitud_id: solicitud._id
+                        }
+                    });
+
+                    if (res?.estatus === 200) {
+                        correctas += 1;
+                    } else {
+                        errores += 1;
+
+                        console.error('ERROR FACTURANDO SOLICITUD:', solicitud._id, res?.mensaje || res);
+                    }
+                } catch (error) {
+                    errores += 1;
+
+                    console.error('ERROR FACTURANDO SOLICITUD:', solicitud._id, error);
+                }
+            }
+
+            toast.add({
+                severity: errores > 0 ? 'warn' : 'success',
+                summary: 'Proceso masivo finalizado',
+                detail: `Procesadas: ${seleccionadas.length}. ` + `Correctas: ${correctas}. ` + `Con error: ${errores}.`,
+                life: errores > 0 ? 7000 : 4000
+            });
+
+            handleLimpiarSeleccionFacturas();
+
+            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        } finally {
+            procesandoMasivo.value = false;
+        }
+    };
+
+    const handleAbrirRechazoMasivo = () => {
+        if (!facturasSeleccionadas.value.length || procesandoMasivo.value) {
+            return;
+        }
+
+        motivoRechazoMasivo.value = '';
+        dialogRechazoMasivo.value = true;
+    };
+
+    const handleCerrarRechazoMasivo = () => {
+        if (procesandoMasivo.value) {
+            return;
+        }
+
+        motivoRechazoMasivo.value = '';
+        dialogRechazoMasivo.value = false;
+    };
+
+    const handleRechazarSolicitudesMasivo = async () => {
+        if (!facturasSeleccionadas.value.length || procesandoMasivo.value) {
+            return;
+        }
+
+        const motivo = motivoRechazoMasivo.value.trim();
+
+        if (!motivo) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Escribe el motivo de rechazo.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        const seleccionadas = [...facturasSeleccionadas.value];
+
+        let correctas = 0;
+        let errores = 0;
+
+        procesandoMasivo.value = true;
+
+        try {
+            for (const solicitud of seleccionadas) {
+                try {
+                    const res = await store.dispatch('api/apiPutToken', {
+                        direccion: '/solicitud_detallada/rechazar',
+                        datosJson: {
+                            solicitud_id: solicitud._id,
+                            motivo
+                        }
+                    });
+
+                    if (res?.estatus === 200) {
+                        correctas += 1;
+                    } else {
+                        errores += 1;
+
+                        console.error('ERROR RECHAZANDO SOLICITUD:', solicitud._id, res?.mensaje || res);
+                    }
+                } catch (error) {
+                    errores += 1;
+
+                    console.error('ERROR RECHAZANDO SOLICITUD:', solicitud._id, error);
+                }
+            }
+
+            dialogRechazoMasivo.value = false;
+            motivoRechazoMasivo.value = '';
+
+            toast.add({
+                severity: errores > 0 ? 'warn' : 'success',
+                summary: 'Proceso masivo finalizado',
+                detail: `Procesadas: ${seleccionadas.length}. ` + `Rechazadas: ${correctas}. ` + `Con error: ${errores}.`,
+                life: errores > 0 ? 7000 : 4000
+            });
+
+            handleLimpiarSeleccionFacturas();
+
+            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        } finally {
+            procesandoMasivo.value = false;
+        }
+    };
+
+    // ============================================================
+
     // DESCARGAR BLOB
+
     // ============================================================
 
     const handleDescargarBlob = async (direccion, nombreArchivo) => {
@@ -809,7 +1040,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // ARCHIVO
+
     // ============================================================
 
     const handleDescargarArchivo = async (rowData) => {
@@ -821,7 +1054,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // XML
+
     // ============================================================
 
     const handleDescargarXml = async (rowData) => {
@@ -847,7 +1082,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // PDF
+
     // ============================================================
 
     const handleDescargarPdf = async (rowData) => {
@@ -873,7 +1110,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // CONCEPTOS
+
     // ============================================================
 
     const normalizarTasa = (tasa) => {
@@ -940,6 +1179,7 @@ const useProceso = () => {
 
             impuestos: {
                 traslado,
+
                 retencion
             },
 
@@ -991,6 +1231,7 @@ const useProceso = () => {
         const timbrada = estatusFiltro.value === 'timbrada';
 
         let direccion = '';
+
         let nombre = '';
 
         if (complemento) {
@@ -1005,6 +1246,7 @@ const useProceso = () => {
 
         return {
             direccion,
+
             nombre
         };
     };
@@ -1036,8 +1278,11 @@ const useProceso = () => {
             if (res.estatus !== 200 || !res.data) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'Notificación',
+
                     detail: res.mensaje || 'No fue posible visualizar el PDF.',
+
                     life: 3000
                 });
 
@@ -1059,8 +1304,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Notificación',
+
                 detail: 'No fue posible visualizar el PDF.',
+
                 life: 3000
             });
 
@@ -1213,7 +1461,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // EXCEL
+
     // ============================================================
 
     const handleExportarExcel = () => {
@@ -1263,7 +1513,9 @@ const useProceso = () => {
     };
 
     // ============================================================
+
     // INIT
+
     // ============================================================
 
     const handleInit = async () => {
@@ -1279,7 +1531,9 @@ const useProceso = () => {
     handleInit();
 
     // ============================================================
+
     // RETURN
+
     // ============================================================
 
     return {
@@ -1347,6 +1601,12 @@ const useProceso = () => {
 
         totalFacturasSeleccionadas,
 
+        procesandoMasivo,
+
+        dialogRechazoMasivo,
+
+        motivoRechazoMasivo,
+
         // FUNCIONES
 
         handleFechaApi,
@@ -1385,6 +1645,14 @@ const useProceso = () => {
 
         handleRechazarSolicitud,
 
+        handleAceptarSolicitudesMasivo,
+
+        handleAbrirRechazoMasivo,
+
+        handleCerrarRechazoMasivo,
+
+        handleRechazarSolicitudesMasivo,
+
         handleDescargarArchivo,
 
         handleDescargarXml,
@@ -1402,12 +1670,19 @@ const useProceso = () => {
         handleGuardarConceptosEditados,
 
         dialogPdf,
+
         pdfNombre,
+
         pdfCargando,
+
         pdfUrl,
+
         handleVisualizarPdf,
+
         handleCerrarPdf,
+
         handleDescargarPdfVisualizado,
+
         handleExportarExcel
     };
 };

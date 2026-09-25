@@ -3,7 +3,9 @@
 
     <div class="card panel-control">
         <!-- =====================================================
+
              DASHBOARD
+
         ====================================================== -->
 
         <div class="resumen-grid">
@@ -113,7 +115,9 @@
         </div>
 
         <!-- =====================================================
+
              PERIODO
+
         ====================================================== -->
 
         <div class="periodo-consulta">
@@ -126,14 +130,18 @@
 
                 <strong>
                     {{ handleFechaApi(fechaInicial) }}
+
                     al
+
                     {{ handleFechaApi(fechaFinal) }}
                 </strong>
             </div>
         </div>
 
         <!-- =====================================================
+
              FILTROS
+
         ====================================================== -->
 
         <div class="panel-filtros">
@@ -192,7 +200,9 @@
             </div>
 
             <!-- =================================================
+
                  BUSCADOR / EXCEL
+
             ================================================== -->
 
             <div class="filtros-secundarios">
@@ -201,6 +211,7 @@
 
                     <span>
                         {{ solicitudesExportables.length }}
+
                         registro(s)
                     </span>
                 </div>
@@ -224,7 +235,9 @@
         </div>
 
         <!-- =====================================================
+
              TITULO TABLA
+
         ====================================================== -->
 
         <div class="barra-tabla">
@@ -239,6 +252,7 @@
 
                 <span class="contador-tabla">
                     {{ solicitudesExportables.length }}
+
                     registros
                 </span>
             </div>
@@ -251,8 +265,11 @@
         </div>
 
         <!-- =====================================================
+
              RESUMEN SELECCION
+
              SOLO FACTURAS PENDIENTES
+
         ====================================================== -->
 
         <div v-if="mostrarSeleccionFacturas && cantidadFacturasSeleccionadas > 0" class="resumen-seleccion">
@@ -262,7 +279,7 @@
                 </div>
 
                 <div class="resumen-seleccion-texto">
-                    <span> Facturas seleccionadas </span>
+                    <span>Facturas seleccionadas</span>
 
                     <strong>
                         {{ cantidadFacturasSeleccionadas }}
@@ -270,17 +287,27 @@
                 </div>
             </div>
 
-            <div class="resumen-seleccion-total">
-                <span> Total seleccionado </span>
+            <div class="resumen-seleccion-derecha">
+                <div class="resumen-seleccion-acciones">
+                    <Button label="Facturar" icon="pi pi-check" severity="success" size="small" :loading="procesandoMasivo" :disabled="procesandoMasivo" @click="handleAceptarSolicitudesMasivo" />
 
-                <strong>
-                    {{ handleMoney(totalFacturasSeleccionadas) }}
-                </strong>
+                    <Button label="Rechazar" icon="pi pi-times" severity="danger" size="small" :loading="procesandoMasivo" :disabled="procesandoMasivo" @click="handleAbrirRechazoMasivo" />
+                </div>
+
+                <div class="resumen-seleccion-total">
+                    <span>Total seleccionado</span>
+
+                    <strong>
+                        {{ handleMoney(totalFacturasSeleccionadas) }}
+                    </strong>
+                </div>
             </div>
         </div>
 
         <!-- =====================================================
+
              TABLA
+
         ====================================================== -->
 
         <div class="contenedor-tabla">
@@ -315,8 +342,11 @@
                 </template>
 
                 <!-- =================================================
+
                      CHECK
+
                      SOLO FACTURAS PENDIENTES
+
                 ================================================== -->
 
                 <Column v-if="mostrarSeleccionFacturas" selectionMode="multiple" headerClass="col-seleccion" bodyClass="col-seleccion" headerStyle="width:3rem" bodyStyle="width:3rem" />
@@ -327,12 +357,18 @@
                     field="created_at"
                     header="Fecha"
                     headerClass="
+
                         encabezado-columna
+
                         col-mobile-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-mobile-hide
+
                     "
                     style="min-width: 145px"
                 />
@@ -351,12 +387,18 @@
                     field="uso_cfdi"
                     header="Uso CFDI"
                     headerClass="
+
                         encabezado-columna
+
                         col-mobile-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-mobile-hide
+
                     "
                     style="min-width: 110px"
                 />
@@ -368,13 +410,20 @@
                     field="cantidad_conceptos"
                     header="Conceptos"
                     headerClass="
+
                         encabezado-columna
+
                         col-mobile-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-centro
+
                         col-mobile-hide
+
                     "
                     style="min-width: 90px"
                 />
@@ -386,20 +435,30 @@
                     field="cantidad_documentos"
                     header="Documentos"
                     headerClass="
+
                         encabezado-columna
+
                         col-mobile-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-centro
+
                         col-mobile-hide
+
                     "
                     style="min-width: 100px"
                 />
 
                 <!-- =================================================
+
                      SERIE
+
                      SOLO TIMBRADAS
+
                 ================================================== -->
 
                 <Column
@@ -407,20 +466,30 @@
                     field="factura_serie"
                     header="Serie"
                     headerClass="
+
                         encabezado-columna
+
                         col-mobile-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-centro
+
                         col-mobile-hide
+
                     "
                     style="min-width: 80px"
                 />
 
                 <!-- =================================================
+
                      FOLIO
+
                      SOLO TIMBRADAS
+
                 ================================================== -->
 
                 <Column
@@ -429,8 +498,11 @@
                     header="Folio"
                     headerClass="encabezado-columna"
                     bodyClass="
+
                         col-no-wrap
+
                         col-centro
+
                     "
                     style="min-width: 85px"
                 />
@@ -442,12 +514,18 @@
                     field="uuid"
                     header="UUID"
                     headerClass="
+
                         encabezado-columna
+
                         col-tablet-hide
+
                     "
                     bodyClass="
+
                         col-no-wrap
+
                         col-tablet-hide
+
                     "
                     style="min-width: 285px"
                 />
@@ -458,8 +536,11 @@
                     header="Total"
                     headerClass="encabezado-columna"
                     bodyClass="
+
                         col-no-wrap
+
                         col-numero
+
                     "
                     style="min-width: 120px"
                 >
@@ -544,7 +625,9 @@
     </div>
 
     <!-- ==========================================================
+
          DIALOG DETALLE
+
     =========================================================== -->
 
     <Dialog
@@ -643,7 +726,9 @@
             </div>
 
             <!-- =====================================================
+
                  CONCEPTOS FACTURA
+
             ====================================================== -->
 
             <div v-if="tipoSolicitudFiltro === 'facturas'" class="detalle-seccion">
@@ -661,8 +746,11 @@
                     scrollHeight="300px"
                     class="tabla-detalle"
                     tableStyle="
+
                         min-width:
+
                         80rem
+
                     "
                 >
                     <template #empty> Sin conceptos. </template>
@@ -698,7 +786,9 @@
             </div>
 
             <!-- =====================================================
+
                  DOCUMENTOS COMPLEMENTO
+
             ====================================================== -->
 
             <div v-if="tipoSolicitudFiltro === 'complementos_pago'" class="detalle-seccion">
@@ -788,7 +878,35 @@
     </Dialog>
 
     <!-- ==========================================================
+         RECHAZO MASIVO
+    =========================================================== -->
+
+    <Dialog v-model:visible="dialogRechazoMasivo" modal header="Rechazar solicitudes seleccionadas" :style="{ width: '460px' }" :breakpoints="{ '600px': '95vw' }" :closable="!procesandoMasivo">
+        <div class="rechazo-contenido">
+            <div class="rechazo-masivo-resumen">
+                Se rechazarán
+                <strong>{{ cantidadFacturasSeleccionadas }}</strong>
+                solicitudes por un total de
+                <strong>{{ handleMoney(totalFacturasSeleccionadas) }}</strong
+                >.
+            </div>
+
+            <label>Motivo de rechazo</label>
+
+            <Textarea v-model="motivoRechazoMasivo" rows="4" autoResize class="w-full" :disabled="procesandoMasivo" placeholder="Escribe el motivo de rechazo" />
+        </div>
+
+        <template #footer>
+            <Button label="Cancelar" severity="secondary" outlined :disabled="procesandoMasivo" @click="handleCerrarRechazoMasivo" />
+
+            <Button label="Rechazar seleccionadas" icon="pi pi-times" severity="danger" :loading="procesandoMasivo" @click="handleRechazarSolicitudesMasivo" />
+        </template>
+    </Dialog>
+
+    <!-- ==========================================================
+
          RECHAZO
+
     =========================================================== -->
 
     <Dialog
@@ -810,7 +928,9 @@
                 rows="4"
                 autoResize
                 placeholder="
+
                     Escribe el motivo de rechazo
+
                 "
             />
         </div>
@@ -823,7 +943,9 @@
     </Dialog>
 
     <!-- ==========================================================
+
          EDITAR CONCEPTOS
+
     =========================================================== -->
 
     <Dialog
@@ -878,8 +1000,11 @@
                 scrollHeight="330px"
                 class="tabla-detalle"
                 tableStyle="
+
                     min-width:
+
                     85rem
+
                 "
             >
                 <Column field="prod_serv" header="Clave SAT" />
@@ -936,6 +1061,7 @@
         :style="{ width: '94vw' }"
         :breakpoints="{
             '1200px': '96vw',
+
             '768px': '98vw'
         }"
         :draggable="false"
@@ -969,6 +1095,7 @@
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
+
 import proceso from './js/proceso.js';
 
 export default {
