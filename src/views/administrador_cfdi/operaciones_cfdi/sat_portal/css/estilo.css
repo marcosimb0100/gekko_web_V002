@@ -1,0 +1,393 @@
+/* =====================================================
+   CONTENEDOR
+===================================================== */
+
+.sat-portal-contenedor {
+    height: 72vh;
+}
+
+/* =====================================================
+   FORMULARIO
+===================================================== */
+
+.form-sat-portal {
+    display: flex;
+
+    justify-content: center;
+
+    padding: 28px 20px 40px 20px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.sat-card {
+    width: 100%;
+
+    max-width: 760px;
+
+    padding: 24px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 12px;
+
+    background: var(--surface-card);
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* =====================================================
+   TITULO
+===================================================== */
+
+.sat-titulo {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.sat-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 9px;
+
+    background: rgba(42, 194, 211, 0.14);
+
+    font-size: 17px;
+}
+
+.sat-titulo-texto {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.sat-titulo-texto span {
+    font-size: 16px;
+
+    font-weight: 600;
+}
+
+.sat-titulo-texto small {
+    font-size: 10px;
+
+    opacity: 0.7;
+}
+
+/* =====================================================
+   INFORMACION
+===================================================== */
+
+.informacion-sat {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    padding: 11px 12px;
+
+    border-radius: 8px;
+
+    background: rgba(42, 194, 211, 0.09);
+
+    border: 1px solid rgba(42, 194, 211, 0.18);
+}
+
+.informacion-sat-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 25px;
+    height: 25px;
+
+    flex-shrink: 0;
+}
+
+.informacion-sat > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.informacion-sat strong {
+    font-size: 10px;
+}
+
+.informacion-sat span {
+    font-size: 9px;
+
+    opacity: 0.75;
+}
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 18px;
+}
+
+.campo-formulario label {
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.archivo-seleccionado {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: var(--green-500);
+
+    font-size: 9px;
+}
+
+/* =====================================================
+   RESULTADO VALIDACION
+===================================================== */
+
+.resultado-validacion {
+    margin-top: 22px;
+
+    padding: 15px;
+
+    border-radius: 9px;
+
+    border: 1px solid rgba(34, 197, 94, 0.25);
+
+    background: rgba(34, 197, 94, 0.06);
+}
+
+.resultado-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.resultado-icono {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    background: rgba(34, 197, 94, 0.13);
+
+    color: var(--green-500);
+}
+
+.resultado-header > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.resultado-header strong {
+    font-size: 11px;
+}
+
+.resultado-header span {
+    font-size: 9px;
+
+    opacity: 0.7;
+}
+
+.resultado-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 8px;
+}
+
+.resultado-item {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 9px 10px;
+
+    border-radius: 7px;
+
+    background: var(--surface-card);
+
+    border: 1px solid var(--surface-border);
+}
+
+.resultado-item span {
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.resultado-item strong {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+}
+
+.estatus-ok {
+    color: var(--green-500);
+}
+
+/* =====================================================
+   SESION
+===================================================== */
+
+.resultado-sesion {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 15px;
+
+    padding: 14px;
+
+    border-radius: 8px;
+
+    border: 1px solid rgba(42, 194, 211, 0.2);
+
+    background: rgba(42, 194, 211, 0.08);
+}
+
+.resultado-sesion > i {
+    font-size: 22px;
+}
+
+.resultado-sesion > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.resultado-sesion strong {
+    font-size: 11px;
+}
+
+.resultado-sesion span {
+    font-size: 9px;
+
+    opacity: 0.7;
+}
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.acciones-formulario {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    margin-top: 22px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.acciones-formulario .p-button {
+    min-width: 125px;
+}
+
+/* =====================================================
+   PRIMEVUE
+===================================================== */
+
+:deep(.sat-card .p-inputtext) {
+    font-size: 11px;
+}
+
+:deep(.sat-card .p-fileupload-basic) {
+    width: 100%;
+}
+
+:deep(.sat-card .p-fileupload-choose-button) {
+    width: 100%;
+
+    justify-content: flex-start;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 750px) {
+    .form-sat-portal {
+        padding: 18px 12px 30px 12px;
+    }
+
+    .sat-card {
+        padding: 18px;
+    }
+
+    .resultado-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-formulario {
+        flex-direction: column-reverse;
+    }
+
+    .acciones-formulario .p-button {
+        width: 100%;
+    }
+}

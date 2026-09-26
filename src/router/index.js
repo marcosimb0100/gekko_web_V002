@@ -181,6 +181,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_carga_masiva_cfdi" */ '../views/administrador_cfdi/operaciones_cfdi/carga_masiva_cfdi/CargaMasivaCfdi.vue')
                 },
                 {
+                    path: '/administrador_cfdi/operaciones_cfdi/sat_portal',
+                    name: 'administrador_cfdi_operaciones_cfdi_sat_portal',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_sat_portal" */ '../views/administrador_cfdi/operaciones_cfdi/sat_portal/SatPortal.vue')
+                },
+                {
                     path: '/administrador_cfdi/operaciones_cfdi/consultas_sat',
                     name: 'administrador_cfdi_operaciones_cfdi_consultas_sat',
                     beforeEnter: permisoRutas,
