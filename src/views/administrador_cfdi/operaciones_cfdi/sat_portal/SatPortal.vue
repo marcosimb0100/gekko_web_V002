@@ -21,20 +21,6 @@
                         </div>
                     </div>
 
-                    <!-- INFORMACION -->
-
-                    <div v-if="!efirmaValidada" class="informacion-sat">
-                        <div class="informacion-sat-icono">
-                            <i class="pi pi-info-circle"></i>
-                        </div>
-
-                        <div>
-                            <strong> e.firma registrada </strong>
-
-                            <span> No es necesario cargar CER, KEY ni contraseña. Se utilizará la configuración FIEL activa de la empresa seleccionada. </span>
-                        </div>
-                    </div>
-
                     <!-- EMPRESA -->
 
                     <div class="campo-formulario campo-empresa">
