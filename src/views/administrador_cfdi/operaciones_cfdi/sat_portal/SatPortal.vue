@@ -333,7 +333,7 @@
 
                             <div class="actualizacion-cfdi-texto">
                                 <strong>Actualizando CFDI en la base</strong>
-                                <span> Se están procesando {{ totalCfdiActualizando }} CFDI. Puedes buscar y desplazarte por la tabla mientras termina. </span>
+                                <span> Se están procesando CFDI. Puedes buscar y desplazarte por la tabla mientras termina. </span>
                             </div>
 
                             <span class="actualizacion-cfdi-badge">Procesando</span>

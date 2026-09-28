@@ -1677,53 +1677,81 @@
 .actualizacion-cfdi-aviso {
     display: flex;
     align-items: center;
+
     gap: 10px;
+
     margin: 8px 0 10px 0;
     padding: 9px 11px;
-    border: 1px solid rgba(42, 194, 211, 0.24);
+
+    border: 1px solid rgba(239, 68, 68, 0.35);
     border-radius: 8px;
-    background: rgba(42, 194, 211, 0.07);
+
+    background: rgba(239, 68, 68, 0.08);
+
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.08);
 }
 
 .actualizacion-cfdi-icono {
     display: flex;
     align-items: center;
     justify-content: center;
+
     width: 30px;
     height: 30px;
+
     flex: 0 0 30px;
-    border-radius: 50%;
-    background: rgba(42, 194, 211, 0.13);
+
+    border-radius: 7px;
+
+    background: rgba(239, 68, 68, 0.12);
+
+    color: #ef4444;
+
     font-size: 13px;
 }
+
 
 .actualizacion-cfdi-texto {
     display: flex;
     flex-direction: column;
+
     gap: 2px;
-    min-width: 0;
+
     flex: 1;
 }
 
+
 .actualizacion-cfdi-texto strong {
+    color: #ef4444;
+
     font-size: 9px;
+    font-weight: 600;
 }
+
 
 .actualizacion-cfdi-texto span {
     font-size: 8px;
+
     opacity: 0.7;
 }
+
 
 .actualizacion-cfdi-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 4px 10px;
-    border: 1px solid rgba(42, 194, 211, 0.22);
-    border-radius: 14px;
-    background: var(--surface-card);
+
+    padding: 3px 9px;
+
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    border-radius: 15px;
+
+    background: rgba(239, 68, 68, 0.10);
+
+    color: #ef4444;
+
     font-size: 8px;
     font-weight: 600;
+
     white-space: nowrap;
 }
 
