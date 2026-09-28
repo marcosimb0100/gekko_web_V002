@@ -472,3 +472,42 @@ export const apiPost_token_file = async (direccion, datos) => {
         };
     }
 };
+
+export const apiPost_token_sinCargando = async (direccion, datos) => {
+    const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');
+
+    const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: Authorization,
+            rutaActual: rutaActual
+        }
+    });
+
+    try {
+        const response = await consumir.post(direccion, datos);
+
+        const { status, data } = response;
+
+        return {
+            estatus: status,
+
+            mensaje: data?.mensaje ?? '',
+
+            datos: data?.datos ?? {}
+        };
+    } catch (error) {
+        const response = error?.response;
+
+        return {
+            estatus: response?.status ?? 500,
+
+            mensaje: response?.data?.mensaje ?? error?.message ?? 'No fue posible realizar la petición.',
+
+            datos: response?.data?.datos ?? {}
+        };
+    }
+};

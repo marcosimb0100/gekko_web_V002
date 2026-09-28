@@ -1,19 +1,26 @@
 import { useToast } from 'primevue/usetoast';
+
 import { computed, ref } from 'vue';
+
 import { useStore } from 'vuex';
 
 import * as XLSX from 'xlsx';
 
 const useProceso = () => {
     const store = useStore();
+
     const toast = useToast();
 
     // ==========================================================
+
     // EMPRESAS
+
     // ==========================================================
 
     const empresas = ref([]);
+
     const companyId = ref('');
+
     const cargandoEmpresas = ref(false);
 
     const empresaSeleccionada = computed(() => {
@@ -25,33 +32,54 @@ const useProceso = () => {
     });
 
     // ==========================================================
+
     // CONEXION SAT
+
     // ==========================================================
 
     const validando = ref(false);
+
     const conectando = ref(false);
+
     const cerrandoSesion = ref(false);
 
     const efirmaValidada = ref(false);
+
     const datosEfirma = ref({});
+
     const sesionSat = ref(null);
 
     // ==========================================================
+
     // CONSULTA CFDI
+
     // ==========================================================
 
     const consultandoCfdi = ref(false);
+
     const actualizandoCfdiBase = ref(false);
+    const totalCfdiActualizando = ref(0);
+
+    const handleOcultarCargandoGlobal = () => {
+        const cargandoGlobal = document.getElementById('cargando');
+
+        if (cargandoGlobal) {
+            cargandoGlobal.classList.add('oculto');
+        }
+    };
 
     const tipoConsulta = ref('recibidos');
 
     const tiposConsulta = ref([
         {
             label: 'Recibidos',
+
             value: 'recibidos'
         },
+
         {
             label: 'Emitidos',
+
             value: 'emitidos'
         }
     ]);
@@ -61,20 +89,27 @@ const useProceso = () => {
     const estadosCfdi = ref([
         {
             label: 'Todos',
+
             value: 'todos'
         },
+
         {
             label: 'Vigentes',
+
             value: 'vigente'
         },
+
         {
             label: 'Cancelados',
+
             value: 'cancelado'
         }
     ]);
 
     // ==========================================================
+
     // FECHAS
+
     // ==========================================================
 
     const fechaHoy = ref(new Date());
@@ -86,25 +121,33 @@ const useProceso = () => {
     };
 
     const fechaInicial = ref(handlePrimerDiaMes());
+
     const fechaFinal = ref(new Date());
 
     // ==========================================================
+
     // RESULTADOS
+
     // ==========================================================
 
     const cfdis = ref([]);
+
     const busquedaCfdi = ref('');
 
     // ==========================================================
+
     // PROCESANDO
+
     // ==========================================================
 
     const procesando = computed(() => {
-        return cargandoEmpresas.value || validando.value || conectando.value || cerrandoSesion.value || consultandoCfdi.value || actualizandoCfdiBase.value;
+        return cargandoEmpresas.value || validando.value || conectando.value || cerrandoSesion.value || consultandoCfdi.value;
     });
 
     // ==========================================================
+
     // BOTON VALIDAR
+
     // ==========================================================
 
     const botonValidarDeshabilitado = computed(() => {
@@ -112,7 +155,9 @@ const useProceso = () => {
     });
 
     // ==========================================================
+
     // PUEDE CONSULTAR
+
     // ==========================================================
 
     const puedeConsultarCfdi = computed(() => {
@@ -120,7 +165,9 @@ const useProceso = () => {
     });
 
     // ==========================================================
+
     // PRIMER VALOR DISPONIBLE
+
     // ==========================================================
 
     const handlePrimerValor = (item, claves) => {
@@ -136,9 +183,13 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // FORMATO FECHA ISO
+
     //
+
     // 2026-04-30T01:47:11
+
     // ==========================================================
 
     const handleFormatoFechaHora = (fecha) => {
@@ -161,17 +212,24 @@ const useProceso = () => {
         }
 
         const anio = valor.getFullYear();
+
         const mes = String(valor.getMonth() + 1).padStart(2, '0');
+
         const dia = String(valor.getDate()).padStart(2, '0');
+
         const hora = String(valor.getHours()).padStart(2, '0');
+
         const minuto = String(valor.getMinutes()).padStart(2, '0');
+
         const segundo = String(valor.getSeconds()).padStart(2, '0');
 
         return `${anio}-${mes}-${dia}T${hora}:${minuto}:${segundo}`;
     };
 
     // ==========================================================
+
     // CAMPOS CFDI
+
     // ==========================================================
 
     const handleObtenerRfcEmisor = (item) => {
@@ -203,6 +261,7 @@ const useProceso = () => {
     const handleObtenerFechaCancelacion = (item) => {
         const estado = String(handlePrimerValor(item, ['estado_cfdi', 'estado_del_comprobante', 'estado', 'estado_comprobante', 'estatus']) || '')
             .trim()
+
             .toLowerCase();
 
         if (!estado.includes('cancelado')) {
@@ -245,7 +304,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // ESTADO CSS
+
     // ==========================================================
 
     const handleClaseEstado = (estado) => {
@@ -263,7 +324,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // FORMATO MONEDA
+
     // ==========================================================
 
     const handleFormatoMoneda = (valor) => {
@@ -271,19 +334,25 @@ const useProceso = () => {
 
         return new Intl.NumberFormat('es-MX', {
             style: 'currency',
+
             currency: 'MXN',
+
             minimumFractionDigits: 2,
+
             maximumFractionDigits: 2
         }).format(Number.isNaN(numero) ? 0 : numero);
     };
 
     // ==========================================================
+
     // CFDI FILTRADOS
+
     // ==========================================================
 
     const cfdisFiltrados = computed(() => {
         const texto = String(busquedaCfdi.value || '')
             .trim()
+
             .toLowerCase();
 
         if (!texto) {
@@ -293,14 +362,23 @@ const useProceso = () => {
         return cfdis.value.filter((item) => {
             const valores = [
                 item.uuid,
+
                 handleObtenerRfcEmisor(item),
+
                 handleObtenerNombreEmisor(item),
+
                 handleObtenerRfcReceptor(item),
+
                 handleObtenerNombreReceptor(item),
+
                 handleObtenerFechaCfdi(item),
+
                 handleObtenerFechaCancelacion(item),
+
                 handleObtenerTotal(item),
+
                 handleObtenerTipoComprobante(item),
+
                 handleObtenerEstado(item)
             ];
 
@@ -309,7 +387,9 @@ const useProceso = () => {
     });
 
     // ==========================================================
+
     // CARGAR EMPRESAS
+
     // ==========================================================
 
     const handleCargarEmpresas = async () => {
@@ -325,8 +405,11 @@ const useProceso = () => {
 
                 toast.add({
                     severity: 'error',
+
                     summary: 'Portal SAT',
+
                     detail: res.mensaje ?? 'No fue posible cargar las empresas disponibles.',
+
                     life: 3500
                 });
 
@@ -341,8 +424,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Portal SAT',
+
                 detail: 'Ocurrió un error al cargar las empresas.',
+
                 life: 3500
             });
         } finally {
@@ -351,28 +437,38 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // CAMBIAR EMPRESA
+
     // ==========================================================
 
     const handleCambiarEmpresa = () => {
         efirmaValidada.value = false;
+
         datosEfirma.value = {};
+
         sesionSat.value = null;
 
         cfdis.value = [];
+
         busquedaCfdi.value = '';
     };
 
     // ==========================================================
+
     // VALIDAR E.FIRMA
+
     // ==========================================================
 
     const handleValidarEfirma = async () => {
         if (!companyId.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Portal SAT',
+
                 detail: 'Selecciona una empresa.',
+
                 life: 3000
             });
 
@@ -382,7 +478,9 @@ const useProceso = () => {
         validando.value = true;
 
         efirmaValidada.value = false;
+
         datosEfirma.value = {};
+
         sesionSat.value = null;
 
         cfdis.value = [];
@@ -399,8 +497,11 @@ const useProceso = () => {
             if (res.estatus !== 200) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'e.firma',
+
                     detail: res.mensaje ?? 'No fue posible validar la e.firma registrada.',
+
                     life: 4500
                 });
 
@@ -413,8 +514,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
+
                 summary: 'e.firma',
+
                 detail: res.mensaje ?? 'La e.firma registrada fue validada correctamente.',
+
                 life: 3000
             });
         } catch (error) {
@@ -422,8 +526,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'e.firma',
+
                 detail: 'No fue posible validar la e.firma registrada.',
+
                 life: 3500
             });
         } finally {
@@ -432,15 +539,20 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // INICIAR SESION SAT
+
     // ==========================================================
 
     const handleIniciarSesion = async () => {
         if (!companyId.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Portal SAT',
+
                 detail: 'Selecciona una empresa.',
+
                 life: 3000
             });
 
@@ -450,8 +562,11 @@ const useProceso = () => {
         if (!efirmaValidada.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Portal SAT',
+
                 detail: 'Primero valida la e.firma registrada.',
+
                 life: 3000
             });
 
@@ -461,6 +576,7 @@ const useProceso = () => {
         conectando.value = true;
 
         sesionSat.value = null;
+
         cfdis.value = [];
 
         try {
@@ -475,8 +591,11 @@ const useProceso = () => {
             if (res.estatus !== 200) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'Portal SAT',
+
                     detail: res.mensaje ?? 'No fue posible iniciar sesión con el SAT.',
+
                     life: 5000
                 });
 
@@ -493,8 +612,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
+
                 summary: 'Portal SAT',
+
                 detail: res.mensaje ?? 'Sesión SAT iniciada correctamente.',
+
                 life: 3000
             });
         } catch (error) {
@@ -502,8 +624,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Portal SAT',
+
                 detail: 'No fue posible iniciar sesión con el SAT.',
+
                 life: 3500
             });
         } finally {
@@ -512,7 +637,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // CERRAR SESION SAT
+
     // ==========================================================
 
     const handleCerrarSesion = async () => {
@@ -532,8 +659,11 @@ const useProceso = () => {
             if (res?.estatus && res.estatus !== 200) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'Portal SAT',
+
                     detail: res.mensaje ?? 'No fue posible cerrar la sesión SAT.',
+
                     life: 4000
                 });
 
@@ -543,14 +673,18 @@ const useProceso = () => {
             sesionSat.value = null;
 
             cfdis.value = [];
+
             busquedaCfdi.value = '';
 
             handleLimpiarConsulta();
 
             toast.add({
                 severity: 'success',
+
                 summary: 'Portal SAT',
+
                 detail: 'La sesión SAT se cerró correctamente.',
+
                 life: 3000
             });
         } catch (error) {
@@ -558,8 +692,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Portal SAT',
+
                 detail: 'No fue posible cerrar la sesión SAT.',
+
                 life: 4000
             });
         } finally {
@@ -568,7 +705,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // FORMATO FECHA API
+
     // ==========================================================
 
     const handleFormatoFechaApi = (fecha) => {
@@ -592,15 +731,20 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // CONSULTAR CFDI
+
     // ==========================================================
 
     const handleConsultarCfdi = async () => {
         if (!sesionSat.value?.sesion_id) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Portal SAT',
+
                 detail: 'Primero debes conectarte al SAT.',
+
                 life: 3000
             });
 
@@ -610,8 +754,11 @@ const useProceso = () => {
         if (!fechaInicial.value || !fechaFinal.value) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Consulta CFDI',
+
                 detail: 'Selecciona la fecha inicial y final.',
+
                 life: 3000
             });
 
@@ -625,8 +772,11 @@ const useProceso = () => {
         if (fin.getTime() < inicio.getTime()) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Consulta CFDI',
+
                 detail: 'La fecha final no puede ser menor a la fecha inicial.',
+
                 life: 3500
             });
 
@@ -636,6 +786,7 @@ const useProceso = () => {
         consultandoCfdi.value = true;
 
         cfdis.value = [];
+
         busquedaCfdi.value = '';
 
         try {
@@ -677,8 +828,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
+
                 summary: 'Consulta CFDI',
+
                 detail: `${cfdis.value.length} registro(s) encontrado(s).`,
+
                 life: 3000
             });
         } catch (error) {
@@ -686,8 +840,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Consulta CFDI',
+
                 detail: 'No fue posible consultar los CFDI.',
+
                 life: 4000
             });
         } finally {
@@ -697,9 +854,26 @@ const useProceso = () => {
 
     // ==========================================================
     // ACTUALIZAR CFDI BASE
+    //
+    // - No utiliza el loader global.
+    // - Usa apiPostTokenSinCargando.
+    // - Procesa todos los CFDI de la consulta.
+    // - Mantiene el spinner solamente en el botón.
     // ==========================================================
 
     const handleActualizarCfdiBase = async () => {
+        // ======================================================
+        // EVITAR DOBLE EJECUCION
+        // ======================================================
+
+        if (actualizandoCfdiBase.value) {
+            return;
+        }
+
+        // ======================================================
+        // VALIDAR SESION SAT
+        // ======================================================
+
         if (!sesionSat.value?.sesion_id) {
             toast.add({
                 severity: 'warn',
@@ -710,6 +884,10 @@ const useProceso = () => {
 
             return;
         }
+
+        // ======================================================
+        // VALIDAR EMPRESA
+        // ======================================================
 
         if (!companyId.value) {
             toast.add({
@@ -722,6 +900,10 @@ const useProceso = () => {
             return;
         }
 
+        // ======================================================
+        // VALIDAR RESULTADOS
+        // ======================================================
+
         if (!Array.isArray(cfdis.value) || !cfdis.value.length) {
             toast.add({
                 severity: 'warn',
@@ -733,6 +915,13 @@ const useProceso = () => {
             return;
         }
 
+        // ======================================================
+        // FILTRAR CFDI VALIDOS PARA DESCARGA
+        //
+        // Se mandan TODOS los CFDI consultados,
+        // no solamente los filtrados por el buscador.
+        // ======================================================
+
         const registros = cfdis.value.filter((item) => {
             const uuid = String(item?.uuid || item?.folio_fiscal || '').trim();
 
@@ -741,16 +930,26 @@ const useProceso = () => {
             return uuid && urlXml;
         });
 
+        // ======================================================
+        // VALIDAR URL XML
+        // ======================================================
+
         if (!registros.length) {
             toast.add({
                 severity: 'warn',
                 summary: 'Actualizar CFDI',
-                detail: 'Los CFDI consultados ' + 'no contienen ligas XML.',
+                detail: 'Los CFDI consultados no contienen ligas XML.',
                 life: 4000
             });
 
             return;
         }
+
+        // ======================================================
+        // INICIAR PROCESO LOCAL
+        //
+        // Esto solamente activa el spinner del botón.
+        // ======================================================
 
         actualizandoCfdiBase.value = true;
 
@@ -761,11 +960,17 @@ const useProceso = () => {
 
             console.log('TIPO:', tipoConsulta.value);
 
-            console.log('TOTAL:', registros.length);
+            console.log('TOTAL CONSULTADOS:', cfdis.value.length);
+
+            console.log('TOTAL CON XML:', registros.length);
 
             console.log('==========================================');
 
-            const res = await store.dispatch('api/apiPostToken', {
+            // ==================================================
+            // LLAMADA API SIN LOADER GLOBAL
+            // ==================================================
+
+            const res = await store.dispatch('api/apiPostTokenSinCargando', {
                 direccion: '/sat_portal/' + 'actualizar_cfdi_base/' + sesionSat.value.sesion_id,
 
                 datosJson: {
@@ -776,6 +981,10 @@ const useProceso = () => {
                     registros: registros
                 }
             });
+
+            // ==================================================
+            // VALIDAR RESPUESTA
+            // ==================================================
 
             if (!res || res.estatus !== 200) {
                 toast.add({
@@ -788,6 +997,10 @@ const useProceso = () => {
                 return;
             }
 
+            // ==================================================
+            // DATOS RESPUESTA
+            // ==================================================
+
             const datos = res.datos || {};
 
             const total = Number(datos.total || 0);
@@ -796,9 +1009,15 @@ const useProceso = () => {
 
             const procesados = Number(datos.procesados || 0);
 
-            const errores = Number(datos.errores || 0);
+            const existentes = Number(datos.archivos_existentes || 0);
 
             const sinUrl = Number(datos.sin_url || 0);
+
+            const errores = Number(datos.errores || 0);
+
+            // ==================================================
+            // DEBUG
+            // ==================================================
 
             console.log('==========================================');
 
@@ -810,15 +1029,21 @@ const useProceso = () => {
 
             console.log('PROCESADOS:', procesados);
 
+            console.log('EXISTENTES:', existentes);
+
             console.log('SIN URL:', sinUrl);
 
             console.log('ERRORES:', errores);
 
-            console.log('DETALLE:', datos.detalle_errores || []);
+            console.log('DETALLE ERRORES:', datos.detalle_errores || []);
 
             console.log('SINCRONIZACION MONGO:', datos.sincronizacion_mongo || {});
 
             console.log('==========================================');
+
+            // ==================================================
+            // TOAST FINAL
+            // ==================================================
 
             toast.add({
                 severity: errores > 0 ? 'warn' : 'success',
@@ -839,20 +1064,29 @@ const useProceso = () => {
                 life: 5000
             });
         } finally {
+            // ==================================================
+            // TERMINAR SPINNER LOCAL
+            // ==================================================
+
             actualizandoCfdiBase.value = false;
         }
     };
 
     // ==========================================================
+
     // EXPORTAR RESULTADOS CFDI A EXCEL
+
     // ==========================================================
 
     const handleExportarExcel = () => {
         if (!cfdisFiltrados.value.length) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Excel',
+
                 detail: 'No existen CFDI para exportar.',
+
                 life: 3000
             });
 
@@ -922,8 +1156,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
+
                 summary: 'Excel',
+
                 detail: `${datosExcel.length} CFDI exportados correctamente.`,
+
                 life: 3000
             });
         } catch (error) {
@@ -931,15 +1168,20 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'Excel',
+
                 detail: 'No fue posible generar el archivo Excel.',
+
                 life: 3500
             });
         }
     };
 
     // ==========================================================
+
     // LIMPIAR CONSULTA
+
     // ==========================================================
 
     const handleLimpiarConsulta = () => {
@@ -957,7 +1199,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // DESCARGAR XML CFDI SAT
+
     // ==========================================================
 
     const handleDescargarXml = async (item) => {
@@ -968,8 +1212,11 @@ const useProceso = () => {
         if (!uuid) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'XML',
+
                 detail: 'El registro no contiene folio fiscal.',
+
                 life: 3000
             });
 
@@ -979,8 +1226,11 @@ const useProceso = () => {
         if (!sesionSat.value?.sesion_id) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'Portal SAT',
+
                 detail: 'Primero debes conectarte al SAT.',
+
                 life: 3000
             });
 
@@ -990,8 +1240,11 @@ const useProceso = () => {
         if (!urlXml) {
             toast.add({
                 severity: 'warn',
+
                 summary: 'XML',
+
                 detail: 'El SAT no devolvió ' + 'la liga de descarga XML.',
+
                 life: 4500
             });
 
@@ -1004,6 +1257,7 @@ const useProceso = () => {
 
                 datosJson: {
                     uuid,
+
                     url_xml: urlXml
                 }
             });
@@ -1011,8 +1265,11 @@ const useProceso = () => {
             if (!res || res.estatus !== 200) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'XML',
+
                     detail: res?.mensaje || 'No fue posible descargar el XML.',
+
                     life: 5000
                 });
 
@@ -1024,8 +1281,11 @@ const useProceso = () => {
             if (!xmlBase64) {
                 toast.add({
                     severity: 'error',
+
                     summary: 'XML',
+
                     detail: 'El servidor no devolvió el contenido del XML.',
+
                     life: 4000
                 });
 
@@ -1066,8 +1326,11 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'success',
+
                 summary: 'XML',
+
                 detail: `XML ${uuid} descargado correctamente.`,
+
                 life: 3000
             });
         } catch (error) {
@@ -1075,15 +1338,20 @@ const useProceso = () => {
 
             toast.add({
                 severity: 'error',
+
                 summary: 'XML',
+
                 detail: 'No fue posible descargar el XML.',
+
                 life: 4000
             });
         }
     };
 
     // ==========================================================
+
     // FECHA VISUAL E.FIRMA
+
     // ==========================================================
 
     const handleFecha = (fecha) => {
@@ -1100,7 +1368,9 @@ const useProceso = () => {
 
             return valor.toLocaleDateString('es-MX', {
                 year: 'numeric',
+
                 month: '2-digit',
+
                 day: '2-digit'
             });
         } catch {
@@ -1109,7 +1379,9 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // LIMPIAR TODO
+
     // ==========================================================
 
     const handleLimpiar = () => {
@@ -1120,10 +1392,13 @@ const useProceso = () => {
         companyId.value = '';
 
         efirmaValidada.value = false;
+
         datosEfirma.value = {};
+
         sesionSat.value = null;
 
         cfdis.value = [];
+
         busquedaCfdi.value = '';
 
         tipoConsulta.value = 'recibidos';
@@ -1136,79 +1411,113 @@ const useProceso = () => {
     };
 
     // ==========================================================
+
     // INIT
+
     // ==========================================================
 
     handleCargarEmpresas();
 
     // ==========================================================
+
     // RETURN
+
     // ==========================================================
 
     return {
         empresas,
+
         companyId,
+
         cargandoEmpresas,
+
         empresaSeleccionada,
 
         validando,
+
         conectando,
+
         cerrandoSesion,
+
         procesando,
+
         efirmaValidada,
+
         datosEfirma,
+
         sesionSat,
 
         botonValidarDeshabilitado,
 
         consultandoCfdi,
+
         actualizandoCfdiBase,
+        totalCfdiActualizando,
 
         tipoConsulta,
+
         tiposConsulta,
 
         estadoCfdi,
+
         estadosCfdi,
 
         fechaHoy,
+
         fechaInicial,
+
         fechaFinal,
 
         cfdis,
+
         busquedaCfdi,
+
         cfdisFiltrados,
 
         puedeConsultarCfdi,
 
         handleCargarEmpresas,
+
         handleCambiarEmpresa,
+
         handleValidarEfirma,
+
         handleIniciarSesion,
+
         handleCerrarSesion,
 
         handleConsultarCfdi,
+
         handleActualizarCfdiBase,
+
         handleLimpiarConsulta,
 
         handleObtenerRfcEmisor,
+
         handleObtenerNombreEmisor,
 
         handleObtenerRfcReceptor,
+
         handleObtenerNombreReceptor,
 
         handleObtenerFechaCfdi,
+
         handleObtenerFechaCancelacion,
 
         handleObtenerTotal,
+
         handleObtenerTipoComprobante,
+
         handleObtenerEstado,
 
         handleClaseEstado,
+
         handleFormatoMoneda,
 
         handleDescargarXml,
 
         handleFecha,
+
         handleLimpiar,
 
         handleExportarExcel

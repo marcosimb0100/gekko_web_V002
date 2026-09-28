@@ -5,7 +5,9 @@
         <ScrollPanel style="height: 78vh">
             <div class="form-sat-portal">
                 <!-- =====================================================
+
                     CONEXION SAT
+
                 ====================================================== -->
 
                 <div class="sat-card sat-card-conexion">
@@ -172,6 +174,7 @@
 
                                 <span>
                                     RFC:
+
                                     {{ sesionSat.rfc || datosEfirma.rfc || empresaSeleccionada?.rfc }}
                                 </span>
                             </div>
@@ -214,7 +217,9 @@
                 </div>
 
                 <!-- =====================================================
+
                     CONSULTA CFDI
+
                 ====================================================== -->
 
                 <div v-if="sesionSat?.sesion_id" class="sat-card consulta-card">
@@ -275,7 +280,9 @@
                     </div>
 
                     <!-- =================================================
+
                         RESULTADOS
+
                     ================================================== -->
 
                     <div class="resultados-cfdi">
@@ -285,6 +292,7 @@
 
                                 <span>
                                     {{ cfdisFiltrados.length }}
+
                                     registro(s)
                                 </span>
                             </div>
@@ -295,7 +303,7 @@
                                 <span class="p-input-icon-left buscador-tabla">
                                     <i class="pi pi-search"></i>
 
-                                    <InputText v-model="busquedaCfdi" placeholder="Buscar CFDI..." :disabled="actualizandoCfdiBase" />
+                                    <InputText v-model="busquedaCfdi" placeholder="Buscar CFDI..." />
                                 </span>
 
                                 <!-- ACTUALIZAR CFDI BASE -->
@@ -308,7 +316,7 @@
 
                                 <!-- EXCEL -->
 
-                                <Button type="button" label="Excel" severity="success" class="btn-excel" :disabled="!cfdisFiltrados.length || actualizandoCfdiBase" @click="handleExportarExcel">
+                                <Button type="button" label="Excel" severity="success" class="btn-excel" :disabled="!cfdisFiltrados.length" @click="handleExportarExcel">
                                     <template #icon>
                                         <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
                                     </template>
@@ -316,8 +324,25 @@
                             </div>
                         </div>
 
+                        <!-- ACTUALIZACION CFDI NO BLOQUEANTE -->
+
+                        <div v-if="actualizandoCfdiBase" class="actualizacion-cfdi-aviso">
+                            <div class="actualizacion-cfdi-icono">
+                                <i class="pi pi-spin pi-spinner"></i>
+                            </div>
+
+                            <div class="actualizacion-cfdi-texto">
+                                <strong>Actualizando CFDI en la base</strong>
+                                <span> Se están procesando {{ totalCfdiActualizando }} CFDI. Puedes buscar y desplazarte por la tabla mientras termina. </span>
+                            </div>
+
+                            <span class="actualizacion-cfdi-badge">Procesando</span>
+                        </div>
+
                         <!-- =================================================
+
                             TABLA
+
                         ================================================== -->
 
                         <DataTable :value="cfdisFiltrados" paginator :rows="100" :rowsPerPageOptions="[100, 200, 500]" stripedRows scrollable scrollHeight="500px" class="tabla-cfdi" dataKey="uuid">
@@ -444,6 +469,7 @@
 
 <script>
 import Encabezado from '../../../../components/encabezado/Encabezado.vue';
+
 import proceso from './js/proceso.js';
 
 export default {

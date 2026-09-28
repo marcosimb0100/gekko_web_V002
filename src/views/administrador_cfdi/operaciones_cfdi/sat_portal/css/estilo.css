@@ -1,1232 +1,2530 @@
 /* =====================================================
+
    CONTENEDOR
+
 ===================================================== */
 
+
+
 .sat-portal-contenedor {
+
     height: 78vh;
+
 }
 
 
+
+
+
 /* =====================================================
+
    FORMULARIO GENERAL
+
 ===================================================== */
 
+
+
 .form-sat-portal {
+
     display: flex;
+
     flex-direction: column;
+
+
 
     gap: 18px;
 
+
+
     width: 100%;
 
+
+
     padding: 20px 24px 35px 24px;
+
 }
 
 
+
+
+
 /* =====================================================
+
    CARD GENERAL
+
 ===================================================== */
 
+
+
 .sat-card {
+
     width: 100%;
+
+
 
     padding: 20px 24px;
 
+
+
     border: 1px solid var(--surface-border);
+
     border-radius: 12px;
+
+
 
     background: var(--surface-card);
 
+
+
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
+
 }
 
+
+
 .sat-card-conexion {
+
     padding-bottom: 16px;
+
 }
+
+
+
 
 
 /* =====================================================
+
    TITULO SAT
+
 ===================================================== */
 
+
+
 .sat-titulo {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 11px;
 
+
+
     margin-bottom: 14px;
+
     padding-bottom: 12px;
 
+
+
     border-bottom: 1px solid var(--surface-border);
+
 }
 
+
+
 .sat-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 38px;
+
     height: 38px;
 
+
+
     flex: 0 0 38px;
+
+
 
     border-radius: 9px;
 
+
+
     background: rgba(42, 194, 211, 0.14);
 
+
+
     font-size: 15px;
+
 }
+
+
 
 .sat-titulo-texto {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 2px;
+
 }
+
+
 
 .sat-titulo-texto span {
+
     font-size: 14px;
+
     font-weight: 600;
+
 }
+
+
 
 .sat-titulo-texto small {
+
     font-size: 9px;
 
+
+
     opacity: 0.7;
+
 }
+
+
+
 
 
 /* =====================================================
+
    INFORMACION SAT
+
 ===================================================== */
 
+
+
 .informacion-sat {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 9px;
 
+
+
     margin-bottom: 12px;
+
+
 
     padding: 8px 10px;
 
+
+
     border: 1px solid rgba(42, 194, 211, 0.18);
+
     border-radius: 7px;
 
+
+
     background: rgba(42, 194, 211, 0.07);
+
 }
+
+
 
 .informacion-sat-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 25px;
+
     height: 25px;
 
+
+
     flex: 0 0 25px;
+
 }
+
+
 
 .informacion-sat > div:last-child {
+
     display: flex;
+
     flex-direction: column;
+
+
 
     gap: 1px;
+
 }
+
+
 
 .informacion-sat strong {
+
     font-size: 9px;
+
 }
+
+
 
 .informacion-sat span {
+
     font-size: 8px;
 
+
+
     opacity: 0.7;
+
 }
 
 
+
+
+
 /* =====================================================
+
    CAMPOS
+
 ===================================================== */
+
+
 
 .campo-formulario {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 6px;
+
 }
+
+
 
 .campo-formulario label {
+
     font-size: 10px;
+
     font-weight: 600;
+
 }
+
+
 
 .campo-empresa {
+
     margin-bottom: 0;
+
 }
+
+
 
 .campo-empresa-label {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
+
+
     gap: 10px;
+
 }
+
+
+
 
 
 /* =====================================================
+
    EMPRESA BLOQUEADA
+
 ===================================================== */
 
+
+
 .empresa-bloqueada {
+
     display: inline-flex;
+
     align-items: center;
+
+
 
     gap: 5px;
 
+
+
     padding: 3px 8px;
+
+
 
     border-radius: 12px;
 
+
+
     background: rgba(34, 197, 94, 0.1);
+
+
 
     color: var(--green-600);
 
+
+
     font-size: 8px;
+
     font-weight: 600;
+
 }
 
 
+
+
+
 /* =====================================================
+
    OPCION EMPRESA
+
 ===================================================== */
+
+
 
 .empresa-opcion {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 2px;
+
 }
+
+
 
 .empresa-opcion strong {
+
     font-size: 10px;
+
 }
+
+
 
 .empresa-opcion span {
+
     font-size: 8px;
 
+
+
     opacity: 0.65;
+
 }
+
+
+
 
 
 /* =====================================================
+
    EMPRESA RESUMEN
+
 ===================================================== */
 
+
+
 .empresa-resumen {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
+
 
     gap: 18px;
 
+
+
     margin-top: 10px;
+
+
 
     padding: 9px 11px;
 
+
+
     border: 1px solid var(--surface-border);
+
     border-radius: 8px;
 
+
+
     background: var(--surface-ground);
+
 }
 
+
+
 .empresa-resumen-principal {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 8px;
 
+
+
     min-width: 180px;
+
 }
 
+
+
 .empresa-resumen-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 30px;
+
     height: 30px;
+
+
 
     flex: 0 0 30px;
 
+
+
     border-radius: 7px;
 
+
+
     background: rgba(42, 194, 211, 0.12);
+
 }
 
+
+
 .empresa-resumen-nombre {
+
     display: flex;
+
     flex-direction: column;
+
+
 
     gap: 1px;
 
+
+
     min-width: 0;
+
 }
 
+
+
 .empresa-resumen-nombre strong {
+
     overflow: hidden;
+
+
 
     font-size: 10px;
 
+
+
     text-overflow: ellipsis;
+
     white-space: nowrap;
+
 }
+
+
 
 .empresa-resumen-nombre span {
+
     font-size: 8px;
 
+
+
     opacity: 0.65;
+
 }
 
+
+
 .empresa-resumen-datos {
+
     display: grid;
 
+
+
     grid-template-columns: repeat(
+
         3,
+
         minmax(130px, 1fr)
+
     );
+
+
 
     gap: 7px;
 
+
+
     flex: 1;
+
 }
 
+
+
 .empresa-resumen-datos > div {
+
     display: flex;
+
     flex-direction: column;
+
+
 
     gap: 1px;
 
+
+
     padding: 6px 8px;
 
+
+
     border: 1px solid var(--surface-border);
+
     border-radius: 6px;
 
+
+
     background: var(--surface-card);
+
 }
+
+
 
 .empresa-resumen-datos span {
+
     font-size: 8px;
 
+
+
     opacity: 0.6;
+
 }
 
+
+
 .empresa-resumen-datos strong {
+
     overflow: hidden;
+
+
 
     font-size: 9px;
 
+
+
     text-overflow: ellipsis;
+
     white-space: nowrap;
+
 }
 
 
+
+
+
 /* =====================================================
+
    E.FIRMA VALIDADA
+
 ===================================================== */
 
+
+
 .validacion-compacta {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 16px;
 
+
+
     margin-top: 10px;
+
+
 
     padding: 9px 11px;
 
+
+
     border: 1px solid rgba(34, 197, 94, 0.25);
+
     border-radius: 8px;
 
+
+
     background: rgba(34, 197, 94, 0.05);
+
 }
 
+
+
 .validacion-compacta-estado {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 8px;
 
+
+
     min-width: 180px;
+
 }
 
+
+
 .validacion-compacta-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 30px;
+
     height: 30px;
+
+
 
     flex: 0 0 30px;
 
+
+
     border-radius: 50%;
+
+
 
     background: rgba(34, 197, 94, 0.14);
 
+
+
     color: var(--green-500);
+
 }
+
+
 
 .validacion-compacta-estado > div:last-child {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 1px;
+
 }
+
+
 
 .validacion-compacta-estado strong {
+
     font-size: 10px;
+
 }
+
+
 
 .validacion-compacta-estado span {
+
     font-size: 8px;
 
+
+
     opacity: 0.65;
+
 }
+
+
+
 
 
 /* =====================================================
+
    DATOS E.FIRMA
+
 ===================================================== */
 
+
+
 .validacion-compacta-datos {
+
     display: grid;
 
+
+
     grid-template-columns:
+
         1.2fr
+
         1fr
+
         1fr
+
         1fr
+
         0.7fr;
+
+
 
     gap: 6px;
 
+
+
     flex: 1;
+
 }
 
+
+
 .dato-compacto {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 1px;
+
+
 
     min-width: 0;
 
+
+
     padding: 6px 8px;
 
+
+
     border: 1px solid var(--surface-border);
+
     border-radius: 6px;
 
+
+
     background: var(--surface-card);
+
 }
+
+
 
 .dato-compacto span {
+
     font-size: 8px;
 
+
+
     opacity: 0.6;
+
 }
 
+
+
 .dato-compacto strong {
+
     overflow: hidden;
+
+
 
     font-size: 9px;
 
+
+
     text-overflow: ellipsis;
+
     white-space: nowrap;
+
 }
 
+
+
 .estatus-ok {
+
     color: var(--green-500);
+
 }
+
+
+
 
 
 /* =====================================================
+
    SESION
+
 ===================================================== */
 
+
+
 .sesion-compacta {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
+
+
     gap: 12px;
+
+
 
     margin-top: 8px;
 
+
+
     padding: 7px 10px;
 
+
+
     border: 1px solid rgba(42, 194, 211, 0.22);
+
     border-radius: 7px;
 
+
+
     background: rgba(42, 194, 211, 0.07);
+
 }
+
+
 
 .sesion-compacta-info {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 7px;
+
 }
+
+
 
 .sesion-compacta-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 27px;
+
     height: 27px;
 
+
+
     font-size: 14px;
+
 }
+
+
 
 .sesion-compacta-info > div:last-child {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 1px;
+
 }
+
+
 
 .sesion-compacta-info strong {
+
     font-size: 9px;
+
 }
+
+
 
 .sesion-compacta-info span {
+
     font-size: 8px;
 
+
+
     opacity: 0.65;
+
 }
 
+
+
 .sesion-compacta-badge {
+
     display: inline-flex;
+
     align-items: center;
 
+
+
     gap: 5px;
+
+
 
     padding: 3px 9px;
 
+
+
     border: 1px solid rgba(34, 197, 94, 0.22);
+
     border-radius: 15px;
+
+
 
     background: rgba(34, 197, 94, 0.09);
 
+
+
     color: var(--green-600);
 
+
+
     font-size: 8px;
+
     font-weight: 600;
+
 }
 
+
+
 .sesion-compacta-badge i {
+
     font-size: 5px;
+
 }
+
+
+
 
 
 /* =====================================================
+
    ACCIONES FORMULARIO
+
 ===================================================== */
 
+
+
 .acciones-formulario {
+
     display: flex;
+
     justify-content: flex-end;
+
+
 
     gap: 8px;
 
+
+
     margin-top: 11px;
+
     padding-top: 11px;
 
+
+
     border-top: 1px solid var(--surface-border);
+
 }
+
+
 
 .acciones-formulario .p-button {
+
     min-width: 120px;
+
 }
 
 
+
+
+
 /* =====================================================
+
    CERRAR SESION
+
 ===================================================== */
+
+
 
 .btn-cerrar-sesion {
+
     background: #dc2626 !important;
+
     border-color: #dc2626 !important;
 
+
+
     color: white !important;
+
 }
 
+
+
 .btn-cerrar-sesion:hover {
+
     background: #b91c1c !important;
+
     border-color: #b91c1c !important;
+
 }
+
+
+
 
 
 /* =====================================================
+
    CONSULTA
+
 ===================================================== */
 
+
+
 .consulta-card {
+
     padding: 20px 24px;
+
 }
 
+
+
 .consulta-titulo {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
+
 
     gap: 15px;
 
+
+
     padding-bottom: 13px;
 
+
+
     border-bottom: 1px solid var(--surface-border);
+
 }
+
+
 
 .consulta-titulo-izquierda {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 10px;
+
 }
 
+
+
 .consulta-icono {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
+
+
     width: 38px;
+
     height: 38px;
+
+
 
     flex: 0 0 38px;
 
+
+
     border-radius: 8px;
 
+
+
     background: rgba(42, 194, 211, 0.12);
+
 }
+
+
 
 .consulta-titulo-izquierda > div:last-child {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 2px;
+
 }
+
+
 
 .consulta-titulo-izquierda strong {
+
     font-size: 12px;
+
 }
+
+
 
 .consulta-titulo-izquierda span {
+
     font-size: 8px;
 
+
+
     opacity: 0.65;
+
 }
+
+
+
 
 
 /* =====================================================
+
    INDICADOR
+
 ===================================================== */
 
+
+
 .sesion-indicador {
+
     display: inline-flex;
+
     align-items: center;
 
+
+
     gap: 6px;
+
+
 
     padding: 4px 12px;
 
+
+
     border: 1px solid rgba(34, 197, 94, 0.25);
+
     border-radius: 18px;
+
+
 
     background: rgba(34, 197, 94, 0.08);
 
+
+
     font-size: 8px;
+
 }
 
+
+
 .sesion-indicador-punto {
+
     width: 6px;
+
     height: 6px;
+
+
 
     border-radius: 50%;
 
+
+
     background: var(--green-500);
+
 }
 
 
+
+
+
 /* =====================================================
+
    FILTROS
+
 ===================================================== */
 
+
+
 .consulta-filtros {
+
     display: grid;
 
+
+
     grid-template-columns: repeat(
+
         4,
+
         minmax(0, 1fr)
+
     );
+
+
 
     gap: 12px;
 
+
+
     margin-top: 15px;
+
 }
+
+
 
 .campo-consulta {
+
     display: flex;
+
     flex-direction: column;
 
+
+
     gap: 5px;
+
 }
 
+
+
 .campo-consulta label {
+
     font-size: 9px;
+
     font-weight: 600;
+
 }
+
+
+
 
 
 /* =====================================================
+
    BOTONES CONSULTA
+
 ===================================================== */
 
+
+
 .consulta-botones {
+
     display: flex;
+
     justify-content: flex-end;
+
+
 
     gap: 8px;
 
+
+
     margin-top: 10px;
+
     padding-bottom: 15px;
 
+
+
     border-bottom: 1px solid var(--surface-border);
+
 }
 
 
+
+
+
 /* =====================================================
+
    RESULTADOS
+
 ===================================================== */
+
+
 
 .resultados-cfdi {
+
     width: 100%;
 
+
+
     margin-top: 15px;
+
 }
 
 
+
+
+
 /* =====================================================
+
    HEADER RESULTADOS
+
 ===================================================== */
 
+
+
 .resultados-header {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
+
+
     width: 100%;
+
+
 
     gap: 20px;
 
+
+
     margin-bottom: 8px;
+
 }
 
+
+
 .resultados-header-info {
+
     display: flex;
+
     align-items: center;
+
+
 
     gap: 8px;
 
+
+
     flex-shrink: 0;
+
 }
+
+
 
 .resultados-header-info strong {
+
     font-size: 10px;
+
     font-weight: 600;
 
+
+
     white-space: nowrap;
+
 }
 
+
+
 .resultados-header-info span {
+
     padding: 3px 7px;
+
+
 
     border-radius: 12px;
 
+
+
     background: var(--surface-ground);
 
+
+
     font-size: 8px;
+
+
 
     opacity: 0.7;
 
+
+
     white-space: nowrap;
+
 }
 
 
+
+
+
 /* =====================================================
+
    ACCIONES RESULTADOS
+
 ===================================================== */
 
+
+
 .acciones-resultados {
+
     display: flex;
+
     align-items: center;
+
     justify-content: flex-end;
+
+
 
     gap: 8px;
 
+
+
     margin-left: auto;
+
 }
+
+
+
 
 
 /* =====================================================
+
    BUSCADOR
+
 ===================================================== */
 
+
+
 .buscador-tabla {
+
     position: relative;
 
+
+
     display: inline-flex;
+
     align-items: center;
 
+
+
     width: 280px;
+
     min-width: 280px;
+
 }
 
+
+
 .buscador-tabla .p-inputtext {
+
     width: 100%;
+
     height: 34px;
+
+
 
     padding-left: 32px;
 
+
+
     font-size: 9px;
+
 }
 
+
+
 .buscador-tabla > i {
+
     position: absolute;
 
+
+
     left: 11px;
+
     top: 50%;
+
+
 
     z-index: 2;
 
+
+
     transform: translateY(-50%);
 
+
+
     font-size: 11px;
+
 }
 
 
+
+
+
 /* =====================================================
+
    EXCEL
+
 ===================================================== */
 
+
+
 .btn-excel {
+
     height: 34px !important;
+
+
 
     min-width: 90px !important;
 
+
+
     padding-left: 14px !important;
+
     padding-right: 14px !important;
+
+
 
     font-size: 9px !important;
 
-    white-space: nowrap;
-}
 
-
-/* =====================================================
-   TABLA
-===================================================== */
-
-.tabla-cfdi {
-    width: 100%;
-}
-
-:deep(.tabla-cfdi .p-datatable-table) {
-    width: 100%;
-
-    min-width: 1450px;
-}
-
-
-/* =====================================================
-   SCROLL TABLA
-===================================================== */
-
-:deep(.tabla-cfdi .p-datatable-table-container),
-:deep(.tabla-cfdi .p-datatable-wrapper) {
-    max-height: 500px;
-
-    overflow: auto;
-
-    scrollbar-width: thin;
-}
-
-
-/* =====================================================
-   ENCABEZADO TABLA FIJO
-===================================================== */
-
-:deep(.tabla-cfdi .p-datatable-thead > tr > th) {
-    position: sticky;
-
-    top: 0;
-
-    z-index: 3;
-
-    padding: 7px;
-
-    background: var(--surface-card);
-
-    font-size: 8px;
-    font-weight: 600;
 
     white-space: nowrap;
+
 }
 
 
-/* =====================================================
-   CELDAS
-===================================================== */
 
-:deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
-    padding: 6px 7px;
-
-    font-size: 8px;
-
-    vertical-align: middle;
-}
 
 
 /* =====================================================
-   TEXTO AJUSTABLE
+   ACTUALIZACION CFDI NO BLOQUEANTE
 ===================================================== */
 
-.texto-ajustable {
-    display: block;
-
-    max-width: 210px;
-
-    white-space: normal;
-
-    overflow-wrap: anywhere;
-
-    line-height: 1.2;
-}
-
-
-/* =====================================================
-   UUID
-===================================================== */
-
-.uuid-cfdi {
-    display: block;
-
-    font-size: 7.5px;
-
-    white-space: nowrap;
-}
-
-
-/* =====================================================
-   FECHA
-===================================================== */
-
-.fecha-cfdi {
-    font-size: 7.5px;
-
-    white-space: nowrap;
-}
-
-
-/* =====================================================
-   TOTAL
-===================================================== */
-
-.total-cfdi {
-    font-size: 8px;
-    font-weight: 600;
-
-    white-space: nowrap;
-}
-
-
-/* =====================================================
-   ESTADO
-===================================================== */
-
-.estado-cfdi {
-    display: inline-flex;
+.actualizacion-cfdi-aviso {
+    display: flex;
     align-items: center;
-    justify-content: center;
-
-    min-width: 62px;
-
-    padding: 3px 8px;
-
-    border-radius: 15px;
-
-    background: var(--surface-ground);
-
-    font-size: 7px;
-    font-weight: 600;
-
-    white-space: nowrap;
+    gap: 10px;
+    margin: 8px 0 10px 0;
+    padding: 9px 11px;
+    border: 1px solid rgba(42, 194, 211, 0.24);
+    border-radius: 8px;
+    background: rgba(42, 194, 211, 0.07);
 }
 
-.estado-vigente {
-    background: rgba(34, 197, 94, 0.1);
-
-    color: var(--green-600);
-}
-
-.estado-cancelado {
-    background: rgba(239, 68, 68, 0.1);
-
-    color: var(--red-600);
-}
-
-
-/* =====================================================
-   XML
-===================================================== */
-
-.acciones-cfdi {
+.actualizacion-cfdi-icono {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 50%;
+    background: rgba(42, 194, 211, 0.13);
+    font-size: 13px;
 }
 
-.boton-accion {
-    width: 27px !important;
-    height: 27px !important;
-    min-width: 27px !important;
-
-    padding: 0 !important;
-
-    border-radius: 6px !important;
-}
-
-.boton-xml {
-    background: #22c55e !important;
-    border-color: #22c55e !important;
-
-    color: white !important;
-}
-
-
-/* =====================================================
-   PAGINADOR
-===================================================== */
-
-:deep(.tabla-cfdi .p-paginator) {
-    min-height: 42px;
-
-    padding: 6px 8px;
-}
-
-
-/* =====================================================
-   SCROLLBAR
-===================================================== */
-
-:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar),
-:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar) {
-    width: 8px;
-    height: 8px;
-}
-
-:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-thumb),
-:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar-thumb) {
-    border-radius: 6px;
-
-    background: rgba(120, 120, 120, 0.55);
-}
-
-:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-track),
-:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar-track) {
-    background: transparent;
-}
-
-
-/* =====================================================
-   TABLA VACIA
-===================================================== */
-
-.tabla-vacia {
+.actualizacion-cfdi-texto {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    gap: 6px;
-
-    min-height: 110px;
-
-    opacity: 0.55;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
 }
 
-.tabla-vacia i {
-    font-size: 25px;
-}
-
-.tabla-vacia span {
+.actualizacion-cfdi-texto strong {
     font-size: 9px;
 }
 
+.actualizacion-cfdi-texto span {
+    font-size: 8px;
+    opacity: 0.7;
+}
+
+.actualizacion-cfdi-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border: 1px solid rgba(42, 194, 211, 0.22);
+    border-radius: 14px;
+    background: var(--surface-card);
+    font-size: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.btn-actualizar-cfdi {
+    height: 34px !important;
+    min-width: 155px !important;
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+    font-size: 9px !important;
+    white-space: nowrap;
+}
+
 
 /* =====================================================
-   PRIMEVUE
+
+   TABLA
+
 ===================================================== */
+
+
+
+.tabla-cfdi {
+
+    width: 100%;
+
+}
+
+
+
+:deep(.tabla-cfdi .p-datatable-table) {
+
+    width: 100%;
+
+
+
+    min-width: 1450px;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   SCROLL TABLA
+
+===================================================== */
+
+
+
+:deep(.tabla-cfdi .p-datatable-table-container),
+
+:deep(.tabla-cfdi .p-datatable-wrapper) {
+
+    max-height: 500px;
+
+
+
+    overflow: auto;
+
+
+
+    scrollbar-width: thin;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   ENCABEZADO TABLA FIJO
+
+===================================================== */
+
+
+
+:deep(.tabla-cfdi .p-datatable-thead > tr > th) {
+
+    position: sticky;
+
+
+
+    top: 0;
+
+
+
+    z-index: 3;
+
+
+
+    padding: 7px;
+
+
+
+    background: var(--surface-card);
+
+
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+
+
+    white-space: nowrap;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   CELDAS
+
+===================================================== */
+
+
+
+:deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
+
+    padding: 6px 7px;
+
+
+
+    font-size: 8px;
+
+
+
+    vertical-align: middle;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   TEXTO AJUSTABLE
+
+===================================================== */
+
+
+
+.texto-ajustable {
+
+    display: block;
+
+
+
+    max-width: 210px;
+
+
+
+    white-space: normal;
+
+
+
+    overflow-wrap: anywhere;
+
+
+
+    line-height: 1.2;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   UUID
+
+===================================================== */
+
+
+
+.uuid-cfdi {
+
+    display: block;
+
+
+
+    font-size: 7.5px;
+
+
+
+    white-space: nowrap;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   FECHA
+
+===================================================== */
+
+
+
+.fecha-cfdi {
+
+    font-size: 7.5px;
+
+
+
+    white-space: nowrap;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   TOTAL
+
+===================================================== */
+
+
+
+.total-cfdi {
+
+    font-size: 8px;
+
+    font-weight: 600;
+
+
+
+    white-space: nowrap;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   ESTADO
+
+===================================================== */
+
+
+
+.estado-cfdi {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+
+
+    min-width: 62px;
+
+
+
+    padding: 3px 8px;
+
+
+
+    border-radius: 15px;
+
+
+
+    background: var(--surface-ground);
+
+
+
+    font-size: 7px;
+
+    font-weight: 600;
+
+
+
+    white-space: nowrap;
+
+}
+
+
+
+.estado-vigente {
+
+    background: rgba(34, 197, 94, 0.1);
+
+
+
+    color: var(--green-600);
+
+}
+
+
+
+.estado-cancelado {
+
+    background: rgba(239, 68, 68, 0.1);
+
+
+
+    color: var(--red-600);
+
+}
+
+
+
+
+
+/* =====================================================
+
+   XML
+
+===================================================== */
+
+
+
+.acciones-cfdi {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+
+.boton-accion {
+
+    width: 27px !important;
+
+    height: 27px !important;
+
+    min-width: 27px !important;
+
+
+
+    padding: 0 !important;
+
+
+
+    border-radius: 6px !important;
+
+}
+
+
+
+.boton-xml {
+
+    background: #22c55e !important;
+
+    border-color: #22c55e !important;
+
+
+
+    color: white !important;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   PAGINADOR
+
+===================================================== */
+
+
+
+:deep(.tabla-cfdi .p-paginator) {
+
+    min-height: 42px;
+
+
+
+    padding: 6px 8px;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   SCROLLBAR
+
+===================================================== */
+
+
+
+:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar),
+
+:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar) {
+
+    width: 8px;
+
+    height: 8px;
+
+}
+
+
+
+:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-thumb),
+
+:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar-thumb) {
+
+    border-radius: 6px;
+
+
+
+    background: rgba(120, 120, 120, 0.55);
+
+}
+
+
+
+:deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-track),
+
+:deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar-track) {
+
+    background: transparent;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   TABLA VACIA
+
+===================================================== */
+
+
+
+.tabla-vacia {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+
+
+    gap: 6px;
+
+
+
+    min-height: 110px;
+
+
+
+    opacity: 0.55;
+
+}
+
+
+
+.tabla-vacia i {
+
+    font-size: 25px;
+
+}
+
+
+
+.tabla-vacia span {
+
+    font-size: 9px;
+
+}
+
+
+
+
+
+/* =====================================================
+
+   PRIMEVUE
+
+===================================================== */
+
+
 
 :deep(.sat-card .p-inputtext),
+
 :deep(.sat-card .p-dropdown),
+
 :deep(.sat-card .p-select),
+
 :deep(.sat-card .p-calendar) {
+
     font-size: 10px;
+
 }
+
+
 
 :deep(.sat-card .p-button) {
+
     font-size: 10px;
+
 }
+
+
 
 :deep(.sat-card .p-dropdown-label) {
+
     font-size: 10px;
+
 }
 
+
+
 :deep(.sat-card .p-inputtext) {
+
     padding-top: 8px;
+
     padding-bottom: 8px;
+
 }
+
+
+
 
 
 /* =====================================================
+
    RESPONSIVE 1100
+
 ===================================================== */
+
+
 
 @media (max-width: 1100px) {
 
+
+
     .validacion-compacta {
+
         align-items: stretch;
 
+
+
         flex-direction: column;
+
     }
+
+
 
     .validacion-compacta-datos {
+
         grid-template-columns: repeat(
+
             3,
+
             minmax(0, 1fr)
+
         );
+
     }
 
+
+
     .consulta-filtros {
+
         grid-template-columns: repeat(
+
             2,
+
             minmax(0, 1fr)
+
         );
+
     }
+
 }
 
 
+
+
+
 /* =====================================================
+
    RESPONSIVE 850
+
 ===================================================== */
+
+
 
 @media (max-width: 850px) {
 
+
+
     .form-sat-portal {
+
         padding: 15px 12px 30px 12px;
+
     }
+
+
 
     .sat-card {
+
         padding: 16px;
+
     }
+
+
 
     .empresa-resumen {
+
         align-items: stretch;
 
+
+
         flex-direction: column;
+
     }
+
+
 
     .empresa-resumen-datos {
+
         grid-template-columns: repeat(
+
             3,
+
             minmax(0, 1fr)
+
         );
+
     }
+
+
 
     .validacion-compacta-datos {
+
         grid-template-columns: repeat(
+
             2,
+
             minmax(0, 1fr)
+
         );
+
     }
+
+
 
     .resultados-header {
+
         align-items: stretch;
 
+
+
         flex-direction: column;
+
     }
+
+
 
     .acciones-resultados {
+
         width: 100%;
 
+
+
         margin-left: 0;
+
     }
+
+
 
     .buscador-tabla {
+
         flex: 1;
 
+
+
         width: auto;
+
         min-width: 0;
+
     }
+
 }
 
 
+
+
+
 /* =====================================================
+
    RESPONSIVE 600
+
 ===================================================== */
+
+
 
 @media (max-width: 600px) {
 
+
+
     .empresa-resumen-datos,
+
     .validacion-compacta-datos,
+
     .consulta-filtros {
+
         grid-template-columns: 1fr;
+
     }
+
+
 
     .acciones-formulario {
+
         flex-direction: column-reverse;
+
     }
+
+
 
     .acciones-formulario .p-button {
+
         width: 100%;
+
     }
+
+
 
     .consulta-botones {
+
         flex-direction: column;
+
     }
+
+
 
     .consulta-botones .p-button {
+
         width: 100%;
+
     }
+
+
 
     .sesion-compacta {
+
         align-items: flex-start;
 
+
+
         flex-direction: column;
+
     }
+
+
 
     .acciones-resultados {
+
         flex-direction: column;
+
         align-items: stretch;
+
     }
+
+
 
     .buscador-tabla {
+
         width: 100%;
+
     }
 
+
+
     .btn-excel {
+
         width: 100%;
+
     }
+
 }

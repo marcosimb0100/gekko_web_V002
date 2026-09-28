@@ -7,6 +7,7 @@ import {
     apiPost_token,
     apiPost_token_file,
     apiPost_token_formdata,
+    apiPost_token_sinCargando,
     apiPost_tokenCliente_formdata,
     apiPut_token,
     apiPut_token_formdata,
@@ -485,5 +486,60 @@ export const apiPostTokenFile = async ({ commit }, { direccion, datosJson }) => 
         };
     } finally {
         commit('visibleCargandoMutation');
+    }
+};
+
+// ==========================================================
+// POST CON TOKEN SIN LOADER GLOBAL
+//
+// Pensado para procesos largos que manejan su propio
+// indicador visual dentro del componente.
+//
+// NO modifica visibleCargandoMutation.
+// ==========================================================
+
+export const apiPostTokenSinCargando = async ({ commit }, { direccion, datosJson }) => {
+    try {
+        const { estatus, mensaje, datos } = await apiPost_token_sinCargando(direccion, datosJson);
+
+        // ======================================================
+        // SESION
+        // ======================================================
+
+        if (estatus === 401 || estatus === 402) {
+            localStorage.clear();
+
+            router.replace({
+                name: 'acceso'
+            });
+        }
+
+        if (estatus === 403) {
+            router.replace({
+                name: 'notfound'
+            });
+        }
+
+        // ======================================================
+        // RESPUESTA
+        // ======================================================
+
+        return {
+            estatus: estatus,
+
+            mensaje: mensaje,
+
+            datos: datos ?? {}
+        };
+    } catch (error) {
+        console.error('ERROR apiPostTokenSinCargando:', error);
+
+        return {
+            estatus: 500,
+
+            mensaje: error?.message || 'No fue posible realizar la petición.',
+
+            datos: {}
+        };
     }
 };
