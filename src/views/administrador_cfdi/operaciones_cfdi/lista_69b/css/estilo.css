@@ -1,0 +1,599 @@
+/* =====================================================
+   CONTENEDOR PRINCIPAL
+===================================================== */
+
+.contenedor-lista-69b {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.resumen-lista {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            minmax(150px, 1fr)
+        );
+
+    gap: 10px;
+}
+
+
+.resumen-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 78px;
+
+    padding: 12px 15px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 10px;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.resumen-card:hover {
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 3px 10px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+.resumen-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.12
+        );
+
+    font-size: 17px;
+}
+
+
+.resumen-card > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.resumen-card span {
+    font-size: 10px;
+
+    opacity: 0.7;
+
+    white-space: nowrap;
+}
+
+
+.resumen-card strong {
+    margin-top: 2px;
+
+    font-size: 21px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   COLORES RESUMEN
+===================================================== */
+
+.resumen-presunto {
+    border-left:
+        4px solid
+        #f59e0b;
+}
+
+
+.resumen-definitivo {
+    border-left:
+        4px solid
+        #ef4444;
+}
+
+
+.resumen-desvirtuado {
+    border-left:
+        4px solid
+        #22c55e;
+}
+
+
+.resumen-sentencia {
+    border-left:
+        4px solid
+        #0ea5e9;
+}
+
+
+/* =====================================================
+   PANEL INFORMACION
+===================================================== */
+
+.panel-informacion {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(200px, 1fr)
+        );
+
+    gap: 10px;
+
+    padding: 13px 16px;
+
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 10px;
+}
+
+
+.informacion-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 48px;
+}
+
+
+.informacion-icono {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 8px;
+
+    color:
+        var(--primary-color);
+
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.12
+        );
+}
+
+
+.informacion-item > div:last-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.informacion-item span {
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+
+.informacion-item strong {
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   PANEL TABLA
+===================================================== */
+
+.panel-tabla {
+    background:
+        var(--surface-card);
+
+    border:
+        1px solid
+        var(--surface-border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   CABECERA TABLA
+===================================================== */
+
+.cabecera-tabla {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 12px 16px;
+
+    border-bottom:
+        1px solid
+        var(--surface-border);
+}
+
+
+.cabecera-tabla > div:first-child {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.cabecera-tabla h3 {
+    margin: 0;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.cabecera-tabla span {
+    font-size: 10px;
+
+    opacity: 0.65;
+}
+
+
+/* =====================================================
+   ACCIONES TABLA
+===================================================== */
+
+.acciones-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    flex-wrap: wrap;
+}
+
+
+.buscador-tabla {
+    width: 280px;
+}
+
+
+.filtro-situacion {
+    width: 190px;
+}
+
+
+/* =====================================================
+   TABLA
+===================================================== */
+
+:deep(.tabla-lista-69b) {
+    font-size: 10px;
+}
+
+
+:deep(
+    .tabla-lista-69b
+    .p-datatable-wrapper
+) {
+    border-radius: 0;
+}
+
+
+:deep(
+    .tabla-lista-69b
+    .p-datatable-thead
+    > tr
+    > th
+) {
+    padding: 7px 8px;
+
+    white-space: nowrap;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+:deep(
+    .tabla-lista-69b
+    .p-datatable-tbody
+    > tr
+    > td
+) {
+    padding: 7px 8px;
+
+    vertical-align: middle;
+}
+
+
+:deep(
+    .tabla-lista-69b
+    .p-datatable-tbody
+    > tr
+) {
+    transition:
+        background-color
+        0.1s ease;
+}
+
+
+/* =====================================================
+   ENCABEZADOS
+===================================================== */
+
+:deep(.encabezado-columna) {
+    background:
+        rgb(
+            106,
+            196,
+            202
+        ) !important;
+
+    border-color:
+        rgb(
+            106,
+            196,
+            202
+        ) !important;
+
+    font-weight:
+        600 !important;
+}
+
+
+/* =====================================================
+   DATOS
+===================================================== */
+
+.rfc-tabla {
+    font-family:
+        Consolas,
+        Monaco,
+        monospace;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.nombre-contribuyente {
+    display: block;
+
+    max-width: 430px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   TAG
+===================================================== */
+
+:deep(
+    .tabla-lista-69b
+    .p-tag
+) {
+    font-size: 9px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   PAGINADOR
+===================================================== */
+
+:deep(
+    .tabla-lista-69b
+    .p-paginator
+) {
+    padding: 6px 10px;
+
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   TABLA VACIA
+===================================================== */
+
+.tabla-vacia {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    min-height: 180px;
+
+    color:
+        var(--text-color-secondary);
+}
+
+
+.tabla-vacia i {
+    margin-bottom: 5px;
+
+    font-size: 30px;
+
+    color:
+        var(--primary-color);
+}
+
+
+.tabla-vacia strong {
+    font-size: 12px;
+}
+
+
+.tabla-vacia span {
+    font-size: 10px;
+
+    opacity: 0.7;
+}
+
+
+/* =====================================================
+   DARK MODE
+===================================================== */
+
+:global(.app-dark)
+.resumen-icono,
+:global(.app-dark)
+.informacion-icono {
+    background:
+        rgba(
+            42,
+            194,
+            211,
+            0.16
+        );
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media screen and (max-width: 1300px) {
+
+    .resumen-lista {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(150px, 1fr)
+            );
+    }
+
+}
+
+
+@media screen and (max-width: 1000px) {
+
+    .cabecera-tabla {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .acciones-tabla {
+        width: 100%;
+    }
+
+
+    .buscador-tabla {
+        width: 250px;
+    }
+
+
+    .panel-informacion {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+@media screen and (max-width: 700px) {
+
+    .resumen-lista {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .acciones-tabla {
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+    }
+
+
+    .filtro-situacion,
+    .buscador-tabla {
+        width: 100%;
+    }
+
+}

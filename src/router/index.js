@@ -193,6 +193,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_consultas_sat" */ '../views/administrador_cfdi/operaciones_cfdi/consultas_sat/ConsultasSat.vue')
                 },
                 {
+                    path: '/administrador_cfdi/operaciones_cfdi/lista_69b',
+                    name: 'administrador_cfdi_operaciones_cfdi_lista_69b',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_lista_69b" */ '../views/administrador_cfdi/operaciones_cfdi/lista_69b/Lista69B.vue')
+                },
+                {
                     path: '/administrador_cfdi/reportes_cfdi/cfdis',
                     name: 'administrador_cfdi_reportes_cfdi_cfdis',
                     beforeEnter: permisoRutas,
