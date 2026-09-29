@@ -501,69 +501,572 @@ const useProceso = () => {
             return;
         }
 
-        const data = catConciliacionFiltrada.value.map((item) => ({
-            'Estado Conciliación': item.estadoConciliacion,
-
-            'Estado SAT': item.estadoSat,
-
-            Serie: item.serie,
-
-            Folio: item.folio,
-
-            'UUID Factura': item.uuidFactura,
-
-            'Fecha Factura': item.fechaFactura,
-
-            'Fecha Timbrado': item.fechaTimbrado,
-
-            'RFC Emisor': item.rfcEmisor,
-
-            'Nombre Emisor': item.nombreEmisor,
-
-            'RFC Receptor': item.rfcReceptor,
-
-            'Nombre Receptor': item.nombreReceptor,
-
-            'Método Pago': item.metodoPago,
-
-            'Forma Pago': item.formaPago,
-
-            Moneda: item.moneda,
-
-            'Total Factura': Number(item.totalFactura || 0),
-
-            'Notas Crédito': Number(item.totalNotasCredito || 0),
-
-            'Total Neto': Number(item.totalNeto || 0),
-
-            'Total Pagado': Number(item.totalPagado || 0),
-
-            Saldo: Number(item.saldo || 0),
-
-            'Número Pagos': item.numeroPagos,
-
-            'Última Parcialidad': item.ultimaParcialidad,
-
-            'Saldo Último Complemento': Number(item.saldoUltimoComplemento || 0),
-
-            Diferencia: Number(item.diferencia || 0),
-
-            Alertas: (item.banderas || []).join(', '),
-
-            'Notas Relacionadas': (item.notasCredito || []).length,
-
-            Sustituciones: (item.sustituciones || []).length,
-
-            'Relaciones CFDI': (item.relaciones || []).length
-        }));
-
-        const worksheet = XLSX.utils.json_to_sheet(data);
+        // ============================================================
+        // LIBRO
+        // ============================================================
 
         const workbook = XLSX.utils.book_new();
 
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Conciliacion');
+        // ============================================================
+        // 1. RESUMEN
+        // ============================================================
 
-        XLSX.writeFile(workbook, `${frmFiltros.empresa}_Conciliacion_${formatFechaLocal(frmFiltros.fechaInicial)}_${formatFechaLocal(frmFiltros.fechaFinal)}.xlsx`);
+        const datosResumen = [
+            {
+                Concepto: 'Total facturado',
+
+                Importe: Number(resumen.totalFacturado || 0)
+            },
+
+            {
+                Concepto: 'Notas de crédito',
+
+                Importe: Number(resumen.totalNotasCredito || 0)
+            },
+
+            {
+                Concepto: 'Total neto',
+
+                Importe: Number(resumen.totalNeto || 0)
+            },
+
+            {
+                Concepto: 'Total pagado',
+
+                Importe: Number(resumen.totalPagado || 0)
+            },
+
+            {
+                Concepto: 'Saldo pendiente',
+
+                Importe: Number(resumen.totalSaldo || 0)
+            },
+
+            {
+                Concepto: 'Facturas conciliadas',
+
+                Importe: Number(resumen.conciliadas || 0)
+            },
+
+            {
+                Concepto: 'Facturas parciales',
+
+                Importe: Number(resumen.parciales || 0)
+            },
+
+            {
+                Concepto: 'Facturas sin pago',
+
+                Importe: Number(resumen.sinPago || 0)
+            },
+
+            {
+                Concepto: 'Facturas canceladas',
+
+                Importe: Number(resumen.canceladas || 0)
+            },
+
+            {
+                Concepto: 'Facturas sustituidas',
+
+                Importe: Number(resumen.sustituidas || 0)
+            },
+
+            {
+                Concepto: 'Con diferencia',
+
+                Importe: Number(resumen.conDiferencia || 0)
+            }
+        ];
+
+        const wsResumen = XLSX.utils.json_to_sheet(datosResumen);
+
+        wsResumen['!cols'] = [
+            {
+                wch: 30
+            },
+
+            {
+                wch: 20
+            }
+        ];
+
+        XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen');
+
+        // ============================================================
+        // 2. ESTADO DE CUENTA
+        // ============================================================
+
+        const movimientos = [];
+
+        catConciliacionFiltrada.value.forEach((factura) => {
+            let saldoMovimiento = Number(factura.totalFactura || 0);
+
+            // ====================================================
+            // FACTURA
+            // ====================================================
+
+            movimientos.push({
+                'UUID Factura': factura.uuidFactura,
+
+                'Serie Factura': factura.serie,
+
+                'Folio Factura': factura.folio,
+
+                'RFC Receptor': factura.rfcReceptor,
+
+                'Nombre Receptor': factura.nombreReceptor,
+
+                'Fecha Movimiento': factura.fechaFactura,
+
+                'Tipo Movimiento': 'FACTURA',
+
+                'Serie/Folio Movimiento': [factura.serie, factura.folio].filter(Boolean).join('-'),
+
+                'UUID Movimiento': factura.uuidFactura,
+
+                Concepto: 'Factura',
+
+                Parcialidad: '',
+
+                Cargo: Number(factura.totalFactura || 0),
+
+                Abono: 0,
+
+                Saldo: saldoMovimiento,
+
+                'Estado SAT': factura.estadoSat,
+
+                'Estado Conciliación': factura.estadoConciliacion,
+
+                'Tipo Relación': '',
+
+                Aplica: 'Sí'
+            });
+
+            // ====================================================
+            // CREAR LISTA DE MOVIMIENTOS DE NOTAS Y PAGOS
+            // PARA ORDENAR POR FECHA
+            // ====================================================
+
+            const detalleMovimientos = [];
+
+            // ====================================================
+            // NOTAS DE CREDITO
+            // ====================================================
+
+            (factura.notasCredito || []).forEach((nota) => {
+                detalleMovimientos.push({
+                    tipo: 'NOTA DE CRÉDITO',
+
+                    fecha: nota.fecha,
+
+                    uuid: nota.uuid,
+
+                    serie: nota.serie,
+
+                    folio: nota.folio,
+
+                    concepto: 'Nota de crédito',
+
+                    parcialidad: '',
+
+                    importe: Number(nota.total || 0),
+
+                    estadoSat: nota.estadoSat,
+
+                    tipoRelacion: nota.tipoRelacion,
+
+                    aplica: Boolean(nota.aplicaConciliacion)
+                });
+            });
+
+            // ====================================================
+            // PAGOS
+            // ====================================================
+
+            (factura.pagos || []).forEach((pago) => {
+                detalleMovimientos.push({
+                    tipo: 'PAGO',
+
+                    fecha: pago.fechaPago || pago.fechaEmision,
+
+                    uuid: pago.uuidPago,
+
+                    serie: pago.serie,
+
+                    folio: pago.folio,
+
+                    concepto: 'Complemento de pago',
+
+                    parcialidad: pago.numParcialidad,
+
+                    importe: Number(pago.impPagado || 0),
+
+                    estadoSat: pago.estadoSat,
+
+                    tipoRelacion: '',
+
+                    aplica: Boolean(pago.aplicaConciliacion)
+                });
+            });
+
+            // ====================================================
+            // ORDEN CRONOLOGICO
+            // ====================================================
+
+            detalleMovimientos.sort((a, b) => {
+                const fechaA = new Date(a.fecha || 0);
+
+                const fechaB = new Date(b.fecha || 0);
+
+                return fechaA - fechaB;
+            });
+
+            // ====================================================
+            // GENERAR MOVIMIENTOS
+            // ====================================================
+
+            detalleMovimientos.forEach((movimiento) => {
+                let abono = 0;
+
+                if (movimiento.aplica) {
+                    abono = movimiento.importe;
+
+                    saldoMovimiento -= abono;
+
+                    if (saldoMovimiento < 0) {
+                        saldoMovimiento = 0;
+                    }
+                }
+
+                movimientos.push({
+                    'UUID Factura': factura.uuidFactura,
+
+                    'Serie Factura': factura.serie,
+
+                    'Folio Factura': factura.folio,
+
+                    'RFC Receptor': factura.rfcReceptor,
+
+                    'Nombre Receptor': factura.nombreReceptor,
+
+                    'Fecha Movimiento': movimiento.fecha,
+
+                    'Tipo Movimiento': movimiento.tipo,
+
+                    'Serie/Folio Movimiento': [movimiento.serie, movimiento.folio].filter(Boolean).join('-'),
+
+                    'UUID Movimiento': movimiento.uuid,
+
+                    Concepto: movimiento.concepto,
+
+                    Parcialidad: movimiento.parcialidad,
+
+                    Cargo: 0,
+
+                    Abono: abono,
+
+                    Saldo: saldoMovimiento,
+
+                    'Estado SAT': movimiento.estadoSat,
+
+                    'Estado Conciliación': factura.estadoConciliacion,
+
+                    'Tipo Relación': movimiento.tipoRelacion,
+
+                    Aplica: movimiento.aplica ? 'Sí' : 'No'
+                });
+            });
+
+            // ====================================================
+            // SEPARADOR VISUAL
+            // ====================================================
+
+            movimientos.push({
+                'UUID Factura': '',
+
+                'Serie Factura': '',
+
+                'Folio Factura': '',
+
+                'RFC Receptor': '',
+
+                'Nombre Receptor': '',
+
+                'Fecha Movimiento': '',
+
+                'Tipo Movimiento': '',
+
+                'Serie/Folio Movimiento': '',
+
+                'UUID Movimiento': '',
+
+                Concepto: 'SALDO FINAL',
+
+                Parcialidad: '',
+
+                Cargo: 0,
+
+                Abono: 0,
+
+                Saldo: Number(factura.saldo || 0),
+
+                'Estado SAT': '',
+
+                'Estado Conciliación': factura.estadoConciliacion,
+
+                'Tipo Relación': '',
+
+                Aplica: ''
+            });
+        });
+
+        const wsEstadoCuenta = XLSX.utils.json_to_sheet(movimientos);
+
+        wsEstadoCuenta['!cols'] = [
+            {
+                wch: 38
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 38
+            },
+
+            {
+                wch: 24
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 15
+            },
+
+            {
+                wch: 10
+            }
+        ];
+
+        XLSX.utils.book_append_sheet(workbook, wsEstadoCuenta, 'Estado de Cuenta');
+
+        // ============================================================
+        // 3. PAGOS
+        // ============================================================
+
+        const pagos = [];
+
+        catConciliacionFiltrada.value.forEach((factura) => {
+            (factura.pagos || []).forEach((pago) => {
+                pagos.push({
+                    'UUID Factura': factura.uuidFactura,
+
+                    'Serie Factura': factura.serie,
+
+                    'Folio Factura': factura.folio,
+
+                    'RFC Receptor': factura.rfcReceptor,
+
+                    'Nombre Receptor': factura.nombreReceptor,
+
+                    'UUID Pago': pago.uuidPago,
+
+                    'Serie Pago': pago.serie,
+
+                    'Folio Pago': pago.folio,
+
+                    'Fecha Emisión': pago.fechaEmision,
+
+                    'Fecha Pago': pago.fechaPago,
+
+                    'Forma Pago': pago.formaDePagoP,
+
+                    'Moneda Pago': pago.monedaP,
+
+                    Parcialidad: pago.numParcialidad,
+
+                    'Saldo Anterior': Number(pago.impSaldoAnt || 0),
+
+                    'Importe Pagado': Number(pago.impPagado || 0),
+
+                    'Saldo Insoluto': Number(pago.impSaldoInsoluto || 0),
+
+                    'Monto Complemento': Number(pago.montoPago || 0),
+
+                    'Estado SAT': pago.estadoSat,
+
+                    'Aplica Conciliación': pago.aplicaConciliacion ? 'Sí' : 'No'
+                });
+            });
+        });
+
+        const wsPagos = XLSX.utils.json_to_sheet(pagos);
+
+        XLSX.utils.book_append_sheet(workbook, wsPagos, 'Pagos');
+
+        // ============================================================
+        // 4. NOTAS DE CREDITO
+        // ============================================================
+
+        const notas = [];
+
+        catConciliacionFiltrada.value.forEach((factura) => {
+            (factura.notasCredito || []).forEach((nota) => {
+                notas.push({
+                    'UUID Factura': factura.uuidFactura,
+
+                    'Serie Factura': factura.serie,
+
+                    'Folio Factura': factura.folio,
+
+                    'RFC Receptor': factura.rfcReceptor,
+
+                    'Nombre Receptor': factura.nombreReceptor,
+
+                    'UUID Nota': nota.uuid,
+
+                    'Serie Nota': nota.serie,
+
+                    'Folio Nota': nota.folio,
+
+                    Fecha: nota.fecha,
+
+                    'Tipo Relación': nota.tipoRelacion,
+
+                    Moneda: nota.moneda,
+
+                    'Total Nota': Number(nota.total || 0),
+
+                    'Estado SAT': nota.estadoSat,
+
+                    'Aplica Conciliación': nota.aplicaConciliacion ? 'Sí' : 'No'
+                });
+            });
+        });
+
+        const wsNotas = XLSX.utils.json_to_sheet(notas);
+
+        XLSX.utils.book_append_sheet(workbook, wsNotas, 'Notas Credito');
+
+        // ============================================================
+        // 5. SUSTITUCIONES
+        // ============================================================
+
+        const sustituciones = [];
+
+        catConciliacionFiltrada.value.forEach((factura) => {
+            (factura.sustituciones || []).forEach((sustitucion) => {
+                sustituciones.push({
+                    'UUID Factura Original': factura.uuidFactura,
+
+                    'Serie Original': factura.serie,
+
+                    'Folio Original': factura.folio,
+
+                    'UUID Sustituto': sustitucion.uuid,
+
+                    'Serie Sustituto': sustitucion.serie,
+
+                    'Folio Sustituto': sustitucion.folio,
+
+                    'Fecha Sustituto': sustitucion.fecha,
+
+                    Total: Number(sustitucion.total || 0),
+
+                    'Estado SAT': sustitucion.estadoSat,
+
+                    'Tipo Relación': sustitucion.tipoRelacion
+                });
+            });
+        });
+
+        const wsSustituciones = XLSX.utils.json_to_sheet(sustituciones);
+
+        XLSX.utils.book_append_sheet(workbook, wsSustituciones, 'Sustituciones');
+
+        // ============================================================
+        // 6. RELACIONES
+        // ============================================================
+
+        const relaciones = [];
+
+        catConciliacionFiltrada.value.forEach((factura) => {
+            (factura.relaciones || []).forEach((relacion) => {
+                relaciones.push({
+                    'UUID Factura': factura.uuidFactura,
+
+                    Serie: factura.serie,
+
+                    Folio: factura.folio,
+
+                    'Tipo Relación': relacion.tipoRelacion,
+
+                    'UUID Origen': relacion.uuid,
+
+                    'UUID Relacionado': relacion.uuidRelacionado
+                });
+            });
+        });
+
+        const wsRelaciones = XLSX.utils.json_to_sheet(relaciones);
+
+        XLSX.utils.book_append_sheet(workbook, wsRelaciones, 'Relaciones CFDI');
+
+        // ============================================================
+        // GUARDAR
+        // ============================================================
+
+        XLSX.writeFile(workbook, `${frmFiltros.empresa}_Conciliacion_EstadoCuenta_${formatFechaLocal(frmFiltros.fechaInicial)}_${formatFechaLocal(frmFiltros.fechaFinal)}.xlsx`);
     };
 
     // ============================================================
