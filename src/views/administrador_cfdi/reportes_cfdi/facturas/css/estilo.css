@@ -1,0 +1,107 @@
+.filtros-facturas {
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 2fr)
+        140px
+        150px
+        170px
+        160px
+        160px
+        42px
+        42px;
+
+    gap: 8px;
+
+    align-items: end;
+
+    padding: 18px 20px 10px 20px;
+}
+
+.campo-filtro {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.campo-filtro label {
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+.boton-filtro {
+    width: 40px !important;
+
+    height: 40px;
+
+    padding: 0 !important;
+}
+
+.barra-busqueda {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 20px 10px 20px;
+}
+
+.total-registros {
+    font-size: 11px;
+
+    color: var(--text-color-secondary);
+}
+
+:deep(.tabla-facturas .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-facturas .p-datatable-tbody > tr > td) {
+    padding: 6px 8px;
+
+    vertical-align: middle;
+}
+
+:deep(.tabla-facturas .nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-facturas .numero) {
+    text-align: right;
+
+    white-space: nowrap;
+
+    font-variant-numeric: tabular-nums;
+}
+
+:deep(.tabla-facturas .total-cfdi) {
+    font-weight: 700;
+}
+
+@media (max-width: 1300px) {
+    .filtros-facturas {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .filtros-facturas {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .barra-busqueda {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 8px;
+    }
+}

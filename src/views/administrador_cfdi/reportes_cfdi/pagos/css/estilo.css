@@ -1,0 +1,108 @@
+.filtros-reporte-pagos {
+    display: grid;
+
+    grid-template-columns:
+        minmax(230px, 2fr)
+        130px
+        150px
+        145px
+        160px
+        155px
+        155px
+        42px
+        42px;
+
+    gap: 8px;
+
+    align-items: end;
+
+    padding: 18px 20px 10px 20px;
+}
+
+.campo-filtro {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    min-width: 0;
+}
+
+.campo-filtro label {
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+.boton-filtro {
+    width: 40px !important;
+
+    height: 40px;
+
+    padding: 0 !important;
+}
+
+.barra-busqueda {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 0 20px 10px 20px;
+}
+
+.total-registros {
+    font-size: 11px;
+
+    color: var(--text-color-secondary);
+}
+
+:deep(.tabla-reporte-pagos .p-datatable-thead > tr > th) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-reporte-pagos .p-datatable-tbody > tr > td) {
+    padding: 6px 8px;
+
+    vertical-align: middle;
+}
+
+:deep(.tabla-reporte-pagos .nowrap) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-reporte-pagos .numero) {
+    text-align: right;
+
+    white-space: nowrap;
+
+    font-variant-numeric: tabular-nums;
+}
+
+:deep(.tabla-reporte-pagos .total-cfdi) {
+    font-weight: 700;
+}
+
+@media (max-width: 1350px) {
+    .filtros-reporte-pagos {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .filtros-reporte-pagos {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .barra-busqueda {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 8px;
+    }
+}

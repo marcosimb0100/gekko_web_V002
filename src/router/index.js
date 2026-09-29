@@ -216,6 +216,18 @@ const router = createRouter({
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_cfdis_cancelados" */ '../views/administrador_cfdi/reportes_cfdi/cfdis_cancelados/CfdisCancelados.vue')
                 },
+                {
+                    path: '/administrador_cfdi/reportes_cfdi/facturas',
+                    name: 'administrador_cfdi_reportes_cfdi_facturas',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_facturas" */ '../views/administrador_cfdi/reportes_cfdi/facturas/Facturas.vue')
+                },
+                {
+                    path: '/administrador_cfdi/reportes_cfdi/pagos',
+                    name: 'administrador_cfdi_reportes_cfdi_pagos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_pagos" */ '../views/administrador_cfdi/reportes_cfdi/reportes_cfdi/pagos/Pagos.vue')
+                },
 
                 {
                     path: '/bancos/layouts',
