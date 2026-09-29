@@ -493,6 +493,49 @@ const useProceso = () => {
     };
 
     // ============================================================
+    // APLICAR FORMATO MONEDA A COLUMNAS
+    // ============================================================
+
+    const aplicarFormatoMoneda = (worksheet, columnas, filaInicial = 1, filaFinal = null) => {
+        if (!worksheet || !worksheet['!ref']) {
+            return;
+        }
+
+        const rango = XLSX.utils.decode_range(worksheet['!ref']);
+
+        const inicio = Math.max(filaInicial, 1);
+
+        const fin = filaFinal !== null ? Math.min(filaFinal, rango.e.r) : rango.e.r;
+
+        for (let fila = inicio; fila <= fin; fila++) {
+            columnas.forEach((columna) => {
+                const referencia = XLSX.utils.encode_cell({
+                    r: fila,
+                    c: columna
+                });
+
+                const celda = worksheet[referencia];
+
+                if (!celda) {
+                    return;
+                }
+
+                const numero = Number(celda.v);
+
+                if (Number.isNaN(numero)) {
+                    return;
+                }
+
+                celda.v = numero;
+
+                celda.t = 'n';
+
+                celda.z = '$#,##0.00';
+            });
+        }
+    };
+
+    // ============================================================
     // EXPORTAR EXCEL
     // ============================================================
 
@@ -587,9 +630,23 @@ const useProceso = () => {
             },
 
             {
-                wch: 20
+                wch: 22
             }
         ];
+
+        // ------------------------------------------------------------
+        // SOLO LOS PRIMEROS 5 REGISTROS SON MONEDA
+        //
+        // A = Concepto
+        // B = Importe
+        //
+        // Encabezado = fila 0
+        // Datos = filas 1 a 11
+        //
+        // Queremos moneda sólo filas 1 a 5
+        // ------------------------------------------------------------
+
+        aplicarFormatoMoneda(wsResumen, [1], 1, 5);
 
         XLSX.utils.book_append_sheet(workbook, wsResumen, 'Resumen');
 
@@ -645,8 +702,7 @@ const useProceso = () => {
             });
 
             // ====================================================
-            // CREAR LISTA DE MOVIMIENTOS DE NOTAS Y PAGOS
-            // PARA ORDENAR POR FECHA
+            // MOVIMIENTOS SECUNDARIOS
             // ====================================================
 
             const detalleMovimientos = [];
@@ -780,7 +836,7 @@ const useProceso = () => {
             });
 
             // ====================================================
-            // SEPARADOR VISUAL
+            // SALDO FINAL
             // ====================================================
 
             movimientos.push({
@@ -898,6 +954,16 @@ const useProceso = () => {
             }
         ];
 
+        // ------------------------------------------------------------
+        // ESTADO DE CUENTA
+        //
+        // L = Cargo  -> índice 11
+        // M = Abono  -> índice 12
+        // N = Saldo  -> índice 13
+        // ------------------------------------------------------------
+
+        aplicarFormatoMoneda(wsEstadoCuenta, [11, 12, 13]);
+
         XLSX.utils.book_append_sheet(workbook, wsEstadoCuenta, 'Estado de Cuenta');
 
         // ============================================================
@@ -952,6 +1018,17 @@ const useProceso = () => {
 
         const wsPagos = XLSX.utils.json_to_sheet(pagos);
 
+        // ------------------------------------------------------------
+        // PAGOS
+        //
+        // N = Saldo Anterior      -> 13
+        // O = Importe Pagado      -> 14
+        // P = Saldo Insoluto      -> 15
+        // Q = Monto Complemento   -> 16
+        // ------------------------------------------------------------
+
+        aplicarFormatoMoneda(wsPagos, [13, 14, 15, 16]);
+
         XLSX.utils.book_append_sheet(workbook, wsPagos, 'Pagos');
 
         // ============================================================
@@ -996,6 +1073,12 @@ const useProceso = () => {
 
         const wsNotas = XLSX.utils.json_to_sheet(notas);
 
+        // ------------------------------------------------------------
+        // L = Total Nota -> índice 11
+        // ------------------------------------------------------------
+
+        aplicarFormatoMoneda(wsNotas, [11]);
+
         XLSX.utils.book_append_sheet(workbook, wsNotas, 'Notas Credito');
 
         // ============================================================
@@ -1031,6 +1114,12 @@ const useProceso = () => {
         });
 
         const wsSustituciones = XLSX.utils.json_to_sheet(sustituciones);
+
+        // ------------------------------------------------------------
+        // H = Total -> índice 7
+        // ------------------------------------------------------------
+
+        aplicarFormatoMoneda(wsSustituciones, [7]);
 
         XLSX.utils.book_append_sheet(workbook, wsSustituciones, 'Sustituciones');
 
