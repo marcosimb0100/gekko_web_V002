@@ -226,7 +226,13 @@ const router = createRouter({
                     path: '/administrador_cfdi/reportes_cfdi/pagos',
                     name: 'administrador_cfdi_reportes_cfdi_pagos',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_pagos" */ '../views/administrador_cfdi/reportes_cfdi/reportes_cfdi/pagos/Pagos.vue')
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_pagos" */ '../views/administrador_cfdi/reportes_cfdi/pagos/Pagos.vue')
+                },
+                {
+                    path: '/administrador_cfdi/reportes_cfdi/conciliacion',
+                    name: 'administrador_cfdi_reportes_cfdi_conciliacion',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_conciliacion" */ '../views/administrador_cfdi/reportes_cfdi/conciliacion/Conciliacion.vue')
                 },
 
                 {
