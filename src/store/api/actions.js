@@ -3,6 +3,7 @@ import {
     apiGet_blobTokenCliente,
     apiGet_token,
     apiGet_tokenCliente,
+    apiPost_blob,
     apiPost_sinToken,
     apiPost_token,
     apiPost_token_file,
@@ -541,5 +542,40 @@ export const apiPostTokenSinCargando = async ({ commit }, { direccion, datosJson
 
             datos: {}
         };
+    }
+};
+
+// ============================================================
+// POST BLOB
+// ============================================================
+
+export const apiPostblob = async ({ commit }, { direccion, datosJson }) => {
+    commit('visibleCargandoMutation');
+
+    try {
+        const { estatus, mensaje, data, headers } = await apiPost_blob(direccion, datosJson);
+
+        if (estatus === 401 || estatus === 402) {
+            localStorage.clear();
+
+            router.replace({
+                name: 'acceso'
+            });
+        }
+
+        if (estatus === 403) {
+            router.replace({
+                name: 'notfound'
+            });
+        }
+
+        return {
+            estatus,
+            mensaje,
+            data,
+            headers
+        };
+    } finally {
+        commit('visibleCargandoMutation');
     }
 };

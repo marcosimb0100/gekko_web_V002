@@ -1,3 +1,7 @@
+/* ============================================================
+   FILTROS
+============================================================ */
+
 .filtros-cfdi {
     display: grid;
 
@@ -18,8 +22,13 @@
     padding: 18px 20px 10px 20px;
 }
 
+/* ============================================================
+   CAMPOS
+============================================================ */
+
 .campo-filtro {
     display: flex;
+
     flex-direction: column;
 
     gap: 5px;
@@ -29,21 +38,113 @@
 
 .campo-filtro label {
     font-size: 12px;
+
     font-weight: 500;
 }
 
+/* ============================================================
+   BOTONES FILTROS
+============================================================ */
+
 .boton-filtro {
     width: 40px !important;
+
     height: 40px;
+
+    min-width: 40px !important;
+
     padding: 0 !important;
 }
 
+/* ============================================================
+   BARRA BUSQUEDA / DESCARGA
+============================================================ */
+
 .barra-busqueda {
     display: flex;
-    justify-content: flex-end;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
 
     padding: 0 20px 10px 20px;
 }
+
+/* ============================================================
+   ACCIONES CFDI
+============================================================ */
+
+.acciones-cfdi {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 36px;
+}
+
+/* ============================================================
+   BOTON DESCARGAR ZIP
+============================================================ */
+
+.btn-descargar-zip {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    height: 34px;
+
+    min-width: 145px;
+
+    padding: 0 12px;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+/* ============================================================
+   CONTADOR CFDI
+============================================================ */
+
+.contador-descarga {
+    display: inline-flex;
+
+    align-items: center;
+
+    height: 24px;
+
+    padding: 0 8px;
+
+    border-radius: 12px;
+
+    background: var(--surface-ground);
+
+    color: var(--text-color-secondary);
+
+    font-size: 10px;
+
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+/* ============================================================
+   BUSCADOR
+============================================================ */
+
+.buscador-cfdi {
+    width: 360px;
+}
+
+/* ============================================================
+   TABLA
+============================================================ */
 
 :deep(.tabla-cfdi .p-datatable-thead > tr > th) {
     white-space: nowrap;
@@ -51,6 +152,7 @@
 
 :deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
     padding: 6px 8px;
+
     vertical-align: middle;
 }
 
@@ -58,11 +160,21 @@
     white-space: nowrap;
 }
 
+/* ============================================================
+   TOTAL CFDI
+============================================================ */
+
 :deep(.tabla-cfdi .total-cfdi) {
     text-align: right;
+
     font-weight: 600;
+
     font-variant-numeric: tabular-nums;
 }
+
+/* ============================================================
+   ESTATUS
+============================================================ */
 
 .estatus-cfdi {
     display: inline-block;
@@ -72,6 +184,7 @@
     border-radius: 5px;
 
     font-size: 10px;
+
     font-weight: 600;
 
     white-space: nowrap;
@@ -85,9 +198,52 @@
     background: rgba(255, 0, 0, 0.16);
 }
 
-@media (max-width: 1200px) {
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media screen and (max-width: 1200px) {
     .filtros-cfdi {
         grid-template-columns:
-            1fr 1fr 1fr 1fr;
+            1fr
+            1fr
+            1fr
+            1fr;
+    }
+
+    .barra-busqueda {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .acciones-cfdi {
+        width: 100%;
+    }
+
+    .buscador-cfdi {
+        width: 320px;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .filtros-cfdi {
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+    .barra-busqueda {
+        padding: 0 12px 10px 12px;
+    }
+
+    .acciones-cfdi {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .buscador-cfdi {
+        width: 100%;
     }
 }

@@ -329,6 +329,47 @@ const useProceso = () => {
     };
 
     // ============================================================
+    // APLICAR FORMATO MONEDA A COLUMNAS DE EXCEL
+    // ============================================================
+
+    const aplicarFormatoMoneda = (worksheet, columnas) => {
+        if (!worksheet || !worksheet['!ref']) {
+            return;
+        }
+
+        const rango = XLSX.utils.decode_range(worksheet['!ref']);
+
+        // La fila 0 contiene encabezados.
+        // Los datos empiezan en la fila 1.
+        for (let fila = 1; fila <= rango.e.r; fila++) {
+            columnas.forEach((columna) => {
+                const referencia = XLSX.utils.encode_cell({
+                    r: fila,
+                    c: columna
+                });
+
+                const celda = worksheet[referencia];
+
+                if (!celda) {
+                    return;
+                }
+
+                const numero = Number(celda.v);
+
+                if (Number.isNaN(numero)) {
+                    return;
+                }
+
+                celda.v = numero;
+
+                celda.t = 'n';
+
+                celda.z = '$#,##0.00';
+            });
+        }
+    };
+
+    // ============================================================
     // EXPORTAR EXCEL
     // ============================================================
 
@@ -336,6 +377,10 @@ const useProceso = () => {
         if (!catFacturasFiltradas.value.length) {
             return;
         }
+
+        // ============================================================
+        // DATA
+        // ============================================================
 
         const data = catFacturasFiltradas.value.map((item) => ({
             'Estado SAT': item.estadoSat,
@@ -376,6 +421,10 @@ const useProceso = () => {
 
             UsoCFDI: item.usoCFDI,
 
+            // ==================================================
+            // IMPORTES
+            // ==================================================
+
             SubTotal: Number(item.subTotal || 0),
 
             Descuento: Number(item.descuento || 0),
@@ -402,6 +451,10 @@ const useProceso = () => {
 
             'Total Local Retenido': Number(item.totalLocalRetenido || 0),
 
+            // ==================================================
+            // DATOS CFDI
+            // ==================================================
+
             Complemento: item.complemento,
 
             Moneda: item.moneda,
@@ -419,6 +472,10 @@ const useProceso = () => {
             Conceptos: item.conceptos,
 
             Combustible: item.combustible,
+
+            // ==================================================
+            // IEPS
+            // ==================================================
 
             'IEPS 3%': Number(item.ieps3 || 0),
 
@@ -438,6 +495,10 @@ const useProceso = () => {
 
             'IEPS 160%': Number(item.ieps160 || 0),
 
+            // ==================================================
+            // XML / DIRECCIONES
+            // ==================================================
+
             'Archivo XML': item.archivoXML,
 
             'Direccion Emisor': item.direccionEmisor,
@@ -448,22 +509,253 @@ const useProceso = () => {
 
             'Localidad Receptor': item.localidadReceptor,
 
+            // ==================================================
+            // IMPUESTOS ADICIONALES
+            // ==================================================
+
             'IVA 8%': Number(item.iva8 || 0),
 
             'IEPS 30.4%': Number(item.ieps30_4 || 0),
 
             'IVA Ret 6%': Number(item.ivaRet6 || 0),
 
+            // ==================================================
+            // RECEPTOR
+            // ==================================================
+
             RegimenFiscalReceptor: item.regimenFiscalReceptor,
 
             DomicilioFiscalReceptor: item.domicilioFiscalReceptor
         }));
 
+        // ============================================================
+        // CREAR HOJA
+        // ============================================================
+
         const worksheet = XLSX.utils.json_to_sheet(data);
+
+        // ============================================================
+        // ANCHO DE COLUMNAS
+        // ============================================================
+
+        worksheet['!cols'] = [
+            // Estado SAT
+            {
+                wch: 14
+            },
+
+            // Version
+            {
+                wch: 10
+            },
+
+            // Tipo
+            {
+                wch: 14
+            },
+
+            // Fecha Emision
+            {
+                wch: 20
+            },
+
+            // Fecha Timbrado
+            {
+                wch: 20
+            },
+
+            // EstadoPago
+            {
+                wch: 15
+            },
+
+            // FechaPago
+            {
+                wch: 20
+            },
+
+            // Serie
+            {
+                wch: 10
+            },
+
+            // Folio
+            {
+                wch: 12
+            },
+
+            // UUID
+            {
+                wch: 38
+            },
+
+            // UUID relacion
+            {
+                wch: 38
+            },
+
+            // RFC Emisor
+            {
+                wch: 16
+            },
+
+            // Nombre Emisor
+            {
+                wch: 35
+            },
+
+            // Lugar expedicion
+            {
+                wch: 18
+            },
+
+            // RFC Receptor
+            {
+                wch: 16
+            },
+
+            // Nombre Receptor
+            {
+                wch: 35
+            },
+
+            // ResidenciaFiscal
+            {
+                wch: 18
+            },
+
+            // NumRegIdTrib
+            {
+                wch: 18
+            },
+
+            // Uso CFDI
+            {
+                wch: 12
+            },
+
+            // Subtotal
+            {
+                wch: 18
+            },
+
+            // Descuento
+            {
+                wch: 18
+            },
+
+            // Total IEPS
+            {
+                wch: 18
+            },
+
+            // IVA 16
+            {
+                wch: 18
+            },
+
+            // Retenido IVA
+            {
+                wch: 18
+            },
+
+            // Retenido ISR
+            {
+                wch: 18
+            },
+
+            // ISH
+            {
+                wch: 18
+            },
+
+            // Total
+            {
+                wch: 18
+            },
+
+            // Total Original
+            {
+                wch: 18
+            },
+
+            // Total Trasladados
+            {
+                wch: 18
+            },
+
+            // Total Retenidos
+            {
+                wch: 18
+            },
+
+            // Total Local Trasladado
+            {
+                wch: 20
+            },
+
+            // Total Local Retenido
+            {
+                wch: 20
+            }
+        ];
+
+        // ============================================================
+        // FORMATO MONEDA
+        //
+        // Los índices empiezan en 0.
+        //
+        // T  = SubTotal                19
+        // U  = Descuento               20
+        // V  = Total IEPS              21
+        // W  = IVA 16%                 22
+        // X  = Retenido IVA            23
+        // Y  = Retenido ISR            24
+        // Z  = ISH                     25
+        // AA = Total                   26
+        // AB = Total Original          27
+        // AC = Total Trasladados       28
+        // AD = Total Retenidos         29
+        // AE = Total Local Trasladado  30
+        // AF = Total Local Retenido    31
+        //
+        // AP = IEPS 3%                 41
+        // AQ = IEPS 6%                 42
+        // AR = IEPS 7%                 43
+        // AS = IEPS 8%                 44
+        // AT = IEPS 9%                 45
+        // AU = IEPS 26.5%              46
+        // AV = IEPS 30%                47
+        // AW = IEPS 53%                48
+        // AX = IEPS 160%               49
+        //
+        // BD = IVA 8%                  55
+        // BE = IEPS 30.4%              56
+        // BF = IVA Ret 6%              57
+        // ============================================================
+
+        aplicarFormatoMoneda(
+            worksheet,
+            [
+                19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+
+                41, 42, 43, 44, 45, 46, 47, 48, 49,
+
+                55, 56, 57
+            ]
+        );
+
+        // ============================================================
+        // LIBRO
+        // ============================================================
 
         const workbook = XLSX.utils.book_new();
 
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Facturas');
+
+        // ============================================================
+        // GUARDAR
+        // ============================================================
 
         XLSX.writeFile(workbook, `${frmFiltros.empresa}_Facturas_${formatFechaLocal(frmFiltros.fechaInicial)}_${formatFechaLocal(frmFiltros.fechaFinal)}.xlsx`);
     };

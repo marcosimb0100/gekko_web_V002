@@ -498,6 +498,124 @@ const useProceso = () => {
     };
 
     // -------------------------------------------------------------------------
+    // DESCARGAR XML FILTRADOS EN ZIP
+    // -------------------------------------------------------------------------
+
+    const handleDescargarZip = async () => {
+        // ============================================================
+        // TOMAMOS EXACTAMENTE LO QUE ESTA FILTRADO EN LA TABLA
+        // ============================================================
+
+        const cfdisVigentes = catCfdisFiltrados.value.filter((item) => {
+            return Number(item.estatusCFDI) === 1;
+        });
+
+        if (!cfdisVigentes.length) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'No existen CFDI vigentes para descargar.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        // ============================================================
+        // UUID
+        // ============================================================
+
+        const uuids = cfdisVigentes.map((item) => item.uuid).filter(Boolean);
+
+        if (!uuids.length) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Los CFDI filtrados no contienen UUID.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        // ============================================================
+        // PETICION
+        // ============================================================
+
+        const res = await store.dispatch('api/apiPostblob', {
+            direccion: '/operacion_sat/cfdis/descargar_zip',
+
+            datosJson: {
+                uuids: uuids
+            }
+        });
+
+        // ============================================================
+        // ERROR
+        // ============================================================
+
+        if (res.estatus !== 200 || !res.data) {
+            toast.add({
+                severity: 'error',
+
+                summary: 'Notificación',
+
+                detail: res.mensaje || 'No fue posible generar el ZIP.',
+
+                life: 4000
+            });
+
+            return;
+        }
+
+        // ============================================================
+        // BLOB
+        // ============================================================
+
+        const url = window.URL.createObjectURL(res.data);
+
+        const a = document.createElement('a');
+
+        a.href = url;
+
+        // ============================================================
+        // NOMBRE
+        // ============================================================
+
+        const fecha = new Date();
+
+        const pad = (numero) => String(numero).padStart(2, '0');
+
+        const nombreArchivo = `CFDI_${frmFiltros.empresa}_` + `${fecha.getFullYear()}` + `${pad(fecha.getMonth() + 1)}` + `${pad(fecha.getDate())}` + '.zip';
+
+        a.download = nombreArchivo;
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+
+        toast.add({
+            severity: 'success',
+
+            summary: 'Notificación',
+
+            detail: `${uuids.length} CFDI enviados para descarga.`,
+
+            life: 3000
+        });
+    };
+
+    // -------------------------------------------------------------------------
     // INIT
     // -------------------------------------------------------------------------
 
@@ -537,7 +655,8 @@ const useProceso = () => {
         handleFormatFecha,
 
         handleDescargaXml,
-        handleExportarExcel
+        handleExportarExcel,
+        handleDescargarZip
     };
 };
 

@@ -279,13 +279,56 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // EXCEL
+    // APLICAR FORMATO MONEDA A COLUMNAS DE EXCEL
+    // ============================================================
+
+    const aplicarFormatoMoneda = (worksheet, columnas) => {
+        if (!worksheet || !worksheet['!ref']) {
+            return;
+        }
+
+        const rango = XLSX.utils.decode_range(worksheet['!ref']);
+
+        for (let fila = 1; fila <= rango.e.r; fila++) {
+            columnas.forEach((columna) => {
+                const referencia = XLSX.utils.encode_cell({
+                    r: fila,
+                    c: columna
+                });
+
+                const celda = worksheet[referencia];
+
+                if (!celda) {
+                    return;
+                }
+
+                const numero = Number(celda.v);
+
+                if (Number.isNaN(numero)) {
+                    return;
+                }
+
+                celda.v = numero;
+
+                celda.t = 'n';
+
+                celda.z = '$#,##0.00';
+            });
+        }
+    };
+
+    // ============================================================
+    // EXPORTAR EXCEL
     // ============================================================
 
     const handleExportarExcel = () => {
         if (!catPagosFiltrados.value.length) {
             return;
         }
+
+        // ============================================================
+        // DATA
+        // ============================================================
 
         const data = catPagosFiltrados.value.map((item) => ({
             'Verificado ó Asoc.': item.verificadoAsoc,
@@ -347,11 +390,156 @@ const useProceso = () => {
             Total: Number(item.total || 0)
         }));
 
+        // ============================================================
+        // CREAR HOJA
+        // ============================================================
+
         const worksheet = XLSX.utils.json_to_sheet(data);
+
+        // ============================================================
+        // ANCHO DE COLUMNAS
+        // ============================================================
+
+        worksheet['!cols'] = [
+            {
+                wch: 18
+            },
+
+            {
+                wch: 14
+            },
+
+            {
+                wch: 10
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 10
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 38
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 12
+            },
+
+            {
+                wch: 18
+            },
+
+            {
+                wch: 38
+            },
+
+            {
+                wch: 20
+            },
+
+            {
+                wch: 22
+            },
+
+            {
+                wch: 22
+            },
+
+            {
+                wch: 22
+            },
+
+            {
+                wch: 22
+            },
+
+            {
+                wch: 28
+            },
+
+            {
+                wch: 16
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 40
+            },
+
+            {
+                wch: 35
+            },
+
+            {
+                wch: 18
+            }
+        ];
+
+        // ============================================================
+        // FORMATO MONEDA
+        //
+        // Los índices empiezan en 0.
+        //
+        // Q  = Monto -> índice 16
+        // AC = Total -> índice 28
+        // ============================================================
+
+        aplicarFormatoMoneda(worksheet, [16, 28]);
+
+        // ============================================================
+        // LIBRO
+        // ============================================================
 
         const workbook = XLSX.utils.book_new();
 
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Pagos');
+
+        // ============================================================
+        // GUARDAR
+        // ============================================================
 
         XLSX.writeFile(workbook, `${frmFiltros.empresa}_Pagos_${formatFechaLocal(frmFiltros.fechaInicial)}_${formatFechaLocal(frmFiltros.fechaFinal)}.xlsx`);
     };

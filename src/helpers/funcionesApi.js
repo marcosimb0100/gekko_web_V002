@@ -511,3 +511,66 @@ export const apiPost_token_sinCargando = async (direccion, datos) => {
         };
     }
 };
+
+// ============================================================
+// POST TOKEN BLOB
+// ============================================================
+
+export const apiPost_blob = async (direccion, datos) => {
+    const Authorization = localStorage.getItem('token') || '';
+
+    const rutaActual = localStorage.getItem('rutaActual') || '';
+
+    const consumir = axios.create({
+        baseURL: url,
+
+        headers: {
+            Authorization: Authorization,
+
+            rutaActual: rutaActual
+        },
+
+        responseType: 'blob'
+    });
+
+    try {
+        const response = await consumir.post(direccion, datos);
+
+        return {
+            estatus: response.status,
+
+            mensaje: '',
+
+            data: response.data,
+
+            headers: response.headers
+        };
+    } catch (error) {
+        const response = error?.response;
+
+        let mensaje = 'No fue posible descargar los CFDI.';
+
+        // El backend puede regresar JSON dentro del Blob.
+        if (response?.data instanceof Blob) {
+            try {
+                const texto = await response.data.text();
+
+                const json = JSON.parse(texto);
+
+                mensaje = json?.mensaje || mensaje;
+            } catch {
+                // Se conserva mensaje default.
+            }
+        }
+
+        return {
+            estatus: response?.status ?? 500,
+
+            mensaje: mensaje,
+
+            data: null,
+
+            headers: response?.headers ?? {}
+        };
+    }
+};
