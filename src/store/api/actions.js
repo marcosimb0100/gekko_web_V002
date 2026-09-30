@@ -1,4 +1,5 @@
 import {
+    apiDelete_token,
     apiGet_blob,
     apiGet_blobTokenCliente,
     apiGet_token,
@@ -574,6 +575,44 @@ export const apiPostblob = async ({ commit }, { direccion, datosJson }) => {
             mensaje,
             data,
             headers
+        };
+    } finally {
+        commit('visibleCargandoMutation');
+    }
+};
+
+export const apiDeleteToken = async ({ commit }, { direccion }) => {
+    commit('visibleCargandoMutation');
+
+    try {
+        const { estatus, mensaje, datos } = await apiDelete_token(direccion);
+
+        if (estatus === 401 || estatus === 402) {
+            localStorage.clear();
+
+            router.replace({
+                name: 'acceso'
+            });
+        }
+
+        if (estatus === 403) {
+            router.replace({
+                name: 'notfound'
+            });
+        }
+
+        return {
+            estatus,
+            mensaje,
+            datos
+        };
+    } catch (error) {
+        console.error('ERROR apiDeleteToken:', error);
+
+        return {
+            estatus: 500,
+            mensaje: error?.message || 'No fue posible realizar la petición.',
+            datos: {}
         };
     } finally {
         commit('visibleCargandoMutation');

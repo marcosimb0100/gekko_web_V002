@@ -1,0 +1,1173 @@
+/* =========================================================
+
+
+
+   CONTENEDOR PRINCIPAL
+
+
+
+   Homologado con /bancos/movimientos
+
+
+
+   ========================================================= */
+
+.card-conciliacion {
+    margin: 0 !important;
+
+    padding: 24px 28px 30px 28px !important;
+}
+
+/* =========================================================
+
+
+
+   PANEL FILTROS
+
+
+
+   ========================================================= */
+
+.panel-filtros {
+    width: 100%;
+
+    padding: 18px 20px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 10px;
+
+    background: var(--surface-card);
+}
+
+.encabezado-filtros {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.icono-filtros {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 40px;
+
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: rgba(0, 180, 210, 0.1);
+
+    color: var(--primary-color);
+
+    font-size: 16px;
+}
+
+.titulo-filtros {
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.subtitulo-filtros {
+    margin-top: 2px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.separador {
+    height: 1px;
+
+    margin: 15px 0;
+
+    background: var(--surface-border);
+}
+
+/* =========================================================
+
+
+
+   GRID FILTROS
+
+
+
+   ========================================================= */
+
+.grid-filtros {
+    display: grid;
+
+    grid-template-columns: 1.65fr 0.85fr 0.85fr 160px 160px;
+
+    gap: 12px;
+
+    align-items: end;
+}
+
+.campo-filtro {
+    min-width: 0;
+}
+
+.campo-filtro label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 500;
+}
+
+:deep(.campo-filtro .p-dropdown),
+:deep(.campo-filtro .p-select),
+:deep(.campo-filtro .p-calendar),
+:deep(.campo-filtro .p-datepicker) {
+    width: 100%;
+}
+
+.opcion-empresa,
+.contraparte {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    min-width: 0;
+}
+
+.opcion-empresa strong,
+.contraparte strong {
+    font-size: 11px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.opcion-empresa small,
+.contraparte small {
+    font-size: 8px;
+
+    opacity: 0.65;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+
+
+
+   BOTONES FILTROS
+
+
+
+   ========================================================= */
+
+.acciones-filtros {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    margin-top: 16px;
+
+    padding-top: 15px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.btn-cancelar {
+    background: #b94444 !important;
+
+    border-color: #b94444 !important;
+
+    color: #fff !important;
+}
+
+.btn-guardar,
+.btn-conciliar {
+    background: #25805f !important;
+
+    border-color: #25805f !important;
+
+    color: #fff !important;
+}
+
+.btn-buscar {
+    background: #24789d !important;
+
+    border-color: #24789d !important;
+
+    color: #fff !important;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+
+
+
+   RESUMEN COMPACTO
+
+
+
+   ========================================================= */
+
+.grid-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+.tarjeta-resumen {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-height: 66px;
+
+    padding: 9px 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: var(--surface-card);
+}
+
+.tarjeta-resumen > span {
+    margin-bottom: 4px;
+
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.tarjeta-resumen > strong {
+    font-size: 14px;
+}
+
+.resumen-pendiente {
+    color: #c0392b;
+}
+
+.resumen-parcial {
+    color: #c78613;
+}
+
+.resumen-ok {
+    color: #16823d;
+}
+
+/* =========================================================
+
+
+
+   CONTENEDOR / BARRA TABLA
+
+
+
+   ========================================================= */
+
+.contenedor-tabla {
+    margin-top: 18px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.barra-tabla {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    width: 100%;
+
+    margin-bottom: 7px;
+}
+
+.barra-busqueda {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-shrink: 0;
+}
+
+.buscador {
+    width: 220px;
+}
+
+.acciones-tabla-superior {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-left: auto;
+
+    flex-shrink: 0;
+}
+
+.contador-registros {
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 180, 220, 0.12);
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+
+
+
+   TABLA PRINCIPAL
+
+
+
+   ========================================================= */
+
+:deep(.tabla-conciliacion-homologada .p-datatable-table) {
+    width: max-content !important;
+
+    min-width: 100% !important;
+
+    table-layout: auto !important;
+}
+
+:deep(.tabla-encabezados .p-datatable-thead > tr > th) {
+    padding: 6px 6px !important;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: #fff !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 9px;
+
+    font-weight: 600;
+}
+
+:deep(.tabla-encabezados .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+
+    font-size: 9px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+:deep(.tabla-conciliacion-homologada .p-datatable-wrapper) {
+    overflow-x: auto !important;
+}
+
+.moneda {
+    display: block;
+
+    width: 100%;
+
+    font-variant-numeric: tabular-nums;
+
+    font-weight: 600;
+}
+
+.moneda-aplicada,
+.texto-verde {
+    color: #16823d;
+}
+
+.moneda-pendiente,
+.texto-rojo {
+    color: #c0392b;
+}
+
+.estado,
+.score {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 12px;
+
+    padding: 3px 8px;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.estado-ok,
+.score-alto {
+    background: #e6f7ef;
+
+    color: #177252;
+}
+
+.estado-parcial,
+.score-medio {
+    background: #fff4db;
+
+    color: #936713;
+}
+
+.estado-pendiente,
+.score-bajo {
+    background: #fdeaea;
+
+    color: #ad3535;
+}
+
+.acciones-fila {
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+:deep(.acciones-fila .p-button) {
+    min-height: 28px;
+
+    font-size: 9px;
+}
+
+/* =========================================================
+
+
+
+   DIÁLOGO BUSCAR / CONCILIAR
+
+
+
+   ========================================================= */
+
+.factura-dialogo {
+    display: grid;
+
+    grid-template-columns: repeat(5, minmax(130px, 1fr));
+
+    gap: 10px;
+
+    padding: 10px 12px;
+
+    margin-bottom: 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: var(--surface-card);
+}
+
+.factura-dialogo-detalle {
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+}
+
+.factura-dialogo > div,
+.resumen-dialogo > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.factura-dialogo span,
+.resumen-dialogo span {
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.factura-dialogo strong {
+    font-size: 11px;
+}
+
+.score-contenedor {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 4px;
+}
+
+.score-contenedor small {
+    max-width: 210px;
+
+    white-space: normal;
+
+    opacity: 0.65;
+
+    font-size: 8px;
+
+    line-height: 1.2;
+}
+
+.input-monto {
+    width: 145px;
+}
+
+.resumen-dialogo {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 28px;
+
+    margin-top: 12px;
+
+    padding-top: 12px;
+
+    border-top: 1px solid var(--surface-border);
+}
+
+.resumen-dialogo strong {
+    font-size: 14px;
+}
+
+.diferencia-ok strong {
+    color: #16823d;
+}
+
+/* Compactar tablas de los diálogos sin afectar la principal */
+
+:deep(.p-dialog .p-datatable-thead > tr > th) {
+    padding: 6px 7px;
+
+    font-size: 9px;
+}
+
+:deep(.p-dialog .p-datatable-tbody > tr > td) {
+    padding: 6px 7px;
+
+    font-size: 9px;
+}
+
+/* =========================================================
+
+
+
+   CONFIRMACIÓN DESCONCILIAR
+
+
+
+   ========================================================= */
+
+.confirmacion-desconciliar {
+    display: grid;
+
+    grid-template-columns: 52px 1fr;
+
+    gap: 14px;
+
+    align-items: start;
+}
+
+.confirmacion-icono {
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fdeaea;
+
+    color: #c0392b;
+
+    font-size: 22px;
+}
+
+.confirmacion-texto strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 16px;
+}
+
+.confirmacion-texto p {
+    margin: 0;
+
+    opacity: 0.7;
+
+    line-height: 1.45;
+
+    font-size: 12px;
+}
+
+.confirmacion-datos {
+    grid-column: 1 / -1;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-top: 4px;
+
+    padding: 12px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 8px;
+
+    background: var(--surface-ground);
+}
+
+.confirmacion-datos > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+.confirmacion-datos span {
+    font-size: 9px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.confirmacion-datos strong {
+    font-size: 12px;
+
+    word-break: break-word;
+}
+
+/* =========================================================
+
+
+
+   RESPONSIVE
+
+
+
+   ========================================================= */
+
+@media (max-width: 1450px) {
+    .grid-filtros {
+        grid-template-columns: 1.5fr 1fr 1fr 150px 150px;
+    }
+}
+
+@media (max-width: 1250px) {
+    .grid-filtros {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .factura-dialogo,
+    .factura-dialogo-detalle {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .card-conciliacion {
+        padding: 15px !important;
+    }
+
+    .grid-filtros,
+    .grid-resumen,
+    .factura-dialogo,
+    .factura-dialogo-detalle,
+    .confirmacion-datos {
+        grid-template-columns: 1fr;
+    }
+
+    .acciones-filtros {
+        flex-direction: column-reverse;
+    }
+
+    .acciones-filtros :deep(.p-button) {
+        width: 100%;
+    }
+
+    .barra-tabla {
+        flex-wrap: wrap;
+    }
+
+    .barra-busqueda {
+        width: 100%;
+    }
+
+    .buscador {
+        width: 100%;
+    }
+
+    .acciones-tabla-superior {
+        width: 100%;
+
+        margin-left: 0;
+
+        justify-content: flex-end;
+    }
+
+    .resumen-dialogo {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .confirmacion-desconciliar {
+        grid-template-columns: 1fr;
+    }
+
+    .confirmacion-icono {
+        margin: 0 auto;
+    }
+}
+
+/* =========================================================
+
+
+
+   CONCILIACION GLOBAL
+
+
+
+   ========================================================= */
+
+.btn-global {
+    background: #6b5fb5 !important;
+
+    border-color: #6b5fb5 !important;
+
+    color: #fff !important;
+
+    white-space: nowrap;
+}
+
+.global-config {
+    display: grid;
+
+    grid-template-columns: minmax(220px, 300px) 1fr auto;
+
+    gap: 18px;
+
+    align-items: end;
+
+    margin-bottom: 12px;
+
+    padding: 14px;
+
+    border: 1px solid var(--surface-border);
+
+    border-radius: 9px;
+
+    background: var(--surface-card);
+}
+
+.global-campo label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+.global-campo small {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 9px;
+
+    opacity: 0.65;
+}
+
+.global-opciones {
+    display: flex;
+
+    align-items: center;
+
+    gap: 22px;
+
+    min-height: 39px;
+}
+
+.global-opcion {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+.global-resumen {
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin: 12px 0;
+}
+
+:deep(.tabla-global .p-datatable-tbody > tr > td) {
+    vertical-align: middle;
+}
+
+:deep(.tabla-global .p-datatable-tbody > tr.p-datatable-row-selected) {
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent) !important;
+}
+
+.footer-global {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    width: 100%;
+}
+
+.global-seleccion {
+    display: flex;
+
+    flex-direction: column;
+
+    margin-right: auto;
+
+    text-align: left;
+}
+
+.global-seleccion span {
+    font-size: 8px;
+
+    opacity: 0.6;
+
+    text-transform: uppercase;
+}
+
+.global-seleccion strong {
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .global-config {
+        grid-template-columns: 1fr;
+    }
+
+    .global-opciones {
+        flex-wrap: wrap;
+    }
+
+    .global-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+
+
+
+   TABLA CONCILIACION GLOBAL COMPACTA
+
+
+
+   ========================================================= */
+
+:deep(.tabla-global-compacta .p-datatable-thead > tr > th) {
+    padding: 0.35rem 0.45rem !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.1;
+
+    white-space: nowrap;
+}
+
+:deep(.tabla-global-compacta .p-datatable-tbody > tr > td) {
+    padding: 0.3rem 0.45rem !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.15;
+
+    vertical-align: middle;
+}
+
+:deep(.tabla-global-compacta .p-datatable-tbody > tr) {
+    height: 34px;
+}
+
+:deep(.tabla-global-compacta .p-checkbox) {
+    width: 16px;
+
+    height: 16px;
+}
+
+:deep(.tabla-global-compacta .p-checkbox .p-checkbox-box) {
+    width: 16px;
+
+    height: 16px;
+}
+
+:deep(.tabla-global-compacta .contraparte strong) {
+    font-size: 10px;
+}
+
+:deep(.tabla-global-compacta .contraparte small) {
+    font-size: 8px;
+}
+
+:deep(.tabla-global-compacta .estado) {
+    font-size: 8px;
+
+    padding: 3px 7px;
+}
+
+:deep(.tabla-global-compacta .score-badge) {
+    font-size: 8px;
+
+    padding: 3px 7px;
+}
+
+/* Paginador más pequeño */
+
+:deep(.tabla-global-compacta .p-paginator) {
+    padding: 0.3rem !important;
+
+    min-height: 40px;
+}
+
+:deep(.tabla-global-compacta .p-paginator .p-paginator-page),
+:deep(.tabla-global-compacta .p-paginator .p-paginator-first),
+:deep(.tabla-global-compacta .p-paginator .p-paginator-prev),
+:deep(.tabla-global-compacta .p-paginator .p-paginator-next),
+:deep(.tabla-global-compacta .p-paginator .p-paginator-last) {
+    min-width: 28px;
+
+    height: 28px;
+
+    font-size: 10px;
+}
+
+/* =========================================================
+
+   ANCHO AUTOMATICO POR CONTENIDO
+
+   ========================================================= */
+
+/*
+
+ * Las columnas cortas conservan el minimo posible.
+
+ * Cliente / Proveedor crece en funcion del nombre mas largo,
+
+ * sin dejar un hueco fijo excesivo.
+
+ */
+
+:deep(.tabla-conciliacion-homologada .col-cliente-auto) {
+    width: auto !important;
+
+    min-width: 150px !important;
+
+    max-width: none !important;
+}
+
+:deep(.tabla-conciliacion-homologada .col-cliente-auto .p-datatable-column-header-content) {
+    white-space: nowrap;
+}
+
+:deep(.tabla-conciliacion-homologada td.col-cliente-auto),
+:deep(.tabla-conciliacion-homologada .col-cliente-auto) {
+    white-space: nowrap !important;
+}
+
+/* En esta columna no truncamos el nombre; dejamos que defina el ancho real. */
+
+:deep(.tabla-conciliacion-homologada .col-cliente-auto .contraparte strong),
+:deep(.tabla-conciliacion-homologada .col-cliente-auto .contraparte small) {
+    overflow: visible !important;
+
+    text-overflow: clip !important;
+
+    white-space: nowrap !important;
+
+    max-width: none !important;
+}
+
+/* La tabla global usa exactamente el mismo encabezado oscuro y densidad visual. */
+
+:deep(.tabla-global .p-datatable-thead > tr > th) {
+    padding: 6px 6px !important;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: #fff !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 9px !important;
+
+    font-weight: 600 !important;
+
+    white-space: nowrap;
+}
+
+:deep(.tabla-global .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+
+    font-size: 9px !important;
+
+    line-height: 1.15;
+
+    vertical-align: middle;
+}
+
+/* Evita que la columna Resultado provoque huecos enormes. */
+
+:deep(.tabla-global td:last-child) {
+    white-space: normal !important;
+
+    line-height: 1.2;
+}
+
+/* =========================================================
+
+   TABLA GLOBAL - MISMO FORMATO QUE TABLA PRINCIPAL
+
+   El Dialog de PrimeVue se renderiza fuera del componente,
+
+   por eso aquí usamos :global().
+
+   ========================================================= */
+
+:global(.dialog-conciliacion-global .tabla-global .p-datatable-thead > tr > th) {
+    padding: 6px 6px !important;
+
+    background: rgb(54, 65, 75) !important;
+
+    color: #ffffff !important;
+
+    border-color: rgb(54, 65, 75) !important;
+
+    font-size: 9px !important;
+
+    font-weight: 600 !important;
+
+    white-space: nowrap !important;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+:global(.dialog-conciliacion-global .tabla-global .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+
+    font-size: 9px !important;
+
+    border-bottom: 1px solid var(--surface-border);
+
+    vertical-align: middle;
+}
+
+:global(.dialog-conciliacion-global .tabla-global .p-datatable-tbody > tr) {
+    height: 32px;
+}
+
+:global(.dialog-conciliacion-global .tabla-global .p-datatable-tbody > tr:hover) {
+    background: var(--surface-hover) !important;
+}
+
+/* =========================================================
+   SELECCION GLOBAL SEGURA
+   ========================================================= */
+
+:global(.dialog-conciliacion-global .tabla-global .p-checkbox.p-disabled) {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+}
+
+:global(.dialog-conciliacion-global .tabla-global .p-checkbox.p-disabled .p-checkbox-box) {
+    background: var(--surface-100) !important;
+    border-color: var(--surface-300) !important;
+}
+
+:global(.dialog-conciliacion-global .tabla-global .p-datatable-tbody > tr) {
+    cursor: default !important;
+}
+
+:global(.dialog-conciliacion-global .p-dialog-footer) {
+    position: relative;
+    z-index: 2;
+    background: var(--surface-card);
+}

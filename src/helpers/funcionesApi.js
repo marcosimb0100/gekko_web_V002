@@ -574,3 +574,46 @@ export const apiPost_blob = async (direccion, datos) => {
         };
     }
 };
+
+export const apiDelete_token = async (direccion) => {
+    const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');
+
+    const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
+
+    const consumir = axios.create({
+        baseURL: url,
+        headers: {
+            Authorization: Authorization,
+            rutaActual: rutaActual
+        }
+    });
+
+    return await consumir
+        .delete(direccion)
+        .then((response) => {
+            const { status, data } = response;
+
+            return {
+                estatus: status,
+                mensaje: data.mensaje,
+                datos: data.datos
+            };
+        })
+        .catch((error) => {
+            const { response } = error;
+
+            if (!response) {
+                return {
+                    estatus: 500,
+                    mensaje: 'Error de conexión con el servidor.',
+                    datos: {}
+                };
+            }
+
+            return {
+                estatus: response.status === 0 ? 500 : response.status,
+                mensaje: response.status === 0 ? `[Api] Error ${error}` : response.data?.mensaje,
+                datos: response.data?.datos || {}
+            };
+        });
+};
