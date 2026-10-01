@@ -529,11 +529,8 @@ const useProceso = () => {
         if (!frmFiltros.empresa) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
                 detail: 'Primero selecciona una empresa.',
-
                 life: 3000
             });
 
@@ -543,18 +540,28 @@ const useProceso = () => {
         if (!catCfdisOriginal.value.length) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
                 detail: 'Primero consulta los CFDI de la empresa.',
-
                 life: 3000
             });
 
             return;
         }
 
-        const criterios = new Map();
+        // ============================================================
+        // NORMALIZAR CRITERIOS DEL EXCEL
+        //
+        // serie:
+        //     opcional
+        //
+        // folio:
+        //     obligatorio
+        //
+        // uuid:
+        //     si viene, tiene prioridad
+        // ============================================================
+
+        const criterios = [];
 
         registros.forEach((item, index) => {
             const serie = handleNormalizarTexto(item.serie);
@@ -563,103 +570,195 @@ const useProceso = () => {
 
             const uuid = handleNormalizarTexto(item.uuid);
 
+            // --------------------------------------------------------
+            // NECESITAMOS AL MENOS FOLIO O UUID
+            // --------------------------------------------------------
+
             if (!folio && !uuid) {
                 return;
             }
 
-            const key = uuid ? `UUID:${uuid}` : `SF:${serie}|${folio}`;
-
-            if (!criterios.has(key)) {
-                criterios.set(key, {
-                    serie,
-                    folio,
-                    uuid,
-                    index
-                });
-            }
+            criterios.push({
+                serie,
+                folio,
+                uuid,
+                index
+            });
         });
 
-        if (!criterios.size) {
+        if (!criterios.length) {
             toast.add({
                 severity: 'warn',
-
                 summary: 'Notificación',
-
-                detail: 'El Excel no contiene registros válidos de serie y folio.',
-
+                detail: 'El Excel no contiene registros válidos. ' + 'El folio es obligatorio y la serie es opcional.',
                 life: 4000
             });
 
             return;
         }
 
+        // ============================================================
+        // RESULTADOS
+        // ============================================================
+
         const encontrados = [];
 
-        const criteriosEncontrados = new Set();
+        const noEncontrados = [];
 
-        const criteriosSinSaldo = new Set();
+        const sinSaldo = [];
 
-        catCfdisOriginal.value.forEach((cfdi) => {
-            const serieCfdi = handleNormalizarTexto(cfdi.serie);
+        const ambiguos = [];
 
-            const folioCfdi = handleNormalizarFolio(cfdi.folio);
+        // ============================================================
+        // EVITAR DUPLICADOS
+        //
+        // Si el Excel repite el mismo folio o UUID,
+        // no queremos mostrar el CFDI dos veces.
+        // ============================================================
 
-            const uuidCfdi = handleNormalizarTexto(cfdi.uuid);
+        const uuidsAgregados = new Set();
 
-            let criterioEncontrado = null;
+        // ============================================================
+        // RECORRER CADA REGISTRO DEL EXCEL
+        // ============================================================
 
-            for (const [key, criterio] of criterios) {
-                if (criterio.uuid) {
-                    if (uuidCfdi === criterio.uuid) {
-                        criterioEncontrado = {
-                            key,
-                            criterio
-                        };
+        criterios.forEach((criterio) => {
+            let coincidencias = [];
 
-                        break;
-                    }
+            // ========================================================
+            // 1. SI VIENE UUID
+            //
+            // UUID tiene prioridad y es la coincidencia más segura.
+            // ========================================================
 
-                    continue;
-                }
+            if (criterio.uuid) {
+                coincidencias = catCfdisOriginal.value.filter((cfdi) => {
+                    const uuidCfdi = handleNormalizarTexto(cfdi.uuid);
 
-                if (serieCfdi === criterio.serie && folioCfdi === criterio.folio) {
-                    criterioEncontrado = {
-                        key,
-                        criterio
-                    };
-
-                    break;
-                }
+                    return uuidCfdi === criterio.uuid;
+                });
             }
 
-            if (!criterioEncontrado) {
+            // ========================================================
+            // 2. SI VIENE SERIE
+            //
+            // Buscar por:
+            // serie + folio
+            // ========================================================
+            else if (criterio.serie) {
+                coincidencias = catCfdisOriginal.value.filter((cfdi) => {
+                    const serieCfdi = handleNormalizarTexto(cfdi.serie);
+
+                    const folioCfdi = handleNormalizarFolio(cfdi.folio);
+
+                    return serieCfdi === criterio.serie && folioCfdi === criterio.folio;
+                });
+            }
+
+            // ========================================================
+            // 3. NO VIENE SERIE
+            //
+            // Buscar únicamente por folio.
+            // ========================================================
+            else {
+                coincidencias = catCfdisOriginal.value.filter((cfdi) => {
+                    const folioCfdi = handleNormalizarFolio(cfdi.folio);
+
+                    return folioCfdi === criterio.folio;
+                });
+            }
+
+            // ========================================================
+            // NO ENCONTRADO
+            // ========================================================
+
+            if (!coincidencias.length) {
+                noEncontrados.push({
+                    ...criterio
+                });
+
                 return;
             }
 
-            const { key } = criterioEncontrado;
+            // ========================================================
+            // AMBIGUO
+            //
+            // Esto principalmente puede pasar cuando NO viene serie:
+            //
+            // Excel:
+            // serie: ""
+            // folio: 123
+            //
+            // CFDI:
+            // A-123
+            // B-123
+            //
+            // No escogemos ninguno automáticamente.
+            // ========================================================
 
-            criteriosEncontrados.add(key);
+            if (coincidencias.length > 1) {
+                ambiguos.push({
+                    ...criterio,
+
+                    coincidencias: coincidencias.map((cfdi) => ({
+                        uuid: cfdi.uuid,
+
+                        serie: cfdi.serie,
+
+                        folio: cfdi.folio,
+
+                        receptorRfc: cfdi.receptorRfc,
+
+                        receptorNombre: cfdi.receptorNombre
+                    }))
+                });
+
+                return;
+            }
+
+            // ========================================================
+            // TENEMOS UNA SOLA COINCIDENCIA
+            // ========================================================
+
+            const cfdi = coincidencias[0];
 
             const saldo = Number(cfdi.saldoInsolutoPagos ?? 0);
 
-            // ==========================================
-            // SOLO FACTURAS CON SALDO PENDIENTE
-            //
-            // saldo == total:
-            //     no tiene pagos.
-            //
-            // saldo < total y > 0:
-            //     pago parcial.
-            //
-            // saldo <= 0:
-            //     ya liquidada.
-            // ==========================================
+            // ========================================================
+            // SIN SALDO PENDIENTE
+            // ========================================================
 
             if (saldo <= 0) {
-                criteriosSinSaldo.add(key);
+                sinSaldo.push({
+                    ...criterio,
+
+                    uuid: cfdi.uuid,
+
+                    serieCfdi: cfdi.serie,
+
+                    folioCfdi: cfdi.folio
+                });
 
                 return;
             }
+
+            // ========================================================
+            // EVITAR DUPLICADOS
+            // ========================================================
+
+            const uuidCfdi = String(cfdi.uuid ?? '').trim();
+
+            if (uuidCfdi && uuidsAgregados.has(uuidCfdi)) {
+                return;
+            }
+
+            if (uuidCfdi) {
+                uuidsAgregados.add(uuidCfdi);
+            }
+
+            // ========================================================
+            // ENCONTRADO CON SALDO
+            // ========================================================
 
             encontrados.push({
                 ...cfdi,
@@ -668,28 +767,42 @@ const useProceso = () => {
             });
         });
 
-        const noEncontrados = Array.from(criterios.keys()).filter((key) => !criteriosEncontrados.has(key));
+        // ============================================================
+        // GUARDAR ESTADISTICAS
+        // ============================================================
 
-        registrosExcel.value = Array.from(criterios.values());
+        registrosExcel.value = criterios;
 
-        cantidadExcelRegistros.value = criterios.size;
+        cantidadExcelRegistros.value = criterios.length;
 
         cantidadExcelEncontradas.value = encontrados.length;
 
         cantidadExcelNoEncontradas.value = noEncontrados.length;
 
-        cantidadExcelSinSaldo.value = criteriosSinSaldo.size;
+        cantidadExcelSinSaldo.value = sinSaldo.length;
+
+        // ============================================================
+        // NUEVO:
+        // SI QUIERES MOSTRAR AMBIGUOS EN PANTALLA,
+        // agrega también:
+        //
+        // cantidadExcelAmbiguos.value = ambiguos.length;
+        // ============================================================
 
         filtroExcelActivo.value = true;
 
+        // ============================================================
+        // MOSTRAR SOLO CFDI ENCONTRADOS CON SALDO
+        // ============================================================
+
         catCfdis.value = handleOrdenarPorFolio(encontrados);
 
-        // ====================================================
+        // ============================================================
         // LIMPIAR SELECCION
         //
-        // No seleccionamos automáticamente.
-        // El contador decide cuáles utilizar.
-        // ====================================================
+        // El Excel solamente filtra.
+        // NO selecciona automáticamente.
+        // ============================================================
 
         cfdisSeleccionados.value = [];
 
@@ -701,14 +814,50 @@ const useProceso = () => {
 
         filtros.value.global.value = null;
 
+        // ============================================================
+        // DEBUG
+        // ============================================================
+
+        console.log('==============================================');
+
+        console.log('RESULTADO FILTRO EXCEL');
+
+        console.log('==============================================');
+
+        console.log('REGISTROS:', criterios.length);
+
+        console.log('ENCONTRADOS:', encontrados.length);
+
+        console.log('NO ENCONTRADOS:', noEncontrados.length);
+
+        console.log('SIN SALDO:', sinSaldo.length);
+
+        console.log('AMBIGUOS:', ambiguos.length);
+
+        if (ambiguos.length) {
+            console.table(ambiguos);
+        }
+
+        console.log('==============================================');
+
+        // ============================================================
+        // MENSAJE
+        // ============================================================
+
+        let detalle = `Encontradas: ${encontrados.length}. ` + `No encontradas: ${noEncontrados.length}. ` + `Sin saldo pendiente: ${sinSaldo.length}.`;
+
+        if (ambiguos.length) {
+            detalle += ` Ambiguas: ${ambiguos.length}.`;
+        }
+
         toast.add({
             severity: encontrados.length ? 'success' : 'warn',
 
             summary: 'Filtro Excel',
 
-            detail: `Encontradas: ${encontrados.length}. ` + `No encontradas: ${noEncontrados.length}. ` + `Sin saldo pendiente: ${criteriosSinSaldo.size}.`,
+            detail,
 
-            life: 6000
+            life: 7000
         });
     };
 
