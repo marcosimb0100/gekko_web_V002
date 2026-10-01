@@ -155,12 +155,6 @@ const router = createRouter({
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "operaciones_solicitud_pago_masivo" */ '../views/operaciones/solicitud_pago_masivo/SolicitudPagoMasivo.vue')
                 },
-                {
-                    path: '/operaciones/conciliacion_cfdi_bancaria',
-                    name: 'operaciones_conciliacion_cfdi_bancaria',
-                    beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "operaciones_conciliacion_cfdi_bancaria" */ '../views/operaciones/conciliacion_cfdi_bancaria/ConciliacionCfdiBancaria.vue')
-                },
 
                 {
                     path: '/administrador_cfdi/parametros/empresas_consultar',
@@ -204,6 +198,13 @@ const router = createRouter({
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_lista_69b" */ '../views/administrador_cfdi/operaciones_cfdi/lista_69b/Lista69B.vue')
                 },
+                {
+                    path: '/administrador_cfdi/operaciones_cfdi/conciliacion_cfdi_bancaria',
+                    name: 'administrador_cfdi_operaciones_cfdi_conciliacion_cfdi_bancaria',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "administrador_cfdi_operaciones_cfdi_conciliacion_cfdi_bancaria" */ '../views/administrador_cfdi/operaciones_cfdi/conciliacion_cfdi_bancaria/ConciliacionCfdiBancaria.vue')
+                },
+
                 {
                     path: '/administrador_cfdi/reportes_cfdi/cfdis',
                     name: 'administrador_cfdi_reportes_cfdi_cfdis',

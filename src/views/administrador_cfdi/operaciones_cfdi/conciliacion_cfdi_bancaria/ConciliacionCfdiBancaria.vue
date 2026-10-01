@@ -212,6 +212,7 @@
         header="Buscar movimientos bancarios"
         :style="{
             width: '96vw',
+
             maxWidth: '1550px'
         }"
         :contentStyle="{
@@ -485,35 +486,70 @@
         </template>
     </Dialog>
 
-    <!-- BUSQUEDA MASIVA POR EXCEL - SOLO CONSULTA -->
-    <Dialog v-model:visible="mostrarExcel" modal header="Búsqueda masiva por Excel" :style="{ width: '95vw', maxWidth: '1500px' }" :draggable="false" :closable="!procesandoExcel" class="dialog-busqueda-excel" @hide="handleCerrarExcel">
-        <div class="excel-carga">
-            <div class="excel-carga-info">
-                <div class="excel-icono">
-                    <i class="pi pi-file-excel"></i>
+    <!-- BUSQUEDA MASIVA POR EXCEL -->
+    <Dialog
+        v-model:visible="mostrarExcel"
+        modal
+        header="Búsqueda masiva por Excel"
+        :style="{ width: '95vw', maxWidth: '1500px' }"
+        :draggable="false"
+        :closable="!procesandoExcel && !conciliandoExcel"
+        class="dialog-busqueda-excel"
+        @hide="handleCerrarExcel"
+    >
+        <div class="excel-container">
+            <div class="excel-linea-unica">
+                <div class="excel-header-info">
+                    <div class="excel-header-icon">
+                        <i class="pi pi-file-excel"></i>
+                    </div>
+
+                    <div class="excel-header-text">
+                        <div class="excel-title">Layout MasCfdi</div>
+
+                        <div class="excel-subtitle">Columnas esperadas: Serie, Folio y Monto/Disponible</div>
+                    </div>
                 </div>
 
-                <div>
-                    <strong>Layout MasCfdi</strong>
+                <div class="excel-selector-linea">
+                    <div class="excel-upload-icon-mini">
+                        <i :class="archivoExcel ? 'pi pi-check-circle' : 'pi pi-cloud-upload'"></i>
+                    </div>
 
-                    <small> Columnas esperadas: Serie, Folio y Monto/Disponible. El proceso sólo consulta información. </small>
+                    <div class="excel-upload-texto">
+                        <strong>
+                            {{ archivoExcel ? 'Archivo listo para procesar' : 'Selecciona el archivo Excel' }}
+                        </strong>
+
+                        <small>
+                            {{ archivoExcel ? nombreArchivoExcel : 'Formatos permitidos: .xlsx y .xlsm' }}
+                        </small>
+                    </div>
+
+                    <input ref="inputArchivoExcel" type="file" accept=".xlsx,.xlsm" class="excel-input-hidden" :disabled="procesandoExcel || conciliandoExcel" @change="handleArchivoExcel" />
+
+                    <Button
+                        :label="archivoExcel ? 'Cambiar archivo' : 'Seleccionar archivo'"
+                        :icon="archivoExcel ? 'pi pi-refresh' : 'pi pi-folder-open'"
+                        severity="secondary"
+                        outlined
+                        class="excel-select-button"
+                        :disabled="procesandoExcel || conciliandoExcel"
+                        @click="handleSeleccionarArchivoExcel"
+                    />
                 </div>
+
+                <Button label="Descargar layout" icon="pi pi-download" severity="secondary" outlined class="excel-download-linea" :disabled="procesandoExcel || conciliandoExcel" @click="handleDescargarLayoutExcel" />
             </div>
 
-            <Button label="Descargar layout" icon="pi pi-download" severity="secondary" outlined class="btn-descargar-layout" @click="handleDescargarLayoutExcel" />
+            <Button label="Procesar archivo" icon="pi pi-search" class="excel-process" :loading="procesandoExcel" :disabled="!archivoExcel || procesandoExcel || conciliandoExcel" @click="handleProcesarExcel" />
 
-            <div class="excel-selector">
-                <input type="file" accept=".xlsx,.xlsm" class="input-archivo-excel" :disabled="procesandoExcel" @change="handleArchivoExcel" />
+            <div class="excel-info">
+                <i class="pi pi-info-circle"></i>
 
-                <span v-if="nombreArchivoExcel" class="archivo-seleccionado">
-                    {{ nombreArchivoExcel }}
-                </span>
+                <span> Primero se analizan las facturas y movimientos. Después puedes seleccionar cada bloque y confirmar explícitamente la conciliación; procesar el archivo por sí solo no guarda cambios. </span>
             </div>
-
-            <Button label="Procesar archivo" icon="pi pi-search" class="btn-buscar" :loading="procesandoExcel" :disabled="!archivoExcel" @click="handleProcesarExcel" />
         </div>
-
-        <Message severity="info" :closable="false" class="mb-3"> Este proceso no realiza conciliaciones. Busca las facturas disponibles y movimientos bancarios cuyo remanente disponible coincida con el monto de cada bloque del Excel. </Message>
 
         <Message v-if="erroresLayoutExcel.length" severity="warn" :closable="false" class="mb-3">
             <div class="errores-layout-excel">
@@ -558,7 +594,7 @@
                         <strong>{{ moneda(bloque.suma_pendiente_facturas) }}</strong>
                     </div>
                     <div>
-                        <span>Diferencia</span>
+                        <span>Diferencia layout</span>
                         <strong :class="Math.abs(Number(bloque.diferencia || 0)) <= 0.01 ? 'texto-verde' : 'texto-rojo'">
                             {{ moneda(bloque.diferencia) }}
                         </strong>
@@ -572,10 +608,17 @@
                     </span>
                 </div>
 
-                <div class="titulo-seccion-excel">Facturas del bloque</div>
-                <DataTable :value="bloque.facturas" dataKey="fila_excel" size="small" scrollable class="tabla-encabezados tabla-excel" tableStyle="width: max-content; min-width: 100%; table-layout: auto;">
-                    <template #empty>No hay facturas en este bloque.</template>
+                <div class="titulo-seccion-excel titulo-seccion-excel-seleccion">
+                    <div>
+                        <strong>Facturas del bloque</strong>
+                        <small>Selecciona las facturas que quieres conciliar.</small>
+                    </div>
+                    <span class="contador-seleccion-excel"> {{ bloque.facturasSeleccionadas?.length || 0 }} seleccionada(s) </span>
+                </div>
 
+                <DataTable v-model:selection="bloque.facturasSeleccionadas" :value="bloque.facturas" dataKey="uuid" size="small" scrollable class="tabla-encabezados tabla-excel" tableStyle="width: max-content; min-width: 100%; table-layout: auto;">
+                    <template #empty>No hay facturas en este bloque.</template>
+                    <Column selectionMode="multiple" headerStyle="width: 42px" />
                     <Column field="fila_excel" header="Fila Excel" style="width: 1%; white-space: nowrap" />
                     <Column header="Serie / Folio" style="width: 1%; white-space: nowrap">
                         <template #body="slotProps">
@@ -594,14 +637,14 @@
                         <template #body="slotProps">{{ moneda(slotProps.data.total) }}</template>
                     </Column>
                     <Column header="Aplicado banco" style="width: 1%; white-space: nowrap">
-                        <template #body="slotProps">
-                            <span class="texto-verde">{{ moneda(slotProps.data.aplicado_banco) }}</span>
-                        </template>
+                        <template #body="slotProps"
+                            ><span class="texto-verde">{{ moneda(slotProps.data.aplicado_banco) }}</span></template
+                        >
                     </Column>
                     <Column header="Pendiente" style="width: 1%; white-space: nowrap">
-                        <template #body="slotProps">
-                            <span class="texto-rojo">{{ moneda(slotProps.data.pendiente_banco) }}</span>
-                        </template>
+                        <template #body="slotProps"
+                            ><span class="texto-rojo">{{ moneda(slotProps.data.pendiente_banco) }}</span></template
+                        >
                     </Column>
                     <Column header="Estado" style="width: 1%; white-space: nowrap">
                         <template #body="slotProps">
@@ -611,10 +654,25 @@
                     <Column field="motivo" header="Resultado" style="min-width: 260px; white-space: normal" />
                 </DataTable>
 
-                <div class="titulo-seccion-excel movimientos-excel-titulo">Movimientos bancarios con remanente disponible = {{ moneda(bloque.monto_excel) }}</div>
-                <DataTable :value="bloque.movimientos" dataKey="_id" size="small" scrollable class="tabla-encabezados tabla-excel" tableStyle="width: max-content; min-width: 100%; table-layout: auto;">
-                    <template #empty>No se encontró un movimiento con ese remanente disponible.</template>
+                <div class="titulo-seccion-excel movimientos-excel-titulo titulo-seccion-excel-seleccion">
+                    <div>
+                        <strong>Movimientos bancarios encontrados</strong>
+                        <small>Selecciona uno o varios movimientos hasta cubrir las facturas seleccionadas.</small>
+                    </div>
+                    <span class="contador-seleccion-excel"> {{ bloque.movimientosSeleccionados?.length || 0 }} seleccionado(s) </span>
+                </div>
 
+                <DataTable
+                    v-model:selection="bloque.movimientosSeleccionados"
+                    :value="bloque.movimientos"
+                    dataKey="_id"
+                    size="small"
+                    scrollable
+                    class="tabla-encabezados tabla-excel"
+                    tableStyle="width: max-content; min-width: 100%; table-layout: auto;"
+                >
+                    <template #empty>No se encontró un movimiento con ese remanente disponible.</template>
+                    <Column selectionMode="multiple" headerStyle="width: 42px" />
                     <Column field="fecha" header="Fecha" style="width: 1%; white-space: nowrap" />
                     <Column header="Banco / Cuenta" style="min-width: 150px">
                         <template #body="slotProps">
@@ -633,22 +691,84 @@
                         <template #body="slotProps">{{ moneda(slotProps.data.monto_aplicado) }}</template>
                     </Column>
                     <Column header="Disponible" style="width: 1%; white-space: nowrap">
-                        <template #body="slotProps">
-                            <strong class="texto-verde">{{ moneda(slotProps.data.monto_disponible) }}</strong>
-                        </template>
+                        <template #body="slotProps"
+                            ><strong class="texto-verde">{{ moneda(slotProps.data.monto_disponible) }}</strong></template
+                        >
                     </Column>
                 </DataTable>
+
+                <div class="excel-conciliacion-barra">
+                    <div class="excel-conciliacion-total">
+                        <span>Facturas seleccionadas</span>
+                        <strong>{{ moneda(totalFacturasBloqueExcel(bloque)) }}</strong>
+                    </div>
+                    <div class="excel-conciliacion-total">
+                        <span>Movimientos seleccionados</span>
+                        <strong>{{ moneda(totalMovimientosBloqueExcel(bloque)) }}</strong>
+                    </div>
+                    <div class="excel-conciliacion-total">
+                        <span>Diferencia</span>
+                        <strong :class="Math.abs(diferenciaBloqueExcel(bloque)) <= 0.01 ? 'texto-verde' : 'texto-rojo'">
+                            {{ moneda(diferenciaBloqueExcel(bloque)) }}
+                        </strong>
+                    </div>
+                    <Button label="Conciliar bloque" icon="pi pi-check-circle" class="btn-conciliar-excel" :disabled="!puedeConciliarBloqueExcel(bloque) || conciliandoExcel" @click="handleSolicitarConciliarBloqueExcel(bloque)" />
+                </div>
             </div>
         </div>
 
         <template #footer>
             <div class="footer-excel">
                 <div class="nota-solo-consulta">
-                    <i class="pi pi-info-circle"></i>
-                    <span>Solo consulta: no se modificaron CFDI, movimientos ni conciliaciones.</span>
+                    <i class="pi pi-shield"></i>
+                    <span>Procesar solo analiza. La conciliación se guarda únicamente al confirmar un bloque.</span>
                 </div>
-                <Button label="Cerrar" severity="secondary" outlined :disabled="procesandoExcel" @click="handleCerrarExcel" />
+                <Button label="Cerrar" severity="secondary" outlined :disabled="procesandoExcel || conciliandoExcel" @click="handleCerrarExcel" />
             </div>
+        </template>
+    </Dialog>
+
+    <!-- CONFIRMAR CONCILIACION DESDE EXCEL -->
+    <Dialog v-model:visible="mostrarConfirmarExcel" modal header="Confirmar conciliación del bloque" :style="{ width: '560px', maxWidth: '94vw' }" :draggable="false" :closable="!conciliandoExcel" class="dialog-confirmar-excel">
+        <div v-if="bloqueExcelSeleccionado" class="confirmar-excel">
+            <div class="confirmar-excel-icono">
+                <i class="pi pi-link"></i>
+            </div>
+
+            <div class="confirmar-excel-texto">
+                <strong>Se guardará la conciliación bancaria.</strong>
+                <p>Se aplicarán los movimientos seleccionados entre las facturas del bloque hasta cubrir cada saldo pendiente.</p>
+            </div>
+
+            <div class="confirmar-excel-resumen">
+                <div>
+                    <span>Bloque</span>
+                    <strong>{{ bloqueExcelSeleccionado.numero }}</strong>
+                </div>
+                <div>
+                    <span>Facturas</span>
+                    <strong>{{ bloqueExcelSeleccionado.facturasSeleccionadas?.length || 0 }}</strong>
+                </div>
+                <div>
+                    <span>Movimientos</span>
+                    <strong>{{ bloqueExcelSeleccionado.movimientosSeleccionados?.length || 0 }}</strong>
+                </div>
+                <div>
+                    <span>Total a conciliar</span>
+                    <strong class="texto-verde">{{ moneda(totalFacturasBloqueExcel(bloqueExcelSeleccionado)) }}</strong>
+                </div>
+                <div class="confirmar-excel-diferencia">
+                    <span>Diferencia</span>
+                    <strong>{{ moneda(diferenciaBloqueExcel(bloqueExcelSeleccionado)) }}</strong>
+                </div>
+            </div>
+
+            <Message severity="warn" :closable="false"> Esta acción sí modifica la conciliación bancaria. Los CFDI y movimientos originales no se eliminan. </Message>
+        </div>
+
+        <template #footer>
+            <Button label="Cancelar" severity="secondary" outlined :disabled="conciliandoExcel" @click="mostrarConfirmarExcel = false" />
+            <Button label="Confirmar conciliación" icon="pi pi-check" class="btn-conciliar-excel" :loading="conciliandoExcel" @click="handleConciliarBloqueExcel" />
         </template>
     </Dialog>
 
@@ -819,7 +939,7 @@
 </template>
 
 <script>
-import Encabezado from '../../../components/encabezado/Encabezado.vue';
+import Encabezado from '../../../../components/encabezado/Encabezado.vue';
 
 import proceso from './js/proceso.js';
 

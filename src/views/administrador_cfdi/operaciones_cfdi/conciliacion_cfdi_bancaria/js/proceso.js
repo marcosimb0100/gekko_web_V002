@@ -70,23 +70,43 @@ const useProceso = () => {
     });
 
     // ============================================================
+
     // BUSQUEDA MASIVA POR EXCEL
+
     // ============================================================
+
     const mostrarExcel = ref(false);
+
     const procesandoExcel = ref(false);
+
     const archivoExcel = ref(null);
+    const inputArchivoExcel = ref(null);
+
     const nombreArchivoExcel = ref('');
+
     const resultadoExcelProcesado = ref(false);
+
     const bloquesExcel = ref([]);
+
     const erroresLayoutExcel = ref([]);
+
+    const conciliandoExcel = ref(false);
+    const mostrarConfirmarExcel = ref(false);
+    const bloqueExcelSeleccionado = ref(null);
 
     const resumenExcel = ref({
         bloques: 0,
+
         facturas_solicitadas: 0,
+
         facturas_disponibles: 0,
+
         facturas_no_disponibles: 0,
+
         facturas_no_encontradas: 0,
+
         facturas_ambiguas: 0,
+
         movimientos_encontrados: 0
     });
 
@@ -310,11 +330,13 @@ const useProceso = () => {
 
                     tipo: factura.tipo,
 
-                    dias_antes: 5,
+                    dias_antes: 30,
 
-                    dias_despues: 90,
+                    dias_despues: 120,
 
-                    min_score: 20
+                    min_score: 0,
+
+                    incluir_parciales: true
                 }
             });
 
@@ -560,78 +582,37 @@ const useProceso = () => {
 
     const handleDescargarLayoutExcel = async () => {
         try {
-            // Evita que VITE_API_URL termine con /
-            // Ejemplo:
-            // http://localhost:7509/api/  -> http://localhost:7509/api
-            const urlBase = String(import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
-
-            // Token de sesión
-            const token = localStorage.getItem('token');
-
-            // Ruta actual, siguiendo el esquema de seguridad de Gekko
-            const rutaActual = window.location.pathname;
-
-            if (!token) {
-                showNotification('No se encontró el token de autenticación.', 'error');
-                return;
-            }
-
-            const response = await fetch(`${urlBase}/conciliacion_cfdi_bancaria/descargar_layout_excel`, {
-                method: 'GET',
-                headers: {
-                    Authorization: token,
-                    rutaActual: rutaActual
-                }
+            const res = await store.dispatch('api/apiGetblob', {
+                direccion: '/conciliacion_cfdi_bancaria/descargar_layout_excel'
             });
 
-            // Si el backend respondió con error
-            if (!response.ok) {
-                let mensaje = 'No fue posible descargar el layout de Excel.';
+            if (res?.estatus !== 200 || !res?.data) {
+                handleToast('error', obtenerMensajeRespuesta(res, 'No fue posible descargar el layout de Excel.'));
 
-                try {
-                    const error = await response.json();
-
-                    mensaje = error?.mensaje || error?.message || error?.datos?.mensaje || mensaje;
-                } catch (error) {
-                    // La respuesta no era JSON
-                }
-
-                showNotification(mensaje, 'error');
                 return;
             }
 
-            // Convertir respuesta a archivo
-            const blob = await response.blob();
+            const url = window.URL.createObjectURL(res.data);
 
-            if (!blob || blob.size === 0) {
-                showNotification('El archivo recibido está vacío.', 'error');
-                return;
-            }
-
-            // Crear URL temporal
-            const downloadUrl = window.URL.createObjectURL(blob);
-
-            // Crear enlace temporal
             const link = document.createElement('a');
 
-            link.href = downloadUrl;
+            link.href = url;
+
             link.download = 'FiltroMasivo.xlsx';
 
             document.body.appendChild(link);
 
-            // Descargar
             link.click();
 
-            // Limpiar
-            document.body.removeChild(link);
+            link.remove();
 
-            window.URL.revokeObjectURL(downloadUrl);
+            window.URL.revokeObjectURL(url);
 
-            showNotification('Layout de Excel descargado correctamente.', 'success');
+            handleToast('success', 'Layout de Excel descargado correctamente.');
         } catch (error) {
             console.error('Error al descargar layout Excel:', error);
 
-            showNotification('No fue posible descargar el layout de Excel.', 'error');
+            handleToast('error', 'No fue posible descargar el layout de Excel.');
         }
     };
 
@@ -641,6 +622,9 @@ const useProceso = () => {
         bloquesExcel.value = [];
 
         erroresLayoutExcel.value = [];
+
+        mostrarConfirmarExcel.value = false;
+        bloqueExcelSeleccionado.value = null;
 
         resumenExcel.value = {
             bloques: 0,
@@ -670,9 +654,19 @@ const useProceso = () => {
 
         nombreArchivoExcel.value = '';
 
+        if (inputArchivoExcel.value) {
+            inputArchivoExcel.value.value = '';
+        }
+
         resetResultadoExcel();
 
         mostrarExcel.value = true;
+    };
+
+    const handleSeleccionarArchivoExcel = () => {
+        if (procesandoExcel.value) return;
+
+        inputArchivoExcel.value?.click();
     };
 
     const handleArchivoExcel = (event) => {
@@ -705,6 +699,178 @@ const useProceso = () => {
         archivoExcel.value = archivo;
 
         nombreArchivoExcel.value = archivo.name;
+    };
+
+    const centavos = (valor) => {
+        const numero = Number(valor || 0);
+        return Number.isFinite(numero) ? Math.round(numero * 100) : 0;
+    };
+
+    const totalFacturasBloqueExcel = (bloque) => {
+        return (bloque?.facturasSeleccionadas || []).reduce((acc, item) => acc + Number(item?.pendiente_banco || 0), 0);
+    };
+
+    const totalMovimientosBloqueExcel = (bloque) => {
+        return (bloque?.movimientosSeleccionados || []).reduce((acc, item) => acc + Number(item?.monto_disponible || 0), 0);
+    };
+
+    const diferenciaBloqueExcel = (bloque) => {
+        return totalFacturasBloqueExcel(bloque) - totalMovimientosBloqueExcel(bloque);
+    };
+
+    const puedeConciliarBloqueExcel = (bloque) => {
+        if (!bloque) return false;
+
+        const facturasSeleccionadas = bloque.facturasSeleccionadas || [];
+        const movimientosSeleccionados = bloque.movimientosSeleccionados || [];
+
+        if (!facturasSeleccionadas.length || !movimientosSeleccionados.length) {
+            return false;
+        }
+
+        if (facturasSeleccionadas.some((item) => !item?.disponible || !item?.uuid)) {
+            return false;
+        }
+
+        const totalFacturas = centavos(totalFacturasBloqueExcel(bloque));
+        const totalMovimientos = centavos(totalMovimientosBloqueExcel(bloque));
+
+        return totalFacturas > 0 && totalFacturas === totalMovimientos;
+    };
+
+    const prepararBloquesExcel = (bloques) => {
+        return (Array.isArray(bloques) ? bloques : []).map((bloque) => {
+            const facturas = Array.isArray(bloque?.facturas) ? bloque.facturas : [];
+            const movimientos = Array.isArray(bloque?.movimientos) ? bloque.movimientos : [];
+            const facturasDisponibles = facturas.filter((item) => item?.disponible && item?.uuid);
+
+            return {
+                ...bloque,
+                facturas,
+                movimientos,
+                facturasSeleccionadas: [...facturasDisponibles],
+                movimientosSeleccionados: movimientos.length === 1 ? [...movimientos] : []
+            };
+        });
+    };
+
+    const handleSolicitarConciliarBloqueExcel = (bloque) => {
+        if (!puedeConciliarBloqueExcel(bloque)) {
+            handleToast('warn', 'Selecciona facturas y movimientos cuyo total coincida exactamente antes de conciliar.');
+            return;
+        }
+
+        bloqueExcelSeleccionado.value = bloque;
+        mostrarConfirmarExcel.value = true;
+    };
+
+    const crearPlanConciliacionExcel = (bloque) => {
+        const facturas = [...(bloque?.facturasSeleccionadas || [])];
+        const movimientos = (bloque?.movimientosSeleccionados || []).map((item) => ({
+            ...item,
+            restanteCentavos: centavos(item?.monto_disponible)
+        }));
+
+        const plan = [];
+
+        for (const factura of facturas) {
+            let pendienteCentavos = centavos(factura?.pendiente_banco);
+            const aplicaciones = [];
+
+            for (const movimiento of movimientos) {
+                if (pendienteCentavos <= 0) break;
+                if (movimiento.restanteCentavos <= 0) continue;
+
+                const aplicarCentavos = Math.min(pendienteCentavos, movimiento.restanteCentavos);
+
+                if (aplicarCentavos <= 0) continue;
+
+                aplicaciones.push({
+                    movimiento_id: movimiento._id,
+                    monto_aplicado: aplicarCentavos / 100,
+                    score: Number(movimiento.score || 0)
+                });
+
+                movimiento.restanteCentavos -= aplicarCentavos;
+                pendienteCentavos -= aplicarCentavos;
+            }
+
+            if (pendienteCentavos > 0) {
+                throw new Error(`No fue posible cubrir completamente la factura ${factura.serie || ''} ${factura.folio || ''}.`);
+            }
+
+            plan.push({
+                factura,
+                aplicaciones
+            });
+        }
+
+        const remanenteMovimientos = movimientos.reduce((acc, item) => acc + item.restanteCentavos, 0);
+
+        if (remanenteMovimientos !== 0) {
+            throw new Error('El total seleccionado en movimientos no coincide con las facturas seleccionadas.');
+        }
+
+        return plan;
+    };
+
+    const handleConciliarBloqueExcel = async () => {
+        const bloque = bloqueExcelSeleccionado.value;
+
+        if (!bloque || !puedeConciliarBloqueExcel(bloque)) {
+            handleToast('warn', 'El bloque ya no tiene una selección válida para conciliar.');
+            return;
+        }
+
+        conciliandoExcel.value = true;
+
+        let conciliacionesRealizadas = 0;
+
+        try {
+            const plan = crearPlanConciliacionExcel(bloque);
+
+            for (const item of plan) {
+                const res = await store.dispatch('api/apiPostToken', {
+                    direccion: '/conciliacion_cfdi_bancaria/conciliar',
+                    datosJson: {
+                        company_id: empresaSeleccionada.value._id,
+                        uuid: item.factura.uuid,
+                        tipo: tipo.value,
+                        aplicaciones: item.aplicaciones
+                    }
+                });
+
+                if (res?.estatus !== 200) {
+                    throw new Error(obtenerMensajeRespuesta(res, `No fue posible conciliar la factura ${item.factura.serie || ''} ${item.factura.folio || ''}.`));
+                }
+
+                conciliacionesRealizadas += 1;
+            }
+
+            mostrarConfirmarExcel.value = false;
+            bloqueExcelSeleccionado.value = null;
+
+            handleToast('success', `${conciliacionesRealizadas} factura(s) conciliada(s) correctamente desde el bloque de Excel.`);
+
+            await handleConsultar();
+            await handleProcesarExcel();
+        } catch (error) {
+            console.error('Error al conciliar bloque Excel:', error);
+
+            mostrarConfirmarExcel.value = false;
+            bloqueExcelSeleccionado.value = null;
+
+            handleToast('error', error?.message || 'Ocurrió un error al conciliar el bloque de Excel.');
+
+            // Si hubo una conciliación parcial antes del error, refrescamos
+            // para no dejar información visual desactualizada.
+            if (conciliacionesRealizadas > 0) {
+                await handleConsultar();
+                await handleProcesarExcel();
+            }
+        } finally {
+            conciliandoExcel.value = false;
+        }
     };
 
     const handleProcesarExcel = async () => {
@@ -747,7 +913,7 @@ const useProceso = () => {
 
             const datos = obtenerDatosRespuesta(res);
 
-            bloquesExcel.value = Array.isArray(datos.bloques) ? datos.bloques : [];
+            bloquesExcel.value = prepararBloquesExcel(datos.bloques);
 
             erroresLayoutExcel.value = Array.isArray(datos.errores_layout) ? datos.errores_layout : [];
 
@@ -780,13 +946,17 @@ const useProceso = () => {
     };
 
     const handleCerrarExcel = () => {
-        if (procesandoExcel.value) return;
+        if (procesandoExcel.value || conciliandoExcel.value) return;
 
         mostrarExcel.value = false;
 
         archivoExcel.value = null;
 
         nombreArchivoExcel.value = '';
+
+        if (inputArchivoExcel.value) {
+            inputArchivoExcel.value.value = '';
+        }
 
         resetResultadoExcel();
     };
@@ -1138,7 +1308,15 @@ const useProceso = () => {
 
         procesandoExcel,
 
+        conciliandoExcel,
+
+        mostrarConfirmarExcel,
+
+        bloqueExcelSeleccionado,
+
         archivoExcel,
+
+        inputArchivoExcel,
 
         nombreArchivoExcel,
 
@@ -1151,6 +1329,14 @@ const useProceso = () => {
         resumenExcel,
 
         totalProblemasExcel,
+
+        totalFacturasBloqueExcel,
+
+        totalMovimientosBloqueExcel,
+
+        diferenciaBloqueExcel,
+
+        puedeConciliarBloqueExcel,
 
         fechaInicial,
 
@@ -1194,9 +1380,15 @@ const useProceso = () => {
 
         handleAbrirExcel,
 
+        handleSeleccionarArchivoExcel,
+
         handleArchivoExcel,
 
         handleProcesarExcel,
+
+        handleSolicitarConciliarBloqueExcel,
+
+        handleConciliarBloqueExcel,
 
         handleCerrarExcel,
 
@@ -1225,6 +1417,7 @@ const useProceso = () => {
         handleConciliarGlobal,
 
         handleLimpiar,
+
         handleDescargarLayoutExcel
     };
 };
