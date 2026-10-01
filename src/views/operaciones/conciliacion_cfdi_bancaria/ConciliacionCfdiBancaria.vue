@@ -113,6 +113,8 @@
                 </div>
 
                 <div class="acciones-tabla-superior">
+                    <Button label="Buscar por Excel" icon="pi pi-file-excel" class="btn-excel" :disabled="!facturas.length" @click="handleAbrirExcel" />
+
                     <Button label="Conciliar global" icon="pi pi-bolt" class="btn-global" :disabled="!facturas.length" @click="handleAbrirGlobal" />
 
                     <span class="contador-registros">{{ facturas.length }} factura(s)</span>
@@ -204,7 +206,20 @@
 
     <!-- BUSCAR / CONCILIAR MOVIMIENTOS -->
 
-    <Dialog v-model:visible="mostrarDialogo" modal header="Buscar movimientos bancarios" :style="{ width: '92vw', maxWidth: '1500px' }" :draggable="false">
+    <Dialog
+        v-model:visible="mostrarDialogo"
+        modal
+        header="Buscar movimientos bancarios"
+        :style="{
+            width: '96vw',
+            maxWidth: '1550px'
+        }"
+        :contentStyle="{
+            overflow: 'hidden'
+        }"
+        :draggable="false"
+        class="dialog-movimientos-bancarios"
+    >
         <div v-if="facturaSeleccionada" class="factura-dialogo">
             <div>
                 <span>Factura</span>
@@ -247,56 +262,68 @@
             :rows="25"
             :rowsPerPageOptions="[25, 50, 100]"
             scrollable
-            scrollHeight="45vh"
+            scrollHeight="42vh"
             size="small"
             :loading="buscandoMovimientos"
             @row-select="handleToggleMovimiento($event.data)"
+            class="tabla-encabezados tabla-movimientos-dialogo"
+            tableStyle="width: 100%; table-layout: auto;"
         >
             <template #empty>No se encontraron coincidencias bancarias con el nivel mínimo de coincidencia.</template>
 
-            <Column selectionMode="multiple" headerStyle="width: 44px" />
+            <Column selectionMode="multiple" headerStyle="width: 40px" />
 
-            <Column field="fecha" header="Fecha" style="min-width: 105px" />
+            <Column field="fecha" header="Fecha" style="width: 105px" />
 
-            <Column header="Banco / Cuenta" style="min-width: 190px">
+            <Column header="Banco / Cuenta" style="min-width: 135px">
                 <template #body="slotProps">
                     <div class="contraparte">
-                        <strong>{{ slotProps.data.banco || slotProps.data.clabe_cuenta?.substring(0, 3) }}</strong>
+                        <strong>
+                            {{ slotProps.data.banco || slotProps.data.clabe_cuenta?.substring(0, 3) }}
+                        </strong>
 
-                        <small>{{ slotProps.data.cuenta_banco || slotProps.data.clabe_cuenta }}</small>
+                        <small>
+                            {{ slotProps.data.cuenta_banco || slotProps.data.clabe_cuenta }}
+                        </small>
                     </div>
                 </template>
             </Column>
 
-            <Column field="descripcion" header="Descripción" style="min-width: 250px" />
+            <Column field="descripcion" header="Descripción" style="min-width: 180px" />
 
-            <Column field="referencia" header="Referencia" style="min-width: 120px" />
+            <Column field="referencia" header="Referencia" style="min-width: 105px" />
 
-            <Column field="clave_rastreo" header="Clave rastreo" style="min-width: 175px" />
+            <Column field="clave_rastreo" header="Clave rastreo" style="min-width: 145px" />
 
-            <Column header="Movimiento" style="min-width: 125px">
+            <Column header="Movimiento" style="min-width: 105px">
                 <template #body="slotProps">
-                    <span class="moneda">{{ moneda(slotProps.data.monto_movimiento) }}</span>
+                    <span class="moneda">
+                        {{ moneda(slotProps.data.monto_movimiento) }}
+                    </span>
                 </template>
             </Column>
 
-            <Column header="Disponible" style="min-width: 125px">
+            <Column header="Disponible" style="min-width: 105px">
                 <template #body="slotProps">
-                    <span class="moneda moneda-aplicada">{{ moneda(slotProps.data.monto_disponible) }}</span>
+                    <span class="moneda moneda-aplicada">
+                        {{ moneda(slotProps.data.monto_disponible) }}
+                    </span>
                 </template>
             </Column>
 
-            <Column header="Coincidencia" style="min-width: 150px">
+            <Column header="Coincidencia" style="min-width: 120px">
                 <template #body="slotProps">
                     <div class="score-contenedor">
-                        <span :class="claseScore(slotProps.data.score)">{{ slotProps.data.score }}%</span>
+                        <span :class="claseScore(slotProps.data.score)"> {{ slotProps.data.score }}% </span>
 
-                        <small>{{ (slotProps.data.razones || []).join(' · ') }}</small>
+                        <small>
+                            {{ (slotProps.data.razones || []).join(' · ') }}
+                        </small>
                     </div>
                 </template>
             </Column>
 
-            <Column header="Monto a aplicar" style="min-width: 155px">
+            <Column header="Monto a aplicar" style="min-width: 145px">
                 <template #body="slotProps">
                     <InputNumber v-model="slotProps.data.monto_aplicar" mode="currency" currency="MXN" locale="es-MX" :min="0" :max="Number(slotProps.data.monto_disponible || 0)" :minFractionDigits="2" :maxFractionDigits="2" class="input-monto" />
                 </template>
@@ -455,6 +482,173 @@
             <Button label="Cancelar" severity="secondary" outlined :disabled="desconciliando" @click="mostrarConfirmarDesconciliar = false" />
 
             <Button label="Sí, desconciliar" icon="pi pi-times-circle" severity="danger" :loading="desconciliando" @click="handleDesconciliar" />
+        </template>
+    </Dialog>
+
+    <!-- BUSQUEDA MASIVA POR EXCEL - SOLO CONSULTA -->
+    <Dialog v-model:visible="mostrarExcel" modal header="Búsqueda masiva por Excel" :style="{ width: '95vw', maxWidth: '1500px' }" :draggable="false" :closable="!procesandoExcel" class="dialog-busqueda-excel" @hide="handleCerrarExcel">
+        <div class="excel-carga">
+            <div class="excel-carga-info">
+                <div class="excel-icono">
+                    <i class="pi pi-file-excel"></i>
+                </div>
+
+                <div>
+                    <strong>Layout MasCfdi</strong>
+
+                    <small> Columnas esperadas: Serie, Folio y Monto/Disponible. El proceso sólo consulta información. </small>
+                </div>
+            </div>
+
+            <Button label="Descargar layout" icon="pi pi-download" severity="secondary" outlined class="btn-descargar-layout" @click="handleDescargarLayoutExcel" />
+
+            <div class="excel-selector">
+                <input type="file" accept=".xlsx,.xlsm" class="input-archivo-excel" :disabled="procesandoExcel" @change="handleArchivoExcel" />
+
+                <span v-if="nombreArchivoExcel" class="archivo-seleccionado">
+                    {{ nombreArchivoExcel }}
+                </span>
+            </div>
+
+            <Button label="Procesar archivo" icon="pi pi-search" class="btn-buscar" :loading="procesandoExcel" :disabled="!archivoExcel" @click="handleProcesarExcel" />
+        </div>
+
+        <Message severity="info" :closable="false" class="mb-3"> Este proceso no realiza conciliaciones. Busca las facturas disponibles y movimientos bancarios cuyo remanente disponible coincida con el monto de cada bloque del Excel. </Message>
+
+        <Message v-if="erroresLayoutExcel.length" severity="warn" :closable="false" class="mb-3">
+            <div class="errores-layout-excel">
+                <strong>Observaciones del layout</strong>
+                <span v-for="(error, index) in erroresLayoutExcel" :key="index">• {{ error }}</span>
+            </div>
+        </Message>
+
+        <div v-if="resultadoExcelProcesado" class="excel-resumen">
+            <div class="tarjeta-resumen">
+                <span>Bloques</span>
+                <strong>{{ resumenExcel.bloques }}</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span>Facturas solicitadas</span>
+                <strong>{{ resumenExcel.facturas_solicitadas }}</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span>Disponibles</span>
+                <strong class="resumen-ok">{{ resumenExcel.facturas_disponibles }}</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span>No disponibles / no encontradas</span>
+                <strong class="resumen-pendiente">{{ totalProblemasExcel }}</strong>
+            </div>
+            <div class="tarjeta-resumen">
+                <span>Movimientos encontrados</span>
+                <strong>{{ resumenExcel.movimientos_encontrados }}</strong>
+            </div>
+        </div>
+
+        <div v-if="resultadoExcelProcesado" class="bloques-excel">
+            <div v-for="bloque in bloquesExcel" :key="bloque.numero" class="bloque-excel">
+                <div class="bloque-excel-header">
+                    <div>
+                        <span>Bloque {{ bloque.numero }}</span>
+                        <strong>{{ moneda(bloque.monto_excel) }}</strong>
+                        <small>Monto/Disponible del Excel</small>
+                    </div>
+                    <div>
+                        <span>Suma pendiente facturas</span>
+                        <strong>{{ moneda(bloque.suma_pendiente_facturas) }}</strong>
+                    </div>
+                    <div>
+                        <span>Diferencia</span>
+                        <strong :class="Math.abs(Number(bloque.diferencia || 0)) <= 0.01 ? 'texto-verde' : 'texto-rojo'">
+                            {{ moneda(bloque.diferencia) }}
+                        </strong>
+                    </div>
+                    <div>
+                        <span>Movimientos disponibles</span>
+                        <strong>{{ bloque.total_movimientos }}</strong>
+                    </div>
+                    <span :class="bloque.coincide_suma ? 'estado estado-ok' : 'estado estado-parcial'">
+                        {{ bloque.coincide_suma ? 'Suma coincide' : 'Revisar suma' }}
+                    </span>
+                </div>
+
+                <div class="titulo-seccion-excel">Facturas del bloque</div>
+                <DataTable :value="bloque.facturas" dataKey="fila_excel" size="small" scrollable class="tabla-encabezados tabla-excel" tableStyle="width: max-content; min-width: 100%; table-layout: auto;">
+                    <template #empty>No hay facturas en este bloque.</template>
+
+                    <Column field="fila_excel" header="Fila Excel" style="width: 1%; white-space: nowrap" />
+                    <Column header="Serie / Folio" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">
+                            <strong>{{ slotProps.data.serie_solicitada || '-' }} {{ slotProps.data.folio_solicitado }}</strong>
+                        </template>
+                    </Column>
+                    <Column header="Cliente / Proveedor" class="col-cliente-auto">
+                        <template #body="slotProps">
+                            <div class="contraparte">
+                                <strong>{{ slotProps.data.nombre_contraparte || '-' }}</strong>
+                                <small>{{ slotProps.data.rfc_contraparte || '-' }}</small>
+                            </div>
+                        </template>
+                    </Column>
+                    <Column header="Total" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">{{ moneda(slotProps.data.total) }}</template>
+                    </Column>
+                    <Column header="Aplicado banco" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">
+                            <span class="texto-verde">{{ moneda(slotProps.data.aplicado_banco) }}</span>
+                        </template>
+                    </Column>
+                    <Column header="Pendiente" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">
+                            <span class="texto-rojo">{{ moneda(slotProps.data.pendiente_banco) }}</span>
+                        </template>
+                    </Column>
+                    <Column header="Estado" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">
+                            <span :class="claseEstadoExcel(slotProps.data.estado)">{{ slotProps.data.estado }}</span>
+                        </template>
+                    </Column>
+                    <Column field="motivo" header="Resultado" style="min-width: 260px; white-space: normal" />
+                </DataTable>
+
+                <div class="titulo-seccion-excel movimientos-excel-titulo">Movimientos bancarios con remanente disponible = {{ moneda(bloque.monto_excel) }}</div>
+                <DataTable :value="bloque.movimientos" dataKey="_id" size="small" scrollable class="tabla-encabezados tabla-excel" tableStyle="width: max-content; min-width: 100%; table-layout: auto;">
+                    <template #empty>No se encontró un movimiento con ese remanente disponible.</template>
+
+                    <Column field="fecha" header="Fecha" style="width: 1%; white-space: nowrap" />
+                    <Column header="Banco / Cuenta" style="min-width: 150px">
+                        <template #body="slotProps">
+                            <div class="contraparte">
+                                <strong>{{ slotProps.data.banco || '-' }}</strong>
+                                <small>{{ slotProps.data.cuenta_banco || slotProps.data.clabe_cuenta || '-' }}</small>
+                            </div>
+                        </template>
+                    </Column>
+                    <Column field="descripcion" header="Descripción" style="min-width: 190px" />
+                    <Column field="referencia" header="Referencia" style="min-width: 120px" />
+                    <Column header="Monto original" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">{{ moneda(slotProps.data.monto_original) }}</template>
+                    </Column>
+                    <Column header="Aplicado" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">{{ moneda(slotProps.data.monto_aplicado) }}</template>
+                    </Column>
+                    <Column header="Disponible" style="width: 1%; white-space: nowrap">
+                        <template #body="slotProps">
+                            <strong class="texto-verde">{{ moneda(slotProps.data.monto_disponible) }}</strong>
+                        </template>
+                    </Column>
+                </DataTable>
+            </div>
+        </div>
+
+        <template #footer>
+            <div class="footer-excel">
+                <div class="nota-solo-consulta">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Solo consulta: no se modificaron CFDI, movimientos ni conciliaciones.</span>
+                </div>
+                <Button label="Cerrar" severity="secondary" outlined :disabled="procesandoExcel" @click="handleCerrarExcel" />
+            </div>
         </template>
     </Dialog>
 

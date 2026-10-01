@@ -1171,3 +1171,326 @@
     z-index: 2;
     background: var(--surface-card);
 }
+
+/* =========================================================
+   BUSQUEDA MASIVA POR EXCEL
+   ========================================================= */
+
+.btn-excel {
+    background: #18864b !important;
+    border-color: #18864b !important;
+    color: #fff !important;
+    white-space: nowrap;
+}
+
+.excel-carga {
+    display: grid;
+    grid-template-columns: minmax(250px, 1fr) minmax(280px, 1.25fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--surface-border);
+    border-radius: 9px;
+    background: var(--surface-card);
+}
+
+.excel-carga-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.excel-carga-info > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.excel-carga-info strong {
+    font-size: 12px;
+}
+
+.excel-carga-info small {
+    font-size: 9px;
+    opacity: 0.65;
+}
+
+.excel-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #e7f6ed;
+    color: #18864b;
+    font-size: 18px;
+}
+
+.excel-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.input-archivo-excel {
+    width: 100%;
+    min-height: 34px;
+    padding: 5px 7px;
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    background: var(--surface-card);
+    font-size: 10px;
+}
+
+.archivo-seleccionado {
+    font-size: 9px;
+    color: #18864b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.errores-layout-excel {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 10px;
+}
+
+.excel-resumen {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 9px;
+    margin: 10px 0 13px;
+}
+
+.bloques-excel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 58vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.bloque-excel {
+    border: 1px solid var(--surface-border);
+    border-radius: 9px;
+    background: var(--surface-card);
+    overflow: hidden;
+}
+
+.bloque-excel-header {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--surface-ground);
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.bloque-excel-header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.bloque-excel-header span,
+.bloque-excel-header small {
+    font-size: 8px;
+    opacity: 0.65;
+    text-transform: uppercase;
+}
+
+.bloque-excel-header strong {
+    font-size: 12px;
+}
+
+.titulo-seccion-excel {
+    padding: 8px 10px 5px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.movimientos-excel-titulo {
+    margin-top: 5px;
+    border-top: 1px solid var(--surface-border);
+    padding-top: 9px;
+}
+
+.footer-excel {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    width: 100%;
+}
+
+.nota-solo-consulta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: auto;
+    font-size: 9px;
+    opacity: 0.7;
+}
+
+:global(.dialog-busqueda-excel .tabla-excel .p-datatable-thead > tr > th) {
+    padding: 6px 6px !important;
+    background: rgb(54, 65, 75) !important;
+    color: #fff !important;
+    border-color: rgb(54, 65, 75) !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    white-space: nowrap;
+}
+
+:global(.dialog-busqueda-excel .tabla-excel .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+    font-size: 9px !important;
+    vertical-align: middle;
+}
+
+:global(.dialog-busqueda-excel .tabla-excel .col-cliente-auto .contraparte strong),
+:global(.dialog-busqueda-excel .tabla-excel .col-cliente-auto .contraparte small) {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 1100px) {
+    .excel-carga {
+        grid-template-columns: 1fr;
+    }
+
+    .excel-resumen {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bloque-excel-header {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+/* =========================================================
+   DIALOGO BUSCAR MOVIMIENTOS - TABLA HOMOLOGADA
+   ========================================================= */
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-thead > tr > th) {
+    padding: 6px 6px !important;
+    background: rgb(54, 65, 75) !important;
+    color: #ffffff !important;
+    border-color: rgb(54, 65, 75) !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+    font-size: 9px !important;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-tbody > tr) {
+    height: 32px;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-tbody > tr:hover) {
+    background: var(--surface-hover) !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-wrapper) {
+    overflow-x: auto !important;
+}
+
+/* checkbox del encabezado */
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-thead .p-checkbox-box) {
+    background: #ffffff !important;
+    border-color: #d7dde2 !important;
+}
+
+/* tabla compacta */
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-checkbox) {
+    width: 16px;
+    height: 16px;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-checkbox .p-checkbox-box) {
+    width: 16px;
+    height: 16px;
+}
+
+/* paginador compacto */
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-paginator) {
+    padding: 0.3rem !important;
+    min-height: 40px;
+}
+/* =========================================================
+   DIALOGO BUSCAR MOVIMIENTOS - AJUSTE DE ANCHO
+   ========================================================= */
+
+:global(.dialog-movimientos-bancarios .p-dialog-content) {
+    overflow: hidden !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-wrapper) {
+    width: 100%;
+    overflow-x: auto !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-table) {
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-thead > tr > th) {
+    padding: 5px 6px !important;
+    background: rgb(54, 65, 75) !important;
+    color: #fff !important;
+    border-color: rgb(54, 65, 75) !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .p-datatable-tbody > tr > td) {
+    padding: 5px 6px !important;
+    font-size: 9px !important;
+    vertical-align: middle;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .input-monto) {
+    width: 135px !important;
+}
+
+:global(.dialog-movimientos-bancarios .tabla-movimientos-dialogo .input-monto .p-inputnumber-input) {
+    width: 135px !important;
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+}
+
+:global(.dialog-movimientos-bancarios .resumen-dialogo) {
+    margin-top: 10px;
+    padding-top: 10px;
+    gap: 22px;
+}
+
+:global(.dialog-movimientos-bancarios .p-dialog-footer) {
+    padding-top: 8px !important;
+}
+
+.btn-descargar-layout {
+    white-space: nowrap;
+    min-height: 34px;
+}
+
+:global(.dialog-busqueda-excel .btn-descargar-layout .p-button-icon) {
+    font-size: 12px;
+}

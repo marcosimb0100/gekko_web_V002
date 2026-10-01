@@ -69,6 +69,31 @@ const useProceso = () => {
         sin_coincidencia: 0
     });
 
+    // ============================================================
+    // BUSQUEDA MASIVA POR EXCEL
+    // ============================================================
+    const mostrarExcel = ref(false);
+    const procesandoExcel = ref(false);
+    const archivoExcel = ref(null);
+    const nombreArchivoExcel = ref('');
+    const resultadoExcelProcesado = ref(false);
+    const bloquesExcel = ref([]);
+    const erroresLayoutExcel = ref([]);
+
+    const resumenExcel = ref({
+        bloques: 0,
+        facturas_solicitadas: 0,
+        facturas_disponibles: 0,
+        facturas_no_disponibles: 0,
+        facturas_no_encontradas: 0,
+        facturas_ambiguas: 0,
+        movimientos_encontrados: 0
+    });
+
+    const totalProblemasExcel = computed(() => {
+        return Number(resumenExcel.value.facturas_no_disponibles || 0) + Number(resumenExcel.value.facturas_no_encontradas || 0) + Number(resumenExcel.value.facturas_ambiguas || 0);
+    });
+
     const hoy = new Date();
 
     const fechaInicial = ref(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
@@ -468,13 +493,28 @@ const useProceso = () => {
             handleToast('success', obtenerMensajeRespuesta(res, 'Conciliación eliminada correctamente.'));
 
             mostrarConfirmarDesconciliar.value = false;
+
+            mostrarExcel.value = false;
+
+            archivoExcel.value = null;
+
+            nombreArchivoExcel.value = '';
+
+            resetResultadoExcel();
+
             mostrarGlobal.value = false;
+
             resultadosGlobal.value = [];
+
             seleccionGlobal.value = [];
+
             resumenGlobal.value = {
                 facturas_analizadas: 0,
+
                 conciliables: 0,
+
                 ambiguas: 0,
+
                 sin_coincidencia: 0
             };
 
@@ -506,6 +546,249 @@ const useProceso = () => {
         } finally {
             desconciliando.value = false;
         }
+    };
+
+    const claseEstadoExcel = (estado) => {
+        const value = String(estado || '').toLowerCase();
+
+        if (value === 'disponible') return 'estado estado-ok';
+
+        if (value === 'ambigua') return 'estado estado-parcial';
+
+        return 'estado estado-pendiente';
+    };
+
+    const handleDescargarLayoutExcel = async () => {
+        try {
+            // Evita que VITE_API_URL termine con /
+            // Ejemplo:
+            // http://localhost:7509/api/  -> http://localhost:7509/api
+            const urlBase = String(import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+
+            // Token de sesión
+            const token = localStorage.getItem('token');
+
+            // Ruta actual, siguiendo el esquema de seguridad de Gekko
+            const rutaActual = window.location.pathname;
+
+            if (!token) {
+                showNotification('No se encontró el token de autenticación.', 'error');
+                return;
+            }
+
+            const response = await fetch(`${urlBase}/conciliacion_cfdi_bancaria/descargar_layout_excel`, {
+                method: 'GET',
+                headers: {
+                    Authorization: token,
+                    rutaActual: rutaActual
+                }
+            });
+
+            // Si el backend respondió con error
+            if (!response.ok) {
+                let mensaje = 'No fue posible descargar el layout de Excel.';
+
+                try {
+                    const error = await response.json();
+
+                    mensaje = error?.mensaje || error?.message || error?.datos?.mensaje || mensaje;
+                } catch (error) {
+                    // La respuesta no era JSON
+                }
+
+                showNotification(mensaje, 'error');
+                return;
+            }
+
+            // Convertir respuesta a archivo
+            const blob = await response.blob();
+
+            if (!blob || blob.size === 0) {
+                showNotification('El archivo recibido está vacío.', 'error');
+                return;
+            }
+
+            // Crear URL temporal
+            const downloadUrl = window.URL.createObjectURL(blob);
+
+            // Crear enlace temporal
+            const link = document.createElement('a');
+
+            link.href = downloadUrl;
+            link.download = 'FiltroMasivo.xlsx';
+
+            document.body.appendChild(link);
+
+            // Descargar
+            link.click();
+
+            // Limpiar
+            document.body.removeChild(link);
+
+            window.URL.revokeObjectURL(downloadUrl);
+
+            showNotification('Layout de Excel descargado correctamente.', 'success');
+        } catch (error) {
+            console.error('Error al descargar layout Excel:', error);
+
+            showNotification('No fue posible descargar el layout de Excel.', 'error');
+        }
+    };
+
+    const resetResultadoExcel = () => {
+        resultadoExcelProcesado.value = false;
+
+        bloquesExcel.value = [];
+
+        erroresLayoutExcel.value = [];
+
+        resumenExcel.value = {
+            bloques: 0,
+
+            facturas_solicitadas: 0,
+
+            facturas_disponibles: 0,
+
+            facturas_no_disponibles: 0,
+
+            facturas_no_encontradas: 0,
+
+            facturas_ambiguas: 0,
+
+            movimientos_encontrados: 0
+        };
+    };
+
+    const handleAbrirExcel = () => {
+        if (!empresaSeleccionada.value?._id) {
+            handleToast('warn', 'Selecciona una empresa y consulta las facturas primero.');
+
+            return;
+        }
+
+        archivoExcel.value = null;
+
+        nombreArchivoExcel.value = '';
+
+        resetResultadoExcel();
+
+        mostrarExcel.value = true;
+    };
+
+    const handleArchivoExcel = (event) => {
+        const archivo = event?.target?.files?.[0] || null;
+
+        resetResultadoExcel();
+
+        if (!archivo) {
+            archivoExcel.value = null;
+
+            nombreArchivoExcel.value = '';
+
+            return;
+        }
+
+        const nombre = String(archivo.name || '').toLowerCase();
+
+        if (!nombre.endsWith('.xlsx') && !nombre.endsWith('.xlsm')) {
+            archivoExcel.value = null;
+
+            nombreArchivoExcel.value = '';
+
+            event.target.value = '';
+
+            handleToast('warn', 'Selecciona un archivo .xlsx o .xlsm.');
+
+            return;
+        }
+
+        archivoExcel.value = archivo;
+
+        nombreArchivoExcel.value = archivo.name;
+    };
+
+    const handleProcesarExcel = async () => {
+        if (!empresaSeleccionada.value?._id) {
+            handleToast('warn', 'Selecciona una empresa.');
+
+            return;
+        }
+
+        if (!archivoExcel.value) {
+            handleToast('warn', 'Selecciona el archivo Excel.');
+
+            return;
+        }
+
+        procesandoExcel.value = true;
+
+        resetResultadoExcel();
+
+        try {
+            const formData = new FormData();
+
+            formData.append('archivo', archivoExcel.value);
+
+            formData.append('company_id', empresaSeleccionada.value._id);
+
+            formData.append('tipo', String(tipo.value));
+
+            const res = await store.dispatch('api/apiPostTokenFormData', {
+                direccion: '/conciliacion_cfdi_bancaria/busqueda_masiva_excel',
+
+                formData
+            });
+
+            if (res?.estatus !== 200) {
+                handleToast('error', obtenerMensajeRespuesta(res, 'No fue posible procesar el archivo Excel.'));
+
+                return;
+            }
+
+            const datos = obtenerDatosRespuesta(res);
+
+            bloquesExcel.value = Array.isArray(datos.bloques) ? datos.bloques : [];
+
+            erroresLayoutExcel.value = Array.isArray(datos.errores_layout) ? datos.errores_layout : [];
+
+            resumenExcel.value = {
+                bloques: Number(datos.resumen?.bloques || 0),
+
+                facturas_solicitadas: Number(datos.resumen?.facturas_solicitadas || 0),
+
+                facturas_disponibles: Number(datos.resumen?.facturas_disponibles || 0),
+
+                facturas_no_disponibles: Number(datos.resumen?.facturas_no_disponibles || 0),
+
+                facturas_no_encontradas: Number(datos.resumen?.facturas_no_encontradas || 0),
+
+                facturas_ambiguas: Number(datos.resumen?.facturas_ambiguas || 0),
+
+                movimientos_encontrados: Number(datos.resumen?.movimientos_encontrados || 0)
+            };
+
+            resultadoExcelProcesado.value = true;
+
+            handleToast('success', obtenerMensajeRespuesta(res, 'Archivo analizado correctamente.'));
+        } catch (error) {
+            console.error(error);
+
+            handleToast('error', 'Ocurrió un error al procesar el archivo Excel.');
+        } finally {
+            procesandoExcel.value = false;
+        }
+    };
+
+    const handleCerrarExcel = () => {
+        if (procesandoExcel.value) return;
+
+        mostrarExcel.value = false;
+
+        archivoExcel.value = null;
+
+        nombreArchivoExcel.value = '';
+
+        resetResultadoExcel();
     };
 
     const claseEstadoGlobal = (estado) => {
@@ -553,6 +836,7 @@ const useProceso = () => {
             if (!estaSeleccionadoGlobal(fila)) {
                 seleccionGlobal.value = [...seleccionGlobal.value, fila];
             }
+
             return;
         }
 
@@ -562,6 +846,7 @@ const useProceso = () => {
     const handleSeleccionarTodosGlobal = (seleccionar) => {
         if (seleccionar) {
             seleccionGlobal.value = [...conciliablesGlobal.value];
+
             return;
         }
 
@@ -574,12 +859,18 @@ const useProceso = () => {
         }
 
         mostrarGlobal.value = false;
+
         seleccionGlobal.value = [];
+
         resultadosGlobal.value = [];
+
         resumenGlobal.value = {
             facturas_analizadas: 0,
+
             conciliables: 0,
+
             ambiguas: 0,
+
             sin_coincidencia: 0
         };
     };
@@ -843,6 +1134,24 @@ const useProceso = () => {
 
         resumenGlobal,
 
+        mostrarExcel,
+
+        procesandoExcel,
+
+        archivoExcel,
+
+        nombreArchivoExcel,
+
+        resultadoExcelProcesado,
+
+        bloquesExcel,
+
+        erroresLayoutExcel,
+
+        resumenExcel,
+
+        totalProblemasExcel,
+
         fechaInicial,
 
         fechaFinal,
@@ -881,15 +1190,32 @@ const useProceso = () => {
 
         handleDesconciliar,
 
+        claseEstadoExcel,
+
+        handleAbrirExcel,
+
+        handleArchivoExcel,
+
+        handleProcesarExcel,
+
+        handleCerrarExcel,
+
         claseEstadoGlobal,
 
         puedeSeleccionarGlobal,
+
         estaSeleccionadoGlobal,
+
         conciliablesGlobal,
+
         cantidadSeleccionadaGlobal,
+
         todosGlobalSeleccionados,
+
         handleSeleccionGlobal,
+
         handleSeleccionarTodosGlobal,
+
         handleCerrarGlobal,
 
         handleAbrirGlobal,
@@ -898,7 +1224,8 @@ const useProceso = () => {
 
         handleConciliarGlobal,
 
-        handleLimpiar
+        handleLimpiar,
+        handleDescargarLayoutExcel
     };
 };
 
