@@ -24,6 +24,7 @@
     grid-template-columns:
         minmax(180px, 1fr)
         minmax(220px, 1fr)
+        minmax(220px, 1fr)
         minmax(260px, 1fr)
         auto;
 
@@ -91,7 +92,7 @@
 
     border-radius: 4px;
 
-    background: rgba(194, 24, 23, 0.10);
+    background: rgba(194, 24, 23, 0.1);
 
     font-weight: 600;
 
@@ -99,14 +100,11 @@
 }
 
 @media (max-width: 1200px) {
-
     .filtros-pagos {
-        grid-template-columns:
-            1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
     .datos-pago {
-        grid-template-columns:
-            1fr 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 }

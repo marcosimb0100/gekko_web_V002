@@ -64,6 +64,11 @@
         <!-- DATOS DEL PAGO -->
         <div class="datos-pago">
             <div class="campo-filtro">
+                <label>Fecha Factura</label>
+
+                <DatePicker v-model="fechaHoraCfdi" showTime hourFormat="24" dateFormat="yy-mm-dd" showIcon class="w-full" :maxDate="fechaActual" :disabled="!cfdisSeleccionados.length" />
+            </div>
+            <div class="campo-filtro">
                 <label>Monto Total</label>
 
                 <InputText :modelValue="handleFormatMX(montoTotal)" disabled class="w-full" style="font-weight: 600" />

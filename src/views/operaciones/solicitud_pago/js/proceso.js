@@ -44,7 +44,18 @@ const useProceso = () => {
 
     const cfdisSeleccionados = ref([]);
 
+    // -------------------------------------------------------------------------
+    // FECHAS DEL COMPLEMENTO
+    // -------------------------------------------------------------------------
+
+    // Fecha que se utilizará en:
+    // cfdi:Comprobante/@Fecha
+    const fechaHoraCfdi = ref(null);
+
+    // Fecha real del pago:
+    // pago20:Pago/@FechaPago
     const fechaHoraPago = ref(null);
+
     const formaPago = ref('03');
 
     const catTipo = [
@@ -186,7 +197,7 @@ const useProceso = () => {
     // -------------------------------------------------------------------------
 
     const pagoValido = computed(() => {
-        return Boolean(montoTotal.value > 0 && fechaHoraPago.value && formaPago.value);
+        return Boolean(montoTotal.value > 0 && fechaHoraCfdi.value && fechaHoraPago.value && formaPago.value);
     });
 
     // -------------------------------------------------------------------------
@@ -232,6 +243,9 @@ const useProceso = () => {
         catCfdis.value = [];
 
         cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
+        fechaHoraPago.value = null;
 
         if (!frmFiltros.empresa) {
             return;
@@ -349,6 +363,8 @@ const useProceso = () => {
 
         cfdisSeleccionados.value = [];
 
+        fechaHoraCfdi.value = null;
+
         fechaHoraPago.value = null;
 
         formaPago.value = '03';
@@ -442,6 +458,17 @@ const useProceso = () => {
         cfdisSeleccionados.value = nuevos;
 
         // =============================================================
+        // FECHA CFDI
+        //
+        // Al seleccionar la primera factura dejamos como valor inicial
+        // la fecha/hora actual. El usuario puede modificarla.
+        // =============================================================
+
+        if (nuevos.length && !fechaHoraCfdi.value) {
+            fechaHoraCfdi.value = new Date();
+        }
+
+        // =============================================================
         // ACTUALIZAR TABLA
         //
         // SELECCIONADO   -> MONTO A ABONAR
@@ -464,6 +491,8 @@ const useProceso = () => {
         // =============================================================
 
         if (!nuevos.length) {
+            fechaHoraCfdi.value = null;
+
             fechaHoraPago.value = null;
 
             formaPago.value = '03';
@@ -515,6 +544,7 @@ const useProceso = () => {
             item.uuid === rowData.uuid
                 ? {
                       ...item,
+
                       abonar: monto
                   }
                 : item
@@ -524,6 +554,7 @@ const useProceso = () => {
             item.uuid === rowData.uuid
                 ? {
                       ...item,
+
                       abonar: monto
                   }
                 : item
@@ -539,7 +570,7 @@ const useProceso = () => {
             toast.add({
                 severity: 'warn',
                 summary: 'Notificación',
-                detail: 'Captura fecha, forma de pago y monto.',
+                detail: 'Captura fecha CFDI, fecha de pago, forma de pago y monto.',
                 life: 3000
             });
 
@@ -643,6 +674,15 @@ const useProceso = () => {
 
             total: 0,
 
+            // =====================================================
+            // FECHA CFDI
+            //
+            // Se utiliza en:
+            // cfdi:Comprobante/@Fecha
+            // =====================================================
+
+            fecha_factura: formatFechaLocal(fechaHoraCfdi.value, true),
+
             cliente: {
                 rfc: clienteSeleccionado.value?.rfc || (frmFiltros.tipo === 1 ? facturas[0].receptor_rfc : facturas[0].emisor_rfc),
 
@@ -651,6 +691,13 @@ const useProceso = () => {
 
             complemento_pago: {
                 version: '2.0',
+
+                // =================================================
+                // FECHA REAL DEL PAGO
+                //
+                // Se utiliza en:
+                // pago20:Pago/@FechaPago
+                // =================================================
 
                 fecha_pago: formatFechaLocal(fechaHoraPago.value, true),
 
@@ -691,6 +738,7 @@ const useProceso = () => {
 
                     impuestos: {
                         retencion: [],
+
                         traslado: []
                     },
 
@@ -741,6 +789,8 @@ const useProceso = () => {
 
         cfdisSeleccionados.value = [];
 
+        fechaHoraCfdi.value = null;
+
         fechaHoraPago.value = null;
 
         formaPago.value = '03';
@@ -760,6 +810,8 @@ const useProceso = () => {
         catCfdis.value = [];
 
         cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
 
         fechaHoraPago.value = null;
 
@@ -810,7 +862,9 @@ const useProceso = () => {
 
         cfdisSeleccionados,
 
+        fechaHoraCfdi,
         fechaHoraPago,
+
         formaPago,
 
         montoTotal,

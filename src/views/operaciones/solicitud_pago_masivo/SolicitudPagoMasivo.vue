@@ -10,7 +10,7 @@
             <!-- EMPRESA -->
 
             <div class="campo-filtro">
-                <label> Empresa </label>
+                <label>Empresa</label>
 
                 <Dropdown v-model="frmFiltros.empresa" :options="catCompaniasSat" optionLabel="razon_social_nombre_completo" optionValue="rfc" placeholder="Empresa" filter class="w-full" @change="handleCambioEmpresa" />
             </div>
@@ -18,7 +18,7 @@
             <!-- TIPO -->
 
             <div class="campo-filtro">
-                <label> Tipo </label>
+                <label>Tipo</label>
 
                 <Dropdown v-model="frmFiltros.tipo" :options="catTipo" optionLabel="description" optionValue="id" placeholder="Tipo" class="w-full" />
             </div>
@@ -26,7 +26,7 @@
             <!-- COMPROBANTE -->
 
             <div class="campo-filtro">
-                <label> Comprobante </label>
+                <label>Comprobante</label>
 
                 <MultiSelect v-model="frmFiltros.tipoComprobante" :options="catTiposComprobantes" optionLabel="description" optionValue="id" placeholder="CFDI" display="chip" class="w-full" :invalid="!tipoComprobanteValido" />
             </div>
@@ -34,7 +34,7 @@
             <!-- FECHA INICIAL -->
 
             <div class="campo-filtro">
-                <label> Inicial </label>
+                <label>Inicial</label>
 
                 <DatePicker v-model="frmFiltros.fechaInicial" dateFormat="yy-mm-dd" showIcon class="w-full" :maxDate="fechaActual" :invalid="!fechaInicialValida" />
             </div>
@@ -42,7 +42,7 @@
             <!-- FECHA FINAL -->
 
             <div class="campo-filtro">
-                <label> Final </label>
+                <label>Final</label>
 
                 <DatePicker v-model="frmFiltros.fechaFinal" dateFormat="yy-mm-dd" showIcon class="w-full" :maxDate="fechaActual" :minDate="frmFiltros.fechaInicial" :invalid="!fechaFinalValida" />
             </div>
@@ -63,6 +63,98 @@
                 </template>
             </Button>
         </form>
+
+        <!-- =====================================================
+             FILTRO EXCEL
+        ====================================================== -->
+
+        <div class="filtro-excel">
+            <div class="filtro-excel-info">
+                <div class="filtro-excel-icono">
+                    <font-icon icon="fa-solid fa-file-excel" />
+                </div>
+
+                <div class="filtro-excel-texto">
+                    <strong> Filtro por Excel </strong>
+
+                    <span v-if="!frmFiltros.empresa"> Selecciona primero una empresa. </span>
+
+                    <span v-else-if="!catCfdisOriginal.length"> Consulta los CFDI y después carga el archivo con serie y folio. </span>
+
+                    <span v-else> Carga un archivo Excel con las columnas serie y folio. </span>
+                </div>
+            </div>
+
+            <div v-if="filtroExcelActivo" class="filtro-excel-resumen">
+                <div>
+                    <span>Archivo</span>
+
+                    <strong>
+                        {{ archivoExcelNombre }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Registros</span>
+
+                    <strong>
+                        {{ cantidadExcelRegistros }}
+                    </strong>
+                </div>
+
+                <div class="excel-encontradas">
+                    <span>Encontradas</span>
+
+                    <strong>
+                        {{ cantidadExcelEncontradas }}
+                    </strong>
+                </div>
+
+                <div class="excel-no-encontradas">
+                    <span>No encontradas</span>
+
+                    <strong>
+                        {{ cantidadExcelNoEncontradas }}
+                    </strong>
+                </div>
+
+                <div class="excel-sin-saldo">
+                    <span>Sin saldo</span>
+
+                    <strong>
+                        {{ cantidadExcelSinSaldo }}
+                    </strong>
+                </div>
+            </div>
+
+            <div class="filtro-excel-acciones">
+                <input ref="inputExcel" type="file" accept=".xlsx,.xls" class="input-excel-oculto" @change="handleCargarExcel" />
+
+                <!-- DESCARGAR LAYOUT -->
+
+                <Button type="button" label="Descargar layout" class="btn-layout-excel" v-tooltip.top="'Descargar formato de Excel'" @click="handleDescargarLayoutExcel">
+                    <template #icon>
+                        <font-icon icon="fa-solid fa-download" class="mr-2" />
+                    </template>
+                </Button>
+
+                <!-- CARGAR EXCEL -->
+
+                <Button type="button" label="Cargar Excel" class="btn-excel" :disabled="!frmFiltros.empresa || !catCfdisOriginal.length" @click="handleAbrirExcel">
+                    <template #icon>
+                        <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
+                    </template>
+                </Button>
+
+                <!-- QUITAR FILTRO -->
+
+                <Button v-if="filtroExcelActivo" type="button" label="Quitar filtro" class="btn-quitar-excel" @click="handleQuitarFiltroExcel">
+                    <template #icon>
+                        <font-icon icon="fa-solid fa-xmark" class="mr-2" />
+                    </template>
+                </Button>
+            </div>
+        </div>
 
         <!-- =====================================================
              RESUMEN
@@ -126,8 +218,56 @@
                     <span> Complementos a generar </span>
 
                     <strong>
-                        {{ cantidadClientesSeleccionados }}
+                        {{ cantidadComplementosGenerar }}
                     </strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- =====================================================
+             MODO DE GENERACION
+        ====================================================== -->
+
+        <div class="modo-generacion">
+            <div class="modo-generacion-header">
+                <div>
+                    <span class="modo-generacion-titulo"> Modo de generación </span>
+
+                    <span class="modo-generacion-subtitulo"> Define cómo se agruparán los CFDI seleccionados. </span>
+                </div>
+            </div>
+
+            <div class="modo-generacion-opciones">
+                <div
+                    class="modo-opcion"
+                    :class="{
+                        activo: modoGeneracion === 'cliente_fecha'
+                    }"
+                    @click="modoGeneracion = 'cliente_fecha'"
+                >
+                    <RadioButton v-model="modoGeneracion" inputId="modo-cliente" name="modoGeneracion" value="cliente_fecha" />
+
+                    <label for="modo-cliente">
+                        <strong> Por cliente </strong>
+
+                        <span> Agrupa todas las facturas seleccionadas del mismo cliente en un complemento. </span>
+                    </label>
+                </div>
+
+                <div
+                    class="modo-opcion"
+                    :class="{
+                        activo: modoGeneracion === 'factura'
+                    }"
+                    @click="modoGeneracion = 'factura'"
+                >
+                    <RadioButton v-model="modoGeneracion" inputId="modo-factura" name="modoGeneracion" value="factura" />
+
+                    <label for="modo-factura">
+                        <strong> Por factura </strong>
+
+                        <span> Genera un complemento independiente por cada factura seleccionada. </span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -137,7 +277,15 @@
         ====================================================== -->
 
         <div class="datos-pago">
-            <!-- FECHA -->
+            <!-- FECHA CFDI -->
+
+            <div class="campo-filtro">
+                <label> Fecha Factura </label>
+
+                <DatePicker v-model="fechaHoraCfdi" showTime hourFormat="24" dateFormat="yy-mm-dd" showIcon class="w-full" :maxDate="fechaActual" :disabled="!cfdisSeleccionados.length" />
+            </div>
+
+            <!-- FECHA PAGO -->
 
             <div class="campo-filtro">
                 <label> Fecha/Hora Pago </label>
@@ -188,6 +336,8 @@
                     {{ catCfdis.length }}
                     CFDI encontrados
                 </span>
+
+                <span v-if="filtroExcelActivo" class="resultado-excel-activo"> • Filtro Excel activo </span>
             </div>
 
             <div>
@@ -224,7 +374,9 @@
 
                     <strong> No se encontraron CFDI </strong>
 
-                    <span> Realiza una consulta para mostrar resultados. </span>
+                    <span v-if="filtroExcelActivo"> Ninguno de los folios del Excel tiene saldo pendiente dentro de la consulta. </span>
+
+                    <span v-else> Realiza una consulta para mostrar resultados. </span>
                 </div>
             </template>
 

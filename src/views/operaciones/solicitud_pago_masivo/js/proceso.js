@@ -1,9 +1,16 @@
 import { FilterMatchMode } from '@primevue/core/api';
+
 import { useToast } from 'primevue/usetoast';
 
 import { computed, reactive, ref } from 'vue';
 
 import { useStore } from 'vuex';
+
+import * as XLSX from 'xlsx';
+
+/* ============================================================
+   FECHAS DEFAULT
+============================================================ */
 
 const getFechaInicialDefault = () => {
     const fecha = new Date();
@@ -23,6 +30,10 @@ const getFechaFinalDefault = () => {
     return fecha;
 };
 
+/* ============================================================
+   FILTROS DEFAULT
+============================================================ */
+
 const frmFiltrosInit = () => ({
     empresa: '',
 
@@ -34,6 +45,10 @@ const frmFiltrosInit = () => ({
 
     fechaFinal: getFechaFinalDefault()
 });
+
+/* ============================================================
+   PROCESO
+============================================================ */
 
 const useProceso = () => {
     const store = useStore();
@@ -52,17 +67,57 @@ const useProceso = () => {
 
     const catCfdis = ref([]);
 
+    // ------------------------------------------------------------
+    // RESPALDO DE LA CONSULTA COMPLETA
+    //
+    // catCfdis:
+    //     datos visibles.
+    //
+    // catCfdisOriginal:
+    //     consulta completa antes del filtro Excel.
+    // ------------------------------------------------------------
+
+    const catCfdisOriginal = ref([]);
+
     const cfdisSeleccionados = ref([]);
 
     // ============================================================
     // PAGO
     // ============================================================
 
+    const fechaHoraCfdi = ref(null);
+
     const fechaHoraPago = ref(null);
 
     const formaPago = ref('03');
 
     const generando = ref(false);
+
+    // ============================================================
+    // MODO DE GENERACION
+    // ============================================================
+
+    const modoGeneracion = ref('cliente_fecha');
+
+    // ============================================================
+    // FILTRO EXCEL
+    // ============================================================
+
+    const inputExcel = ref(null);
+
+    const filtroExcelActivo = ref(false);
+
+    const archivoExcelNombre = ref('');
+
+    const registrosExcel = ref([]);
+
+    const cantidadExcelRegistros = ref(0);
+
+    const cantidadExcelEncontradas = ref(0);
+
+    const cantidadExcelNoEncontradas = ref(0);
+
+    const cantidadExcelSinSaldo = ref(0);
 
     // ============================================================
     // FILTRO GLOBAL
@@ -254,8 +309,20 @@ const useProceso = () => {
         return clientesSeleccionados.value.length;
     });
 
+    const cantidadComplementosGenerar = computed(() => {
+        if (modoGeneracion.value === 'factura') {
+            return cantidadFacturasSeleccionadas.value;
+        }
+
+        return cantidadClientesSeleccionados.value;
+    });
+
+    // ============================================================
+    // LABEL BOTON
+    // ============================================================
+
     const labelBotonGenerar = computed(() => {
-        const cantidad = cantidadClientesSeleccionados.value;
+        const cantidad = cantidadComplementosGenerar.value;
 
         if (cantidad <= 0) {
             return 'Generar Complementos';
@@ -273,7 +340,7 @@ const useProceso = () => {
     // ============================================================
 
     const pagoValido = computed(() => {
-        return Boolean(montoTotal.value > 0 && cantidadFacturasSeleccionadas.value > 0 && cantidadClientesSeleccionados.value > 0 && fechaHoraPago.value && formaPago.value && !generando.value);
+        return Boolean(montoTotal.value > 0 && cantidadFacturasSeleccionadas.value > 0 && cantidadComplementosGenerar.value > 0 && fechaHoraCfdi.value && fechaHoraPago.value && formaPago.value && !generando.value);
     });
 
     // ============================================================
@@ -303,19 +370,53 @@ const useProceso = () => {
     };
 
     // ============================================================
+    // LIMPIAR FILTRO EXCEL
+    // ============================================================
+
+    const handleLimpiarEstadoExcel = (restaurar = false) => {
+        if (restaurar && catCfdisOriginal.value.length) {
+            catCfdis.value = handleOrdenarPorFolio(catCfdisOriginal.value);
+        }
+
+        filtroExcelActivo.value = false;
+
+        archivoExcelNombre.value = '';
+
+        registrosExcel.value = [];
+
+        cantidadExcelRegistros.value = 0;
+
+        cantidadExcelEncontradas.value = 0;
+
+        cantidadExcelNoEncontradas.value = 0;
+
+        cantidadExcelSinSaldo.value = 0;
+
+        if (inputExcel.value) {
+            inputExcel.value.value = '';
+        }
+    };
+
+    // ============================================================
     // CAMBIO EMPRESA
     // ============================================================
 
     const handleCambioEmpresa = () => {
         catCfdis.value = [];
 
+        catCfdisOriginal.value = [];
+
         cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
 
         fechaHoraPago.value = null;
 
         formaPago.value = '03';
 
         filtros.value.global.value = null;
+
+        handleLimpiarEstadoExcel(false);
     };
 
     // ============================================================
@@ -377,6 +478,411 @@ const useProceso = () => {
     };
 
     // ============================================================
+    // NORMALIZAR TEXTO EXCEL
+    // ============================================================
+
+    const handleNormalizarTexto = (value) => {
+        return String(value ?? '')
+            .trim()
+            .toUpperCase();
+    };
+
+    // ============================================================
+    // NORMALIZAR FOLIO
+    //
+    // 000123 -> 123
+    // 123.0  -> 123
+    // ============================================================
+
+    const handleNormalizarFolio = (value) => {
+        let texto = String(value ?? '')
+            .trim()
+            .toUpperCase();
+
+        texto = texto.replace(/\.0+$/, '');
+
+        if (/^\d+$/.test(texto)) {
+            texto = texto.replace(/^0+(?=\d)/, '');
+        }
+
+        return texto;
+    };
+
+    // ============================================================
+    // NORMALIZAR ENCABEZADO
+    // ============================================================
+
+    const handleNormalizarEncabezado = (value) => {
+        return String(value ?? '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '_');
+    };
+
+    // ============================================================
+    // APLICAR FILTRO EXCEL
+    // ============================================================
+
+    const handleAplicarFiltroExcel = (registros) => {
+        if (!frmFiltros.empresa) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Primero selecciona una empresa.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        if (!catCfdisOriginal.value.length) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Primero consulta los CFDI de la empresa.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        const criterios = new Map();
+
+        registros.forEach((item, index) => {
+            const serie = handleNormalizarTexto(item.serie);
+
+            const folio = handleNormalizarFolio(item.folio);
+
+            const uuid = handleNormalizarTexto(item.uuid);
+
+            if (!folio && !uuid) {
+                return;
+            }
+
+            const key = uuid ? `UUID:${uuid}` : `SF:${serie}|${folio}`;
+
+            if (!criterios.has(key)) {
+                criterios.set(key, {
+                    serie,
+                    folio,
+                    uuid,
+                    index
+                });
+            }
+        });
+
+        if (!criterios.size) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'El Excel no contiene registros válidos de serie y folio.',
+
+                life: 4000
+            });
+
+            return;
+        }
+
+        const encontrados = [];
+
+        const criteriosEncontrados = new Set();
+
+        const criteriosSinSaldo = new Set();
+
+        catCfdisOriginal.value.forEach((cfdi) => {
+            const serieCfdi = handleNormalizarTexto(cfdi.serie);
+
+            const folioCfdi = handleNormalizarFolio(cfdi.folio);
+
+            const uuidCfdi = handleNormalizarTexto(cfdi.uuid);
+
+            let criterioEncontrado = null;
+
+            for (const [key, criterio] of criterios) {
+                if (criterio.uuid) {
+                    if (uuidCfdi === criterio.uuid) {
+                        criterioEncontrado = {
+                            key,
+                            criterio
+                        };
+
+                        break;
+                    }
+
+                    continue;
+                }
+
+                if (serieCfdi === criterio.serie && folioCfdi === criterio.folio) {
+                    criterioEncontrado = {
+                        key,
+                        criterio
+                    };
+
+                    break;
+                }
+            }
+
+            if (!criterioEncontrado) {
+                return;
+            }
+
+            const { key } = criterioEncontrado;
+
+            criteriosEncontrados.add(key);
+
+            const saldo = Number(cfdi.saldoInsolutoPagos ?? 0);
+
+            // ==========================================
+            // SOLO FACTURAS CON SALDO PENDIENTE
+            //
+            // saldo == total:
+            //     no tiene pagos.
+            //
+            // saldo < total y > 0:
+            //     pago parcial.
+            //
+            // saldo <= 0:
+            //     ya liquidada.
+            // ==========================================
+
+            if (saldo <= 0) {
+                criteriosSinSaldo.add(key);
+
+                return;
+            }
+
+            encontrados.push({
+                ...cfdi,
+
+                abonar: 0
+            });
+        });
+
+        const noEncontrados = Array.from(criterios.keys()).filter((key) => !criteriosEncontrados.has(key));
+
+        registrosExcel.value = Array.from(criterios.values());
+
+        cantidadExcelRegistros.value = criterios.size;
+
+        cantidadExcelEncontradas.value = encontrados.length;
+
+        cantidadExcelNoEncontradas.value = noEncontrados.length;
+
+        cantidadExcelSinSaldo.value = criteriosSinSaldo.size;
+
+        filtroExcelActivo.value = true;
+
+        catCfdis.value = handleOrdenarPorFolio(encontrados);
+
+        // ====================================================
+        // LIMPIAR SELECCION
+        //
+        // No seleccionamos automáticamente.
+        // El contador decide cuáles utilizar.
+        // ====================================================
+
+        cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
+
+        fechaHoraPago.value = null;
+
+        formaPago.value = '03';
+
+        filtros.value.global.value = null;
+
+        toast.add({
+            severity: encontrados.length ? 'success' : 'warn',
+
+            summary: 'Filtro Excel',
+
+            detail: `Encontradas: ${encontrados.length}. ` + `No encontradas: ${noEncontrados.length}. ` + `Sin saldo pendiente: ${criteriosSinSaldo.size}.`,
+
+            life: 6000
+        });
+    };
+
+    // ============================================================
+    // ABRIR EXCEL
+    // ============================================================
+
+    const handleAbrirExcel = () => {
+        if (!frmFiltros.empresa) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Primero selecciona una empresa.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        if (!catCfdisOriginal.value.length) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Primero consulta los CFDI de la empresa.',
+
+                life: 3000
+            });
+
+            return;
+        }
+
+        if (inputExcel.value) {
+            inputExcel.value.value = '';
+
+            inputExcel.value.click();
+        }
+    };
+
+    // ============================================================
+    // CARGAR EXCEL
+    // ============================================================
+
+    const handleCargarExcel = async (event) => {
+        const archivo = event.target?.files?.[0];
+
+        if (!archivo) {
+            return;
+        }
+
+        if (!frmFiltros.empresa) {
+            toast.add({
+                severity: 'warn',
+
+                summary: 'Notificación',
+
+                detail: 'Primero selecciona una empresa.',
+
+                life: 3000
+            });
+
+            event.target.value = '';
+
+            return;
+        }
+
+        try {
+            const buffer = await archivo.arrayBuffer();
+
+            const workbook = XLSX.read(buffer, {
+                type: 'array'
+            });
+
+            if (!workbook.SheetNames.length) {
+                throw new Error('El archivo no contiene hojas.');
+            }
+
+            const nombreHoja = workbook.SheetNames[0];
+
+            const hoja = workbook.Sheets[nombreHoja];
+
+            const filas = XLSX.utils.sheet_to_json(hoja, {
+                defval: '',
+
+                raw: false
+            });
+
+            if (!filas.length) {
+                toast.add({
+                    severity: 'warn',
+
+                    summary: 'Filtro Excel',
+
+                    detail: 'El archivo no contiene registros.',
+
+                    life: 4000
+                });
+
+                return;
+            }
+
+            const registros = filas.map((fila) => {
+                const normalizado = {};
+
+                Object.keys(fila).forEach((key) => {
+                    const nuevoKey = handleNormalizarEncabezado(key);
+
+                    normalizado[nuevoKey] = fila[key];
+                });
+
+                return {
+                    serie: normalizado.serie ?? '',
+
+                    folio: normalizado.folio ?? '',
+
+                    uuid: normalizado.uuid ?? ''
+                };
+            });
+
+            archivoExcelNombre.value = archivo.name;
+
+            handleAplicarFiltroExcel(registros);
+        } catch (error) {
+            console.error('ERROR LEYENDO EXCEL:', error);
+
+            toast.add({
+                severity: 'error',
+
+                summary: 'Filtro Excel',
+
+                detail: 'No fue posible leer el archivo Excel. Verifica que tenga las columnas serie y folio.',
+
+                life: 5000
+            });
+        } finally {
+            if (event.target) {
+                event.target.value = '';
+            }
+        }
+    };
+
+    // ============================================================
+    // QUITAR FILTRO EXCEL
+    // ============================================================
+
+    const handleQuitarFiltroExcel = () => {
+        handleLimpiarEstadoExcel(true);
+
+        cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
+
+        fechaHoraPago.value = null;
+
+        formaPago.value = '03';
+
+        filtros.value.global.value = null;
+
+        toast.add({
+            severity: 'info',
+
+            summary: 'Filtro Excel',
+
+            detail: 'Se quitó el filtro Excel y se restauró la consulta completa.',
+
+            life: 3000
+        });
+    };
+
+    // ============================================================
     // CONSULTAR
     // ============================================================
 
@@ -418,7 +924,15 @@ const useProceso = () => {
         if (res.estatus !== 200) {
             catCfdis.value = [];
 
+            catCfdisOriginal.value = [];
+
             cfdisSeleccionados.value = [];
+
+            fechaHoraCfdi.value = null;
+
+            fechaHoraPago.value = null;
+
+            handleLimpiarEstadoExcel(false);
 
             toast.add({
                 severity: 'error',
@@ -439,15 +953,27 @@ const useProceso = () => {
             abonar: 0
         }));
 
-        catCfdis.value = handleOrdenarPorFolio(registros);
+        const registrosOrdenados = handleOrdenarPorFolio(registros);
+
+        catCfdisOriginal.value = registrosOrdenados;
+
+        catCfdis.value = registrosOrdenados;
 
         cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
 
         fechaHoraPago.value = null;
 
         formaPago.value = '03';
 
         filtros.value.global.value = null;
+
+        // ====================================================
+        // UNA NUEVA CONSULTA QUITA EL FILTRO EXCEL ANTERIOR
+        // ====================================================
+
+        handleLimpiarEstadoExcel(false);
 
         toast.add({
             severity: 'success',
@@ -489,6 +1015,10 @@ const useProceso = () => {
 
         cfdisSeleccionados.value = nuevos;
 
+        if (nuevos.length && !fechaHoraCfdi.value) {
+            fechaHoraCfdi.value = new Date();
+        }
+
         catCfdis.value = catCfdis.value.map((item) => {
             const seleccionado = nuevos.find((x) => x.uuid === item.uuid);
 
@@ -500,6 +1030,8 @@ const useProceso = () => {
         });
 
         if (!nuevos.length) {
+            fechaHoraCfdi.value = null;
+
             fechaHoraPago.value = null;
 
             formaPago.value = '03';
@@ -641,7 +1173,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Selecciona facturas y captura ' + 'fecha y forma de pago.',
+                detail: 'Selecciona facturas y captura fecha CFDI, fecha de pago y forma de pago.',
 
                 life: 3000
             });
@@ -657,7 +1189,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Selecciona al menos una factura ' + 'con monto a abonar.',
+                detail: 'Selecciona al menos una factura con monto a abonar.',
 
                 life: 3000
             });
@@ -671,12 +1203,36 @@ const useProceso = () => {
             const payload = {
                 rfc_empresa: frmFiltros.empresa,
 
+                modo_generacion: modoGeneracion.value,
+
+                fecha_factura: formatFechaLocal(fechaHoraCfdi.value, true),
+
                 fechaHoraPago: formatFechaLocal(fechaHoraPago.value, true),
 
                 formaPago: formaPago.value,
 
                 facturas
             };
+
+            console.log('==============================================');
+
+            console.log('GENERAR COMPLEMENTOS MASIVOS');
+
+            console.log('==============================================');
+
+            console.log('MODO GENERACION:', payload.modo_generacion);
+
+            console.log('FECHA CFDI:', payload.fecha_factura);
+
+            console.log('FECHA PAGO:', payload.fechaHoraPago);
+
+            console.log('FORMA PAGO:', payload.formaPago);
+
+            console.log('FACTURAS:', payload.facturas.length);
+
+            console.log('COMPLEMENTOS A GENERAR:', cantidadComplementosGenerar.value);
+
+            console.log('==============================================');
 
             const res = await store.dispatch('api/apiPostToken', {
                 direccion: '/complementos_pago_masivos/generar',
@@ -712,6 +1268,8 @@ const useProceso = () => {
 
             cfdisSeleccionados.value = [];
 
+            fechaHoraCfdi.value = null;
+
             fechaHoraPago.value = null;
 
             formaPago.value = '03';
@@ -725,7 +1283,7 @@ const useProceso = () => {
 
                 summary: 'Notificación',
 
-                detail: 'Ocurrió un error al generar ' + 'los complementos.',
+                detail: 'Ocurrió un error al generar los complementos.',
 
                 life: 5000
             });
@@ -743,13 +1301,81 @@ const useProceso = () => {
 
         catCfdis.value = [];
 
+        catCfdisOriginal.value = [];
+
         cfdisSeleccionados.value = [];
+
+        fechaHoraCfdi.value = null;
 
         fechaHoraPago.value = null;
 
         formaPago.value = '03';
 
+        modoGeneracion.value = 'cliente_fecha';
+
         filtros.value.global.value = null;
+
+        handleLimpiarEstadoExcel(false);
+    };
+
+    const handleDescargarLayoutExcel = async () => {
+        try {
+            const res = await store.dispatch('api/apiGetblob', {
+                direccion: '/complementos_pago_masivos/descargar_layout_excel'
+            });
+
+            if (res?.estatus !== 200 || !res?.data) {
+                toast.add({
+                    severity: 'error',
+
+                    summary: 'Notificación',
+
+                    detail: res?.mensaje || 'No fue posible descargar el layout de Excel.',
+
+                    life: 4000
+                });
+
+                return;
+            }
+
+            const url = window.URL.createObjectURL(res.data);
+
+            const link = document.createElement('a');
+
+            link.href = url;
+
+            link.download = 'FiltroPagos.xlsx';
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            link.remove();
+
+            window.URL.revokeObjectURL(url);
+
+            toast.add({
+                severity: 'success',
+
+                summary: 'Notificación',
+
+                detail: 'Layout de Excel descargado correctamente.',
+
+                life: 3000
+            });
+        } catch (error) {
+            console.error('Error al descargar layout Excel:', error);
+
+            toast.add({
+                severity: 'error',
+
+                summary: 'Notificación',
+
+                detail: 'No fue posible descargar el layout de Excel.',
+
+                life: 4000
+            });
+        }
     };
 
     // ============================================================
@@ -790,17 +1416,59 @@ const useProceso = () => {
         frmFiltros,
 
         catCompaniasSat,
+
         catCfdis,
 
+        catCfdisOriginal,
+
         catTipo,
+
         catTiposComprobantes,
+
         catFormaPago,
 
         fechaActual,
 
         cfdisSeleccionados,
 
+        // ========================================================
+        // MODO GENERACION
+        // ========================================================
+
+        modoGeneracion,
+
+        // ========================================================
+        // EXCEL
+        // ========================================================
+
+        inputExcel,
+
+        filtroExcelActivo,
+
+        archivoExcelNombre,
+
+        cantidadExcelRegistros,
+
+        cantidadExcelEncontradas,
+
+        cantidadExcelNoEncontradas,
+
+        cantidadExcelSinSaldo,
+
+        handleAbrirExcel,
+
+        handleCargarExcel,
+
+        handleQuitarFiltroExcel,
+
+        // ========================================================
+        // FECHAS
+        // ========================================================
+
+        fechaHoraCfdi,
+
         fechaHoraPago,
+
         formaPago,
 
         filtros,
@@ -812,6 +1480,8 @@ const useProceso = () => {
         cantidadFacturasSeleccionadas,
 
         cantidadClientesSeleccionados,
+
+        cantidadComplementosGenerar,
 
         labelBotonGenerar,
 
@@ -843,7 +1513,8 @@ const useProceso = () => {
 
         handleFormatMX,
 
-        handleFormatFecha
+        handleFormatFecha,
+        handleDescargarLayoutExcel
     };
 };
 
