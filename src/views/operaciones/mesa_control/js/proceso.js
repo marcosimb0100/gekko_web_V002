@@ -78,7 +78,28 @@ const useProceso = () => {
     const dashboardComplementosTimbrados = ref([]);
 
     const erroresTimbrado = ref({ facturas: 0, complementos: 0 });
+    const dialogListadoErrores = ref(false);
+    const solicitudesConError = ref([]);
+    const cargandoListadoErrores = ref(false);
+    const busquedaErrores = ref('');
+    const tipoListadoErrores = ref('facturas');
+    const solicitudesConErrorFiltradas = computed(() => {
+        const texto = busquedaErrores.value.trim().toLowerCase();
+        if (!texto) return solicitudesConError.value;
+        return solicitudesConError.value.filter((item) =>
+            [item.created_at, item.compania, item.cliente, item.factura_serie, item.factura_folio, item.uuid, item.error_timbrado].some((valor) =>
+                String(valor ?? '')
+                    .toLowerCase()
+                    .includes(texto)
+            )
+        );
+    });
     const cargandoErroresTimbrado = ref(false);
+    const procesandoErrorTimbrado = ref(false);
+    const dialogResolverError = ref(false);
+    const solicitudErrorSeleccionada = ref(null);
+    const accionErrorSeleccionada = ref('');
+    const motivoErrorTimbrado = ref('');
     const resumenErroresTimbrado = computed(() => (tipoSolicitudFiltro.value === 'facturas' ? erroresTimbrado.value.facturas : erroresTimbrado.value.complementos));
 
     // ============================================================
@@ -168,7 +189,8 @@ const useProceso = () => {
             label: 'Timbradas',
 
             value: 'timbrada'
-        }
+        },
+        { label: 'Error de timbrado', value: 'error_timbrado' }
     ];
 
     // ============================================================
@@ -292,6 +314,7 @@ const useProceso = () => {
     // ============================================================
 
     const handleEndpointSolicitudes = () => {
+        if (estatusFiltro.value === 'error_timbrado') return '/solicitud_detallada/errores_timbrado';
         if (tipoSolicitudFiltro.value === 'facturas') {
             return estatusFiltro.value === 'timbrada' ? '/solicitud_detallada/timbradas' : '/solicitud_detallada/pendientes';
         }
@@ -327,7 +350,12 @@ const useProceso = () => {
         cargandoSolicitudes.value = true;
 
         try {
-            const direccion = handleEndpointSolicitudes() + '?' + handleParametrosFecha();
+            const parametros = new URLSearchParams(handleParametrosFecha());
+            if (estatusFiltro.value === 'error_timbrado') {
+                parametros.set('tipo_solicitud', tipoSolicitudFiltro.value === 'facturas' ? 'factura' : 'complemento_pago');
+                if (empresaFiltro.value) parametros.set('company_id', String(empresaFiltro.value));
+            }
+            const direccion = handleEndpointSolicitudes() + '?' + parametros.toString();
 
             const res = await store.dispatch('api/apiGetToken', {
                 direccion
@@ -598,6 +626,82 @@ const useProceso = () => {
 
     // ============================================================
 
+    const handleCargarListadoErrores = async () => {
+        if (!handleValidarFechas()) return;
+        cargandoListadoErrores.value = true;
+        try {
+            const parametros = new URLSearchParams(handleParametrosFecha());
+            parametros.set('tipo_solicitud', tipoListadoErrores.value === 'facturas' ? 'factura' : 'complemento_pago');
+            if (empresaFiltro.value) parametros.set('company_id', String(empresaFiltro.value));
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: '/solicitud_detallada/errores_timbrado?' + parametros.toString()
+            });
+            if (res?.estatus !== 200) throw new Error(res?.mensaje || 'No se pudieron consultar los errores.');
+            solicitudesConError.value = res?.datos?.solicitudes ?? [];
+        } catch (error) {
+            solicitudesConError.value = [];
+            toast.add({ severity: 'error', summary: 'Errores de timbrado', detail: error?.message || 'Error al consultar registros.', life: 4000 });
+        } finally {
+            cargandoListadoErrores.value = false;
+        }
+    };
+
+    const handleSeleccionarErroresTimbrado = async () => {
+        if (!handleValidarFechas()) return;
+        tipoListadoErrores.value = tipoSolicitudFiltro.value;
+        busquedaErrores.value = '';
+        dialogListadoErrores.value = true;
+        await handleCargarListadoErrores();
+    };
+
+    const handleAbrirResolverError = (solicitud, accion) => {
+        if (!solicitud?._id || !['pendiente', 'rechazada'].includes(accion)) return;
+        solicitudErrorSeleccionada.value = solicitud;
+        accionErrorSeleccionada.value = accion;
+        motivoErrorTimbrado.value = '';
+        dialogResolverError.value = true;
+    };
+
+    const handleCerrarResolverError = () => {
+        if (procesandoErrorTimbrado.value) return;
+        dialogResolverError.value = false;
+        solicitudErrorSeleccionada.value = null;
+        accionErrorSeleccionada.value = '';
+        motivoErrorTimbrado.value = '';
+    };
+
+    const handleConfirmarResolverError = async () => {
+        const solicitud = solicitudErrorSeleccionada.value;
+        const accion = accionErrorSeleccionada.value;
+        if (!solicitud?._id || !['pendiente', 'rechazada'].includes(accion) || procesandoErrorTimbrado.value) return;
+        if (accion === 'rechazada' && !motivoErrorTimbrado.value.trim()) {
+            toast.add({ severity: 'warn', summary: 'Motivo requerido', detail: 'Indica el motivo del rechazo.', life: 3500 });
+            return;
+        }
+        procesandoErrorTimbrado.value = true;
+        try {
+            const res = await store.dispatch('api/apiPutToken', {
+                direccion: '/solicitud_detallada/errores_timbrado/resolver',
+                datosJson: {
+                    solicitud_id: solicitud._id,
+                    tipo_solicitud: tipoListadoErrores.value === 'facturas' ? 'factura' : 'complemento_pago',
+                    accion,
+                    motivo: motivoErrorTimbrado.value.trim()
+                }
+            });
+            if (res?.estatus !== 200) throw new Error(res?.mensaje || 'No fue posible actualizar el estatus.');
+            dialogResolverError.value = false;
+            solicitudErrorSeleccionada.value = null;
+            motivoErrorTimbrado.value = '';
+            toast.add({ severity: 'success', summary: 'Solicitud actualizada', detail: res?.mensaje || 'Estatus actualizado correctamente.', life: 3500 });
+            await Promise.all([handleCargarListadoErrores(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
+        } catch (error) {
+            toast.add({ severity: 'error', summary: 'Error', detail: error?.message || 'No se pudo cambiar el estatus.', life: 4000 });
+        } finally {
+            procesandoErrorTimbrado.value = false;
+        }
+    };
+
     const handleCambiarTipoSolicitud = async () => {
         empresaFiltro.value = '';
 
@@ -700,6 +804,7 @@ const useProceso = () => {
     const handleNombreEstatus = (estatus) => {
         const valor = String(estatus ?? '').toLowerCase();
 
+        if (valor === 'error_timbrado') return 'Error de timbrado';
         if (valor === 'timbrada') {
             return 'Timbrada';
         }
@@ -717,6 +822,7 @@ const useProceso = () => {
 
     const handleClaseEstatus = (estatus) => {
         const valor = String(estatus ?? '').toLowerCase();
+        if (valor === 'error_timbrado') return 'error_timbrado';
 
         if (valor === 'timbrada') {
             return 'timbrada';
@@ -1593,6 +1699,16 @@ const useProceso = () => {
 
         resumenDashboard,
         resumenErroresTimbrado,
+        dialogListadoErrores,
+        solicitudesConErrorFiltradas,
+        cargandoListadoErrores,
+        busquedaErrores,
+        tipoListadoErrores,
+        procesandoErrorTimbrado,
+        dialogResolverError,
+        solicitudErrorSeleccionada,
+        accionErrorSeleccionada,
+        motivoErrorTimbrado,
         cargandoErroresTimbrado,
 
         filtros,
@@ -1648,6 +1764,11 @@ const useProceso = () => {
         handleObtenerTotal,
 
         handleConsultar,
+        handleSeleccionarErroresTimbrado,
+        handleCargarListadoErrores,
+        handleAbrirResolverError,
+        handleCerrarResolverError,
+        handleConfirmarResolverError,
 
         handleRecargarSolicitudes,
 

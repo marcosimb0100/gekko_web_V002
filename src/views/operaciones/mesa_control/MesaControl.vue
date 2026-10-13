@@ -113,7 +113,16 @@
                 </div>
             </div>
             <!-- ERROR DE TIMBRADO: SEGUN TIPO, FECHAS Y EMPRESA -->
-            <div class="resumen-card resumen-error-timbrado" role="status" aria-live="polite">
+            <div
+                class="resumen-card resumen-error-timbrado resumen-card-click"
+                :class="{ activo: dialogListadoErrores }"
+                role="button"
+                tabindex="0"
+                aria-label="Mostrar solicitudes con error de timbrado"
+                @click="handleSeleccionarErroresTimbrado"
+                @keydown.enter.prevent="handleSeleccionarErroresTimbrado"
+                @keydown.space.prevent="handleSeleccionarErroresTimbrado"
+            >
                 <div class="resumen-icono">
                     <font-icon :icon="['fas', 'triangle-exclamation']" />
                 </div>
@@ -607,6 +616,16 @@
                                 <font-icon :icon="['fas', 'magnifying-glass']" />
                             </Button>
 
+                            <!-- ACCIONES DE ERROR DE TIMBRADO -->
+                            <template v-if="estatusFiltro === 'error_timbrado'">
+                                <Button size="small" severity="success" v-tooltip.top="'Regresar a pendiente'" :disabled="procesandoErrorTimbrado" @click="handleAbrirResolverError(slotProps.data, 'pendiente')">
+                                    <font-icon :icon="['fas', 'rotate-left']" />
+                                </Button>
+                                <Button size="small" severity="danger" v-tooltip.top="'Rechazar solicitud'" :disabled="procesandoErrorTimbrado" @click="handleAbrirResolverError(slotProps.data, 'rechazada')">
+                                    <font-icon :icon="['fas', 'xmark']" />
+                                </Button>
+                            </template>
+
                             <!-- ACCIONES PENDIENTES -->
 
                             <template v-if="estatusFiltro === 'pendiente'">
@@ -950,6 +969,79 @@
             <Button label="Cancelar" severity="secondary" outlined @click="handleCerrarRechazo" />
 
             <Button label="Rechazar" severity="danger" @click="handleRechazarSolicitud" />
+        </template>
+    </Dialog>
+
+    <!-- LISTADO DE ERRORES: SOLO SE ABRE DESDE LA FICHA ROJA -->
+    <Dialog v-model:visible="dialogListadoErrores" modal maximizable header="Solicitudes con error de timbrado" :style="{ width: '92vw', maxWidth: '1450px' }" :breakpoints="{ '960px': '98vw' }">
+        <div class="modal-errores-toolbar">
+            <div>
+                <strong>{{ tipoListadoErrores === 'facturas' ? 'Facturas con error' : 'Complementos con error' }}</strong>
+                <span class="modal-errores-contador">{{ solicitudesConErrorFiltradas.length }} registro(s)</span>
+            </div>
+            <div class="modal-errores-controles">
+                <InputText v-model="busquedaErrores" placeholder="Buscar por empresa, cliente, folio o error..." class="modal-errores-busqueda" />
+                <Button label="Actualizar" icon="pi pi-refresh" outlined :loading="cargandoListadoErrores" @click="handleCargarListadoErrores" />
+            </div>
+        </div>
+        <DataTable
+            :value="solicitudesConErrorFiltradas"
+            dataKey="_id"
+            paginator
+            :rows="20"
+            :rowsPerPageOptions="[10, 20, 50, 100]"
+            scrollable
+            scrollHeight="55vh"
+            size="small"
+            stripedRows
+            rowHover
+            :loading="cargandoListadoErrores"
+            class="tabla-encabezados tabla-mesa-control"
+        >
+            <template #empty><div class="tabla-vacia">No hay solicitudes con error de timbrado para los filtros consultados.</div></template>
+            <Column field="created_at" header="Fecha" style="min-width: 155px" />
+            <Column field="compania" header="Empresa emisora" style="min-width: 190px" />
+            <Column field="cliente" header="Cliente" style="min-width: 190px" />
+            <Column field="factura_serie" header="Serie" style="min-width: 75px" />
+            <Column field="factura_folio" header="Folio" style="min-width: 90px" />
+            <Column header="Importe" style="min-width: 120px">
+                <template #body="slotProps">{{ handleMoney(handleObtenerTotal(slotProps.data)) }}</template>
+            </Column>
+            <Column header="Estatus" style="min-width: 125px">
+                <template #body><span class="modal-errores-estatus">Error de timbrado</span></template>
+            </Column>
+            <Column header="Detalle del error" style="min-width: 220px">
+                <template #body="slotProps"
+                    ><span class="modal-errores-mensaje">{{ slotProps.data.error_timbrado || 'Sin detalle disponible' }}</span></template
+                >
+            </Column>
+            <Column header="Acciones" style="min-width: 205px">
+                <template #body="slotProps">
+                    <div class="modal-errores-acciones">
+                        <Button label="Pendiente" size="small" severity="success" outlined :disabled="procesandoErrorTimbrado" @click="handleAbrirResolverError(slotProps.data, 'pendiente')" />
+                        <Button label="Rechazar" size="small" severity="danger" outlined :disabled="procesandoErrorTimbrado" @click="handleAbrirResolverError(slotProps.data, 'rechazada')" />
+                    </div>
+                </template>
+            </Column>
+        </DataTable>
+        <template #footer><Button label="Cerrar" severity="secondary" outlined @click="dialogListadoErrores = false" /></template>
+    </Dialog>
+
+    <!-- RESOLVER ERROR DE TIMBRADO -->
+    <Dialog v-model:visible="dialogResolverError" modal :closable="!procesandoErrorTimbrado" :header="accionErrorSeleccionada === 'pendiente' ? 'Regresar a pendiente' : 'Rechazar solicitud con error'" :style="{ width: '480px', maxWidth: '95vw' }">
+        <p v-if="accionErrorSeleccionada === 'pendiente'">¿Confirmas que deseas regresar esta solicitud a pendiente? Volverá al flujo normal de autorización.</p>
+        <div v-else class="rechazo-contenido">
+            <label for="motivo-error-timbrado">Motivo de rechazo *</label>
+            <Textarea id="motivo-error-timbrado" v-model="motivoErrorTimbrado" rows="4" autoResize class="w-full" placeholder="Escribe el motivo del rechazo" />
+        </div>
+        <template #footer>
+            <Button label="Cancelar" severity="secondary" outlined :disabled="procesandoErrorTimbrado" @click="handleCerrarResolverError" />
+            <Button
+                :label="accionErrorSeleccionada === 'pendiente' ? 'Regresar a pendiente' : 'Rechazar'"
+                :severity="accionErrorSeleccionada === 'pendiente' ? 'success' : 'danger'"
+                :loading="procesandoErrorTimbrado"
+                @click="handleConfirmarResolverError"
+            />
         </template>
     </Dialog>
 

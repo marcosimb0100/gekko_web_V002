@@ -1320,3 +1320,78 @@
 
     background: #ffffff;
 }
+
+/* Mesa de control: filtro de errores de timbrado */
+.resumen-error-timbrado.resumen-card-click {
+    cursor: pointer;
+}
+.resumen-error-timbrado.resumen-card-click:hover {
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.12);
+}
+.resumen-error-timbrado.resumen-card-click.activo {
+    border: 2px solid #dc2626;
+}
+.resumen-error-timbrado.resumen-card-click:focus-visible {
+    outline: 3px solid #dc2626;
+    outline-offset: 2px;
+}
+.estatus-chip.error_timbrado {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.indicador-punto.error_timbrado {
+    background: #dc2626;
+}
+
+/* Mesa de Control: listado de errores en modal independiente */
+.modal-errores-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.modal-errores-toolbar > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.modal-errores-contador {
+    font-size: 12px;
+    color: #64748b;
+}
+.modal-errores-controles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.modal-errores-busqueda {
+    width: min(350px, 100%);
+}
+.modal-errores-estatus {
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+.modal-errores-mensaje {
+    display: block;
+    max-width: 360px;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+}
+.modal-errores-acciones {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+@media (max-width: 680px) {
+    .modal-errores-controles,
+    .modal-errores-busqueda {
+        width: 100%;
+    }
+}
