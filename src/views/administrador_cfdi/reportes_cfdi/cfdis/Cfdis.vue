@@ -118,13 +118,32 @@
 
             <!-- OPCIONES -->
 
-            <Column header="Opciones" headerClass="encabezado-columna" bodyClass="nowrap" style="width: 80px">
+            <Column header="Opciones" headerClass="encabezado-columna" bodyClass="nowrap" style="min-width: 100px">
                 <template #body="slotProps">
-                    <Button type="button" size="small" severity="help" v-tooltip.top="'Descargar XML'" @click="handleDescargaXml(slotProps.data)">
-                        <template #icon>
-                            <font-icon icon="fa-solid fa-cloud-arrow-down" />
-                        </template>
-                    </Button>
+                    <div class="acciones-tabla-cfdi">
+                        <Button type="button" size="small" severity="help" v-tooltip.top="'Descargar XML'" @click="handleDescargaXml(slotProps.data)">
+                            <template #icon>
+                                <font-icon icon="fa-solid fa-cloud-arrow-down" />
+                            </template>
+                        </Button>
+
+                        <span class="contenedor-boton-cancelacion" v-tooltip.top="mensajeBotonCancelacion(slotProps.data)">
+                            <Button
+                                type="button"
+                                size="small"
+                                severity="danger"
+                                :disabled="cancelacionDeshabilitada(slotProps.data)"
+                                :class="{
+                                    'boton-cancelacion-bloqueado': cancelacionDeshabilitada(slotProps.data)
+                                }"
+                                @click="handleAbrirCancelacion(slotProps.data)"
+                            >
+                                <template #icon>
+                                    <font-icon icon="fa-solid fa-ban" />
+                                </template>
+                            </Button>
+                        </span>
+                    </div>
                 </template>
             </Column>
 
@@ -192,6 +211,37 @@
             </Column>
         </DataTable>
     </div>
+
+    <!-- SOLICITUD DE CANCELACIÓN: solo registro, no ejecuta el SDK -->
+    <Dialog v-model:visible="modalCancelacion" modal header="Solicitar cancelación de CFDI" :style="{ width: 'min(96vw, 580px)' }" :closable="!guardandoCancelacion" :closeOnEscape="!guardandoCancelacion" class="modal-cancelacion-cfdi">
+        <div class="cancelacion-contenido" v-if="cfdiSeleccionado">
+            <div class="cancelacion-aviso">Esta operación registra una solicitud pendiente en Gekko. No cancela todavía el CFDI ante el SAT.</div>
+            <div class="cancelacion-resumen">
+                <div>
+                    <strong>UUID:</strong> <span class="cancelacion-uuid">{{ cfdiSeleccionado.uuid }}</span>
+                </div>
+                <div><strong>Emisor:</strong> {{ cfdiSeleccionado.emisorNombre || cfdiSeleccionado.emisorRfc }}</div>
+                <div><strong>Receptor:</strong> {{ cfdiSeleccionado.receptorNombre || cfdiSeleccionado.receptorRfc }}</div>
+                <div><strong>Serie / Folio:</strong> {{ cfdiSeleccionado.serie || '-' }} / {{ cfdiSeleccionado.folio || '-' }}</div>
+            </div>
+            <div class="campo-cancelacion">
+                <label for="motivo-sat">Motivo SAT <span class="campo-obligatorio">*</span></label>
+                <Dropdown inputId="motivo-sat" v-model="frmCancelacion.motivo_sat" :options="catMotivosCancelacion" optionLabel="label" optionValue="value" placeholder="Selecciona un motivo" class="w-full" :disabled="guardandoCancelacion" />
+            </div>
+            <div v-if="frmCancelacion.motivo_sat === '01'" class="campo-cancelacion">
+                <label for="uuid-sustituto">UUID sustituto <span class="campo-obligatorio">*</span></label>
+                <InputText id="uuid-sustituto" v-model="frmCancelacion.uuid_sustituto" class="w-full" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" :disabled="guardandoCancelacion" />
+            </div>
+            <div class="campo-cancelacion">
+                <label for="observaciones-cancelacion">Observaciones</label>
+                <Textarea id="observaciones-cancelacion" v-model="frmCancelacion.observaciones" rows="3" class="w-full" :maxlength="1000" :disabled="guardandoCancelacion" />
+            </div>
+        </div>
+        <template #footer>
+            <Button type="button" label="Cerrar" severity="secondary" outlined :disabled="guardandoCancelacion" @click="handleCerrarCancelacion" />
+            <Button type="button" label="Registrar solicitud" severity="danger" :loading="guardandoCancelacion" :disabled="!puedeGuardarCancelacion" @click="handleGuardarCancelacion" />
+        </template>
+    </Dialog>
 </template>
 
 <script>

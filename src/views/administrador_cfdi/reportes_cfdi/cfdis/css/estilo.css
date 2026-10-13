@@ -4,7 +4,6 @@
 
 .filtros-cfdi {
     display: grid;
-
     grid-template-columns:
         minmax(240px, 2fr)
         150px
@@ -14,11 +13,8 @@
         160px
         42px
         42px;
-
     gap: 8px;
-
     align-items: end;
-
     padding: 18px 20px 10px 20px;
 }
 
@@ -28,17 +24,13 @@
 
 .campo-filtro {
     display: flex;
-
     flex-direction: column;
-
     gap: 5px;
-
     min-width: 0;
 }
 
 .campo-filtro label {
     font-size: 12px;
-
     font-weight: 500;
 }
 
@@ -48,11 +40,8 @@
 
 .boton-filtro {
     width: 40px !important;
-
     height: 40px;
-
     min-width: 40px !important;
-
     padding: 0 !important;
 }
 
@@ -62,13 +51,9 @@
 
 .barra-busqueda {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 12px;
-
     padding: 0 20px 10px 20px;
 }
 
@@ -78,11 +63,8 @@
 
 .acciones-cfdi {
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     min-height: 36px;
 }
 
@@ -92,19 +74,12 @@
 
 .btn-descargar-zip {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     height: 34px;
-
     min-width: 145px;
-
     padding: 0 12px;
-
     font-size: 11px;
-
     white-space: nowrap;
 }
 
@@ -114,23 +89,14 @@
 
 .contador-descarga {
     display: inline-flex;
-
     align-items: center;
-
     height: 24px;
-
     padding: 0 8px;
-
     border-radius: 12px;
-
     background: var(--surface-ground);
-
     color: var(--text-color-secondary);
-
     font-size: 10px;
-
     font-weight: 500;
-
     white-space: nowrap;
 }
 
@@ -152,7 +118,6 @@
 
 :deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
     padding: 6px 8px;
-
     vertical-align: middle;
 }
 
@@ -161,32 +126,77 @@
 }
 
 /* ============================================================
+   OPCIONES TABLA - BOTONES ALINEADOS
+============================================================ */
+
+.acciones-tabla-cfdi {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 30px;
+}
+
+.contenedor-boton-cancelacion,
+.envoltura-boton-cancelacion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 28px;
+    vertical-align: middle;
+}
+
+.acciones-tabla-cfdi :deep(.p-button) {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.acciones-tabla-cfdi :deep(.p-button-icon) {
+    margin: 0 !important;
+}
+
+.acciones-tabla-cfdi :deep(.p-button svg) {
+    display: block;
+}
+
+.boton-cancelacion-bloqueado {
+    opacity: 0.38 !important;
+    cursor: not-allowed !important;
+    filter: grayscale(65%);
+}
+
+/* ============================================================
    TOTAL CFDI
 ============================================================ */
 
 :deep(.tabla-cfdi .total-cfdi) {
     text-align: right;
-
     font-weight: 600;
-
     font-variant-numeric: tabular-nums;
 }
 
 /* ============================================================
-   ESTATUS
+   ESTATUS CFDI
 ============================================================ */
 
 .estatus-cfdi {
     display: inline-block;
-
     padding: 3px 7px;
-
     border-radius: 5px;
-
     font-size: 10px;
-
     font-weight: 600;
-
     white-space: nowrap;
 }
 
@@ -199,21 +209,66 @@
 }
 
 /* ============================================================
+   MODAL DE SOLICITUD DE CANCELACION
+============================================================ */
+
+.cancelacion-contenido {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cancelacion-aviso {
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--surface-100, #f4f5f7);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.cancelacion-resumen {
+    padding: 12px;
+    border: 1px solid var(--surface-border, #ddd);
+    border-radius: 8px;
+    display: grid;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.cancelacion-uuid {
+    overflow-wrap: anywhere;
+}
+
+.campo-cancelacion {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo-cancelacion label {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.campo-obligatorio {
+    color: #bd2026;
+}
+
+:deep(.modal-cancelacion-cfdi .p-dialog-content) {
+    overflow-y: auto;
+}
+
+/* ============================================================
    RESPONSIVE
 ============================================================ */
 
 @media screen and (max-width: 1200px) {
     .filtros-cfdi {
-        grid-template-columns:
-            1fr
-            1fr
-            1fr
-            1fr;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .barra-busqueda {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
@@ -228,9 +283,7 @@
 
 @media screen and (max-width: 700px) {
     .filtros-cfdi {
-        grid-template-columns:
-            1fr
-            1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .barra-busqueda {
@@ -239,11 +292,14 @@
 
     .acciones-cfdi {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
     .buscador-cfdi {
         width: 100%;
+    }
+
+    .acciones-tabla-cfdi {
+        gap: 5px;
     }
 }
