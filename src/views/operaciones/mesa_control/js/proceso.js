@@ -77,6 +77,10 @@ const useProceso = () => {
 
     const dashboardComplementosTimbrados = ref([]);
 
+    const erroresTimbrado = ref({ facturas: 0, complementos: 0 });
+    const cargandoErroresTimbrado = ref(false);
+    const resumenErroresTimbrado = computed(() => (tipoSolicitudFiltro.value === 'facturas' ? erroresTimbrado.value.facturas : erroresTimbrado.value.complementos));
+
     // ============================================================
 
     // BUSCADOR
@@ -369,6 +373,31 @@ const useProceso = () => {
 
     // ============================================================
 
+    // El endpoint de resumen devuelve contadores, NO el detalle de las solicitudes.
+    const handleCargarErroresTimbrado = async () => {
+        if (!handleValidarFechas()) return;
+        cargandoErroresTimbrado.value = true;
+        erroresTimbrado.value = { facturas: 0, complementos: 0 };
+        try {
+            const parametros = new URLSearchParams(handleParametrosFecha());
+            if (empresaFiltro.value) parametros.set('company_id', String(empresaFiltro.value));
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: '/solicitud_detallada/resumen_errores_timbrado?' + parametros.toString()
+            });
+            if (res?.estatus !== 200) throw new Error(res?.mensaje || 'Error al consultar los errores de timbrado');
+            const datos = res?.datos || {};
+            erroresTimbrado.value = {
+                facturas: Number(datos.facturas || 0),
+                complementos: Number(datos.complementos || 0)
+            };
+        } catch (error) {
+            console.error('ERROR RESUMEN TIMBRADO:', error);
+            toast.add({ severity: 'warn', summary: 'Error de timbrado', detail: 'No se pudo consultar el contador de errores.', life: 3500 });
+        } finally {
+            cargandoErroresTimbrado.value = false;
+        }
+    };
+
     const handleCargarDashboard = async () => {
         if (!handleValidarFechas()) {
             return;
@@ -576,7 +605,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await handleRecargarSolicitudes();
+        await Promise.all([handleRecargarSolicitudes(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -599,8 +628,9 @@ const useProceso = () => {
 
     // ============================================================
 
-    const handleCambiarEmpresa = () => {
+    const handleCambiarEmpresa = async () => {
         handleLimpiarSeleccionFacturas();
+        await handleCargarErroresTimbrado();
     };
 
     // ============================================================
@@ -632,7 +662,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -658,7 +688,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -782,7 +812,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -850,7 +880,7 @@ const useProceso = () => {
             life: 3000
         });
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -905,7 +935,7 @@ const useProceso = () => {
 
             handleLimpiarSeleccionFacturas();
 
-            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
         } finally {
             procesandoMasivo.value = false;
         }
@@ -991,7 +1021,7 @@ const useProceso = () => {
 
             handleLimpiarSeleccionFacturas();
 
-            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+            await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
         } finally {
             procesandoMasivo.value = false;
         }
@@ -1457,7 +1487,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     // ============================================================
@@ -1525,7 +1555,7 @@ const useProceso = () => {
 
         handleLimpiarSeleccionFacturas();
 
-        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard()]);
+        await Promise.all([handleRecargarSolicitudes(), handleCargarDashboard(), handleCargarErroresTimbrado()]);
     };
 
     handleInit();
@@ -1562,6 +1592,8 @@ const useProceso = () => {
         solicitudesExportables,
 
         resumenDashboard,
+        resumenErroresTimbrado,
+        cargandoErroresTimbrado,
 
         filtros,
 

@@ -112,6 +112,17 @@
                     <span class="resumen-descripcion"> Periodo consultado </span>
                 </div>
             </div>
+            <!-- ERROR DE TIMBRADO: SEGUN TIPO, FECHAS Y EMPRESA -->
+            <div class="resumen-card resumen-error-timbrado" role="status" aria-live="polite">
+                <div class="resumen-icono">
+                    <font-icon :icon="['fas', 'triangle-exclamation']" />
+                </div>
+                <div class="resumen-info">
+                    <span class="resumen-label">Error de timbrado</span>
+                    <strong class="resumen-numero">{{ cargandoErroresTimbrado ? '…' : resumenErroresTimbrado }}</strong>
+                    <span class="resumen-descripcion">{{ tipoSolicitudFiltro === 'facturas' ? 'Facturas con error' : 'Complementos con error' }}</span>
+                </div>
+            </div>
         </div>
 
         <!-- =====================================================
