@@ -302,6 +302,13 @@ const router = createRouter({
                     name: 'reportes_conceptos_facturados',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "reportes_conceptos_facturados" */ '../views/reportes/conceptos_facturacion/ConceptosFacturacion.vue')
+                },
+
+                {
+                    path: '/mdcapital/prestamos_activos',
+                    name: 'mdcapital_prestamos_activos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "mdcapital_prestamos_activos" */ '../views/mdcapital/prestamos_activos/PrestamosActivos.vue')
                 }
             ]
         }
