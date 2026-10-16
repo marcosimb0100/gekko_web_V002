@@ -9,7 +9,7 @@
                 </div>
             </div>
             <div class="mdp-header-buttons">
-                <Button label="Conciliación global" icon="pi pi-sync" severity="secondary" outlined :disabled="cargando || conciliandoGlobal" :loading="conciliandoGlobal" @click="handleConciliarGlobal" />
+                <Button label="Conciliación global" icon="pi pi-sync" class="mdp-global-button" :disabled="cargando || conciliandoGlobal" :loading="conciliandoGlobal" @click="handleConciliarGlobal" />
                 <Button label="Actualizar" :loading="cargando" :disabled="conciliandoGlobal" @click="handleConsultar"
                     ><template #icon><i class="pi pi-refresh mr-2"></i></template
                 ></Button>
@@ -110,6 +110,12 @@
                     </div>
                 </div>
                 <div class="mdp-notice"><i class="pi pi-info-circle"></i> Los importes de intereses e IVA son los registrados en la amortización. Tener UUID no confirma que el CFDI esté vigente en Gekko.</div>
+                <div class="mdp-actions mdp-actions-top">
+                    <div class="mdp-emisor"><label for="mdp-rfc-emisor">RFC emisor (opcional)</label><InputText id="mdp-rfc-emisor" v-model="rfcEmisor" maxlength="13" placeholder="Filtrar empresa emisora" /></div>
+                    <Button class="mdp-analyze-button" label="Analizar conciliación" icon="pi pi-sync" :loading="conciliandoIndividual" :disabled="conciliandoIndividual || conciliandoGlobal" @click="handleConciliarIndividual" />
+                    <Button class="mdp-stamp-button" label="Timbrar siguiente periodo" icon="pi pi-file" disabled />
+                    <small>Solo análisis; no se modifican UUID ni se timbran facturas.</small>
+                </div>
                 <DataTable :value="prestamoSeleccionado.amortizacion || []" dataKey="plazo" paginator :rows="12" :rowsPerPageOptions="[12, 24, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
                     <Column field="plazo" header="Plazo" sortable style="min-width: 80px" />
                     <Column header="Fecha programada" style="min-width: 140px"
@@ -146,16 +152,18 @@
                         ><template #body="{ data }">{{ data.facturaEstatus || 'No verificado' }}</template></Column
                     >
                 </DataTable>
-                <div class="mdp-actions">
-                    <div class="mdp-emisor"><label for="mdp-rfc-emisor">RFC emisor (opcional)</label><InputText id="mdp-rfc-emisor" v-model="rfcEmisor" maxlength="13" placeholder="Filtrar empresa emisora" /></div>
-                    <Button label="Analizar conciliación" icon="pi pi-sync" :loading="conciliandoIndividual" :disabled="conciliandoIndividual || conciliandoGlobal" @click="handleConciliarIndividual" />
-                    <Button label="Timbrar siguiente periodo" icon="pi pi-file" disabled />
-                    <small>Solo análisis; no se modifican UUID ni se timbran facturas.</small>
-                </div>
             </div>
         </Dialog>
 
-        <Dialog v-model:visible="mostrarDialogConciliacion" modal header="Resultado de conciliación · Solo análisis" :style="{ width: '96vw', maxWidth: '1450px' }" :breakpoints="{ '960px': '98vw' }" :draggable="false" class="mdp-conciliacion-dialog">
+        <Dialog
+            v-model:visible="mostrarDialogConciliacion"
+            modal
+            header="Resultado de conciliación · Revisión y guardado"
+            :style="{ width: '96vw', maxWidth: '1450px' }"
+            :breakpoints="{ '960px': '98vw' }"
+            :draggable="false"
+            class="mdp-conciliacion-dialog"
+        >
             <div v-if="resultadoIndividual" class="mdp-dialog-body">
                 <div class="mdp-detail-header">
                     <div>
@@ -172,7 +180,7 @@
                         <small>Sin coincidencia</small><strong>{{ resumenConciliacion.sin_coincidencia || 0 }}</strong>
                     </div>
                     <div>
-                        <small>Candidatos</small><strong>{{ resumenConciliacion.candidato_por_importe || 0 }}</strong>
+                        <small>Propuestas</small><strong>{{ resumenConciliacion.propuesta_cronologica || 0 }}</strong>
                     </div>
                     <div>
                         <small>Ambiguos</small><strong>{{ resumenConciliacion.ambiguo || 0 }}</strong>
@@ -181,9 +189,23 @@
                         <small>UUID sin verificar</small><strong>{{ resumenConciliacion.uuid_registrado_sin_verificar || 0 }}</strong>
                     </div>
                 </div>
-                <div class="mdp-notice"><i class="pi pi-exclamation-triangle"></i> Las coincidencias por RFC e importes son candidatos, no facturas conciliadas. Revisar emisor, periodo y vigencia fiscal antes de asignar UUID.</div>
+                <div class="mdp-notice"><i class="pi pi-exclamation-triangle"></i> Las propuestas cronológicas son asignaciones preliminares, no facturas conciliadas. Revisar emisor, periodo y vigencia fiscal antes de asignar UUID.</div>
                 <div class="mdp-field mdp-filter-estado"><label>Filtrar resultado</label><Dropdown v-model="filtroConciliacion" :options="opcionesConciliacion" optionLabel="label" optionValue="value" /></div>
+                <div class="mdp-save-bar">
+                    <div>
+                        <strong>{{ seleccionVigente.length }} CFDI seleccionados</strong><small>Solo propuestas sin UUID duplicado. Confirma antes de guardar en MD Capital.</small>
+                    </div>
+                    <Button label="Confirmar guardado" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || guardandoCFDI || conciliandoGlobal" @click="abrirConfirmacionGuardado" />
+                </div>
                 <DataTable :value="periodosIndividuales" dataKey="plazo" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
+                    <Column header="Guardar" style="min-width: 95px"
+                        ><template #body="{ data }"
+                            ><Checkbox
+                                :binary="true"
+                                :modelValue="estaSeleccionado(resultadoIndividual, data)"
+                                :disabled="!esPropuesta(data) || uuidConflictos.has(String(data.uuidPropuesto || '').toUpperCase()) || guardandoCFDI"
+                                @update:modelValue="(v) => alternarSeleccion(resultadoIndividual, data, v)" /></template
+                    ></Column>
                     <Column field="plazo" header="Plazo" sortable style="min-width: 80px" />
                     <Column header="Fecha programada" style="min-width: 135px"
                         ><template #body="{ data }">{{ formatoFecha(data.fechaProgramada) }}</template></Column
@@ -200,7 +222,7 @@
                     <Column header="Resultado" style="min-width: 190px"
                         ><template #body="{ data }"><Tag :value="estadoConciliacion(data.estado)" :severity="severidadConciliacion(data.estado)" /></template
                     ></Column>
-                    <Column header="Candidatos" style="min-width: 110px"
+                    <Column header="Coincidencias" style="min-width: 110px"
                         ><template #body="{ data }">{{ data.totalCandidatos || 0 }}</template></Column
                     >
                     <Column header="UUID MD Capital" style="min-width: 200px"
@@ -208,14 +230,15 @@
                             ><span class="mdp-uuid">{{ data.uuidMdCapital || '—' }}</span></template
                         ></Column
                     >
-                    <Column header="Facturas candidatas en Gekko" style="min-width: 320px"
+                    <Column header="Factura propuesta / candidatos en Gekko" style="min-width: 320px"
                         ><template #body="{ data }"
                             ><div v-if="data.candidatos?.length" class="mdp-candidatos">
-                                <div v-for="c in data.candidatos" :key="c.uuid" class="mdp-candidato">
+                                <div v-for="c in data.estado === 'propuesta_cronologica' ? data.candidatos.slice(0, 1) : data.candidatos" :key="c.uuid" class="mdp-candidato">
                                     <strong class="mdp-uuid">{{ c.uuid }}</strong
                                     ><small>{{ formatoFecha(c.fecha) }} · {{ c.rfcEmisor || 'Sin emisor' }} · {{ formatoMoneda(c.total) }} · {{ c.metodoPago || '—' }}</small>
                                 </div>
-                                <small v-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos</small>
+                                <small v-if="data.estado === 'propuesta_cronologica'">Propuesta cronológica · {{ data.totalCandidatos || 0 }} coincidencias originales</small
+                                ><small v-else-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos</small>
                             </div>
                             <span v-else class="mdp-muted">Sin candidatos</span></template
                         ></Column
@@ -224,7 +247,7 @@
             </div>
         </Dialog>
 
-        <Dialog v-model:visible="mostrarDialogGlobal" modal header="Conciliación global · Solo análisis" :style="{ width: '95vw', maxWidth: '1250px' }" :breakpoints="{ '960px': '98vw' }" :draggable="false" :closable="!conciliandoGlobal">
+        <Dialog v-model:visible="mostrarDialogGlobal" modal header="Conciliación global · Revisión y guardado" :style="{ width: '95vw', maxWidth: '1250px' }" :breakpoints="{ '960px': '98vw' }" :draggable="false" :closable="!conciliandoGlobal">
             <div class="mdp-dialog-body">
                 <div class="mdp-global-head">
                     <div>
@@ -235,7 +258,13 @@
                 <ProgressBar :value="porcentajeGlobal" :showValue="true" />
                 <div v-if="cancelarGlobal" class="mdp-notice">Se detendrá después de finalizar la solicitud actual.</div>
                 <div v-if="errorGlobal" class="mdp-error">{{ errorGlobal }}</div>
-                <div class="mdp-notice"><i class="pi pi-info-circle"></i> Esta operación solo busca candidatos en MongoDB. No guarda UUID ni emite CFDI.</div>
+                <div class="mdp-notice"><i class="pi pi-info-circle"></i> Esta operación genera propuestas cronológicas con CFDI de MongoDB. No guarda UUID ni emite CFDI.</div>
+                <div class="mdp-save-bar">
+                    <div>
+                        <strong>{{ seleccionVigente.length }} CFDI seleccionados</strong><small>{{ uuidConflictos.size }} UUID con propuestas repetidas, bloqueados para guardar. Revisa los préstamos antes de confirmar.</small>
+                    </div>
+                    <Button label="Confirmar seleccionados" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || conciliandoGlobal || guardandoCFDI" @click="abrirConfirmacionGuardado" />
+                </div>
                 <DataTable :value="resultadoGlobal" dataKey="idPrestamo" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
                     <Column header="Cliente" style="min-width: 220px"
                         ><template #body="{ data }"
@@ -244,25 +273,53 @@
                         ></Column
                     >
                     <Column field="idPrestamo" header="Préstamo" style="min-width: 150px" />
-                    <Column header="Periodos" style="min-width: 100px"
+                    <Column header="Total periodos" style="min-width: 115px"
                         ><template #body="{ data }">{{ data.periodos?.length || 0 }}</template></Column
                     >
+                    <Column header="Periodos pagados" style="min-width: 145px"
+                        ><template #body="{ data }">
+                            <span class="mdp-global-paid">{{ periodosPagadosGlobal(data) }} / {{ data.periodos?.length || 0 }}</span>
+                            <div class="mdp-progress"><span :style="{ width: porcentaje(periodosPagadosGlobal(data), data.periodos?.length) + '%' }"></span></div> </template
+                    ></Column>
                     <Column header="Sin coincidencia" style="min-width: 130px"
                         ><template #body="{ data }">{{ totalEstado(data.periodos, 'sin_coincidencia') }}</template></Column
                     >
-                    <Column header="Candidatos" style="min-width: 110px"
-                        ><template #body="{ data }">{{ totalEstado(data.periodos, 'candidato_por_importe') }}</template></Column
+                    <Column header="CFDI propuestos" style="min-width: 130px"
+                        ><template #body="{ data }">{{ totalEstado(data.periodos, 'propuesta_cronologica') }}</template></Column
                     >
-                    <Column header="Ambiguos" style="min-width: 100px"
-                        ><template #body="{ data }">{{ totalEstado(data.periodos, 'ambiguo') }}</template></Column
-                    >
-                    <Column header="UUID por verificar" style="min-width: 145px"
-                        ><template #body="{ data }">{{ totalEstado(data.periodos, 'uuid_registrado_sin_verificar') }}</template></Column
-                    >
+                    <Column header="Seleccionar propuestas" style="min-width: 145px"
+                        ><template #body="{ data }"
+                            ><Button label="Seleccionar válidas" size="small" text :disabled="conciliandoGlobal || guardandoCFDI" @click="(data.periodos || []).filter(esPropuesta).forEach((p) => alternarSeleccion(data, p, true))" /></template
+                    ></Column>
                     <Column header="Detalle" style="min-width: 110px"
                         ><template #body="{ data }"><Button label="Ver" icon="pi pi-eye" size="small" text @click="handleVerResultadoGlobal(data)" /></template
                     ></Column>
                 </DataTable>
+            </div>
+        </Dialog>
+        <Dialog v-model:visible="mostrarConfirmacionGuardado" modal header="Confirmar guardado de CFDI en MD Capital" :style="{ width: '92vw', maxWidth: '800px' }" :closable="!guardandoCFDI" :draggable="false">
+            <div class="mdp-dialog-body">
+                <div class="mdp-notice"><i class="pi pi-exclamation-triangle"></i> Esta operación SÍ modifica SQL Server. Solo guarda UUID y datos fiscales; no modifica pagos ni timbra CFDI. No cierres mientras guarda.</div>
+                <p>
+                    Se enviarán <strong>{{ seleccionVigente.length }}</strong> asignaciones. El servidor verificará nuevamente cada CFDI.
+                </p>
+                <ProgressBar v-if="guardandoCFDI || progresoGuardado.procesados" :value="porcentaje(progresoGuardado.procesados, progresoGuardado.total)" />
+                <p v-if="progresoGuardado.procesados">Guardados: {{ progresoGuardado.correctos }} · Rechazados / sin confirmar: {{ progresoGuardado.errores }}</p>
+                <div v-if="resultadosGuardado.length" class="mdp-save-results">
+                    <div v-for="(r, i) in resultadosGuardado" :key="i">
+                        <Tag :severity="Number(r.error) === 0 ? 'success' : 'danger'" :value="Number(r.error) === 0 ? 'Guardado' : 'Revisar'" /> <strong>{{ r.idPrestamo }} · plazo {{ r.plazo }}</strong> — {{ r.mensaje }}
+                    </div>
+                </div>
+                <div class="mdp-save-buttons">
+                    <Button label="Cerrar" severity="secondary" outlined :disabled="guardandoCFDI" @click="mostrarConfirmacionGuardado = false" /><Button
+                        label="Guardar CFDI confirmados"
+                        icon="pi pi-save"
+                        severity="success"
+                        :loading="guardandoCFDI"
+                        :disabled="guardandoCFDI || !seleccionVigente.length || progresoGuardado.procesados > 0"
+                        @click="confirmarGuardado"
+                    />
+                </div>
             </div>
         </Dialog>
     </div>

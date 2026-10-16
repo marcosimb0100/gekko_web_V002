@@ -330,3 +330,106 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* Conciliacion global: avance de periodos pagados */
+/* Ajustes visuales MD Capital: agregar al final del estilo.css actual */
+.mdp-page .mdp-global-button,
+.mdp-page .mdp-global-button.p-button {
+    background: #009fbd !important;
+    border-color: #009fbd !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+.mdp-page .mdp-global-button:hover,
+.mdp-page .mdp-global-button.p-button:hover {
+    background: #007f99 !important;
+    border-color: #007f99 !important;
+}
+.mdp-actions-top {
+    margin: 0 0 0.4rem !important;
+    padding: 0.9rem 1rem;
+    border: 1px solid #cbe9f0;
+    border-left: 4px solid #009fbd;
+    border-radius: 10px;
+    background: #eef9fc;
+    gap: 0.75rem;
+}
+.mdp-actions-top .mdp-emisor {
+    min-width: 210px;
+}
+.mdp-actions-top .mdp-emisor label {
+    color: #28485a;
+}
+.mdp-actions-top .mdp-analyze-button,
+.mdp-actions-top .mdp-analyze-button.p-button {
+    background: #009fbd !important;
+    border-color: #009fbd !important;
+    color: #fff !important;
+}
+.mdp-actions-top .mdp-stamp-button,
+.mdp-actions-top .mdp-stamp-button.p-button {
+    background: #8bd4e0 !important;
+    border-color: #8bd4e0 !important;
+    color: #174b56 !important;
+    opacity: 0.72;
+}
+.mdp-actions-top small {
+    color: #436476;
+}
+@media (max-width: 680px) {
+    .mdp-actions-top {
+        align-items: stretch;
+    }
+    .mdp-actions-top .mdp-emisor,
+    .mdp-actions-top .p-button {
+        width: 100%;
+    }
+}
+
+.mdp-global-paid {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Confirmacion de guardado CFDI */
+.mdp-save-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--surface-border);
+}
+.mdp-save-bar > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.mdp-save-bar small {
+    color: var(--text-color-secondary);
+}
+.mdp-save-results {
+    max-height: 260px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.mdp-save-results > div {
+    padding: 0.45rem;
+    border-bottom: 1px solid var(--surface-border);
+    overflow-wrap: anywhere;
+}
+.mdp-save-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+    .mdp-save-bar > button,
+    .mdp-save-buttons > button {
+        width: 100%;
+    }
+}
