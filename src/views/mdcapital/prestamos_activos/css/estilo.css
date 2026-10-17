@@ -490,3 +490,34 @@
         width: 100%;
     }
 }
+
+
+/* Seleccion manual de CFDI para periodos ambiguos */
+.mdp-manual-select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.65rem;
+    margin-top: 0.35rem;
+    border: 1px solid var(--surface-border);
+    border-left: 3px solid #d97706;
+    border-radius: 8px;
+    background: var(--surface-ground);
+    min-width: 245px;
+}
+.mdp-manual-select label {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.mdp-manual-select small {
+    color: var(--text-color-secondary);
+    font-size: 0.76rem;
+    overflow-wrap: anywhere;
+}
+.mdp-manual-selected {
+    font-weight: 600;
+}
+.mdp-manual-select .p-dropdown {
+    width: 100%;
+    max-width: 100%;
+}

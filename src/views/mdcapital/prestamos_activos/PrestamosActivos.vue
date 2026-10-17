@@ -193,7 +193,7 @@
                 <div class="mdp-field mdp-filter-estado"><label>Filtrar resultado</label><Dropdown v-model="filtroConciliacion" :options="opcionesConciliacion" optionLabel="label" optionValue="value" /></div>
                 <div class="mdp-save-bar">
                     <div>
-                        <strong>{{ seleccionVigente.length }} de {{ totalElegibles }} propuestas elegibles seleccionadas</strong><small>Revisa emisor, fechas, préstamo y periodo antes de confirmar. UUID duplicados bloqueados.</small>
+                        <strong>{{ seleccionVigente.length }} asignaciones seleccionadas ({{ totalElegibles }} propuestas automáticas elegibles)</strong><small>Incluye propuestas automáticas y selecciones manuales en periodos ambiguos. Revisa UUID, emisor e importes antes de confirmar.</small>
                     </div>
                     <div class="mdp-selection-actions">
                         <Button
@@ -240,15 +240,33 @@
                             ><span class="mdp-uuid">{{ data.uuidMdCapital || '—' }}</span></template
                         ></Column
                     >
-                    <Column header="Factura propuesta / candidatos en Gekko" style="min-width: 320px"
+                    <Column header="Factura propuesta / candidatos en Gekko" style="min-width: 350px"
                         ><template #body="{ data }"
                             ><div v-if="data.candidatos?.length" class="mdp-candidatos">
                                 <div v-for="c in data.estado === 'propuesta_cronologica' ? data.candidatos.slice(0, 1) : data.candidatos" :key="c.uuid" class="mdp-candidato">
                                     <strong class="mdp-uuid">{{ c.uuid }}</strong
                                     ><small>{{ formatoFecha(c.fecha) }} · {{ c.rfcEmisor || 'Sin emisor' }} · {{ formatoMoneda(c.total) }} · {{ c.metodoPago || '—' }}</small>
                                 </div>
-                                <small v-if="data.estado === 'propuesta_cronologica'">Propuesta cronológica · {{ data.totalCandidatos || 0 }} coincidencias originales</small
-                                ><small v-else-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos</small>
+                                <small v-if="data.estado === 'propuesta_cronologica'">Propuesta cronológica · {{ data.totalCandidatos || 0 }} coincidencias originales</small>
+                                <div v-if="data.estado === 'ambiguo'" class="mdp-manual-select">
+                                    <label :for="'mdp-manual-' + data.plazo">Seleccionar CFDI para este periodo</label>
+                                    <Dropdown
+                                        :inputId="'mdp-manual-' + data.plazo"
+                                        :modelValue="uuidManualSeleccion(resultadoIndividual, data)"
+                                        :options="data.candidatos"
+                                        optionLabel="uuid"
+                                        optionValue="uuid"
+                                        placeholder="Elige un CFDI candidato"
+                                        :showClear="true"
+                                        :disabled="guardandoCFDI"
+                                        class="w-full"
+                                        @update:modelValue="(uuid) => seleccionarCandidatoManual(resultadoIndividual, data, uuid)"
+                                    />
+                                    <small v-if="data.motivoAmbiguedad">{{ data.motivoAmbiguedad }}</small>
+                                    <small v-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos; el backend valida nuevamente el UUID elegido.</small>
+                                    <small v-if="estaManualSeleccionado(resultadoIndividual, data)" class="mdp-manual-selected">Selección manual preparada para confirmación.</small>
+                                </div>
+                                <small v-else-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos</small>
                             </div>
                             <span v-else class="mdp-muted">Sin candidatos</span></template
                         ></Column
@@ -271,7 +289,7 @@
                 <div class="mdp-notice"><i class="pi pi-info-circle"></i> Esta operación genera propuestas cronológicas con CFDI de MongoDB. No guarda UUID ni emite CFDI.</div>
                 <div class="mdp-save-bar">
                     <div>
-                        <strong>{{ seleccionVigente.length }} de {{ totalElegibles }} propuestas elegibles seleccionadas</strong
+                        <strong>{{ seleccionVigente.length }} asignaciones seleccionadas ({{ totalElegibles }} propuestas automáticas elegibles)</strong
                         ><small>{{ uuidConflictos.size }} UUID con propuestas repetidas, bloqueados para guardar. Revisa los préstamos antes de confirmar.</small>
                     </div>
                     <div class="mdp-selection-actions">
@@ -336,7 +354,7 @@
                 </p>
                 <div v-if="!guardandoCFDI && !progresoGuardado.procesados" class="mdp-save-preview">
                     <div v-for="r in seleccionVigente" :key="r.clave" class="mdp-save-preview-row">
-                        <strong>{{ r.idPrestamo }} · Plazo {{ r.plazo }}</strong>
+                        <strong>{{ r.idPrestamo }} · Plazo {{ r.plazo }} · {{ r.modo === 'manual' ? 'Selección manual' : 'Propuesta automática' }}</strong>
                         <span class="mdp-uuid">{{ r.facturaUuid }}</span>
                     </div>
                 </div>
