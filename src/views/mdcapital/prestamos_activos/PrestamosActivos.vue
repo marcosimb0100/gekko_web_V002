@@ -114,7 +114,7 @@
                     <div class="mdp-emisor"><label for="mdp-rfc-emisor">RFC emisor (opcional)</label><InputText id="mdp-rfc-emisor" v-model="rfcEmisor" maxlength="13" placeholder="Filtrar empresa emisora" /></div>
                     <Button class="mdp-analyze-button" label="Analizar conciliación" icon="pi pi-sync" :loading="conciliandoIndividual" :disabled="conciliandoIndividual || conciliandoGlobal" @click="handleConciliarIndividual" />
                     <Button class="mdp-stamp-button" label="Timbrar siguiente periodo" icon="pi pi-file" disabled />
-                    <small>Solo análisis; no se modifican UUID ni se timbran facturas.</small>
+                    <small>El análisis no modifica datos. El guardado de UUID requiere selección y confirmación. No se timbran facturas.</small>
                 </div>
                 <DataTable :value="prestamoSeleccionado.amortizacion || []" dataKey="plazo" paginator :rows="12" :rowsPerPageOptions="[12, 24, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
                     <Column field="plazo" header="Plazo" sortable style="min-width: 80px" />
@@ -170,7 +170,7 @@
                         <h3>{{ resultadoIndividual.cliente?.nombreCompleto || 'Cliente' }}</h3>
                         <p>{{ resultadoIndividual.idPrestamo }} · {{ resultadoIndividual.cliente?.rfc || 'RFC no registrado' }}</p>
                     </div>
-                    <Tag value="Sin cambios en bases de datos" severity="info" />
+                    <Tag value="Propuestas sin guardar" severity="info" />
                 </div>
                 <div class="mdp-conciliacion-metrics">
                     <div>
@@ -193,9 +193,19 @@
                 <div class="mdp-field mdp-filter-estado"><label>Filtrar resultado</label><Dropdown v-model="filtroConciliacion" :options="opcionesConciliacion" optionLabel="label" optionValue="value" /></div>
                 <div class="mdp-save-bar">
                     <div>
-                        <strong>{{ seleccionVigente.length }} CFDI seleccionados</strong><small>Solo propuestas sin UUID duplicado. Confirma antes de guardar en MD Capital.</small>
+                        <strong>{{ seleccionVigente.length }} de {{ totalElegibles }} propuestas elegibles seleccionadas</strong><small>Revisa emisor, fechas, préstamo y periodo antes de confirmar. UUID duplicados bloqueados.</small>
                     </div>
-                    <Button label="Confirmar guardado" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || guardandoCFDI || conciliandoGlobal" @click="abrirConfirmacionGuardado" />
+                    <div class="mdp-selection-actions">
+                        <Button
+                            :label="todasSeleccionadas ? 'Desmarcar todas' : 'Seleccionar todas las propuestas'"
+                            icon="pi pi-check-square"
+                            severity="secondary"
+                            outlined
+                            :disabled="!totalElegibles || guardandoCFDI || conciliandoGlobal"
+                            @click="seleccionarTodas"
+                        />
+                        <Button label="Guardar conciliación seleccionada" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || guardandoCFDI || conciliandoGlobal" @click="abrirConfirmacionGuardado" />
+                    </div>
                 </div>
                 <DataTable :value="periodosIndividuales" dataKey="plazo" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
                     <Column header="Guardar" style="min-width: 95px"
@@ -261,9 +271,20 @@
                 <div class="mdp-notice"><i class="pi pi-info-circle"></i> Esta operación genera propuestas cronológicas con CFDI de MongoDB. No guarda UUID ni emite CFDI.</div>
                 <div class="mdp-save-bar">
                     <div>
-                        <strong>{{ seleccionVigente.length }} CFDI seleccionados</strong><small>{{ uuidConflictos.size }} UUID con propuestas repetidas, bloqueados para guardar. Revisa los préstamos antes de confirmar.</small>
+                        <strong>{{ seleccionVigente.length }} de {{ totalElegibles }} propuestas elegibles seleccionadas</strong
+                        ><small>{{ uuidConflictos.size }} UUID con propuestas repetidas, bloqueados para guardar. Revisa los préstamos antes de confirmar.</small>
                     </div>
-                    <Button label="Confirmar seleccionados" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || conciliandoGlobal || guardandoCFDI" @click="abrirConfirmacionGuardado" />
+                    <div class="mdp-selection-actions">
+                        <Button
+                            :label="todasSeleccionadas ? 'Desmarcar todas' : 'Seleccionar todas las propuestas válidas'"
+                            icon="pi pi-check-square"
+                            severity="secondary"
+                            outlined
+                            :disabled="!totalElegibles || conciliandoGlobal || guardandoCFDI"
+                            @click="seleccionarTodas"
+                        />
+                        <Button label="Guardar conciliación seleccionada" icon="pi pi-save" severity="success" :disabled="!seleccionVigente.length || conciliandoGlobal || guardandoCFDI" @click="abrirConfirmacionGuardado" />
+                    </div>
                 </div>
                 <DataTable :value="resultadoGlobal" dataKey="idPrestamo" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="48vh" size="small" stripedRows class="mdp-table">
                     <Column header="Cliente" style="min-width: 220px"
@@ -289,8 +310,18 @@
                     >
                     <Column header="Seleccionar propuestas" style="min-width: 145px"
                         ><template #body="{ data }"
-                            ><Button label="Seleccionar válidas" size="small" text :disabled="conciliandoGlobal || guardandoCFDI" @click="(data.periodos || []).filter(esPropuesta).forEach((p) => alternarSeleccion(data, p, true))" /></template
-                    ></Column>
+                            ><div class="mdp-loan-selection">
+                                <Button
+                                    :label="elegiblesPrestamo(data).length && seleccionadasPrestamo(data) === elegiblesPrestamo(data).length ? 'Desmarcar' : 'Seleccionar válidas'"
+                                    size="small"
+                                    text
+                                    :disabled="!elegiblesPrestamo(data).length || conciliandoGlobal || guardandoCFDI"
+                                    @click="alternarPrestamoCompleto(data)"
+                                />
+                                <small>{{ seleccionadasPrestamo(data) }} / {{ elegiblesPrestamo(data).length }} seleccionadas</small>
+                            </div></template
+                        ></Column
+                    >
                     <Column header="Detalle" style="min-width: 110px"
                         ><template #body="{ data }"><Button label="Ver" icon="pi pi-eye" size="small" text @click="handleVerResultadoGlobal(data)" /></template
                     ></Column>
@@ -301,13 +332,20 @@
             <div class="mdp-dialog-body">
                 <div class="mdp-notice"><i class="pi pi-exclamation-triangle"></i> Esta operación SÍ modifica SQL Server. Solo guarda UUID y datos fiscales; no modifica pagos ni timbra CFDI. No cierres mientras guarda.</div>
                 <p>
-                    Se enviarán <strong>{{ seleccionVigente.length }}</strong> asignaciones. El servidor verificará nuevamente cada CFDI.
+                    Se enviarán <strong>{{ seleccionVigente.length }}</strong> asignaciones. Verifica los préstamos, plazos y UUID antes de continuar.
                 </p>
+                <div v-if="!guardandoCFDI && !progresoGuardado.procesados" class="mdp-save-preview">
+                    <div v-for="r in seleccionVigente" :key="r.clave" class="mdp-save-preview-row">
+                        <strong>{{ r.idPrestamo }} · Plazo {{ r.plazo }}</strong>
+                        <span class="mdp-uuid">{{ r.facturaUuid }}</span>
+                    </div>
+                </div>
                 <ProgressBar v-if="guardandoCFDI || progresoGuardado.procesados" :value="porcentaje(progresoGuardado.procesados, progresoGuardado.total)" />
                 <p v-if="progresoGuardado.procesados">Guardados: {{ progresoGuardado.correctos }} · Rechazados / sin confirmar: {{ progresoGuardado.errores }}</p>
                 <div v-if="resultadosGuardado.length" class="mdp-save-results">
                     <div v-for="(r, i) in resultadosGuardado" :key="i">
-                        <Tag :severity="Number(r.error) === 0 ? 'success' : 'danger'" :value="Number(r.error) === 0 ? 'Guardado' : 'Revisar'" /> <strong>{{ r.idPrestamo }} · plazo {{ r.plazo }}</strong> — {{ r.mensaje }}
+                        <Tag :severity="Number(r.error) === 0 ? 'success' : Number(r.error) === 2 ? 'warn' : 'danger'" :value="Number(r.error) === 0 ? 'Guardado' : Number(r.error) === 2 ? 'Sin confirmar' : 'Rechazado'" />
+                        <strong>{{ r.idPrestamo }} · plazo {{ r.plazo }}</strong> — {{ r.mensaje }}
                     </div>
                 </div>
                 <div class="mdp-save-buttons">

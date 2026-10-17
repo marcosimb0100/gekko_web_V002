@@ -46,21 +46,24 @@ const useProceso = () => {
 
     // Guardado confirmado: la seleccion se hace por prestamo + plazo + UUID.
     const seleccionCFDI = ref([]);
+    const origenSeleccion = ref('individual');
+    const uuidsGuardadosSesion = ref(new Set());
     const mostrarConfirmacionGuardado = ref(false);
     const guardandoCFDI = ref(false);
     const progresoGuardado = ref({ procesados: 0, total: 0, correctos: 0, errores: 0 });
     const resultadosGuardado = ref([]);
     const llavePropuesta = (prestamo, periodo) => `${prestamo.idPrestamo}|${periodo.plazo}|${String(periodo.uuidPropuesto || '').toUpperCase()}`;
-    const esPropuesta = (p) => p?.estado === 'propuesta_cronologica' && !!p?.uuidPropuesto && !p?.uuidMdCapital;
+    const esPropuesta = (p) => p?.estado === 'propuesta_cronologica' && !!p?.uuidPropuesto && !p?.uuidMdCapital && !uuidsGuardadosSesion.value.has(String(p.uuidPropuesto).trim().toUpperCase());
     const uuidNormalizado = (uuid) =>
         String(uuid || '')
             .trim()
             .toUpperCase();
-    const propuestasDisponibles = computed(() =>
-        resultadoGlobal.value.length
-            ? resultadoGlobal.value.flatMap((prestamo) => (prestamo.periodos || []).filter(esPropuesta).map((periodo) => ({ prestamo, periodo })))
-            : (resultadoIndividual.value?.periodos || []).filter(esPropuesta).map((periodo) => ({ prestamo: resultadoIndividual.value, periodo }))
-    );
+    const propuestasDisponibles = computed(() => {
+        if (origenSeleccion.value === 'global') {
+            return resultadoGlobal.value.flatMap((prestamo) => (prestamo.periodos || []).filter(esPropuesta).map((periodo) => ({ prestamo, periodo })));
+        }
+        return (resultadoIndividual.value?.periodos || []).filter(esPropuesta).map((periodo) => ({ prestamo: resultadoIndividual.value, periodo }));
+    });
     const uuidConflictos = computed(() => {
         const conteo = new Map();
         for (const { periodo } of propuestasDisponibles.value) {
@@ -76,7 +79,7 @@ const useProceso = () => {
             seleccionCFDI.value = seleccionCFDI.value.filter((x) => x.clave !== clave);
             return;
         }
-        if (!esPropuesta(periodo) || uuidConflictos.value.has(uuidNormalizado(periodo.uuidPropuesto))) return;
+        if (guardandoCFDI.value || !esPropuesta(periodo) || uuidConflictos.value.has(uuidNormalizado(periodo.uuidPropuesto))) return;
         const uuid = uuidNormalizado(periodo.uuidPropuesto);
         if (seleccionCFDI.value.some((x) => x.uuid === uuid && x.clave !== clave)) {
             toast.add({ severity: 'warn', summary: 'UUID repetido', detail: 'Un UUID solo puede asignarse a un periodo.', life: 4500 });
@@ -84,7 +87,43 @@ const useProceso = () => {
         }
         if (!estaSeleccionado(prestamo, periodo)) seleccionCFDI.value.push({ clave, uuid, idPrestamo: prestamo.idPrestamo, plazo: Number(periodo.plazo), facturaUuid: uuid });
     };
-    const seleccionVigente = computed(() => seleccionCFDI.value.filter((x) => propuestasDisponibles.value.some(({ prestamo, periodo }) => llavePropuesta(prestamo, periodo) === x.clave && !uuidConflictos.value.has(x.uuid))));
+    // Seleccion masiva: respeta la misma validacion que los checkbox individuales.
+    const propuestasElegibles = computed(() => propuestasDisponibles.value.filter(({ periodo }) => !uuidConflictos.value.has(uuidNormalizado(periodo.uuidPropuesto))));
+    const totalElegibles = computed(() => propuestasElegibles.value.length);
+    const todasSeleccionadas = computed(() => totalElegibles.value > 0 && propuestasElegibles.value.every(({ prestamo, periodo }) => estaSeleccionado(prestamo, periodo)));
+    const seleccionarTodas = () => {
+        if (guardandoCFDI.value || conciliandoGlobal.value) return;
+        const disponibles = propuestasElegibles.value;
+        if (todasSeleccionadas.value) {
+            const claves = new Set(disponibles.map(({ prestamo, periodo }) => llavePropuesta(prestamo, periodo)));
+            seleccionCFDI.value = seleccionCFDI.value.filter((x) => !claves.has(x.clave));
+            return;
+        }
+        // Agregar en una sola actualizacion reactiva, sin recorrer la tabla visual.
+        const nuevas = [...seleccionCFDI.value];
+        const claves = new Set(nuevas.map((x) => x.clave));
+        const uuids = new Set(nuevas.map((x) => x.uuid));
+        for (const { prestamo, periodo } of disponibles) {
+            const clave = llavePropuesta(prestamo, periodo);
+            const uuid = uuidNormalizado(periodo.uuidPropuesto);
+            if (claves.has(clave) || uuids.has(uuid)) continue;
+            nuevas.push({ clave, uuid, idPrestamo: prestamo.idPrestamo, plazo: Number(periodo.plazo), facturaUuid: uuid });
+            claves.add(clave);
+            uuids.add(uuid);
+        }
+        seleccionCFDI.value = nuevas;
+    };
+    const elegiblesPrestamo = (prestamo) => (prestamo?.periodos || []).filter((p) => esPropuesta(p) && !uuidConflictos.value.has(uuidNormalizado(p.uuidPropuesto)));
+    const seleccionadasPrestamo = (prestamo) => elegiblesPrestamo(prestamo).filter((p) => estaSeleccionado(prestamo, p)).length;
+    const alternarPrestamoCompleto = (prestamo) => {
+        if (guardandoCFDI.value || conciliandoGlobal.value) return;
+        const periodos = elegiblesPrestamo(prestamo);
+        const seleccionar = periodos.some((p) => !estaSeleccionado(prestamo, p));
+        for (const periodo of periodos) alternarSeleccion(prestamo, periodo, seleccionar);
+    };
+    const seleccionVigente = computed(() =>
+        seleccionCFDI.value.filter((x) => propuestasDisponibles.value.some(({ prestamo, periodo }) => llavePropuesta(prestamo, periodo) === x.clave && !uuidConflictos.value.has(x.uuid) && !uuidsGuardadosSesion.value.has(x.uuid)))
+    );
     const abrirConfirmacionGuardado = () => {
         if (!seleccionVigente.value.length || guardandoCFDI.value || conciliandoGlobal.value) return;
         resultadosGuardado.value = [];
@@ -113,11 +152,14 @@ const useProceso = () => {
                         resultadosGuardado.value.push(fila);
                         progresoGuardado.value.procesados++;
                         progresoGuardado.value[ok ? 'correctos' : 'errores']++;
-                        if (ok) seleccionCFDI.value = seleccionCFDI.value.filter((x) => !(x.idPrestamo === fila.idPrestamo && x.plazo === Number(fila.plazo) && x.uuid === uuidNormalizado(fila.facturaUuid)));
+                        if (ok) {
+                            uuidsGuardadosSesion.value = new Set([...uuidsGuardadosSesion.value, uuidNormalizado(fila.facturaUuid)]);
+                            seleccionCFDI.value = seleccionCFDI.value.filter((x) => !(x.idPrestamo === fila.idPrestamo && x.plazo === Number(fila.plazo) && x.uuid === uuidNormalizado(fila.facturaUuid)));
+                        }
                     }
                 } catch (error) {
                     // No reintentar automaticamente: el servidor pudo haber guardado parte del lote.
-                    for (const fila of lote) resultadosGuardado.value.push({ ...fila, error: 1, mensaje: error.message || 'Estado desconocido: consultar MD Capital antes de reintentar.' });
+                    for (const fila of lote) resultadosGuardado.value.push({ ...fila, error: 2, estado: 'desconocido', mensaje: 'Estado no confirmado. Consulte MD Capital antes de reintentar. ' + (error?.message || '') });
                     progresoGuardado.value.procesados += lote.length;
                     progresoGuardado.value.errores += lote.length;
                     break;
@@ -227,6 +269,7 @@ const useProceso = () => {
         conciliandoIndividual.value = true;
         resultadoIndividual.value = null;
         seleccionCFDI.value = [];
+        origenSeleccion.value = 'individual';
         filtroConciliacion.value = 'todos';
         try {
             const res = await store.dispatch('api/apiPostToken', {
@@ -255,6 +298,7 @@ const useProceso = () => {
         cancelarGlobal.value = false;
         resultadoGlobal.value = [];
         seleccionCFDI.value = [];
+        origenSeleccion.value = 'global';
         errorGlobal.value = '';
         globalProgreso.value = { procesados: 0, total: 0, lotes: 0 };
         mostrarDialogGlobal.value = true;
@@ -326,6 +370,7 @@ const useProceso = () => {
     const totalEstado = (periodos, estado) => (periodos || []).filter((p) => p.estado === estado).length;
     const handleVerResultadoGlobal = (prestamo) => {
         resultadoIndividual.value = prestamo;
+        origenSeleccion.value = 'global';
         filtroConciliacion.value = 'todos';
         mostrarDialogConciliacion.value = true;
     };
@@ -334,6 +379,8 @@ const useProceso = () => {
         if (!prestamo) return;
         prestamoSeleccionado.value = prestamo;
         resultadoIndividual.value = null;
+        origenSeleccion.value = 'individual';
+        seleccionCFDI.value = [];
         mostrarDialogAmortizacion.value = true;
     };
     const handleCerrarDetalle = () => {
@@ -388,6 +435,7 @@ const useProceso = () => {
         periodosPagadosGlobal,
         handleVerResultadoGlobal,
         seleccionCFDI,
+        origenSeleccion,
         mostrarConfirmacionGuardado,
         guardandoCFDI,
         progresoGuardado,
@@ -398,6 +446,12 @@ const useProceso = () => {
         estaSeleccionado,
         alternarSeleccion,
         seleccionVigente,
+        totalElegibles,
+        todasSeleccionadas,
+        seleccionarTodas,
+        elegiblesPrestamo,
+        seleccionadasPrestamo,
+        alternarPrestamoCompleto,
         abrirConfirmacionGuardado,
         confirmarGuardado
     };
