@@ -98,6 +98,10 @@
     gap: 0.45rem;
     min-width: 190px;
 }
+.mdp-field-tipo {
+    min-width: 210px;
+    max-width: 270px;
+}
 .mdp-field label {
     font-weight: 600;
     font-size: 0.85rem;
@@ -207,6 +211,9 @@
     }
     .mdp-field {
         min-width: 0;
+    }
+    .mdp-field-tipo {
+        max-width: none;
     }
     .mdp-panel {
         padding: 0.85rem;
@@ -491,7 +498,6 @@
     }
 }
 
-
 /* Seleccion manual de CFDI para periodos ambiguos */
 .mdp-manual-select {
     display: flex;
@@ -520,4 +526,91 @@
 .mdp-manual-select .p-dropdown {
     width: 100%;
     max-width: 100%;
+}
+
+/* CFDI por fila: una sugerencia destacada, sin listas extensas */
+.mdp-cfdi-compacto {
+    width: 100%;
+    max-width: 360px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+.mdp-cfdi-destacado {
+    padding: 0.6rem;
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: var(--surface-ground);
+    min-width: 0;
+}
+.mdp-cfdi-destacado .mdp-uuid {
+    font-size: 0.76rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.35;
+}
+.mdp-cfdi-destacado small {
+    font-size: 0.73rem;
+    color: var(--text-color-secondary);
+}
+.mdp-cfdi-etiqueta {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #9a6700;
+}
+.mdp-manual-compacto {
+    min-width: 0;
+    padding: 0.45rem;
+    margin: 0;
+}
+.mdp-manual-compacto .p-dropdown {
+    min-width: 0;
+    max-width: 100%;
+}
+.mdp-manual-compacto .p-dropdown-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.76rem;
+}
+
+/* Exportación de préstamos filtrados */
+.mdp-header-buttons .mdp-export-button {
+    background: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+.mdp-header-buttons .mdp-export-button:not(:disabled):hover {
+    background: #157347;
+    border-color: #146c43;
+}
+
+.mdp-mesa-selectall {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    flex-wrap: wrap;
+}
+.mdp-mesa-selectall strong {
+    margin-left: auto;
+}
+.mdp-mesa-preview {
+    display: grid;
+    gap: 12px;
+}
+.mdp-mesa-warning {
+    border-left: 4px solid #d39e36;
+    padding: 12px;
+    background: #fff8e9;
+    color: #6a4d16;
+}
+.mdp-mesa-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }

@@ -9,6 +9,8 @@
                 </div>
             </div>
             <div class="mdp-header-buttons">
+                <Button label="Exportar Excel" icon="pi pi-file-excel" class="mdp-export-button" :disabled="cargando || !prestamosFiltrados.length" @click="handleExportarExcel" />
+                <Button label="Enviar a Mesa de Control" icon="pi pi-send" severity="success" :disabled="!prestamosSeleccionadosMesa.length" @click="abrirVistaPreviaMesa" />
                 <Button label="Conciliación global" icon="pi pi-sync" class="mdp-global-button" :disabled="cargando || conciliandoGlobal" :loading="conciliandoGlobal" @click="handleConciliarGlobal" />
                 <Button label="Actualizar" :loading="cargando" :disabled="conciliandoGlobal" @click="handleConsultar"
                     ><template #icon><i class="pi pi-refresh mr-2"></i></template
@@ -42,11 +44,21 @@
             </div>
             <div class="mdp-filters">
                 <div class="mdp-field mdp-grow"><label for="mdp-buscar">Buscar cliente, RFC o préstamo</label><InputText id="mdp-buscar" v-model="buscar" placeholder="Nombre, RFC o identificador" class="w-full" /></div>
+                <div class="mdp-field mdp-field-tipo">
+                    <label for="mdp-tipo-prestamo">Tipo de préstamo</label><Dropdown inputId="mdp-tipo-prestamo" v-model="filtroTipoPrestamo" :options="opcionesTipoPrestamo" optionLabel="label" optionValue="value" filter class="w-full" />
+                </div>
                 <div class="mdp-field"><label for="mdp-estado">Avance de pago</label><Dropdown inputId="mdp-estado" v-model="filtroPago" :options="opcionesPago" optionLabel="label" optionValue="value" class="w-full" /></div>
                 <Button label="Limpiar" icon="pi pi-filter-slash" severity="secondary" outlined @click="handleLimpiar" />
             </div>
             <div v-if="mensajeError" class="mdp-error" role="alert">{{ mensajeError }}</div>
+            <div class="mdp-mesa-selectall">
+                <Checkbox :modelValue="seleccionTodosMesa" binary @update:modelValue="alternarTodosMesa" /> <span>Seleccionar todos los préstamos filtrados para Mesa de Control</span>
+                <strong>{{ prestamosSeleccionadosMesa.length }} seleccionados</strong>
+            </div>
             <DataTable :value="prestamosFiltrados" dataKey="idPrestamo" :loading="cargando" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="55vh" size="small" stripedRows class="mdp-table">
+                <Column header="Elegir" style="min-width: 75px"
+                    ><template #body="{ data }"><Checkbox :modelValue="prestamosParaMesa.includes(data.idPrestamo)" binary @update:modelValue="alternarPrestamoMesa(data.idPrestamo, $event)" /></template
+                ></Column>
                 <Column header="Cliente" style="min-width: 220px"
                     ><template #body="{ data }"
                         ><strong>{{ data.cliente?.nombreCompleto || 'Sin nombre' }}</strong>
@@ -77,6 +89,23 @@
             </DataTable>
         </div>
 
+        <Dialog v-model:visible="mostrarVistaPreviaMesa" modal header="Vista previa · Mesa de Control" :style="{ width: '90vw', maxWidth: '900px' }">
+            <div class="mdp-mesa-preview">
+                <p><strong>Empresa emisora:</strong> MD TRANSCAPITAL (MTR200918654)</p>
+                <p><strong>Préstamos seleccionados:</strong> {{ prestamosSeleccionadosMesa.length }}</p>
+                <p class="mdp-mesa-warning">Esta pantalla es una vista previa. El envío está deshabilitado hasta integrar las validaciones del backend: siguiente plazo pagado sin CFDI, solicitudes existentes, importes e impuestos y RFC receptor.</p>
+                <DataTable :value="prestamosSeleccionadosMesa" paginator :rows="10" size="small">
+                    <Column field="idPrestamo" header="Préstamo" />
+                    <Column header="Cliente"
+                        ><template #body="{ data }">{{ data.cliente?.nombreCompleto }}</template></Column
+                    >
+                    <Column header="RFC"
+                        ><template #body="{ data }">{{ data.cliente?.rfc }}</template></Column
+                    >
+                </DataTable>
+                <div class="mdp-mesa-actions"><Button label="Cerrar" severity="secondary" @click="mostrarVistaPreviaMesa = false" /><Button label="Confirmar envío (pendiente de backend)" icon="pi pi-send" disabled /></div>
+            </div>
+        </Dialog>
         <Dialog
             v-model:visible="mostrarDialogAmortizacion"
             modal
@@ -193,7 +222,8 @@
                 <div class="mdp-field mdp-filter-estado"><label>Filtrar resultado</label><Dropdown v-model="filtroConciliacion" :options="opcionesConciliacion" optionLabel="label" optionValue="value" /></div>
                 <div class="mdp-save-bar">
                     <div>
-                        <strong>{{ seleccionVigente.length }} asignaciones seleccionadas ({{ totalElegibles }} propuestas automáticas elegibles)</strong><small>Incluye propuestas automáticas y selecciones manuales en periodos ambiguos. Revisa UUID, emisor e importes antes de confirmar.</small>
+                        <strong>{{ seleccionVigente.length }} asignaciones seleccionadas ({{ totalElegibles }} propuestas automáticas elegibles)</strong
+                        ><small>Incluye propuestas automáticas y selecciones manuales en periodos ambiguos. Revisa UUID, emisor e importes antes de confirmar.</small>
                     </div>
                     <div class="mdp-selection-actions">
                         <Button
@@ -212,9 +242,9 @@
                         ><template #body="{ data }"
                             ><Checkbox
                                 :binary="true"
-                                :modelValue="estaSeleccionado(resultadoIndividual, data)"
-                                :disabled="!esPropuesta(data) || uuidConflictos.has(String(data.uuidPropuesto || '').toUpperCase()) || guardandoCFDI"
-                                @update:modelValue="(v) => alternarSeleccion(resultadoIndividual, data, v)" /></template
+                                :modelValue="data.estado === 'ambiguo' ? estaManualSeleccionado(resultadoIndividual, data) : estaSeleccionado(resultadoIndividual, data)"
+                                :disabled="guardandoCFDI || (data.estado === 'ambiguo' ? !uuidSugeridoAmbiguo(resultadoIndividual, data) : !esPropuesta(data) || uuidConflictos.has(String(data.uuidPropuesto || '').toUpperCase()))"
+                                @update:modelValue="(v) => (data.estado === 'ambiguo' ? alternarConfirmacionAmbigua(resultadoIndividual, data, v) : alternarSeleccion(resultadoIndividual, data, v))" /></template
                     ></Column>
                     <Column field="plazo" header="Plazo" sortable style="min-width: 80px" />
                     <Column header="Fecha programada" style="min-width: 135px"
@@ -240,33 +270,43 @@
                             ><span class="mdp-uuid">{{ data.uuidMdCapital || '—' }}</span></template
                         ></Column
                     >
-                    <Column header="Factura propuesta / candidatos en Gekko" style="min-width: 350px"
+                    <Column header="Factura propuesta / candidatos en Gekko" style="min-width: 310px; max-width: 380px"
                         ><template #body="{ data }"
-                            ><div v-if="data.candidatos?.length" class="mdp-candidatos">
-                                <div v-for="c in data.estado === 'propuesta_cronologica' ? data.candidatos.slice(0, 1) : data.candidatos" :key="c.uuid" class="mdp-candidato">
-                                    <strong class="mdp-uuid">{{ c.uuid }}</strong
-                                    ><small>{{ formatoFecha(c.fecha) }} · {{ c.rfcEmisor || 'Sin emisor' }} · {{ formatoMoneda(c.total) }} · {{ c.metodoPago || '—' }}</small>
-                                </div>
-                                <small v-if="data.estado === 'propuesta_cronologica'">Propuesta cronológica · {{ data.totalCandidatos || 0 }} coincidencias originales</small>
-                                <div v-if="data.estado === 'ambiguo'" class="mdp-manual-select">
-                                    <label :for="'mdp-manual-' + data.plazo">Seleccionar CFDI para este periodo</label>
-                                    <Dropdown
-                                        :inputId="'mdp-manual-' + data.plazo"
-                                        :modelValue="uuidManualSeleccion(resultadoIndividual, data)"
-                                        :options="data.candidatos"
-                                        optionLabel="uuid"
-                                        optionValue="uuid"
-                                        placeholder="Elige un CFDI candidato"
-                                        :showClear="true"
-                                        :disabled="guardandoCFDI"
-                                        class="w-full"
-                                        @update:modelValue="(uuid) => seleccionarCandidatoManual(resultadoIndividual, data, uuid)"
-                                    />
-                                    <small v-if="data.motivoAmbiguedad">{{ data.motivoAmbiguedad }}</small>
-                                    <small v-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos; el backend valida nuevamente el UUID elegido.</small>
-                                    <small v-if="estaManualSeleccionado(resultadoIndividual, data)" class="mdp-manual-selected">Selección manual preparada para confirmación.</small>
-                                </div>
-                                <small v-else-if="data.totalCandidatos > data.candidatos.length">Se muestran {{ data.candidatos.length }} de {{ data.totalCandidatos }} candidatos</small>
+                            ><div v-if="data.candidatos?.length" class="mdp-cfdi-compacto">
+                                <template v-if="data.estado === 'ambiguo'">
+                                    <div v-if="candidatoSugerido(resultadoIndividual, data)" class="mdp-cfdi-destacado">
+                                        <span class="mdp-cfdi-etiqueta">Sugerencia secuencial · revisar antes de guardar</span>
+                                        <strong class="mdp-uuid">{{ candidatoSugerido(resultadoIndividual, data).uuid }}</strong>
+                                        <small
+                                            >{{ formatoFecha(candidatoSugerido(resultadoIndividual, data).fecha) }} · {{ candidatoSugerido(resultadoIndividual, data).rfcEmisor || 'Sin emisor' }} ·
+                                            {{ formatoMoneda(candidatoSugerido(resultadoIndividual, data).total) }}</small
+                                        >
+                                    </div>
+                                    <div class="mdp-manual-select mdp-manual-compacto">
+                                        <label :for="'mdp-manual-' + data.plazo">Cambiar CFDI sugerido</label>
+                                        <Dropdown
+                                            :inputId="'mdp-manual-' + data.plazo"
+                                            :modelValue="uuidSugeridoAmbiguo(resultadoIndividual, data)"
+                                            :options="data.candidatos"
+                                            optionLabel="uuid"
+                                            optionValue="uuid"
+                                            placeholder="Selecciona un CFDI"
+                                            :showClear="true"
+                                            :disabled="guardandoCFDI"
+                                            class="w-full"
+                                            filter
+                                            @update:modelValue="(uuid) => cambiarSugerenciaAmbigua(resultadoIndividual, data, uuid)"
+                                        />
+                                        <small>{{ data.totalCandidatos }} candidatos · Preseleccionado para revisión. Puedes desmarcarlo o cambiarlo.</small>
+                                        <small v-if="estaManualSeleccionado(resultadoIndividual, data)" class="mdp-manual-selected">Preseleccionado · requiere confirmación final.</small>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <div class="mdp-cfdi-destacado">
+                                        <strong class="mdp-uuid">{{ data.candidatos[0].uuid }}</strong>
+                                        <small>{{ formatoFecha(data.candidatos[0].fecha) }} · {{ formatoMoneda(data.candidatos[0].total) }}</small>
+                                    </div>
+                                </template>
                             </div>
                             <span v-else class="mdp-muted">Sin candidatos</span></template
                         ></Column
