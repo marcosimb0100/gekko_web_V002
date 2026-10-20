@@ -318,22 +318,318 @@ const useProceso = () => {
         ];
     });
 
-    // Vista previa de solicitudes: no escribe en MongoDB.
+    // Mesa de Control: selección global, una solicitud por préstamo.
+    // La preparación y verificación definitiva se delega a la API de MD Capital.
+    const EMPRESA_MD = '6a42fe70c4f6d1d7a5eee614';
     const prestamosParaMesa = ref([]);
     const mostrarVistaPreviaMesa = ref(false);
-    const empresaMesa = ref('6a42fe70c4f6d1d7a5eee614');
-    const seleccionTodosMesa = computed(() => prestamosFiltrados.value.length > 0 && prestamosFiltrados.value.every((p) => prestamosParaMesa.value.includes(p.idPrestamo)));
+    const empresaMesa = ref(EMPRESA_MD);
+    const cuentaMesa = ref('');
+    const cuentasMesa = ref([]);
+    const conceptoMesa = ref('');
+    const conceptosMesa = ref([]);
+    const usoMesa = ref('G03');
+    const metodoMesa = ref('PPD');
+    const formaMesa = ref('99');
+    const opcionesUsoMesa = ref([]);
+    const opcionesMetodoMesa = ref([]);
+    const opcionesFormaMesa = ref([]);
+    const cargarCatalogosSatMesa = async () => {
+        const catalogos = [
+            { direccion: '/sat/sat_uso_cfdi', clave: 'uso_cfdi', destino: opcionesUsoMesa, seleccionado: usoMesa, defecto: 'G03' },
+            { direccion: '/sat/sat_metodo_pago', clave: 'metodo_pago', destino: opcionesMetodoMesa, seleccionado: metodoMesa, defecto: 'PPD' },
+            { direccion: '/sat/sat_forma_pago', clave: 'forma_pago', destino: opcionesFormaMesa, seleccionado: formaMesa, defecto: '99' }
+        ];
+        const resultados = await Promise.allSettled(catalogos.map((c) => obtenerMesa(c.direccion)));
+        resultados.forEach((resultado, i) => {
+            const c = catalogos[i];
+            if (resultado.status !== 'fulfilled') {
+                c.destino.value = [];
+                erroresMesa.value.push(`No se pudo cargar ${c.direccion}: ${resultado.reason?.message || 'Error de red'}`);
+                return;
+            }
+            const lista = resultado.value?.[c.clave];
+            if (!Array.isArray(lista)) {
+                c.destino.value = [];
+                erroresMesa.value.push(`El catálogo ${c.direccion} devolvió un formato inválido.`);
+                return;
+            }
+            c.destino.value = lista.map((item) => ({
+                ...item,
+                descripcion_mostrar: `${item[c.clave]} - ${item.descripcion || ''}`
+            }));
+            c.seleccionado.value = c.destino.value.some((item) => item[c.clave] === c.defecto) ? c.defecto : '';
+        });
+    };
+
+    const cargandoMesa = ref(false);
+    const enviandoMesa = ref(false);
+    const registrosMesa = ref([]);
+    const erroresMesa = ref([]);
+    const resultadosMesa = ref([]);
+    const redondearMesa = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+    // La disponibilidad depende del plazo a facturar, no de cualquier pendiente del préstamo.
+    const plazosPendientesMesaNumeros = (p) => (Array.isArray(p?.plazos_pendientes) ? p.plazos_pendientes : []).map((x) => Number(typeof x === 'object' && x !== null ? x.plazo : x)).filter(Number.isInteger);
+    const plazoPorFacturarMesa = (p) => {
+        const amortizacion = (Array.isArray(p?.amortizacion) ? p.amortizacion : []).filter((per) => Number.isInteger(Number(per.plazo)) && Number(per.plazo) > 0).sort((a, b) => Number(a.plazo) - Number(b.plazo));
+        // Continuar después del último plazo con UUID; no retroceder a huecos antiguos.
+        // Las solicitudes pendientes NO adelantan el plazo a facturar.
+        const conUuid = amortizacion.filter((per) => String(per.facturaUuid || '').trim());
+        const ultimoFacturado = conUuid.length ? Math.max(...conUuid.map((per) => Number(per.plazo))) : 0;
+        const siguiente = amortizacion.find((per) => Number(per.plazo) > ultimoFacturado);
+        return siguiente ? Number(siguiente.plazo) : null;
+    };
+    const tienePendienteMesa = (p) => {
+        const plazo = plazoPorFacturarMesa(p);
+        return plazo !== null && plazosPendientesMesaNumeros(p).includes(plazo);
+    };
+    const plazosPendientesMesa = (p) => plazosPendientesMesaNumeros(p).join(', ');
+    const prestamosDisponiblesMesa = computed(() => prestamosFiltrados.value.filter((p) => !tienePendienteMesa(p)));
+    const seleccionTodosMesa = computed(() => prestamosDisponiblesMesa.value.length > 0 && prestamosDisponiblesMesa.value.every((p) => prestamosParaMesa.value.includes(p.idPrestamo)));
     const alternarPrestamoMesa = (id, checked) => {
+        const prestamo = prestamos.value.find((p) => p.idPrestamo === id);
+        if (checked && (!prestamo || tienePendienteMesa(prestamo))) return;
         prestamosParaMesa.value = checked ? [...new Set([...prestamosParaMesa.value, id])] : prestamosParaMesa.value.filter((x) => x !== id);
     };
     const alternarTodosMesa = (checked) => {
-        const visibles = new Set(prestamosFiltrados.value.map((p) => p.idPrestamo));
+        const visibles = new Set(prestamosDisponiblesMesa.value.map((p) => p.idPrestamo));
         prestamosParaMesa.value = checked ? [...new Set([...prestamosParaMesa.value, ...visibles])] : prestamosParaMesa.value.filter((id) => !visibles.has(id));
     };
-    const prestamosSeleccionadosMesa = computed(() => prestamos.value.filter((p) => prestamosParaMesa.value.includes(p.idPrestamo)));
-    const abrirVistaPreviaMesa = () => {
-        if (!prestamosSeleccionadosMesa.value.length) return;
+    const prestamosSeleccionadosMesa = computed(() => prestamos.value.filter((p) => prestamosParaMesa.value.includes(p.idPrestamo) && !tienePendienteMesa(p)));
+    const listosMesa = computed(() => registrosMesa.value.filter((r) => r.estado === 'listo'));
+    const bloqueadosMesa = computed(() => registrosMesa.value.filter((r) => r.estado !== 'listo'));
+    const totalMesa = computed(() => ({
+        subtotal: redondearMesa(listosMesa.value.reduce((s, r) => s + Number(r.subtotal || 0), 0)),
+        iva: redondearMesa(listosMesa.value.reduce((s, r) => s + Number(r.iva || 0), 0)),
+        total: redondearMesa(listosMesa.value.reduce((s, r) => s + Number(r.total || 0), 0))
+    }));
+    const puedeEnviarMesa = computed(
+        () => !cargandoMesa.value && !enviandoMesa.value && !!cuentaMesa.value && !!conceptoMesa.value && !!usoMesa.value && !!metodoMesa.value && !!formaMesa.value && listosMesa.value.length > 0 && erroresMesa.value.length === 0
+    );
+    const obtenerMesa = async (direccion) => {
+        const r = await store.dispatch('api/apiGetToken', { direccion });
+        if (Number(r?.estatus) !== 200) throw new Error(r?.mensaje || `Error consultando ${direccion}`);
+        return r.datos || {};
+    };
+    const cargarCuentasMesa = async () => {
+        cuentaMesa.value = '';
+        try {
+            cuentasMesa.value = (await obtenerMesa(`/solicitud_detallada/bancos/${EMPRESA_MD}`)).bancos || [];
+        } catch (e) {
+            cuentasMesa.value = [];
+            erroresMesa.value.push(e.message);
+        }
+    };
+    const cargarConceptosMesa = async () => {
+        conceptoMesa.value = '';
+        conceptosMesa.value = [];
+        // Los conceptos dependen del cliente: se validan individualmente en el backend.
+        const primero = listosMesa.value.find((r) => r.client_id);
+        if (!primero) return;
+        try {
+            conceptosMesa.value = (await obtenerMesa(`/solicitud_detallada/conceptos/${primero.client_id}/${EMPRESA_MD}`)).conceptos || [];
+        } catch (e) {
+            erroresMesa.value.push(e.message);
+        }
+    };
+    // Preparación desde los datos oficiales de amortización ya consultados.
+    // IMPORTANTE: el endpoint estándar /guardar no valida duplicados por préstamo/plazo.
+    // Para garantía multiusuario se necesita una restricción única en el servidor.
+    const prepararLocalMesa = async () => {
+        const clientes = await obtenerMesa('/clientes/');
+        const porRfc = new Map(
+            (clientes.clientes || []).map((c) => [
+                String(c.rfc || '')
+                    .trim()
+                    .toUpperCase(),
+                c
+            ])
+        );
+        return prestamosSeleccionadosMesa.value.map((p) => {
+            const registro = {
+                idPrestamo: p.idPrestamo,
+                cliente: p.cliente?.nombreCompleto || p.cliente?.rfc || '',
+                rfc: String(p.cliente?.rfc || '')
+                    .trim()
+                    .toUpperCase(),
+                plazo: null,
+                estado: 'bloqueado',
+                motivo: '',
+                subtotal: 0,
+                iva: 0,
+                total: 0,
+                client_id: null,
+                descripcion: ''
+            };
+            try {
+                const cliente = porRfc.get(registro.rfc);
+                if (!cliente?._id) throw new Error('RFC sin cliente registrado en Gekko.');
+                registro.client_id = cliente._id;
+                const plazo = plazoPorFacturarMesa(p);
+                if (plazo === null) throw new Error('No existe un plazo pendiente de CFDI.');
+                registro.plazo = plazo;
+                if (tienePendienteMesa(p)) throw new Error(`Solicitud pendiente de timbrar para el plazo ${plazo}.`);
+                const per = (p.amortizacion || []).find((item) => Number(item.plazo) === plazo);
+                if (!per) throw new Error(`No existe la amortización del plazo ${plazo}.`);
+                registro.descripcion = `PAGO DE INTERESES (${p.idPrestamo} - ${registro.plazo})`;
+                const base = Number(per.intereses),
+                    iva = Number(per.iva);
+                if (!Number.isFinite(base) || !Number.isFinite(iva) || base <= 0 || iva < 0) throw new Error(`El plazo ${registro.plazo} no tiene importes válidos en MD Capital.`);
+                registro.subtotal = redondearMesa(base);
+                registro.iva = redondearMesa(iva);
+                registro.total = redondearMesa(base + iva);
+                // Facturación independiente del pago: no bloquear por per.pagado.
+                // Se factura el plazo posterior al último UUID registrado.
+                registro.estado = 'listo';
+            } catch (e) {
+                registro.motivo = e.message;
+            }
+            return registro;
+        });
+    };
+    const abrirVistaPreviaMesa = async () => {
+        if (!prestamosSeleccionadosMesa.value.length || cargandoMesa.value) return;
         mostrarVistaPreviaMesa.value = true;
+        cargandoMesa.value = true;
+        registrosMesa.value = [];
+        erroresMesa.value = [];
+        resultadosMesa.value = [];
+        try {
+            // Refrescar el estado real de MongoDB antes de mostrar el modal.
+            const actual = await obtenerMesa('/mdcapital/prestamos/pt');
+            if (!Array.isArray(actual.prestamos)) throw new Error('No se pudo validar el estado de las solicitudes.');
+            prestamos.value = actual.prestamos;
+            prestamosParaMesa.value = prestamosParaMesa.value.filter((id) => {
+                const p = prestamos.value.find((x) => x.idPrestamo === id);
+                return p && !tienePendienteMesa(p);
+            });
+            registrosMesa.value = await prepararLocalMesa();
+            await Promise.all([cargarCuentasMesa(), cargarConceptosMesa(), cargarCatalogosSatMesa()]);
+        } catch (e) {
+            erroresMesa.value.push(e.message || 'No se pudieron preparar las solicitudes.');
+        } finally {
+            cargandoMesa.value = false;
+        }
+    };
+    const fechaLocalMesa = () => {
+        const d = new Date(),
+            pad = (x) => String(x).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    const confirmarEnvioMesa = async () => {
+        if (!puedeEnviarMesa.value) return;
+        enviandoMesa.value = true;
+        erroresMesa.value = [];
+        resultadosMesa.value = [];
+        const conceptoElegido = conceptosMesa.value.find((c) => c._id === conceptoMesa.value);
+        if (!conceptoElegido) {
+            erroresMesa.value.push('Selecciona un concepto válido.');
+            enviandoMesa.value = false;
+            return;
+        }
+        // Cada cliente puede tener una configuración/autorización de conceptos distinta.
+        // Nunca se mezcla un RFC con otro en la misma solicitud.
+        const conceptoClienteCache = new Map();
+        for (const r of [...listosMesa.value]) {
+            try {
+                // Validar nuevamente contra Mongo antes de cada guardado.
+                // Esto reduce reenvíos por pantallas desactualizadas, pero no reemplaza
+                // una restricción atómica de unicidad en el backend.
+                const vigentes = await obtenerMesa('/mdcapital/prestamos/pt');
+                if (!Array.isArray(vigentes.prestamos)) throw new Error('No se pudo verificar solicitudes pendientes.');
+                const vigente = vigentes.prestamos.find((p) => p.idPrestamo === r.idPrestamo);
+                if (!vigente) throw new Error('Préstamo no encontrado al verificar su estado.');
+                if (plazoPorFacturarMesa(vigente) !== r.plazo) throw new Error('Cambió el plazo a facturar; actualiza la vista previa.');
+                if (tienePendienteMesa(vigente)) throw new Error(`Ya existe una solicitud pendiente del plazo ${r.plazo}.`);
+                if (!conceptoClienteCache.has(r.client_id)) {
+                    const lista = await obtenerMesa(`/solicitud_detallada/conceptos/${r.client_id}/${EMPRESA_MD}`);
+                    conceptoClienteCache.set(r.client_id, (lista.conceptos || []).find((c) => c._id === conceptoMesa.value) || null);
+                }
+                const concepto = conceptoClienteCache.get(r.client_id);
+                if (!concepto) throw new Error('Cliente sin concepto asignado para MD TRANSCAPITAL.');
+                const trasladosBase = concepto.impuestos?.traslado || [];
+                const retencionesBase = concepto.impuestos?.retencion || [];
+                if (trasladosBase.length > 1 || retencionesBase.length) throw new Error('Configuración de impuestos no admitida.');
+                const tasa = trasladosBase.length ? Number(trasladosBase[0].tasa || 0) : 0;
+                const tasaNormalizada = tasa > 1 ? tasa / 100 : tasa;
+                if (Math.abs(redondearMesa(r.subtotal * tasaNormalizada) - r.iva) > 0.01) throw new Error('El IVA del plazo no corresponde al concepto seleccionado.');
+                const traslados = trasladosBase.map((t) => ({ ...t, base: r.subtotal, tasa: tasaNormalizada, importe: r.iva }));
+                const detalle = {
+                    _id: `${r.idPrestamo}-${r.plazo}`,
+                    company_id: EMPRESA_MD,
+                    concepto_id: concepto._id,
+                    prod_serv: concepto.prod_serv,
+                    descripcion_sat: concepto.descripcion_sat,
+                    descripcion: r.descripcion,
+                    cuenta_predial: concepto.cuenta_predial,
+                    clave_unidad: concepto.clave_unidad,
+                    unidad: concepto.unidad,
+                    objeto_imp: concepto.objeto_imp,
+                    num_uso: String(concepto.num_uso || '0'),
+                    cantidad: 1,
+                    valor_unitario: r.subtotal,
+                    importe: r.subtotal,
+                    descuento: 0,
+                    impuestos: { traslado: traslados, retencion: [] },
+                    total_traslados: r.iva,
+                    total_retenciones: 0,
+                    total: r.total
+                };
+                const payload = {
+                    client_id: r.client_id,
+                    company_id: EMPRESA_MD,
+                    bank_id: cuentaMesa.value,
+                    uso_cfdi: usoMesa.value,
+                    metodo_pago: metodoMesa.value,
+                    forma_pago: formaMesa.value,
+                    fecha_factura: fechaLocalMesa(),
+                    conceptos: [detalle],
+                    subtotal: r.subtotal,
+                    traslados: r.iva,
+                    retenciones: 0,
+                    total: r.total
+                };
+                const formData = new FormData();
+                formData.append('data', JSON.stringify(payload));
+                const res = await store.dispatch('api/apiPostTokenFormData', {
+                    direccion: '/solicitud_detallada/guardar',
+                    formData
+                });
+                if (Number(res?.estatus) !== 200) throw new Error(res?.mensaje || 'No se guardó la solicitud.');
+                resultadosMesa.value.push({ idPrestamo: r.idPrestamo, plazo: r.plazo, estado: 'creada', mensaje: 'Solicitud guardada.' });
+                r.estado = 'creada';
+                r.motivo = 'Solicitud enviada';
+                // Bloqueo inmediato local hasta que la API confirme el estado actualizado.
+                const prestamoLocal = prestamos.value.find((p) => p.idPrestamo === r.idPrestamo);
+                if (prestamoLocal) {
+                    prestamoLocal.solicitud_pendiente = true; // indicador informativo, no bloquea otros plazos
+                    prestamoLocal.plazos_pendientes = [...new Set([...(prestamoLocal.plazos_pendientes || []), r.plazo])];
+                    prestamoLocal.estatus_solicitud = 'pendiente';
+                }
+                prestamosParaMesa.value = prestamosParaMesa.value.filter((id) => id !== r.idPrestamo);
+            } catch (e) {
+                resultadosMesa.value.push({ idPrestamo: r.idPrestamo, plazo: r.plazo, estado: 'error', motivo: e.message });
+                erroresMesa.value.push(`${r.idPrestamo} / ${r.plazo}: ${e.message}`);
+            }
+        }
+        const creadas = resultadosMesa.value.filter((x) => x.estado === 'creada').length;
+        toast.add({ severity: creadas ? 'success' : 'warn', summary: 'Mesa de Control', detail: `${creadas} solicitudes guardadas; ${resultadosMesa.value.length - creadas} con error.`, life: 7000 });
+        // No reintentar un lote parcial automáticamente: podría duplicar solicitudes.
+        enviandoMesa.value = false;
+        try {
+            const actualizados = await obtenerMesa('/mdcapital/prestamos/pt');
+            if (Array.isArray(actualizados.prestamos)) {
+                // Conservar bloqueos locales de los guardados que aún no sean visibles por replicación.
+                const enviados = new Map(resultadosMesa.value.filter((x) => x.estado === 'creada').map((x) => [x.idPrestamo, x.plazo]));
+                prestamos.value = actualizados.prestamos.map((p) => {
+                    if (!enviados.has(p.idPrestamo)) return p;
+                    const plazo = enviados.get(p.idPrestamo);
+                    return { ...p, solicitud_pendiente: true, plazos_pendientes: [...new Set([...(p.plazos_pendientes || []), plazo])] };
+                });
+            }
+        } catch (e) {
+            erroresMesa.value.push('No fue posible refrescar las solicitudes después del envío: ' + e.message);
+        }
     };
 
     const prestamosFiltrados = computed(() => {
@@ -429,6 +725,11 @@ const useProceso = () => {
                 throw new Error('La API no devolvió una lista de préstamos válida.');
             }
             prestamos.value = lista;
+            // Descartar selecciones que ahora tengan solicitudes pendientes.
+            prestamosParaMesa.value = prestamosParaMesa.value.filter((id) => {
+                const p = lista.find((item) => item.idPrestamo === id);
+                return p && !tienePendienteMesa(p);
+            });
             if (prestamoSeleccionado.value) {
                 prestamoSeleccionado.value = lista.find((p) => p.idPrestamo === prestamoSeleccionado.value.idPrestamo) || null;
                 if (!prestamoSeleccionado.value) mostrarDialogAmortizacion.value = false;
@@ -593,11 +894,34 @@ const useProceso = () => {
         prestamosParaMesa,
         mostrarVistaPreviaMesa,
         empresaMesa,
+        tienePendienteMesa,
+        plazosPendientesMesa,
+        prestamosDisponiblesMesa,
         seleccionTodosMesa,
         alternarPrestamoMesa,
         alternarTodosMesa,
         prestamosSeleccionadosMesa,
         abrirVistaPreviaMesa,
+        cuentaMesa,
+        cuentasMesa,
+        conceptoMesa,
+        conceptosMesa,
+        usoMesa,
+        metodoMesa,
+        formaMesa,
+        opcionesUsoMesa,
+        opcionesMetodoMesa,
+        opcionesFormaMesa,
+        cargandoMesa,
+        enviandoMesa,
+        registrosMesa,
+        erroresMesa,
+        resultadosMesa,
+        listosMesa,
+        bloqueadosMesa,
+        totalMesa,
+        puedeEnviarMesa,
+        confirmarEnvioMesa,
         prestamos,
         prestamoSeleccionado,
         mostrarDialogAmortizacion,

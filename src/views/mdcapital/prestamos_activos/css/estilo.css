@@ -614,3 +614,56 @@
     justify-content: flex-end;
     gap: 8px;
 }
+
+/* Mesa de Control: resumen global */
+.mdp-mesa-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 12px 0 18px;
+}
+.mdp-mesa-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+.mdp-mesa-stats span {
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--surface-100, #f3f4f6);
+}
+.mdp-mesa-totales {
+    margin: 18px 0 12px auto;
+    max-width: 420px;
+    display: grid;
+    gap: 10px;
+}
+.mdp-mesa-totales > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+.mdp-mesa-totales .mdp-mesa-total {
+    font-size: 1.2rem;
+    border-top: 1px solid var(--surface-border, #ddd);
+    padding-top: 12px;
+}
+
+/* Selectores SAT: conservan la misma altura y ancho que los demás campos del modal. */
+.mdp-mesa-grid .p-dropdown,
+.mdp-mesa-grid .p-select {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Estados de solicitudes pendientes en la tabla principal */
+.mdp-table :deep(.p-tag) {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+}
+.mdp-table :deep(.p-checkbox.p-disabled) {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

@@ -52,12 +52,12 @@
             </div>
             <div v-if="mensajeError" class="mdp-error" role="alert">{{ mensajeError }}</div>
             <div class="mdp-mesa-selectall">
-                <Checkbox :modelValue="seleccionTodosMesa" binary @update:modelValue="alternarTodosMesa" /> <span>Seleccionar todos los préstamos filtrados para Mesa de Control</span>
+                <Checkbox :modelValue="seleccionTodosMesa" binary :disabled="!prestamosDisponiblesMesa.length || cargando" @update:modelValue="alternarTodosMesa" /> <span>Seleccionar todos los préstamos filtrados para Mesa de Control</span>
                 <strong>{{ prestamosSeleccionadosMesa.length }} seleccionados</strong>
             </div>
             <DataTable :value="prestamosFiltrados" dataKey="idPrestamo" :loading="cargando" paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" scrollable scrollHeight="55vh" size="small" stripedRows class="mdp-table">
                 <Column header="Elegir" style="min-width: 75px"
-                    ><template #body="{ data }"><Checkbox :modelValue="prestamosParaMesa.includes(data.idPrestamo)" binary @update:modelValue="alternarPrestamoMesa(data.idPrestamo, $event)" /></template
+                    ><template #body="{ data }"><Checkbox :modelValue="prestamosParaMesa.includes(data.idPrestamo)" binary :disabled="tienePendienteMesa(data)" @update:modelValue="alternarPrestamoMesa(data.idPrestamo, $event)" /></template
                 ></Column>
                 <Column header="Cliente" style="min-width: 220px"
                     ><template #body="{ data }"
@@ -83,27 +83,100 @@
                 <Column header="UUID registrados" style="min-width: 145px"
                     ><template #body="{ data }">{{ data.resumen?.periodosConUuid || 0 }} / {{ data.resumen?.totalPeriodos || 0 }}</template></Column
                 >
+                <Column header="Estado solicitud" style="min-width: 170px">
+                    <template #body="{ data }">
+                        <Tag v-if="tienePendienteMesa(data)" severity="warn" :value="`Pendiente · plazo ${plazosPendientesMesa(data) || 'sin identificar'}`" />
+                        <Tag v-else severity="success" value="Disponible" />
+                    </template>
+                </Column>
                 <Column header="Detalle" style="min-width: 100px"
                     ><template #body="{ data }"><Button icon="pi pi-eye" label="Ver" text size="small" @click="handleSeleccionar(data)" /></template
                 ></Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="mostrarVistaPreviaMesa" modal header="Vista previa · Mesa de Control" :style="{ width: '90vw', maxWidth: '900px' }">
+        <Dialog v-model:visible="mostrarVistaPreviaMesa" modal header="Envío global · Mesa de Control" :style="{ width: '94vw', maxWidth: '1150px' }" :closable="!enviandoMesa">
             <div class="mdp-mesa-preview">
-                <p><strong>Empresa emisora:</strong> MD TRANSCAPITAL (MTR200918654)</p>
-                <p><strong>Préstamos seleccionados:</strong> {{ prestamosSeleccionadosMesa.length }}</p>
-                <p class="mdp-mesa-warning">Esta pantalla es una vista previa. El envío está deshabilitado hasta integrar las validaciones del backend: siguiente plazo pagado sin CFDI, solicitudes existentes, importes e impuestos y RFC receptor.</p>
-                <DataTable :value="prestamosSeleccionadosMesa" paginator :rows="10" size="small">
+                <div class="mdp-mesa-grid">
+                    <div class="mdp-field"><label>Empresa emisora</label><InputText modelValue="MD TRANSCAPITAL · MTR200918654" readonly class="w-full" /></div>
+                    <div class="mdp-field"><label>Cuenta bancaria *</label><Dropdown v-model="cuentaMesa" :options="cuentasMesa" optionLabel="cuenta_banco" optionValue="_id" placeholder="Seleccionar cuenta" class="w-full" /></div>
+                    <div class="mdp-field"><label>Concepto CFDI *</label><Dropdown v-model="conceptoMesa" :options="conceptosMesa" optionLabel="descripcion" optionValue="_id" placeholder="Seleccionar concepto" class="w-full" /></div>
+                    <div class="mdp-field">
+                        <label>Uso CFDI *</label
+                        ><Dropdown v-model="usoMesa" :options="opcionesUsoMesa" optionLabel="descripcion_mostrar" optionValue="uso_cfdi" placeholder="Seleccionar uso cfdi" filter class="w-full" :disabled="cargandoMesa || enviandoMesa" />
+                    </div>
+                    <div class="mdp-field">
+                        <label>Método de pago *</label
+                        ><Dropdown
+                            v-model="metodoMesa"
+                            :options="opcionesMetodoMesa"
+                            optionLabel="descripcion_mostrar"
+                            optionValue="metodo_pago"
+                            placeholder="Seleccionar método de pago"
+                            filter
+                            class="w-full"
+                            :disabled="cargandoMesa || enviandoMesa"
+                        />
+                    </div>
+                    <div class="mdp-field">
+                        <label>Forma de pago *</label
+                        ><Dropdown v-model="formaMesa" :options="opcionesFormaMesa" optionLabel="descripcion_mostrar" optionValue="forma_pago" placeholder="Seleccionar forma de pago" filter class="w-full" :disabled="cargandoMesa || enviandoMesa" />
+                    </div>
+                </div>
+                <div class="mdp-mesa-stats">
+                    <span
+                        ><strong>{{ prestamosSeleccionadosMesa.length }}</strong> seleccionados</span
+                    >
+                    <span
+                        ><strong>{{ listosMesa.length }}</strong> listos</span
+                    >
+                    <span
+                        ><strong>{{ bloqueadosMesa.length }}</strong> bloqueados</span
+                    >
+                </div>
+                <div v-if="cargandoMesa" class="mdp-notice">Validando amortizaciones y solicitudes existentes…</div>
+                <div v-for="(error, i) in erroresMesa" :key="i" class="mdp-error">{{ error }}</div>
+                <DataTable :value="registrosMesa" paginator :rows="10" size="small" scrollable class="mdp-table">
                     <Column field="idPrestamo" header="Préstamo" />
-                    <Column header="Cliente"
-                        ><template #body="{ data }">{{ data.cliente?.nombreCompleto }}</template></Column
+                    <Column field="cliente" header="Cliente" />
+                    <Column field="plazo" header="Plazo" />
+                    <Column field="descripcion" header="Descripción" />
+                    <Column header="Subtotal"
+                        ><template #body="{ data }">{{ formatoMoneda(data.subtotal) }}</template></Column
                     >
-                    <Column header="RFC"
-                        ><template #body="{ data }">{{ data.cliente?.rfc }}</template></Column
+                    <Column header="IVA"
+                        ><template #body="{ data }">{{ formatoMoneda(data.iva) }}</template></Column
                     >
+                    <Column header="Total"
+                        ><template #body="{ data }">{{ formatoMoneda(data.total) }}</template></Column
+                    >
+                    <Column header="Estado"
+                        ><template #body="{ data }"
+                            ><Tag
+                                :severity="data.estado === 'listo' || data.estado === 'creada' ? 'success' : 'warn'"
+                                :value="data.estado === 'listo' ? 'Listo' : data.estado === 'creada' ? 'Solicitud enviada' : data.motivo || 'Bloqueado'" /></template
+                    ></Column>
                 </DataTable>
-                <div class="mdp-mesa-actions"><Button label="Cerrar" severity="secondary" @click="mostrarVistaPreviaMesa = false" /><Button label="Confirmar envío (pendiente de backend)" icon="pi pi-send" disabled /></div>
+                <div class="mdp-mesa-totales">
+                    <div>
+                        <span>Subtotal global</span><strong>{{ formatoMoneda(totalMesa.subtotal) }}</strong>
+                    </div>
+                    <div>
+                        <span>IVA global</span><strong>{{ formatoMoneda(totalMesa.iva) }}</strong>
+                    </div>
+                    <div class="mdp-mesa-total">
+                        <span>Total general a facturar</span><strong>{{ formatoMoneda(totalMesa.total) }}</strong>
+                    </div>
+                </div>
+                <div v-if="resultadosMesa.length" class="mdp-notice">Resultados: {{ resultadosMesa.filter((r) => r.estado === 'creada').length }} guardados de {{ resultadosMesa.length }} procesados. No reenvíes solicitudes ya guardadas.</div>
+                <div class="mdp-mesa-actions">
+                    <Button label="Cerrar" severity="secondary" :disabled="enviandoMesa" @click="mostrarVistaPreviaMesa = false" />
+                    <Button label="Confirmar envío global" icon="pi pi-send" severity="success" :loading="enviandoMesa" :disabled="!puedeEnviarMesa" @click="confirmarEnvioMesa" />
+                </div>
+                <small
+                    >Aviso: la facturación no depende de que el plazo esté pagado. El guardado estándar no evita solicitudes duplicadas del mismo préstamo/plazo. Verifica solicitudes existentes antes de confirmar; no reenvíes registros ya
+                    guardados.</small
+                >
             </div>
         </Dialog>
         <Dialog
