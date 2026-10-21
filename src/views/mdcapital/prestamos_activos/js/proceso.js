@@ -328,7 +328,7 @@ const useProceso = () => {
     const cuentasMesa = ref([]);
     const conceptoMesa = ref('');
     const conceptosMesa = ref([]);
-    const usoMesa = ref('G03');
+    const usoMesa = ref('S01');
     const metodoMesa = ref('PPD');
     const formaMesa = ref('99');
     const opcionesUsoMesa = ref([]);
@@ -336,7 +336,7 @@ const useProceso = () => {
     const opcionesFormaMesa = ref([]);
     const cargarCatalogosSatMesa = async () => {
         const catalogos = [
-            { direccion: '/sat/sat_uso_cfdi', clave: 'uso_cfdi', destino: opcionesUsoMesa, seleccionado: usoMesa, defecto: 'G03' },
+            { direccion: '/sat/sat_uso_cfdi', clave: 'uso_cfdi', destino: opcionesUsoMesa, seleccionado: usoMesa, defecto: 'S01' },
             { direccion: '/sat/sat_metodo_pago', clave: 'metodo_pago', destino: opcionesMetodoMesa, seleccionado: metodoMesa, defecto: 'PPD' },
             { direccion: '/sat/sat_forma_pago', clave: 'forma_pago', destino: opcionesFormaMesa, seleccionado: formaMesa, defecto: '99' }
         ];
