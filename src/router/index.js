@@ -330,6 +330,13 @@ const router = createRouter({
                     name: 'recursos_humanos_mesa_control',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "recursos_humanos_mesa_control" */ '../views/recursos_humanos/mesa_control/MesaControl.vue')
+                },
+
+                {
+                    path: '/recursos_humanos/empleados',
+                    name: 'recursos_humanos_empleados',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "recursos_humanos_empleados" */ '../views/recursos_humanos/empleados/Empleados.vue')
                 }
             ]
         }
