@@ -309,6 +309,27 @@ const router = createRouter({
                     name: 'mdcapital_prestamos_activos',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "mdcapital_prestamos_activos" */ '../views/mdcapital/prestamos_activos/PrestamosActivos.vue')
+                },
+
+                {
+                    path: '/recursos_humanos/catalogo_rh',
+                    name: 'recursos_humanos_catalogo_rh',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "recursos_humanos_catalogo_rh" */ '../views/recursos_humanos/catalogo_rh/CatalogoRh.vue')
+                },
+
+                {
+                    path: '/recursos_humanos/alta_personal',
+                    name: 'recursos_humanos_alta_personal',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "recursos_humanos_alta_personal" */ '../views/recursos_humanos/alta_personal/AltaPersonal.vue')
+                },
+
+                {
+                    path: '/recursos_humanos/mesa_control',
+                    name: 'recursos_humanos_mesa_control',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "recursos_humanos_mesa_control" */ '../views/recursos_humanos/mesa_control/MesaControl.vue')
                 }
             ]
         }
