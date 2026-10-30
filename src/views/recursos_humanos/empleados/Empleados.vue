@@ -1,5 +1,8 @@
 <template>
-    <Encabezado titulo="Empleados" subtitulo="Consulta de empleados dados de alta por Mesa de Control" icono="pi pi-users" />
+    <div class="emp-encabezado">
+        <Encabezado titulo="Empleados" subtitulo="Consulta de empleados dados de alta por Mesa de Control" icono="pi pi-users" />
+        <Button label="Exportar Excel" icon="pi pi-file-excel" class="emp-exportar" :disabled="cargando || exportando || !filtrados.length" :loading="exportando" @click="exportarExcel" />
+    </div>
     <div class="emp-contenedor">
         <section class="emp-card">
             <div class="emp-barra">
@@ -7,6 +10,7 @@
                 <div class="emp-herramientas">
                     <InputText v-model="busqueda" placeholder="Buscar nombre, RFC, CURP, área o puesto" />
                     <Select v-model="filtroArea" :options="opcionesAreas" optionLabel="label" optionValue="value" placeholder="Todas las áreas" showClear class="emp-filtro" />
+                    <Select v-model="filtroEstatus" :options="opcionesEstatus" optionLabel="label" optionValue="value" placeholder="Todos los estatus" showClear class="emp-filtro" />
                     <Button icon="pi pi-refresh" severity="secondary" outlined aria-label="Actualizar" :loading="cargando" @click="cargarEmpleados" />
                 </div>
             </div>
@@ -24,22 +28,20 @@
                     ><template #body="{ data }">{{ fecha(data.fecha_alta) }}</template></Column
                 >
                 <Column header="Estatus"
-                    ><template #body="{ data }"><Tag :value="data.estatus" severity="success" /></template
+                    ><template #body="{ data }"><Tag :value="data.estatus" :severity="severidadEstatus(data.estatus)" /></template
                 ></Column>
                 <Column header="Acciones" style="min-width: 95px"
-                    ><template #body="{ data }">
-                        <Button icon="pi pi-eye" text rounded aria-label="Ver expediente" v-tooltip.top="'Ver expediente'" @click="verDetalle(data)" /> </template
+                    ><template #body="{ data }"><Button icon="pi pi-eye" text rounded aria-label="Ver expediente" v-tooltip.top="'Ver expediente'" @click="verDetalle(data)" /></template
                 ></Column>
             </DataTable>
         </section>
-
         <Dialog v-model:visible="visibleDetalle" modal header="Expediente del empleado" class="emp-dialog" :style="{ width: '96vw', maxWidth: '1600px' }" :breakpoints="{ '960px': '99vw' }" @hide="limpiarVisor">
             <div v-if="detalle" class="emp-detalle">
                 <aside class="emp-datos">
                     <h3><i class="pi pi-user"></i> Información del empleado</h3>
                     <div v-for="campo in camposDetalle" :key="campo.key" class="emp-dato">
-                        <span>{{ campo.label }}</span>
-                        <strong>{{ valorDetalle(campo.key) }}</strong>
+                        <span>{{ campo.label }}</span
+                        ><strong>{{ valorDetalle(campo.key) }}</strong>
                     </div>
                 </aside>
                 <div class="emp-archivos">
@@ -53,8 +55,8 @@
                         </TabList>
                     </Tabs>
                     <div class="emp-visor-barra">
-                        <span :title="nombreArchivo">{{ nombreArchivo }}</span>
-                        <Button label="Descargar" icon="pi pi-download" outlined size="small" :disabled="!archivoDisponible || cargandoArchivo" @click="descargarDocumento" />
+                        <span :title="nombreArchivo">{{ nombreArchivo }}</span
+                        ><Button label="Descargar" icon="pi pi-download" outlined size="small" :disabled="!archivoDisponible || cargandoArchivo" @click="descargarDocumento" />
                     </div>
                     <div class="emp-visor">
                         <div v-if="cargandoArchivo" class="emp-mensaje"><ProgressSpinner style="width: 40px; height: 40px" /> Cargando documento...</div>
