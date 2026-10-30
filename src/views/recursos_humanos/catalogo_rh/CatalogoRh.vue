@@ -7,6 +7,7 @@
                 <Tab value="puestos"><i class="pi pi-briefcase mr-2"></i>Puestos</Tab>
                 <Tab value="tipo_nomina"><i class="pi pi-wallet mr-2"></i>Tipo de nómina</Tab>
                 <Tab value="periodicidad_pago"><i class="pi pi-calendar mr-2"></i>Periodicidad del pago</Tab>
+                <Tab value="periodos_pago"><i class="pi pi-calendar-plus mr-2"></i>Periodos de pago</Tab>
             </TabList>
             <TabPanels>
                 <TabPanel v-for="tipo in ['areas', 'puestos']" :key="tipo" :value="tipo">
@@ -57,6 +58,41 @@
                         </Column>
                     </DataTable>
                 </TabPanel>
+                <TabPanel value="periodos_pago">
+                    <div class="ce-acciones">
+                        <span class="ce-sat-nota">Periodos configurados para captura de nomina.</span>
+                        <Button label="Actualizar" icon="pi pi-refresh" severity="secondary" outlined @click="cargarPeriodos" />
+                        <Button label="Nuevo periodo" icon="pi pi-plus" @click="nuevoPeriodo" />
+                    </div>
+                    <DataTable :value="periodos" dataKey="_id" paginator :rows="15" stripedRows size="small" class="tabla-encabezados">
+                        <template #empty>No hay periodos registrados.</template>
+                        <Column header="Periodicidad"
+                            ><template #body="{ data }">{{ descripcionPeriodicidad(data.periodicidad_pago) }}</template></Column
+                        >
+                        <Column field="fecha_inicial" header="Fecha inicial" />
+                        <Column field="fecha_final" header="Fecha final" />
+                        <Column field="anio" header="Año" />
+                        <Column field="mes" header="Mes" />
+                        <Column header="Estatus"
+                            ><template #body="{ data }"><Tag :value="data.activo ? 'Activo' : 'Inactivo'" :severity="data.activo ? 'success' : 'secondary'" /></template
+                        ></Column>
+                        <Column header="Capturable"
+                            ><template #body="{ data }"><ToggleSwitch :modelValue="Boolean(data.capturable)" :disabled="!data.activo || guardandoPeriodo" @update:modelValue="(v) => cambiarCapturable(data, v)" /></template
+                        ></Column>
+                        <Column header="Acciones"
+                            ><template #body="{ data }">
+                                <Button icon="pi pi-pencil" text rounded title="Editar" @click="editarPeriodo(data)" />
+                                <Button
+                                    :icon="data.activo ? 'pi pi-ban' : 'pi pi-check-circle'"
+                                    :severity="data.activo ? 'danger' : 'success'"
+                                    text
+                                    rounded
+                                    :title="data.activo ? 'Desactivar' : 'Activar'"
+                                    @click="cambiarEstadoPeriodo(data)"
+                                /> </template
+                        ></Column>
+                    </DataTable>
+                </TabPanel>
             </TabPanels>
         </Tabs>
     </div>
@@ -72,6 +108,21 @@
         <template #footer>
             <Button label="Cancelar" icon="pi pi-times" severity="secondary" text @click="visible = false" />
             <Button label="Guardar" icon="pi pi-save" :loading="guardando" @click="guardar" />
+        </template>
+    </Dialog>
+    <Dialog v-model:visible="visiblePeriodo" modal :header="formPeriodo._id ? 'Editar periodo de pago' : 'Nuevo periodo de pago'" :style="{ width: 'min(500px,95vw)' }">
+        <div class="ce-formulario">
+            <label>Periodicidad de pago *</label>
+            <Select v-model="formPeriodo.periodicidad_pago" :options="opcionesPeriodicidad" optionLabel="label" optionValue="value" placeholder="Selecciona periodicidad" class="w-full" />
+            <label>Fecha inicial *</label>
+            <input v-model="formPeriodo.fecha_inicial" type="date" class="ce-fecha" />
+            <label>Fecha final *</label>
+            <input v-model="formPeriodo.fecha_final" type="date" class="ce-fecha" />
+            <small>El año y mes se obtienen automáticamente de la fecha final.</small>
+        </div>
+        <template #footer>
+            <Button label="Cancelar" severity="secondary" text @click="visiblePeriodo = false" />
+            <Button label="Guardar" icon="pi pi-save" :loading="guardandoPeriodo" @click="guardarPeriodo" />
         </template>
     </Dialog>
     <ConfirmDialog group="catalogoRecursosHumanos" />
