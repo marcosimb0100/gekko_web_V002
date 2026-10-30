@@ -154,21 +154,15 @@
     }
 }
 
-.sc-exportar {
-    background: #00b3d4;
-    border-color: #00b3d4;
-    white-space: nowrap;
-}
-
-.sc-exportar:hover {
-    background: #009bb8;
-    border-color: #009bb8;
-}
-
-.sc-herramientas {
+.suel-herramientas {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 9px;
     flex-wrap: wrap;
+    gap: 10px;
+}
+
+.suel-exportar {
+    white-space: nowrap;
+    flex-shrink: 0;
 }

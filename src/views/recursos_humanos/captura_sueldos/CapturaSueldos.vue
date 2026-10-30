@@ -1,151 +1,107 @@
 <template>
-    <!-- ENCABEZADO -->
     <div class="sc-encabezado">
         <Encabezado titulo="Captura de sueldos" subtitulo="Registro de sueldos por empleado y periodo de pago" icono="pi pi-wallet" />
     </div>
-
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="sc-contenedor">
         <section class="sc-card">
-            <!-- BARRA DE HERRAMIENTAS -->
             <div class="sc-barra">
                 <strong>Sueldos por periodo</strong>
-
                 <div class="sc-herramientas">
-                    <!-- SELECCIÓN DE PERIODO -->
-                    <Select v-model="periodoSeleccionado" :options="opcionesPeriodos" optionLabel="label" optionValue="value" placeholder="Seleccionar periodo" class="sc-periodos" />
-
-                    <!-- ESTATUS DEL PERIODO -->
-                    <Tag v-if="periodoActual" :value="periodoActual.capturable ? 'CAPTURABLE' : 'CONSULTA'" :severity="periodoActual.capturable ? 'success' : 'secondary'" />
-
-                    <!-- BUSCADOR -->
-                    <InputText v-model="busqueda" placeholder="Buscar empleado, área o puesto" class="sc-busqueda" />
-
-                    <!-- ACTUALIZAR -->
-                    <Button icon="pi pi-refresh" severity="secondary" outlined aria-label="Actualizar" :loading="cargando" @click="cargarDatos" />
-
-                    <!-- EXPORTAR EXCEL -->
-                    <Button label="Exportar Excel" icon="pi pi-file-excel" class="sc-exportar" :disabled="cargando || exportando || !filtrados.length" :loading="exportando" @click="exportarExcel" />
+                    <Select v-model="periodoId" :options="opcionesPeriodos" optionLabel="label" optionValue="value" placeholder="Selecciona un periodo" class="sc-periodos" :loading="cargandoPeriodos" @update:modelValue="cargarEmpleados" />
+                    <Tag v-if="puedeCapturar" value="CAPTURABLE" severity="success" />
+                    <Tag v-else-if="periodoSeleccionado" value="SOLO CONSULTA" severity="secondary" />
+                    <InputText v-model="busqueda" placeholder="Buscar empleado, área o puesto" />
+                    <Button icon="pi pi-refresh" outlined severity="secondary" :loading="cargando || cargandoPeriodos" @click="actualizar" aria-label="Actualizar" />
+                    <Button label="Exportar Excel" icon="pi pi-file-excel" class="suel-exportar" :disabled="exportando || !filtrados.length" :loading="exportando" @click="exportarExcel" />
                 </div>
             </div>
-
-            <!-- INFORMACIÓN DEL PERIODO -->
-            <p class="sc-nota" v-if="periodoActual">
-                Periodo seleccionado:
-                {{ periodoActual.fecha_inicial }}
-                al
-                {{ periodoActual.fecha_final }}.
-
-                <span v-if="periodoActual.capturable"> Puedes capturar y guardar sueldos. </span>
-
-                <span v-else> Este periodo es solo de consulta. No permite modificar los importes. </span>
-            </p>
-
-            <p class="sc-nota" v-else>Selecciona un periodo para consultar o capturar sueldos.</p>
-
-            <!-- TABLA DE SUELDOS -->
-            <DataTable :value="filtrados" paginator :rows="20" :rowsPerPageOptions="[20, 50, 100]" size="small" scrollable stripedRows :loading="cargando" class="sc-tabla">
-                <template #empty>
-                    <div class="sc-vacio">No hay empleados para mostrar.</div>
+            <p class="sc-nota">
+                <template v-if="periodoSeleccionado">
+                    <strong>Periodo seleccionado:</strong> {{ periodoSeleccionado.fecha_inicial }} al {{ periodoSeleccionado.fecha_final }}.
+                    <span v-if="puedeCapturar"> Puedes capturar y guardar sueldos.</span>
+                    <span v-else> Periodo de solo consulta.</span>
                 </template>
-
-                <!-- NOMBRE DEL EMPLEADO -->
-                <Column header="Nombre" headerStyle="width: 25%; min-width: 230px;" bodyStyle="width: 25%; min-width: 230px;">
-                    <template #body="{ data }">
-                        {{ nombre(data) }}
-                    </template>
-
-                    <template #footer>
-                        <span class="sc-etiqueta-total"> TOTALES </span>
-                    </template>
-                </Column>
-
-                <!-- ÁREA Y PUESTO -->
-                <Column header="Área / Puesto" headerStyle="width: 22%; min-width: 180px;" bodyStyle="width: 22%; min-width: 180px;">
-                    <template #body="{ data }">
-                        {{ data.area_nombre || '—' }}
-                        /
-                        {{ data.puesto_nombre || '—' }}
-                    </template>
-                </Column>
-
-                <!-- SUELDO 1 -->
-                <Column header="Sueldo 1" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" footerClass="sc-columna-moneda" headerStyle="width: 16%; min-width: 180px;" bodyStyle="width: 16%; min-width: 180px;">
-                    <template #body="{ data }">
-                        <div class="sc-celda-moneda">
-                            <InputNumber v-model="data.sueldo_1" mode="currency" currency="MXN" locale="es-MX" :min="0" :minFractionDigits="2" :maxFractionDigits="2" :disabled="!periodoActual?.capturable" class="sc-moneda" />
-                        </div>
-                    </template>
-
-                    <template #footer>
-                        <div class="sc-importe-total">
-                            {{ moneda(totalSueldo1) }}
-                        </div>
-                    </template>
-                </Column>
-
-                <!-- SUELDO 2 -->
-                <Column header="Sueldo 2" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" footerClass="sc-columna-moneda" headerStyle="width: 16%; min-width: 180px;" bodyStyle="width: 16%; min-width: 180px;">
-                    <template #body="{ data }">
-                        <div class="sc-celda-moneda">
-                            <InputNumber v-model="data.sueldo_2" mode="currency" currency="MXN" locale="es-MX" :min="0" :minFractionDigits="2" :maxFractionDigits="2" :disabled="!periodoActual?.capturable" class="sc-moneda" />
-                        </div>
-                    </template>
-
-                    <template #footer>
-                        <div class="sc-importe-total">
-                            {{ moneda(totalSueldo2) }}
-                        </div>
-                    </template>
-                </Column>
-
-                <!-- TOTAL POR EMPLEADO -->
-                <Column header="Total" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" footerClass="sc-columna-moneda" headerStyle="width: 13%; min-width: 145px;" bodyStyle="width: 13%; min-width: 145px;">
-                    <template #body="{ data }">
-                        <div class="sc-total-empleado">
-                            {{ moneda(Number(data.sueldo_1 || 0) + Number(data.sueldo_2 || 0)) }}
-                        </div>
-                    </template>
-
-                    <template #footer>
-                        <div class="sc-importe-total sc-total-general">
-                            {{ moneda(totalGeneral) }}
-                        </div>
-                    </template>
-                </Column>
-
-                <!-- ACCIONES -->
-                <Column header="Acciones" headerClass="sc-columna-acciones" bodyClass="sc-columna-acciones" headerStyle="width: 8%; min-width: 130px;" bodyStyle="width: 8%; min-width: 130px;">
-                    <template #body="{ data }">
-                        <Button v-if="periodoActual?.capturable" label="Guardar" icon="pi pi-save" size="small" :loading="data.guardando" @click="guardarSueldo(data)" />
-
-                        <span v-else class="sc-solo-consulta"> Solo consulta </span>
-                    </template>
-                </Column>
+                <template v-else>Selecciona un periodo de pago.</template>
+            </p>
+            <DataTable :value="filtrados" paginator :rows="20" :rowsPerPageOptions="[20, 50, 100]" size="small" stripedRows scrollable :loading="cargando" class="sc-tabla">
+                <template #empty><div class="sc-vacio">No hay empleados con estatus ALTA o REINGRESO para mostrar.</div></template>
+                <Column header="Nombre" style="min-width: 240px"
+                    ><template #body="{ data }">{{ nombre(data) }}</template></Column
+                >
+                <Column header="Área / Puesto" style="min-width: 220px"
+                    ><template #body="{ data }">{{ data.area_nombre || '—' }} / {{ data.puesto_nombre || '—' }}</template></Column
+                >
+                <Column header="Sueldo 1" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" style="min-width: 180px"
+                    ><template #body="{ data }"
+                        ><div class="sc-celda-moneda">
+                            <InputNumber
+                                v-model="data.sueldo_1"
+                                mode="currency"
+                                currency="MXN"
+                                locale="es-MX"
+                                :min="0"
+                                :max="999999999.99"
+                                :minFractionDigits="2"
+                                :maxFractionDigits="2"
+                                :disabled="!puedeCapturar || guardandoId === data._id"
+                                class="sc-moneda"
+                            /></div></template
+                ></Column>
+                <Column header="Sueldo 2" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" style="min-width: 180px"
+                    ><template #body="{ data }"
+                        ><div class="sc-celda-moneda">
+                            <InputNumber
+                                v-model="data.sueldo_2"
+                                mode="currency"
+                                currency="MXN"
+                                locale="es-MX"
+                                :min="0"
+                                :max="999999999.99"
+                                :minFractionDigits="2"
+                                :maxFractionDigits="2"
+                                :disabled="!puedeCapturar || guardandoId === data._id"
+                                class="sc-moneda"
+                            /></div></template
+                ></Column>
+                <Column header="Total" headerClass="sc-columna-moneda" bodyClass="sc-columna-moneda" style="min-width: 160px"
+                    ><template #body="{ data }"
+                        ><strong class="sc-total-empleado">{{ moneda(totalEmpleado(data)) }}</strong></template
+                    ></Column
+                >
+                <Column header="Acciones" style="min-width: 125px"
+                    ><template #body="{ data }"
+                        ><Button
+                            label="Guardar"
+                            icon="pi pi-save"
+                            size="small"
+                            :loading="guardandoId === data._id"
+                            :disabled="!puedeCapturar || data.sueldo_1 == null || data.sueldo_2 == null || Boolean(guardandoId)"
+                            @click="guardar(data)" /></template
+                ></Column>
+                <ColumnGroup type="footer"
+                    ><Row>
+                        <Column footer="TOTALES" :colspan="2" footerStyle="text-align: right;" />
+                        <Column :footer="moneda(totales.sueldo1)" footerStyle="text-align: right;" />
+                        <Column :footer="moneda(totales.sueldo2)" footerStyle="text-align: right;" />
+                        <Column :footer="moneda(totales.general)" footerStyle="text-align: right;" />
+                        <Column footer="" /> </Row
+                ></ColumnGroup>
             </DataTable>
         </section>
     </div>
 </template>
-
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'CapturaSueldos',
-
-    components: {
-        Encabezado
-    },
-
+    components: { Encabezado },
     setup() {
-        return {
-            ...proceso()
-        };
+        return { ...proceso() };
     }
 };
 </script>
-
 <style scoped>
 @import './css/estilo.css';
 </style>

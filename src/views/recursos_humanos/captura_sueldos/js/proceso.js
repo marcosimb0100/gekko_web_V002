@@ -26,13 +26,21 @@ export default function useProceso() {
     };
     const moneda = (valor) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(numero(valor));
 
-    const periodoSeleccionado = computed(() => periodos.value.find((periodo) => periodo._id === periodoId.value) || null);
-    const esVerdadero = (valor) => valor === true || valor === 1 || String(valor).toLowerCase() === 'true' || String(valor) === '1';
-    const puedeCapturar = computed(() => Boolean(periodoSeleccionado.value && esVerdadero(periodoSeleccionado.value.activo) && esVerdadero(periodoSeleccionado.value.capturable)));
+    const periodoSeleccionado = computed(() => periodos.value.find((periodo) => String(periodo._id) === String(periodoId.value)) || null);
+    const esVerdadero = (valor) =>
+        valor === true ||
+        valor === 1 ||
+        ['true', '1', 'si', 'sí'].includes(
+            String(valor ?? '')
+                .trim()
+                .toLowerCase()
+        );
+    const esCapturable = (periodo) => Boolean(periodo && esVerdadero(periodo.activo) && esVerdadero(periodo.capturable));
+    const puedeCapturar = computed(() => esCapturable(periodoSeleccionado.value));
     const opcionesPeriodos = computed(() =>
         periodos.value.map((periodo) => ({
             value: periodo._id,
-            label: [periodo.periodicidad_pago || 'Periodo', `${periodo.fecha_inicial} al ${periodo.fecha_final}`, esVerdadero(periodo.activo) && esVerdadero(periodo.capturable) ? '● CAPTURABLE' : 'SOLO CONSULTA'].join(' · ')
+            label: [periodo.periodicidad_pago || 'Periodo', `${periodo.fecha_inicial} al ${periodo.fecha_final}`, esCapturable(periodo) ? '● CAPTURABLE' : 'SOLO CONSULTA'].join(' · ')
         }))
     );
     const filtrados = computed(() => {
@@ -65,9 +73,9 @@ export default function useProceso() {
             if (respuesta?.estatus !== 200) throw new Error(respuesta?.mensaje || 'No fue posible cargar periodos');
             const registros = Array.isArray(respuesta?.datos?.periodos) ? respuesta.datos.periodos : [];
             periodos.value = [...registros].sort((a, b) => String(b.fecha_final || '').localeCompare(String(a.fecha_final || '')));
-            const capturable = periodos.value.find((periodo) => esVerdadero(periodo.activo) && esVerdadero(periodo.capturable));
-            const existente = periodos.value.find((periodo) => periodo._id === periodoId.value);
-            periodoId.value = existente?._id || capturable?._id || periodos.value[0]?._id || null;
+            const capturable = periodos.value.find(esCapturable);
+            const existente = periodos.value.find((periodo) => String(periodo._id) === String(periodoId.value));
+            periodoId.value = capturable?._id || existente?._id || periodos.value[0]?._id || null;
         } catch (error) {
             aviso('error', error?.message || 'Error al cargar periodos');
         } finally {
