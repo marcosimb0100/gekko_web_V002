@@ -1,0 +1,174 @@
+.sc-contenedor {
+    padding: 16px 22px 28px;
+}
+.sc-card {
+    background: #fff;
+    border: 1px solid #dbe3ed;
+    border-radius: 11px;
+    overflow: hidden;
+}
+.sc-barra {
+    padding: 16px 18px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.sc-herramientas {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+.sc-periodos {
+    min-width: 330px;
+    max-width: 100%;
+}
+.sc-herramientas > .p-inputtext {
+    width: 250px;
+    max-width: 100%;
+}
+.sc-nota {
+    color: #65758b;
+    font-size: 12px;
+    padding: 0 18px 12px;
+    margin: 0;
+}
+.sc-card :deep(.p-datatable) {
+    padding: 0 14px 14px;
+}
+.sc-moneda {
+    width: 165px;
+    max-width: 100%;
+}
+.sc-moneda :deep(input) {
+    width: 100%;
+    text-align: right;
+}
+.sc-total-empleado {
+    display: inline-block;
+    min-width: 120px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: #173b4a;
+}
+.sc-tabla :deep(.p-datatable-tfoot > tr > td) {
+    background: #eef8fb;
+    border-top: 2px solid #00b3d4;
+    border-bottom: 1px solid #dbe3ed;
+    padding: 14px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #173b4a;
+    white-space: nowrap;
+}
+.sc-tabla :deep(.p-datatable-tfoot > tr > td:nth-child(4)) {
+    color: #007f99;
+}
+.sc-tabla :deep(.p-datatable-tfoot > tr > td:nth-child(2)),
+.sc-tabla :deep(.p-datatable-tfoot > tr > td:nth-child(3)),
+.sc-tabla :deep(.p-datatable-tfoot > tr > td:nth-child(4)) {
+    text-align: right;
+}
+.sc-vacio {
+    padding: 22px;
+    text-align: center;
+    color: #718096;
+}
+@media (max-width: 1100px) {
+    .sc-barra {
+        align-items: flex-start;
+    }
+    .sc-herramientas {
+        width: 100%;
+    }
+}
+@media (max-width: 800px) {
+    .sc-contenedor {
+        padding: 12px;
+    }
+    .sc-periodos {
+        min-width: 0;
+        width: 100%;
+    }
+    .sc-herramientas > .p-inputtext {
+        width: 100%;
+    }
+    .sc-moneda {
+        width: 145px;
+    }
+    .sc-tabla :deep(.p-datatable-tfoot > tr > td) {
+        font-size: 12px;
+        padding: 12px 8px;
+    }
+}
+
+/* Alineación uniforme de encabezados, importes y totales */
+.sc-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.sc-exportar {
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+.sc-tabla :deep(.p-datatable-thead > tr > th.sc-columna-moneda .p-datatable-column-header-content) {
+    justify-content: flex-end;
+}
+.sc-tabla :deep(.p-datatable-tbody > tr > td.sc-columna-moneda) {
+    text-align: right;
+}
+.sc-celda-moneda {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+.sc-moneda {
+    width: 165px;
+    max-width: 100%;
+}
+.sc-moneda :deep(.p-inputnumber-input) {
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.sc-total-empleado {
+    display: block;
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.sc-tabla :deep(.p-datatable-tfoot > tr > td) {
+    font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+    .sc-encabezado {
+        flex-wrap: wrap;
+    }
+    .sc-exportar {
+        margin: 0 12px 0 auto;
+    }
+}
+
+.sc-exportar {
+    background: #00b3d4;
+    border-color: #00b3d4;
+    white-space: nowrap;
+}
+
+.sc-exportar:hover {
+    background: #009bb8;
+    border-color: #009bb8;
+}
+
+.sc-herramientas {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    flex-wrap: wrap;
+}

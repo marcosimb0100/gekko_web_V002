@@ -337,6 +337,12 @@ const router = createRouter({
                     name: 'recursos_humanos_empleados',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "recursos_humanos_empleados" */ '../views/recursos_humanos/empleados/Empleados.vue')
+                },
+                {
+                    path: '/recursos_humanos/captura_sueldos',
+                    name: 'recursos_humanos_captura_sueldos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "recursos_humanos_captura_sueldos" */ '@/views/recursos_humanos/captura_sueldos/CapturaSueldos.vue')
                 }
             ]
         }
