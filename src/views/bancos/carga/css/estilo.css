@@ -504,3 +504,8 @@
         gap: 2px;
     }
 }
+
+.control-saldo { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin:1rem 0; }
+.dialog-saldo { display:flex; flex-direction:column; gap:1rem; line-height:1.6; }
+.dialog-saldo p { margin:0; }
+.dialog-saldo small { color:var(--text-color-secondary); }

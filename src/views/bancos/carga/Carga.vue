@@ -122,7 +122,7 @@
 
                 <div class="campo-carga">
                     <label>Año</label>
-                    <Dropdown v-model="frmCarga.anio" :options="anios" optionLabel="label" optionValue="value" placeholder="Seleccione el año" :disabled="analizando || guardando" class="w-full" />
+                    <Dropdown v-model="frmCarga.anio" @change="handleLimpiarResultado" :options="anios" optionLabel="label" optionValue="value" placeholder="Seleccione el año" :disabled="analizando || guardando" class="w-full" />
                     <small class="texto-campo">Solo se usa para completar fechas del archivo que no traen año.</small>
                 </div>
 
@@ -257,16 +257,20 @@
                 </div>
             </div>
 
+            <div class="control-saldo">
+                <span>Saldo inicial: {{ resultado.control_saldos?.origen === 'captura_confirmada' ? 'Confirmado por el usuario' : resultado.control_saldos?.origen === 'archivo' ? 'Reportado por el banco' : resultado.control_saldos?.origen?.startsWith('historial') ? 'Historial de la cuenta' : 'Calculado desde el archivo' }}.</span>
+                <Button label="Revisar saldo inicial" icon="pi pi-calculator" outlined :disabled="analizando || guardando || cargaGuardada" @click="handleEditarSaldo" />
+            </div>
             <div class="acciones-resultado">
                 <div class="acciones-resultado-info">
                     <font-icon icon="fa-solid fa-circle-check" />
                     <div>
-                        <strong>Estado de cuenta listo para guardar</strong>
+                        <strong>{{ cargaGuardada ? 'Estado de cuenta guardado' : puedeGuardar ? 'Estado de cuenta listo para guardar' : 'Confirma el saldo y revisa las validaciones' }}</strong>
                         <small>Al guardar se conserva el archivo y se deduplican los movimientos.</small>
                     </div>
                 </div>
 
-                <Button type="button" label="Guardar Estado de Cuenta" class="btn-guardar" :loading="guardando" :disabled="guardando || analizando || !resultado" @click="handleGuardar">
+                <Button type="button" label="Guardar Estado de Cuenta" class="btn-guardar" :loading="guardando" :disabled="guardando || analizando || !puedeGuardar" @click="handleGuardar">
                     <template #icon>
                         <font-icon icon="fa-solid fa-floppy-disk" class="mr-2" />
                     </template>
@@ -326,6 +330,15 @@
                     <Column field="tipo" header="Tipo" headerClass="encabezado-columna" />
                     <Column field="fila" header="Fila" headerClass="encabezado-columna" />
                     <Column field="fecha" header="Fecha" headerClass="encabezado-columna" />
+                    <Column header="Resultado" headerClass="encabezado-columna">
+                        <template #body="slotProps">{{ slotProps.data.correcto ? 'Correcto' : 'Revisar' }}</template>
+                    </Column>
+                    <Column header="Calculado" headerClass="encabezado-columna">
+                        <template #body="slotProps">{{ handleFormatoMoneda(slotProps.data.calculado) }}</template>
+                    </Column>
+                    <Column header="Reportado / historial" headerClass="encabezado-columna">
+                        <template #body="slotProps">{{ handleFormatoMoneda(slotProps.data.archivo) }}</template>
+                    </Column>
                     <Column field="mensaje" header="Observación" headerClass="encabezado-columna" />
                 </DataTable>
             </div>
@@ -386,17 +399,33 @@
                 </Column>
             </DataTable>
         </div> -->
+        <Dialog v-model:visible="dialogSaldo" modal header="Confirmar saldo inicial" :closable="!analizando" :style="{ width: '32rem' }" :breakpoints="{ '640px': '95vw' }">
+            <div class="dialog-saldo">
+                <p>{{ resultado?.control_saldos?.cuenta_nueva ? 'Esta cuenta todavía no tiene cargas. Confirma el saldo anterior al primer movimiento del archivo.' : 'Indica el saldo anterior al primer movimiento. Se comprobará contra el archivo y el historial disponible.' }}</p>
+                <small v-if="resultado?.control_saldos?.saldo_sugerido !== null">El importe sugerido se obtuvo del archivo o del historial. Puedes revisarlo antes de confirmar.</small>
+                <small v-else>El archivo no permite determinarlo. Captura el importe; cero también es válido.</small>
+                <label for="saldo-inicial">Saldo inicial</label>
+                <InputNumber id="saldo-inicial" v-model="saldoBorrador" :minFractionDigits="2" :maxFractionDigits="2" locale="es-MX" :useGrouping="true" class="w-full" />
+                <small>Saldo final = saldo inicial + ingresos − egresos.</small>
+            </div>
+            <template #footer>
+                <Button label="Cancelar" outlined @click="dialogSaldo = false" />
+                <Button label="Confirmar y recalcular" icon="pi pi-check" :disabled="saldoBorrador === null" :loading="analizando" @click="handleConfirmarSaldo" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
+import Dialog from 'primevue/dialog';
+import InputNumber from 'primevue/inputnumber';
 
 export default {
     name: 'CargaEstadoCuenta',
     components: {
-        Encabezado
+        Encabezado, Dialog, InputNumber
     },
     setup() {
         return {

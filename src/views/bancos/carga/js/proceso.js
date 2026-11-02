@@ -20,6 +20,23 @@ const useProceso = () => {
     const analizando = ref(false);
     const guardando = ref(false);
     const resultado = ref(null);
+    const dialogSaldo = ref(false);
+    const saldoInicial = ref(null);
+    const saldoBorrador = ref(null);
+    const saldoConfirmado = ref(false);
+    const cargaGuardada = ref(false);
+    const puedeGuardar = computed(() => !!resultado.value?.resumen?.correcto && !!resultado.value?.control_saldos?.confirmado && !cargaGuardada.value);
+    const handleEditarSaldo = () => {
+        saldoBorrador.value = resultado.value?.control_saldos?.saldo_inicial ?? null;
+        dialogSaldo.value = true;
+    };
+    const handleConfirmarSaldo = async () => {
+        if (saldoBorrador.value === null || !Number.isFinite(saldoBorrador.value)) return;
+        saldoInicial.value = saldoBorrador.value;
+        saldoConfirmado.value = true;
+        dialogSaldo.value = false;
+        await handleAnalizar();
+    };
     const movimientos = ref([]);
     const validaciones = ref([]);
     const errores = ref([]);
@@ -47,7 +64,7 @@ const useProceso = () => {
     //     }
     // });
 
-    const camposMoneda = ['ingreso', 'egreso', 'saldo', 'importe', 'cargo', 'abono', 'cargos', 'abonos', 'monto'];
+    const camposMoneda = ['ingreso', 'egreso', 'saldo', 'saldo_archivo', 'importe', 'cargo', 'abono', 'cargos', 'abonos', 'monto'];
 
     const etiquetasCampos = {
         numero: 'Número',
@@ -62,7 +79,8 @@ const useProceso = () => {
         clave_rastreo: 'Clave de Rastreo',
         ingreso: 'Ingreso',
         egreso: 'Egreso',
-        saldo: 'Saldo',
+        saldo: 'Saldo calculado',
+        saldo_archivo: 'Saldo del archivo',
         importe: 'Importe',
         clasificacion: 'Clasificación',
         divisa: 'Divisa',
@@ -98,6 +116,10 @@ const useProceso = () => {
 
     const handleLimpiarResultado = () => {
         resultado.value = null;
+        saldoInicial.value = null;
+        saldoConfirmado.value = false;
+        dialogSaldo.value = false;
+        cargaGuardada.value = false;
         movimientos.value = [];
         validaciones.value = [];
         errores.value = [];
@@ -238,6 +260,11 @@ const useProceso = () => {
         formData.append('cuenta_banco', String(cuentaSeleccionada.value.cuenta_banco ?? ''));
         formData.append('clabe_banco', String(cuentaSeleccionada.value.clave_banco ?? ''));
         formData.append('anio', String(frmCarga.anio));
+        if (saldoConfirmado.value && saldoInicial.value !== null) formData.append('saldo_inicial', saldoInicial.value.toFixed(2));
+        formData.append('saldo_confirmado', String(saldoConfirmado.value));
+        if (usarLayoutDetectado && resultado.value?.control_saldos?.historial_firma) {
+            formData.append('historial_firma', resultado.value.control_saldos.historial_firma);
+        }
 
         if (usarLayoutDetectado && resultado.value?.layout?._id) {
             formData.append('layout_id', String(resultado.value.layout._id));
@@ -276,6 +303,11 @@ const useProceso = () => {
             }
 
             resultado.value = datos;
+            cargaGuardada.value = false;
+            if (!datos.control_saldos?.confirmado) {
+                saldoBorrador.value = datos.control_saldos?.saldo_sugerido ?? null;
+                dialogSaldo.value = true;
+            }
             movimientos.value = Array.isArray(datos.movimientos) ? datos.movimientos : [];
             validaciones.value = Array.isArray(datos.validaciones) ? datos.validaciones : [];
             errores.value = Array.isArray(datos.errores) ? datos.errores : [];
@@ -291,7 +323,7 @@ const useProceso = () => {
     };
 
     const handleGuardar = async () => {
-        if (!resultado.value) {
+        if (!puedeGuardar.value) {
             handleToast('warn', 'Primero debe analizar el estado de cuenta.');
             return;
         }
@@ -309,12 +341,14 @@ const useProceso = () => {
             });
 
             if (res?.estatus !== 200) {
+                if (res?.estatus === 409) resultado.value.resumen.correcto = false;
                 handleToast(res?.estatus === 409 ? 'warn' : 'error', res?.mensaje || 'No fue posible guardar el estado de cuenta.');
                 return;
             }
 
             const datos = obtenerDatosRespuesta(res);
 
+            cargaGuardada.value = true;
             handleToast('success', `Estado de cuenta guardado. Nuevos: ${datos.insertados ?? 0}. Duplicados: ${datos.duplicados ?? 0}.`);
 
             // await handleCargarHistorial();
@@ -417,7 +451,8 @@ const useProceso = () => {
     };
 
     const handleFormatoMoneda = (valor) => {
-        const numero = Number(valor ?? 0);
+        if (valor === null || valor === undefined || valor === '') return 'Pendiente';
+        const numero = Number(valor);
 
         return new Intl.NumberFormat('es-MX', {
             style: 'currency',
@@ -492,7 +527,7 @@ const useProceso = () => {
 
         movimientos.value.slice(0, 50).forEach((movimiento) => {
             Object.keys(movimiento).forEach((campo) => {
-                if (campo !== 'fila_archivo') campos.add(campo);
+                if (!['fila_archivo', 'saldo_calculado'].includes(campo)) campos.add(campo);
             });
         });
 
@@ -550,10 +585,11 @@ const useProceso = () => {
 
     onMounted(async () => {
         handleCargarAnios();
-        await Promise.all([handleCargarEmpresas(), handleCargarHistorial()]);
+        await handleCargarEmpresas();
     });
 
     return {
+        dialogSaldo, saldoBorrador, handleLimpiarResultado, puedeGuardar, cargaGuardada, handleConfirmarSaldo, handleEditarSaldo,
         empresas,
         empresaSeleccionada,
         cargandoEmpresas,
