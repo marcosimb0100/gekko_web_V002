@@ -6,6 +6,11 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
+            path: '/compartido/:token',
+            name: 'archivo_compartido',
+            component: () => import(/* webpackChunkName: "archivo_compartido" */ '../views/nube/compartido/Compartido.vue')
+        },
+        {
             path: '/:pathMatch(.*)*',
             name: 'notfound',
             component: () => import(/* webpackChunkName: "notfound" */ '../views/NotFound.vue')

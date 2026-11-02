@@ -1,5 +1,30 @@
 import axios from 'axios';
 
+// Public capability links: no Gekko token and no session redirects.
+export const apiSyncPublicGet = async (direccion) => {
+    try {
+        const response = await axios.create({ baseURL: import.meta.env.VITE_API_URL }).get(direccion);
+        return { estatus: response.status, datos: response.data.datos, mensaje: response.data.mensaje };
+    } catch (error) {
+        return { estatus: error.response?.status || 500, datos: {}, mensaje: error.response?.data?.mensaje || 'No fue posible consultar el enlace.' };
+    }
+};
+
+export const apiSyncPublicDownload = async (direccion) => {
+    try {
+        const response = await axios.create({ baseURL: import.meta.env.VITE_API_URL }).post(direccion, {}, { responseType: 'blob' });
+        return { estatus: response.status, data: response.data };
+    } catch (error) {
+        let mensaje = 'No fue posible descargar el archivo. Intenta consultar nuevamente el enlace.';
+        try {
+            const body = error.response?.data;
+            const parsed = body instanceof Blob ? JSON.parse(await body.text()) : body;
+            mensaje = parsed?.mensaje || mensaje;
+        } catch { /* Keep the safe message when a proxy returns HTML. */ }
+        return { estatus: error.response?.status || 500, data: null, mensaje };
+    }
+};
+
 const url = import.meta.env.VITE_API_URL;
 
 export const apiPost_sinToken = async (direccion, datos) => {

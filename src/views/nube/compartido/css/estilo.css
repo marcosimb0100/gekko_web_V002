@@ -1,0 +1,23 @@
+.compartido-pagina { position: relative; isolation: isolate; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; overflow: hidden; background: radial-gradient(ellipse at 18% 18%, #d7f1f5, transparent 40%), radial-gradient(ellipse at 85% 85%, #e0f2f5, transparent 42%), #f1f5f9; color: #334155; }
+.compartido-fondo { position: absolute; z-index: -1; bottom: -2rem; left: 50%; transform: translateX(-50%); font-size: clamp(6rem, 25vw, 24rem); line-height: 1; font-weight: 800; letter-spacing: -.07em; color: #e2e8f0; user-select: none; }
+.compartido-tarjeta { width: min(100%, 640px); padding: 2.5rem 3rem 1.75rem; text-align: center; border: 1px solid #e2e8f0; border-radius: 28px; background: #ffffffed; box-shadow: 0 24px 70px #0f172a0d; }
+.compartido-marca { font-size: .85rem; letter-spacing: .16em; font-weight: 800; margin-bottom: 1.75rem; }
+.compartido-marca span { color: #06b6d4; font-weight: 500; }
+.compartido-icono { display: grid; place-items: center; width: 80px; height: 80px; margin: 0 auto 1.5rem; background: #e0f7fb; color: #06b6d4; border-radius: 22px; transform: rotate(-5deg); }
+.compartido-icono i { font-size: 2.4rem; }
+.compartido-etiqueta { display: block; color: #0891b2; letter-spacing: .15em; font-size: .75rem; font-weight: 700; margin-bottom: .8rem; }
+.compartido-tarjeta h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.2; letter-spacing: -.025em; }
+.compartido-descripcion { margin: 1.25rem 0 1.75rem; color: #64748b; line-height: 1.7; }
+.compartido-archivo { display: flex; align-items: center; gap: 1rem; padding: 1.25rem; background: #f8fafc; border: 1px solid #dfe8f0; border-radius: 14px; text-align: left; }
+.compartido-archivo > i { font-size: 2rem; color: #0891b2; }
+.compartido-archivo > div { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.compartido-archivo strong { overflow-wrap: anywhere; line-height: 1.6; }
+.compartido-archivo span, .compartido-nota { font-size: .85rem; color: #64748b; line-height: 1.7; }
+.compartido-condiciones { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.75rem 0; text-align: left; }
+.compartido-condiciones dt { color: #64748b; font-size: .85rem; margin-bottom: .6rem; }
+.compartido-condiciones dd { margin: 0; font-weight: 600; line-height: 1.6; }
+.compartido-nota { margin-top: 1.25rem; }
+.compartido-cargando { width: 48px; height: 48px; margin-bottom: 1.5rem; }
+.compartido-tarjeta :deep(.p-message) { margin-top: 1.25rem; text-align: left; }
+.compartido-tarjeta footer { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: .85rem; }
+@media(max-width: 540px) { .compartido-pagina { padding: 1.5rem 1rem; } .compartido-tarjeta { padding: 2rem 1.5rem; } .compartido-condiciones { grid-template-columns: 1fr; } .compartido-tarjeta :deep(.p-button) { width: 100%; } }

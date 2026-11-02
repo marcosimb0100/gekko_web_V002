@@ -329,7 +329,9 @@ const useProceso = () => {
             direccion: `/sync/archivos/${archivoCompartido.value._id}/enlaces`,
             datosJson: { vence: usarVigencia.value ? fechaEnlace.value.toISOString() : null, limite_descargas: usarLimite.value ? limiteEnlace.value : null }
         }));
-        enlaceGenerado.value = new URL(import.meta.env.VITE_API_URL.replace(/\/$/, '') + res.datos.ruta, window.location.origin).href;
+        const token = res.datos.ruta.split('/').pop();
+        const base = new URL(import.meta.env.BASE_URL, window.location.origin).href;
+        enlaceGenerado.value = new URL(`compartido/${encodeURIComponent(token)}`, base).href;
         offsetEnlaces.value = 0;
         await handleCargarEnlaces();
     });

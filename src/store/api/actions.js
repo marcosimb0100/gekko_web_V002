@@ -1,4 +1,6 @@
 import {
+    apiSyncPublicGet,
+    apiSyncPublicDownload,
     apiDelete_token,
     apiGet_blob,
     apiGet_blobTokenCliente,
@@ -15,6 +17,9 @@ import {
     apiPut_token_formdata,
     apiPut_tokenCliente_formdata
 } from '../../helpers/funcionesApi';
+
+export const apiSyncPublicInfo = (_context, { direccion }) => apiSyncPublicGet(direccion);
+export const apiSyncPublicFile = (_context, { direccion }) => apiSyncPublicDownload(direccion);
 // import { notify } from "@kyvg/vue3-notification";
 import router from '../../router/index';
 
