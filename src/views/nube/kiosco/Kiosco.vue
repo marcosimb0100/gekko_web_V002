@@ -55,6 +55,7 @@
                             <Button v-if="!papelera && handleTienePermiso('escribir', data)" type="button" label="Renombrar" icon="pi pi-pencil" outlined :disabled="cargando" @click="handleRenombrar(data)" />
                             <Button v-if="!papelera && data.tipo === 'carpeta' && handleTienePermiso('eliminar', data)" type="button" label="A papelera" icon="pi pi-trash" severity="danger" outlined :disabled="cargando" @click="handleMostrarConfirmacion('eliminar', data)" />
                             <template v-if="!papelera && data.tipo === 'archivo'">
+                                <Button v-if="handleTienePermiso('compartir', data) && handleTienePermiso('leer', data)" type="button" label="Compartir" icon="pi pi-share-alt" outlined :disabled="cargando" @click="handleCompartir(data)" />
                                 <Button v-if="handleTienePermiso('leer', data)" type="button" label="Descargar" icon="pi pi-download" outlined :disabled="cargando" @click="handleDescargar(data)" />
                                 <Button v-if="handleTienePermiso('historial', data)" type="button" label="Versiones" icon="pi pi-history" outlined :disabled="cargando" @click="handleHistorial(data)" />
                                 <Button v-if="handleTienePermiso('cargar', data)" type="button" label="Nueva versión" icon="pi pi-upload" outlined :disabled="cargando" @click="handleMostrarCarga(data)" />
@@ -168,6 +169,37 @@
             <Column header="Opciones"><template #body="{ data }"><Button type="button" label="Restaurar" icon="pi pi-replay" :disabled="cargando" @click="handleMostrarConfirmacion('restaurar_espacio', data)" /></template></Column>
         </DataTable>
         <template #footer><Button type="button" label="Anterior" outlined :disabled="cargando || !offsetArchivados" @click="handlePaginarArchivados(-1)" /><Button type="button" label="Siguiente" outlined :disabled="cargando || archivados.length < limite" @click="handlePaginarArchivados(1)" /><Button type="button" label="Cerrar" @click="archivadosVisible = false" /></template>
+    </Dialog>
+    <Dialog v-model:visible="compartirVisible" modal header="Compartir archivo" :closable="!cargando" class="sync-dialogo-compartir">
+        <div class="sync-compartir-contenido">
+        <p><strong>{{ archivoCompartido?.nombre }}</strong></p>
+        <Message severity="info" :closable="false">Cualquier persona con el enlace podrá descargar esta versión sin iniciar sesión. Se aplica la primera condición que se cumpla: vencimiento o límite de descargas.</Message>
+        <div class="sync-compartir-opciones">
+        <div class="sync-compartir-fila">
+            <div class="sync-compartir-etiqueta"><Checkbox v-model="usarVigencia" inputId="enlace-vigencia" binary :disabled="cargando" /><label for="enlace-vigencia">Vigencia</label></div>
+            <DatePicker v-model="fechaEnlace" showTime hourFormat="24" dateFormat="dd/mm/yy" :disabled="cargando || !usarVigencia" placeholder="Fecha y hora local" aria-label="Fecha y hora de vencimiento" />
+        </div>
+        <div class="sync-compartir-fila">
+            <div class="sync-compartir-etiqueta"><Checkbox v-model="usarLimite" inputId="enlace-limite" binary :disabled="cargando" /><label for="enlace-limite">Máximo de descargas</label></div>
+            <InputNumber v-model="limiteEnlace" :min="1" :max="100000" :disabled="cargando || !usarLimite" aria-label="Número máximo de descargas" />
+        </div>
+        </div>
+        <div><Button type="button" label="Generar enlace" icon="pi pi-link" :disabled="cargando" @click="handleGenerarEnlace" /></div>
+        <div v-if="enlaceGenerado" class="sync-compartir-enlace"><InputText :modelValue="enlaceGenerado" readonly aria-label="Enlace generado" /><Button type="button" label="Copiar" icon="pi pi-copy" @click="handleCopiarEnlace" /></div>
+        <p><small>Copia el enlace antes de cerrar: no se puede recuperar después. Cada inicio de descarga cuenta, aunque se interrumpa. Abrir la página del enlace no consume descargas.</small></p>
+        <Message v-if="mensajeError" severity="error" :closable="false">{{ mensajeError }}</Message>
+        <section class="sync-compartir-historial" aria-label="Enlaces generados">
+        <h3>Enlaces generados</h3>
+        <DataTable :value="enlaces" size="small" :loading="cargando">
+            <template #empty>No hay enlaces generados.</template>
+            <Column header="Estado"><template #body="{ data }"><Tag :value="handleEstadoEnlace(data)" /></template></Column>
+            <Column header="Vence"><template #body="{ data }">{{ data.vence ? handleFecha(data.vence) : 'Por descargas' }}</template></Column>
+            <Column header="Descargas"><template #body="{ data }">{{ data.descargas }} / {{ data.limite_descargas ?? 'Sin límite' }}</template></Column>
+            <Column header="Opciones"><template #body="{ data }"><Button v-if="!data.revocado" type="button" label="Revocar" severity="danger" outlined :disabled="cargando" @click="handleRevocarEnlace(data)" /></template></Column>
+        </DataTable>
+        </section>
+        </div>
+        <template #footer><div class="sync-compartir-pie"><div class="sync-controles"><Button type="button" label="Anterior" outlined :disabled="cargando || !offsetEnlaces" @click="handlePaginarEnlaces(-1)" /><Button type="button" label="Siguiente" outlined :disabled="cargando || enlaces.length < limite" @click="handlePaginarEnlaces(1)" /></div><Button type="button" label="Cerrar" :disabled="cargando" @click="compartirVisible = false" /></div></template>
     </Dialog>
     <Dialog v-model:visible="confirmacionVisible" modal header="Confirmar operación" :closable="!cargando" class="sync-dialogo">
         <Message v-if="mensajeError" severity="error" :closable="false">{{ mensajeError }}</Message>

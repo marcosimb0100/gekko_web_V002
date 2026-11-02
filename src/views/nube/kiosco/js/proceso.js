@@ -17,6 +17,15 @@ const useProceso = () => {
     const mensajeError = ref('');
     const papelera = ref(false);
     const administrador = ref(false);
+    const compartirVisible = ref(false);
+    const archivoCompartido = ref(null);
+    const usarVigencia = ref(true);
+    const usarLimite = ref(true);
+    const fechaEnlace = ref(null);
+    const limiteEnlace = ref(5);
+    const enlaceGenerado = ref('');
+    const enlaces = ref([]);
+    const offsetEnlaces = ref(0);
     const archivadosVisible = ref(false);
     const archivados = ref([]);
     const offsetArchivados = ref(0);
@@ -298,6 +307,50 @@ const useProceso = () => {
         mensajeError.value = '';
         formularioVisible.value = true;
     };
+    const handleCargarEnlaces = async () => {
+        const res = handleValidarRespuesta(await store.dispatch('api/apiGetToken', {
+            direccion: `/sync/archivos/${archivoCompartido.value._id}/enlaces?limite=${limite}&offset=${offsetEnlaces.value}`
+        }));
+        enlaces.value = res.datos.enlaces;
+    };
+    const handleCompartir = registro => handleEjecutar(async () => {
+        archivoCompartido.value = registro;
+        usarVigencia.value = true; usarLimite.value = true; limiteEnlace.value = 5;
+        fechaEnlace.value = new Date(Date.now() + 7 * 86400000);
+        enlaceGenerado.value = ''; offsetEnlaces.value = 0;
+        await handleCargarEnlaces();
+        compartirVisible.value = true;
+    });
+    const handleGenerarEnlace = () => handleEjecutar(async () => {
+        if (!usarVigencia.value && !usarLimite.value) throw new Error('Activa vigencia, límite de descargas o ambos.');
+        if (usarVigencia.value && (!(fechaEnlace.value instanceof Date) || fechaEnlace.value <= new Date())) throw new Error('Selecciona una fecha futura.');
+        if (usarLimite.value && (!Number.isInteger(limiteEnlace.value) || limiteEnlace.value < 1)) throw new Error('Indica un número de descargas válido.');
+        const res = handleValidarRespuesta(await store.dispatch('api/apiPostToken', {
+            direccion: `/sync/archivos/${archivoCompartido.value._id}/enlaces`,
+            datosJson: { vence: usarVigencia.value ? fechaEnlace.value.toISOString() : null, limite_descargas: usarLimite.value ? limiteEnlace.value : null }
+        }));
+        enlaceGenerado.value = new URL(import.meta.env.VITE_API_URL.replace(/\/$/, '') + res.datos.ruta, window.location.origin).href;
+        offsetEnlaces.value = 0;
+        await handleCargarEnlaces();
+    });
+    const handleCopiarEnlace = async () => {
+        try {
+            await navigator.clipboard.writeText(enlaceGenerado.value);
+            toast.add({ severity: 'success', summary: 'Compartir', detail: 'Enlace copiado.', life: 2500 });
+        } catch {
+            toast.add({ severity: 'info', summary: 'Compartir', detail: 'Selecciona y copia manualmente el enlace.', life: 4000 });
+        }
+    };
+    const handleRevocarEnlace = enlace => handleEjecutar(async () => {
+        handleValidarRespuesta(await store.dispatch('api/apiPostToken', { direccion: `/sync/enlaces/${enlace.id}/revocar`, datosJson: {} }));
+        enlaceGenerado.value = '';
+        await handleCargarEnlaces();
+    });
+    const handlePaginarEnlaces = paso => handleEjecutar(async () => {
+        offsetEnlaces.value = Math.max(0, offsetEnlaces.value + paso * limite);
+        await handleCargarEnlaces();
+    });
+    const handleEstadoEnlace = enlace => enlace.revocado ? 'Revocado' : enlace.vence && new Date(enlace.vence) <= new Date() ? 'Vencido' : enlace.limite_descargas !== null && enlace.descargas >= enlace.limite_descargas ? 'Agotado' : 'Activo';
     const handleIconoArchivo = nombre => {
         const extension = nombre.split('.').pop().toLowerCase();
         if (['doc', 'docx', 'odt'].includes(extension)) return 'fa-solid fa-file-word';
@@ -309,6 +362,8 @@ const useProceso = () => {
     };
     onMounted(handleActualizar);
     return {
+        compartirVisible, archivoCompartido, usarVigencia, usarLimite, fechaEnlace, limiteEnlace, enlaceGenerado, enlaces, offsetEnlaces,
+        handleCompartir, handleGenerarEnlace, handleCopiarEnlace, handleRevocarEnlace, handlePaginarEnlaces, handleEstadoEnlace,
         archivadosVisible, archivados, offsetArchivados, handleMostrarArchivados, handlePaginarArchivados,
         ...instaladorWindows,
         handleRenombrar,

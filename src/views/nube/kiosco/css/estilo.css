@@ -34,6 +34,26 @@
     height: 0.35rem;
 }
 
+:global(.sync-dialogo-compartir) { width: min(52rem, 95vw); }
+.sync-compartir-contenido { display: flex; flex-direction: column; gap: 1.25rem; padding: .25rem 0 .5rem; }
+.sync-compartir-contenido > p, .sync-compartir-contenido > :deep(.p-message) { margin: 0; line-height: 1.6; }
+.sync-compartir-contenido > p:first-child { overflow-wrap: anywhere; }
+.sync-compartir-opciones { display: grid; gap: 1.25rem; padding: .5rem 0; }
+.sync-compartir-fila { display: grid; grid-template-columns: 13rem minmax(0, 1fr); align-items: center; gap: 1.25rem; }
+.sync-compartir-etiqueta { display: flex; align-items: center; gap: .75rem; }
+.sync-compartir-fila :deep(.p-inputnumber-input), .sync-compartir-fila :deep(.p-datepicker-input) { width: 100%; min-width: 0; }
+.sync-compartir-enlace { display: flex; align-items: center; gap: .75rem; }
+.sync-compartir-enlace > :deep(.p-inputtext) { flex: 1; min-width: 0; }
+.sync-compartir-historial { display: grid; gap: .75rem; padding-top: .75rem; border-top: 1px solid var(--surface-border); }
+.sync-compartir-historial h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.sync-compartir-historial :deep(.p-datatable-thead > tr > th), .sync-compartir-historial :deep(.p-datatable-tbody > tr > td) { padding: .8rem .6rem; }
+.sync-compartir-pie { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; width: 100%; padding-top: .75rem; }
+@media (max-width: 600px) {
+    .sync-compartir-fila { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+    .sync-compartir-enlace { flex-wrap: wrap; }
+    .sync-compartir-enlace > :deep(.p-inputtext) { flex-basis: 100%; }
+}
+
 :global(.sync-dialogo) {
     width: min(560px, 95vw);
 }

@@ -29,6 +29,7 @@ const useProceso = () => {
         { accion: 'listar', nombre: 'Lectura', descripcion: 'Ver carpetas, nombres y metadatos.' },
         { accion: 'escribir', nombre: 'Escritura', descripcion: 'Renombrar carpetas y archivos.' },
         { accion: 'leer', nombre: 'Descarga', descripcion: 'Descargar el contenido desde el kiosco.' },
+        { accion: 'compartir', nombre: 'Compartir', descripcion: 'Generar enlaces públicos con vigencia o límite de descargas. También requiere Descarga.' },
         { accion: 'cargar', nombre: 'Carga', descripcion: 'Subir archivos y versiones.' },
         { accion: 'crear_carpeta', nombre: 'Directorios', descripcion: 'Crear carpetas dentro del repositorio.' },
         { accion: 'historial', nombre: 'Versiones', descripcion: 'Consultar el historial de versiones.' },
@@ -107,6 +108,8 @@ const useProceso = () => {
         if (fila.heredar) fila.acciones = [...fila.acciones_perfil];
     };
     const handleCambiarPermiso = (fila, accion) => {
+        if (accion === 'compartir' && fila.acciones.includes('compartir') && !fila.acciones.includes('leer')) fila.acciones.push('leer');
+        if (accion === 'leer' && !fila.acciones.includes('leer')) fila.acciones = fila.acciones.filter(item => item !== 'compartir');
         if (accion === 'editar_local' && fila.acciones.includes('editar_local') && !fila.acciones.includes('sync_local')) fila.acciones.push('sync_local');
         if (accion === 'sync_local' && !fila.acciones.includes('sync_local')) fila.acciones = fila.acciones.filter(item => item !== 'editar_local');
         if (accion === 'listar' && !fila.acciones.includes('listar')) fila.acciones = [];
