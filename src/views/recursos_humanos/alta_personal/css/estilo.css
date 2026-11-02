@@ -663,3 +663,8 @@
     padding: 1rem;
     border-radius: 8px;
 }
+.ap-enlace-contenido { display: grid; gap: 1.25rem; }
+.ap-enlace-contenido > small { color: var(--text-color-secondary); line-height: 1.6; }
+.ap-enlace-copiar { display: flex; align-items: center; gap: .75rem; }
+.ap-enlace-copiar > :deep(.p-inputtext) { min-width: 0; flex: 1; }
+@media(min-width: 1100px) { .ap-form.ap-form-banco { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

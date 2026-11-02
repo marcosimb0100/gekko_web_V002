@@ -27,6 +27,7 @@ const CAMPOS = [
     ['puesto_nombre', 'Puesto'],
     ['banco_nombre', 'Banco'],
     ['clabe', 'CLABE interbancaria'],
+    ['numero_tarjeta', 'Número de tarjeta'],
     ['tipo_nomina', 'Tipo de nómina'],
     ['periodicidad_pago', 'Periodicidad de pago'],
     ['fecha_alta', 'Fecha de alta'],
@@ -486,6 +487,7 @@ export default function useProceso() {
                 Banco: empleado.banco_nombre || '',
                 'Clave banco': empleado.banco_clave || '',
                 'CLABE interbancaria': String(empleado.clabe || ''),
+                'Número de tarjeta': String(empleado.numero_tarjeta || ''),
                 'Tipo de nómina': descripcionCatalogo('tipo_nomina', empleado.tipo_nomina),
                 'Periodicidad de pago': descripcionCatalogo('periodicidad_pago', empleado.periodicidad_pago),
                 'Fecha de alta': fecha(empleado.fecha_alta),
@@ -509,14 +511,15 @@ export default function useProceso() {
                 { wch: 30 },
                 { wch: 15 },
                 { wch: 25 },
+                { wch: 25 },
                 { wch: 35 },
                 { wch: 35 },
                 { wch: 20 },
                 { wch: 18 }
             ];
 
-            // RFC, CURP, NSS y CLABE como texto.
-            const columnasTexto = [6, 7, 8, 12, 13];
+            // Identificadores bancarios como texto: no perder ceros ni precisión.
+            const columnasTexto = [6, 7, 8, 12, 13, 14];
 
             for (let fila = 2; fila <= filas.length + 1; fila++) {
                 for (const columna of columnasTexto) {

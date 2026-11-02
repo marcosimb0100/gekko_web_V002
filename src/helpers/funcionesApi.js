@@ -1,5 +1,14 @@
 import axios from 'axios';
 
+export const apiAltaPublicaForm = async (direccion, formData) => {
+    try {
+        const response = await axios.create({ baseURL: import.meta.env.VITE_API_URL }).post(direccion, formData);
+        return { estatus: response.status, mensaje: response.data.mensaje, datos: response.data.datos };
+    } catch (error) {
+        return { estatus: error.response?.status || 500, mensaje: error.response?.data?.mensaje || 'No fue posible enviar la solicitud.', datos: {} };
+    }
+};
+
 // Public capability links: no Gekko token and no session redirects.
 export const apiSyncPublicGet = async (direccion) => {
     try {

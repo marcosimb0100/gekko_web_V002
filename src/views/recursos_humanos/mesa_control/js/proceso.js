@@ -241,6 +241,8 @@ export default function useProceso() {
         ['area_nombre', 'Área'],
         ['puesto_nombre', 'Puesto'],
         ['clabe', 'CLABE'],
+        ['numero_tarjeta', 'Número de tarjeta'],
+        ['banco_nombre', 'Banco'],
         ['estatus', 'Estatus'],
         ['tipo_nomina', 'Tipo de nómina'],
         ['periodicidad_pago', 'Periodicidad'],

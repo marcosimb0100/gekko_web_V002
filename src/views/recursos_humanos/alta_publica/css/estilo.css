@@ -1,0 +1,4 @@
+.alta-publica { min-height: 100vh; background: var(--surface-ground, #f1f5f9); padding: 1.5rem; max-width: 1600px; margin: auto; }
+.alta-publica-marca { display: flex; justify-content: center; padding: .5rem 0 1.5rem; }
+.alta-publica-marca img { width: 100px; height: auto; }
+@media(max-width: 640px) { .alta-publica { padding: .75rem; } }

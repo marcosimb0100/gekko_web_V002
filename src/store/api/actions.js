@@ -1,4 +1,5 @@
 import {
+    apiAltaPublicaForm,
     apiSyncPublicGet,
     apiSyncPublicDownload,
     apiDelete_token,
@@ -17,6 +18,8 @@ import {
     apiPut_token_formdata,
     apiPut_tokenCliente_formdata
 } from '../../helpers/funcionesApi';
+
+export const apiAltaPublica = (_context, { direccion, formData }) => apiAltaPublicaForm(direccion, formData);
 
 export const apiSyncPublicInfo = (_context, { direccion }) => apiSyncPublicGet(direccion);
 export const apiSyncPublicFile = (_context, { direccion }) => apiSyncPublicDownload(direccion);

@@ -3,6 +3,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 const datosIniciales = () => ({
     apellido_paterno: '',
     apellido_materno: '',
@@ -13,6 +14,7 @@ const datosIniciales = () => ({
     curp: '',
     nss: '',
     clabe: '',
+    tipo_cuenta: 'clabe', numero_tarjeta: '', banco_clave: '',
     area_id: '',
     puesto_id: ''
 });
@@ -29,6 +31,53 @@ export default function useProceso() {
     const store = useStore();
     const toast = useToast();
     const confirm = useConfirm();
+    const route = useRoute();
+    const esPublico = Boolean(route.meta.altaPublica);
+    const enlaceError = ref('');
+    const enviadoPublico = ref(false);
+    const cargandoPublico = ref(esPublico);
+    const vigenciaPublica = ref('');
+    const enlaceVisible = ref(false);
+    const fechaEnlace = ref(new Date(Date.now() + 7 * 86400000));
+    const enlaceGenerado = ref('');
+    const enlaces = ref([]);
+    const cargandoEnlaces = ref(false);
+    const handleCargarEnlaces = async () => {
+        const res = await store.dispatch('api/apiGetToken', { direccion: '/personal_registration/enlaces' });
+        if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible consultar los enlaces.');
+        enlaces.value = res.datos.enlaces;
+    };
+    const handleMostrarEnlace = async () => {
+        enlaceVisible.value = true; enlaceGenerado.value = ''; cargandoEnlaces.value = true;
+        try { await handleCargarEnlaces(); } catch (error) { notificar('error', error.message); }
+        finally { cargandoEnlaces.value = false; }
+    };
+    const handleGenerarEnlace = async () => {
+        if (cargandoEnlaces.value) return;
+        if (!(fechaEnlace.value instanceof Date) || fechaEnlace.value <= new Date()) return notificar('warn', 'Selecciona una fecha futura.');
+        cargandoEnlaces.value = true;
+        try {
+            const res = await store.dispatch('api/apiPostToken', { direccion: '/personal_registration/enlaces', datosJson: { vence: fechaEnlace.value.toISOString() } });
+            if (res.estatus !== 201) throw new Error(res.mensaje || 'No fue posible generar el enlace.');
+            enlaceGenerado.value = new URL(`alta-personal/${encodeURIComponent(res.datos.token)}`, new URL(import.meta.env.BASE_URL, window.location.origin)).href;
+            await handleCargarEnlaces();
+        } catch (error) { notificar('error', error.message); }
+        finally { cargandoEnlaces.value = false; }
+    };
+    const handleCopiarEnlace = async () => {
+        try { await navigator.clipboard.writeText(enlaceGenerado.value); notificar('success', 'Enlace copiado.'); }
+        catch { notificar('info', 'Selecciona y copia el enlace manualmente.'); }
+    };
+    const handleRevocarEnlace = async enlace => {
+        if (cargandoEnlaces.value) return;
+        cargandoEnlaces.value = true;
+        try {
+            const res = await store.dispatch('api/apiPostToken', { direccion: `/personal_registration/enlaces/${enlace.id}/revocar`, datosJson: {} });
+            if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible revocar el enlace.');
+            await handleCargarEnlaces();
+        } catch (error) { notificar('error', error.message); }
+        finally { cargandoEnlaces.value = false; }
+    };
     const frmPersonal = reactive(datosIniciales());
     // Mismo catálogo SAT y misma ruta que utiliza el módulo Empresas.
     const catalogoSat = ref(null);
@@ -39,6 +88,12 @@ export default function useProceso() {
         if (clave.length !== 3) return null;
         return catalogoBancos.value.find((item) => String(item.clabe_banco || '').padStart(3, '0') === clave) || null;
     });
+    const bancoSeleccionado = computed({
+        get: () => frmPersonal.tipo_cuenta === 'clabe' ? bancoDetectado.value : catalogoBancos.value.find(b => String(b.clabe_banco).padStart(3, '0') === frmPersonal.banco_clave) || null,
+        set: banco => { if (frmPersonal.tipo_cuenta === 'tarjeta') frmPersonal.banco_clave = banco ? String(banco.clabe_banco).padStart(3, '0') : ''; }
+    });
+    const handleTipoCuenta = tipo => { frmPersonal.tipo_cuenta = tipo; frmPersonal.clabe = ''; frmPersonal.numero_tarjeta = ''; frmPersonal.banco_clave = ''; };
+    const handleCambioTarjeta = valor => { frmPersonal.numero_tarjeta = String(valor || '').replace(/\D/g, '').slice(0, 16); };
     const handleCambioClabePersonal = (valor) => {
         frmPersonal.clabe = String(valor || '')
             .replace(/\D/g, '')
@@ -111,6 +166,7 @@ export default function useProceso() {
         { key: 'area_id', label: 'Área' },
         { key: 'puesto_id', label: 'Puesto' },
         { key: 'clabe', label: 'CLABE interbancaria' },
+        { key: 'numero_tarjeta', label: 'Número de tarjeta' },
         { key: 'banco', label: 'Banco' },
         { key: 'estatus', label: 'Estatus' }
     ];
@@ -129,6 +185,7 @@ export default function useProceso() {
             return registro.puesto_nombre || puestosRH.value.find((x) => String(x._id) === String(registro.puesto_id))?.nombre || '—';
         }
         if (campo === 'banco') {
+            if (registro.tipo_cuenta === 'tarjeta') return registro.banco_nombre || '—';
             const clave = String(registro.clabe || '').slice(0, 3);
             if (clave.length !== 3) return '—';
             const banco = catalogoBancos.value.find((item) => String(item.clabe_banco ?? '').padStart(3, '0') === clave);
@@ -256,7 +313,7 @@ export default function useProceso() {
         return String(valor).slice(0, 10);
     };
     const validarDatos = () => {
-        const requeridos = ['apellido_paterno', 'apellido_materno', 'nombres', 'fecha_nacimiento', 'rfc', 'curp', 'nss', 'clabe', 'area_id', 'puesto_id'];
+        const requeridos = ['apellido_paterno', 'apellido_materno', 'nombres', 'fecha_nacimiento', 'rfc', 'curp', 'nss', 'area_id', 'puesto_id'];
         if (requeridos.some((k) => !String(frmPersonal[k] ?? '').trim())) return 'Completa todos los campos obligatorios.';
         if (!areasActivas.value.some((x) => String(x._id) === String(frmPersonal.area_id))) return 'Selecciona un área activa válida.';
         if (!puestosFiltrados.value.some((x) => String(x._id) === String(frmPersonal.puesto_id))) return 'Selecciona un puesto activo que pertenezca al área.';
@@ -264,7 +321,13 @@ export default function useProceso() {
         if (!/^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/.test(frmPersonal.rfc.trim().toUpperCase())) return 'El RFC debe tener 12 o 13 caracteres válidos.';
         if (!/^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/.test(frmPersonal.curp.trim().toUpperCase())) return 'La CURP debe tener 18 caracteres válidos.';
         if (!/^\d{11}$/.test(frmPersonal.nss.trim())) return 'El NSS debe tener 11 dígitos.';
-        if (!/^\d{18}$/.test(frmPersonal.clabe.trim())) return 'La CLABE debe tener 18 dígitos.';
+        if (frmPersonal.tipo_cuenta === 'clabe') {
+            if (!/^\d{18}$/.test(frmPersonal.clabe.trim())) return 'La CLABE debe tener 18 dígitos.';
+            if (!bancoDetectado.value) return 'La CLABE no identifica un banco del catálogo.';
+        } else {
+            if (!/^\d{16}$/.test(frmPersonal.numero_tarjeta)) return 'La tarjeta debe tener 16 dígitos.';
+            if (!bancoSeleccionado.value) return 'Selecciona el banco de la tarjeta.';
+        }
         return '';
     };
     const handleArchivo = (campo, event) => {
@@ -317,6 +380,7 @@ export default function useProceso() {
             accept: limpiar
         });
     const guardar = async () => {
+        if (esPublico && enlaceError.value) return;
         const error = validarDatos();
         if (error) {
             paso.value = 1;
@@ -328,10 +392,14 @@ export default function useProceso() {
             const formData = new FormData();
             for (const [campo, valor] of Object.entries(frmPersonal)) formData.append(campo, String(valor ?? '').trim());
             for (const [campo, archivo] of Object.entries(archivos)) if (archivo instanceof File) formData.append(campo, archivo, archivo.name);
-            const respuesta = await apiPostFormData('/personal_registration/', formData);
+            const respuesta = esPublico
+                ? await store.dispatch('api/apiAltaPublica', { direccion: `/personal_registration/publico/${encodeURIComponent(route.params.token)}`, formData })
+                : await apiPostFormData('/personal_registration/', formData);
+            if (esPublico && respuesta?.estatus === 410) enlaceError.value = respuesta.mensaje;
             if (![200, 201].includes(respuesta?.estatus)) throw new Error(respuesta?.mensaje || 'No se pudo guardar la solicitud.');
             notificar('success', respuesta?.mensaje || 'Solicitud de alta registrada correctamente.');
             limpiar();
+            if (esPublico) { enviadoPublico.value = true; return; }
             await handleListar();
             mostrarHistorial.value = true;
         } catch (e) {
@@ -408,11 +476,27 @@ export default function useProceso() {
         await cambiarPestana(primera?.campo || 'fotografia');
     };
     onMounted(() => {
+        if (esPublico) {
+            const handlePublico = async () => {
+                try {
+                    const res = await store.dispatch('api/apiSyncPublicInfo', { direccion: `/personal_registration/publico/${encodeURIComponent(route.params.token)}` });
+                    if (res.estatus !== 200) throw new Error(res.mensaje || 'El enlace no está disponible.');
+                    catalogoSat.value = { banco: res.datos.bancos };
+                    areasRH.value = res.datos.areas; puestosRH.value = res.datos.puestos; vigenciaPublica.value = res.datos.vence;
+                } catch (error) { enlaceError.value = error.message; }
+                finally { cargandoPublico.value = false; }
+            };
+            handlePublico();
+            return;
+        }
         handleListar();
         cargarCatalogoBancos();
         cargarCatalogosRH();
     });
     return {
+        enlaceVisible, fechaEnlace, enlaceGenerado, enlaces, cargandoEnlaces, handleMostrarEnlace, handleGenerarEnlace, handleCopiarEnlace, handleRevocarEnlace,
+        esPublico, enlaceError, enviadoPublico, cargandoPublico, vigenciaPublica,
+        bancoSeleccionado, handleTipoCuenta, handleCambioTarjeta,
         frmPersonal,
         archivos,
         vistaPreviaFoto,

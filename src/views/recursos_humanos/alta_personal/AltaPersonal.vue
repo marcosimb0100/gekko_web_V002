@@ -1,6 +1,11 @@
 <template>
-    <Encabezado titulo="Alta de Personal" subtitulo="Captura de datos y documentos para solicitudes de alta" icono="pi pi-user-plus" />
-    <div class="ap-contenedor">
+    <Encabezado titulo="Alta de Personal" subtitulo="Captura de datos y documentos para solicitudes de alta" icono="pi pi-user-plus"><Button v-if="!esPublico" label="Enlace de solicitud" icon="pi pi-link" outlined @click="handleMostrarEnlace" /></Encabezado>
+    <Message v-if="esPublico && cargandoPublico" severity="info" :closable="false">Comprobando enlace...</Message>
+    <Message v-if="esPublico && enlaceError" severity="error" :closable="false">{{ enlaceError }}</Message>
+    <Message v-if="esPublico && vigenciaPublica && !enlaceError && !enviadoPublico" severity="info" :closable="false">Fecha límite para enviar la solicitud: {{ new Date(vigenciaPublica).toLocaleString('es-MX') }}</Message>
+    <Message v-if="esPublico && enviadoPublico" severity="success" :closable="false">Tu solicitud fue enviada para revisión.</Message>
+    <div v-if="esPublico && enviadoPublico" class="ap-contenedor"><Button label="Capturar otra solicitud" icon="pi pi-plus" @click="enviadoPublico = false" /></div>
+    <div v-if="!esPublico || (!enlaceError && !cargandoPublico && !enviadoPublico)" class="ap-contenedor">
         <div class="ap-superior">
             <div class="ap-pasos" aria-label="Progreso de captura">
                 <button v-for="n in 3" :key="n" type="button" class="ap-paso" :class="{ activo: paso === n, completo: paso > n }" :disabled="n > paso" @click="paso = n">
@@ -8,7 +13,7 @@
                     >{{ ['Datos', 'Documentos', 'Revisar'][n - 1] }}
                 </button>
             </div>
-            <Button :label="mostrarHistorial ? 'Nueva solicitud' : 'Ver solicitudes'" :icon="mostrarHistorial ? 'pi pi-plus' : 'pi pi-list'" severity="secondary" outlined @click="mostrarHistorial = !mostrarHistorial" />
+            <Button v-if="!esPublico" :label="mostrarHistorial ? 'Nueva solicitud' : 'Ver solicitudes'" :icon="mostrarHistorial ? 'pi pi-plus' : 'pi pi-list'" severity="secondary" outlined @click="mostrarHistorial = !mostrarHistorial" />
         </div>
         <div v-if="!mostrarHistorial" class="ap-panel">
             <template v-if="paso === 1">
@@ -101,14 +106,17 @@
                                 ><div class="ap-card-titulo"><i class="pi pi-building-columns"></i> Información bancaria</div></template
                             >
                             <div class="ap-form ap-form-banco">
+                                <div class="ap-campo"><label>Dato bancario <b>*</b></label><Select :modelValue="frmPersonal.tipo_cuenta" @update:modelValue="handleTipoCuenta" :options="[{ label: 'CLABE interbancaria', value: 'clabe' }, { label: 'Número de tarjeta', value: 'tarjeta' }]" optionLabel="label" optionValue="value" /></div>
                                 <div class="ap-campo">
-                                    <label>CLABE interbancaria <b>*</b></label>
-                                    <InputText :modelValue="frmPersonal.clabe" @update:modelValue="handleCambioClabePersonal" maxlength="18" inputmode="numeric" placeholder="18 dígitos" class="w-full" />
+                                    <label>{{ frmPersonal.tipo_cuenta === 'clabe' ? 'CLABE interbancaria' : 'Número de tarjeta' }} <b>*</b></label>
+                                    <InputText v-if="frmPersonal.tipo_cuenta === 'clabe'" :modelValue="frmPersonal.clabe" @update:modelValue="handleCambioClabePersonal" maxlength="18" inputmode="numeric" placeholder="18 dígitos" class="w-full" />
+                                    <InputText v-else :modelValue="frmPersonal.numero_tarjeta" @update:modelValue="handleCambioTarjeta" maxlength="16" inputmode="numeric" placeholder="16 dígitos" autocomplete="off" class="w-full" />
                                 </div>
                                 <div class="ap-campo">
-                                    <label>Banco detectado automáticamente</label>
-                                    <Select :modelValue="bancoDetectado" :options="catalogoBancos" optionLabel="descripcion" placeholder="Banco según CLABE" disabled class="w-full" />
-                                    <small v-if="frmPersonal.clabe.length >= 3 && !bancoDetectado && !cargandoBancos" class="ap-banco-aviso"> La clave de banco no se encontró en el catálogo SAT. </small>
+                                    <label>{{ frmPersonal.tipo_cuenta === 'clabe' ? 'Banco detectado automáticamente' : 'Banco de la tarjeta' }}</label>
+                                    <Select v-model="bancoSeleccionado" :options="catalogoBancos" optionLabel="descripcion" :placeholder="frmPersonal.tipo_cuenta === 'clabe' ? 'Banco según CLABE' : 'Selecciona el banco'" :disabled="frmPersonal.tipo_cuenta === 'clabe' || cargandoBancos" filter class="w-full" />
+                                    <small v-if="frmPersonal.tipo_cuenta === 'tarjeta'" class="ap-banco-ayuda">Selecciona el banco al que pertenece la tarjeta.</small>
+                                    <small v-else-if="frmPersonal.clabe.length >= 3 && !bancoDetectado && !cargandoBancos" class="ap-banco-aviso"> La clave de banco no se encontró en el catálogo SAT. </small>
                                     <small v-else-if="cargandoBancos" class="ap-banco-ayuda">Consultando catálogo de bancos...</small>
                                     <small v-else class="ap-banco-ayuda">Se identifica con los primeros 3 dígitos de la CLABE.</small>
                                 </div>
@@ -199,8 +207,9 @@
                             <span>Puesto</span><strong>{{ nombrePuestoSeleccionado }}</strong>
                         </div>
                         <div>
-                            <span>CLABE</span><strong>{{ frmPersonal.clabe }}</strong>
+                            <span>{{ frmPersonal.tipo_cuenta === 'tarjeta' ? 'Tarjeta' : 'CLABE' }}</span><strong>{{ frmPersonal.tipo_cuenta === 'tarjeta' ? '•••• ' + frmPersonal.numero_tarjeta.slice(-4) : frmPersonal.clabe }}</strong>
                         </div>
+                        <div><span>Banco</span><strong>{{ bancoSeleccionado?.descripcion || '—' }}</strong></div>
                     </div>
                     <div class="ap-card-titulo ap-subtitulo"><i class="pi pi-paperclip"></i> Archivos seleccionados</div>
                     <div class="ap-archivos-resumen">
@@ -299,6 +308,23 @@
             </div>
         </Dialog>
     </div>
+    <Dialog v-model:visible="enlaceVisible" modal header="Enlace para solicitudes de alta" :style="{ width: '48rem' }" :breakpoints="{ '800px': '95vw' }">
+        <div class="ap-enlace-contenido">
+            <Message severity="info" :closable="false">Permite recibir solicitudes de varios empleados hasta la fecha límite. Cada envío queda pendiente de revisión; no da acceso al historial ni a solicitudes ajenas.</Message>
+            <div class="ap-campo"><label>Fecha y hora límite</label><DatePicker v-model="fechaEnlace" showTime hourFormat="24" dateFormat="dd/mm/yy" :disabled="cargandoEnlaces" /></div>
+            <div><Button label="Generar enlace" icon="pi pi-link" :disabled="cargandoEnlaces" @click="handleGenerarEnlace" /></div>
+            <div v-if="enlaceGenerado" class="ap-enlace-copiar"><InputText :modelValue="enlaceGenerado" readonly aria-label="Enlace público de solicitud" /><Button label="Copiar" icon="pi pi-copy" @click="handleCopiarEnlace" /></div>
+            <small>Copia el enlace antes de cerrar. Se puede usar varias veces hasta vencer o revocarlo.</small>
+            <DataTable :value="enlaces" size="small" :loading="cargandoEnlaces">
+                <template #empty>No hay enlaces generados.</template>
+                <Column header="Vigencia"><template #body="{ data }">{{ new Date(data.vence).toLocaleString('es-MX') }}</template></Column>
+                <Column field="solicitudes" header="Solicitudes enviadas" />
+                <Column header="Estado"><template #body="{ data }"><Tag :value="data.revocado ? 'Revocado' : new Date(data.vence) <= new Date() ? 'Vencido' : 'Activo'" /></template></Column>
+                <Column header="Opciones"><template #body="{ data }"><Button v-if="!data.revocado" label="Revocar" severity="danger" outlined :disabled="cargandoEnlaces" @click="handleRevocarEnlace(data)" /></template></Column>
+            </DataTable>
+        </div>
+        <template #footer><Button label="Cerrar" :disabled="cargandoEnlaces" @click="enlaceVisible = false" /></template>
+    </Dialog>
 </template>
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';

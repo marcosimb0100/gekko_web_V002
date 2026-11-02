@@ -6,6 +6,12 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
+            path: '/alta-personal/:token',
+            name: 'alta_personal_publica',
+            meta: { altaPublica: true },
+            component: () => import(/* webpackChunkName: "alta_personal_publica" */ '../views/recursos_humanos/alta_publica/AltaPublica.vue')
+        },
+        {
             path: '/compartido/:token',
             name: 'archivo_compartido',
             component: () => import(/* webpackChunkName: "archivo_compartido" */ '../views/nube/compartido/Compartido.vue')
