@@ -1,0 +1,4 @@
+.conflictos-nube { display: flex; flex-direction: column; gap: 1.25rem; }
+.conflictos-acciones, .conflictos-paginacion { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.conflictos-paginacion { justify-content: flex-end; }
+:global(.conflictos-dialogo) { width: min(600px, 95vw); }

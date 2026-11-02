@@ -41,8 +41,8 @@ export const apiGet_token = async (direccion) => {
         .catch((error) => {
             const { response } = error;
             return {
-                estatus: response.status === 0 ? 500 : response.status,
-                mensaje: response.status === 0 ? `[Api] Error ${error}` : response.data.mensaje,
+                estatus: response?.status || 500,
+                mensaje: response?.data?.mensaje || 'No fue posible conectar con el servidor.',
                 datos: {}
             };
         });
@@ -575,7 +575,7 @@ export const apiPost_blob = async (direccion, datos) => {
     }
 };
 
-export const apiDelete_token = async (direccion) => {
+export const apiDelete_token = async (direccion, datos) => {
     const Authorization = localStorage.getItem('token') === null && localStorage.getItem('token') === '' ? '' : localStorage.getItem('token');
 
     const rutaActual = localStorage.getItem('rutaActual') === null && localStorage.getItem('rutaActual') === '' ? '' : localStorage.getItem('rutaActual');
@@ -589,7 +589,7 @@ export const apiDelete_token = async (direccion) => {
     });
 
     return await consumir
-        .delete(direccion)
+        .delete(direccion, { data: datos })
         .then((response) => {
             const { status, data } = response;
 

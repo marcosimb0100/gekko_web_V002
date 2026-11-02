@@ -1,0 +1,7 @@
+.equipos-nube { display: flex; flex-direction: column; gap: 1.25rem; }
+.equipos-filtros, .equipos-acciones, .equipos-paginacion { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.equipos-paginacion { justify-content: flex-end; }
+.equipos-vacio { display: flex; flex-direction: column; align-items: center; gap: .75rem; padding: 2.5rem 1rem; text-align: center; color: var(--text-color-secondary); }
+.equipos-vacio i { font-size: 2rem; }
+.equipos-ayuda p { line-height: 1.7; }
+:global(.equipos-dialogo) { width: min(620px, 95vw); }

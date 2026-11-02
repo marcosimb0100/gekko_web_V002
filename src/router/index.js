@@ -343,6 +343,37 @@ const router = createRouter({
                     name: 'recursos_humanos_captura_sueldos',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "recursos_humanos_captura_sueldos" */ '@/views/recursos_humanos/captura_sueldos/CapturaSueldos.vue')
+                },
+
+                {
+                    path: '/nube/conflictos',
+                    name: 'nube_conflictos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "nube_conflictos" */ '../views/nube/conflictos/Conflictos.vue')
+                },
+                {
+                    path: '/nube/dispositivos',
+                    name: 'nube_dispositivos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "nube_dispositivos" */ '../views/nube/dispositivos/Dispositivos.vue')
+                },
+                {
+                    path: '/nube/configuracion',
+                    name: 'nube_configuracion',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "nube_configuracion" */ '../views/nube/configuracion/Configuracion.vue')
+                },
+                {
+                    path: '/nube/permisos',
+                    name: 'nube_permisos',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "nube_permisos" */ '../views/nube/permisos/Permisos.vue')
+                },
+                {
+                    path: '/nube/kiosco',
+                    name: 'nube_kiosco',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "nube_kiosco" */ '../views/nube/kiosco/Kiosco.vue')
                 }
             ]
         }

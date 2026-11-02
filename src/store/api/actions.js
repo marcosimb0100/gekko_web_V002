@@ -581,11 +581,11 @@ export const apiPostblob = async ({ commit }, { direccion, datosJson }) => {
     }
 };
 
-export const apiDeleteToken = async ({ commit }, { direccion }) => {
+export const apiDeleteToken = async ({ commit }, { direccion, datosJson }) => {
     commit('visibleCargandoMutation');
 
     try {
-        const { estatus, mensaje, datos } = await apiDelete_token(direccion);
+        const { estatus, mensaje, datos } = await apiDelete_token(direccion, datosJson);
 
         if (estatus === 401 || estatus === 402) {
             localStorage.clear();

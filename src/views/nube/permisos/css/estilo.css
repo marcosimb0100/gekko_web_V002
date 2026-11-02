@@ -1,0 +1,22 @@
+.sync-permisos { display: flex; flex-direction: column; gap: 1.5rem; }
+.sync-filtros { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--surface-border); }
+.sync-campo { display: flex; flex-direction: column; gap: .5rem; min-width: 12rem; }
+.sync-campo label { font-weight: 600; font-size: .875rem; color: var(--text-color-secondary); }
+.sync-controles, .sync-busqueda, .sync-paginacion { display: flex; align-items: center; gap: .5rem; }
+.sync-paginacion { justify-content: flex-end; flex-wrap: wrap; }
+.sync-vacio { display: flex; align-items: center; justify-content: center; gap: .75rem; padding: 2.5rem 1rem; color: var(--text-color-secondary); }
+.sync-vacio i { font-size: 1.5rem; }
+.sync-matriz :deep(.sync-celda-permiso) { text-align: center; }
+.sync-ayuda { display: flex; flex-direction: column; gap: 1.5rem; }
+.sync-ayuda h3 { margin: 0 0 .75rem; font-size: 1rem; }
+.sync-ayuda p { margin: .5rem 0 0; line-height: 1.65; color: var(--text-color-secondary); }
+:global(.sync-ayuda-dialogo) { width: min(760px, 95vw); }
+@media (max-width: 640px) {
+    .sync-campo, .sync-busqueda { width: 100%; }
+    .sync-busqueda :deep(.p-inputtext) { min-width: 0; flex: 1; }
+}
+
+.sync-origen { display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; }
+.sync-herencia-control { display: flex; align-items: center; gap: .5rem; }
+.sync-herencia-control label { max-width: 16rem; white-space: normal; font-size: .85rem; line-height: 1.4; cursor: pointer; }
+.sync-matriz :deep(.sync-origen-columna) { min-width: 15rem; }

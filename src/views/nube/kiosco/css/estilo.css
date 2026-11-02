@@ -1,0 +1,68 @@
+.kiosco-sync {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sync-controles,
+.sync-nombre,
+.sync-paginacion {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.sync-listado {
+    height: 53vh;
+}
+
+.sync-paginacion {
+    justify-content: flex-end;
+}
+
+.sync-ruta {
+    padding: 0;
+}
+
+.sync-formulario {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.sync-progreso {
+    height: 0.35rem;
+}
+
+:global(.sync-dialogo) {
+    width: min(560px, 95vw);
+}
+
+:global(.sync-dialogo-historial) {
+    width: min(950px, 95vw);
+}
+
+@media (max-width: 640px) {
+    .sync-controles {
+        width: 100%;
+    }
+}
+
+
+
+.sync-carga :deep(.p-fileupload-content) { min-height: 210px; border: 2px dashed var(--surface-border); border-radius: .75rem; transition: background .15s, border-color .15s; }
+.sync-carga :deep(.p-fileupload-content[data-p-highlight="true"]) { border-color: var(--primary-color); background: var(--surface-hover); }
+.sync-carga-zona { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .75rem; min-height: 165px; text-align: center; pointer-events: none; }
+.sync-carga-zona i { font-size: 2.5rem; color: var(--primary-color); }
+.sync-carga-zona span { color: var(--text-color-secondary); font-size: .9rem; }
+:global(.sync-dialogo-carga) { width: min(760px, 95vw); }
+.sync-cola { display: flex; flex-direction: column; gap: .75rem; }
+.sync-cola-resumen { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-color-secondary); font-size: .85rem; }
+.sync-cola-lista { max-height: 340px; overflow-y: auto; }
+.sync-cola-archivo { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: .8rem; padding: 1rem 0; border-bottom: 1px solid var(--surface-border); }
+.sync-cola-archivo:last-child { border-bottom: 0; }
+.sync-cola-icono { display: flex; align-items: center; justify-content: center; width: 44px; height: 48px; border-radius: .5rem; background: var(--surface-ground); color: var(--primary-color); font-size: 1.5rem; }
+.sync-cola-datos { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.sync-cola-nombre { font-weight: 500; overflow-wrap: anywhere; line-height: 1.5; }
+.sync-cola-datos small, .sync-cola-pista { color: var(--text-color-secondary); }
+@media (max-width: 480px) { .sync-cola-archivo { grid-template-columns: 36px minmax(0, 1fr) auto; gap: .5rem; } .sync-cola-archivo :deep(.p-tag) { grid-column: 2; grid-row: 2; justify-self: start; } .sync-cola-archivo :deep(.p-button) { grid-column: 3; grid-row: 1; } .sync-cola-icono { width: 36px; } }
