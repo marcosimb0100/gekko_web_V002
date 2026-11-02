@@ -2,7 +2,7 @@
     <main class="compartido-pagina">
         <div class="compartido-fondo" aria-hidden="true">GEKKO</div>
         <section class="compartido-tarjeta" aria-labelledby="compartido-titulo" :aria-busy="cargando || descargando">
-            <div class="compartido-marca">GEKKO <span>SYNC</span></div>
+            <div class="compartido-marca"><img src="@/assets/images/logo_gekko.png" alt="Gekko" /><span>SYNC</span></div>
             <div class="compartido-icono" aria-hidden="true"><i :class="error ? 'pi pi-link' : 'pi pi-file'" /></div>
             <template v-if="cargando">
                 <ProgressSpinner class="compartido-cargando" aria-label="Consultando enlace" />

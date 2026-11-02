@@ -1,7 +1,8 @@
 .compartido-pagina { position: relative; isolation: isolate; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2.5rem 1.25rem; overflow: hidden; background: radial-gradient(ellipse at 18% 18%, #d7f1f5, transparent 40%), radial-gradient(ellipse at 85% 85%, #e0f2f5, transparent 42%), #f1f5f9; color: #334155; }
 .compartido-fondo { position: absolute; z-index: -1; bottom: -2rem; left: 50%; transform: translateX(-50%); font-size: clamp(6rem, 25vw, 24rem); line-height: 1; font-weight: 800; letter-spacing: -.07em; color: #e2e8f0; user-select: none; }
 .compartido-tarjeta { width: min(100%, 640px); padding: 2.5rem 3rem 1.75rem; text-align: center; border: 1px solid #e2e8f0; border-radius: 28px; background: #ffffffed; box-shadow: 0 24px 70px #0f172a0d; }
-.compartido-marca { font-size: .85rem; letter-spacing: .16em; font-weight: 800; margin-bottom: 1.75rem; }
+.compartido-marca { display: flex; align-items: center; justify-content: center; gap: .75rem; font-size: .85rem; letter-spacing: .16em; font-weight: 800; margin-bottom: 1.75rem; }
+.compartido-marca img { display: block; width: 100px; max-width: 40%; height: auto; object-fit: contain; }
 .compartido-marca span { color: #06b6d4; font-weight: 500; }
 .compartido-icono { display: grid; place-items: center; width: 80px; height: 80px; margin: 0 auto 1.5rem; background: #e0f7fb; color: #06b6d4; border-radius: 22px; transform: rotate(-5deg); }
 .compartido-icono i { font-size: 2.4rem; }
