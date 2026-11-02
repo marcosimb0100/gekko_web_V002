@@ -2,6 +2,8 @@
     <Encabezado titulo="Kiosco" subtitulo="Archivos, versiones y papelera" icono="pi pi-cloud">
         <Button v-if="instalador" type="button" label="Descargar Gekko Sync" icon="pi pi-download" outlined :loading="descargandoInstalador" @click="handleDescargarInstalador" />
         <Button v-if="administrador" type="button" label="Nuevo repositorio" icon="pi pi-plus" class="btn-nuevo" :disabled="cargando" @click="handleMostrarFormulario('espacio')" />
+        <Button v-if="administrador" type="button" label="Archivados" icon="pi pi-inbox" outlined :disabled="cargando" @click="handleMostrarArchivados" />
+        <Button v-if="administrador && espacioActual" type="button" label="Archivar repositorio" icon="pi pi-folder-minus" severity="danger" outlined :disabled="cargando" @click="handleMostrarConfirmacion('archivar', espacioActual)" />
     </Encabezado>
 
     <div class="card kiosco-sync">
@@ -28,7 +30,7 @@
         <Breadcrumb v-if="espacioId && !papelera" :home="rutaInicio" :model="rutaItems" class="sync-ruta">
             <template #item="{ item }"><Button type="button" :label="item.label" text :disabled="cargando" @click="handleNavegar(item.indice)" /></template>
         </Breadcrumb>
-        <Message v-if="papelera" severity="info" :closable="false">Los archivos eliminados se conservan indefinidamente. Puedes restaurarlos en su carpeta original.</Message>
+        <Message v-if="papelera" severity="info" :closable="false">Las carpetas se restauran con su contenido. Los elementos que ya estaban en papelera permanecen allí. Todo se conserva indefinidamente.</Message>
 
         <ScrollPanel class="sync-listado">
             <DataTable :value="registros" dataKey="_id" :loading="cargando" scrollable scrollHeight="48vh" size="small" tableStyle="min-width: 55rem" class="tabla-encabezados">
@@ -51,6 +53,7 @@
                         <div class="sync-controles">
                             <Button v-if="papelera && handleTienePermiso('restaurar', data)" type="button" label="Restaurar" icon="pi pi-replay" :disabled="cargando" @click="handleMostrarConfirmacion('restaurar', data)" />
                             <Button v-if="!papelera && handleTienePermiso('escribir', data)" type="button" label="Renombrar" icon="pi pi-pencil" outlined :disabled="cargando" @click="handleRenombrar(data)" />
+                            <Button v-if="!papelera && data.tipo === 'carpeta' && handleTienePermiso('eliminar', data)" type="button" label="A papelera" icon="pi pi-trash" severity="danger" outlined :disabled="cargando" @click="handleMostrarConfirmacion('eliminar', data)" />
                             <template v-if="!papelera && data.tipo === 'archivo'">
                                 <Button v-if="handleTienePermiso('leer', data)" type="button" label="Descargar" icon="pi pi-download" outlined :disabled="cargando" @click="handleDescargar(data)" />
                                 <Button v-if="handleTienePermiso('historial', data)" type="button" label="Versiones" icon="pi pi-history" outlined :disabled="cargando" @click="handleHistorial(data)" />
@@ -157,9 +160,18 @@
         /></template>
     </Dialog>
 
+    <Dialog v-model:visible="archivadosVisible" modal header="Repositorios archivados" class="sync-dialogo">
+        <p>Se conserva todo el contenido y sus permisos. Restaurar vuelve a habilitar el repositorio para los usuarios autorizados.</p>
+        <DataTable :value="archivados" :loading="cargando" size="small">
+            <template #empty>No hay repositorios archivados.</template>
+            <Column field="nombre" header="Repositorio" />
+            <Column header="Opciones"><template #body="{ data }"><Button type="button" label="Restaurar" icon="pi pi-replay" :disabled="cargando" @click="handleMostrarConfirmacion('restaurar_espacio', data)" /></template></Column>
+        </DataTable>
+        <template #footer><Button type="button" label="Anterior" outlined :disabled="cargando || !offsetArchivados" @click="handlePaginarArchivados(-1)" /><Button type="button" label="Siguiente" outlined :disabled="cargando || archivados.length < limite" @click="handlePaginarArchivados(1)" /><Button type="button" label="Cerrar" @click="archivadosVisible = false" /></template>
+    </Dialog>
     <Dialog v-model:visible="confirmacionVisible" modal header="Confirmar operación" :closable="!cargando" class="sync-dialogo">
         <Message v-if="mensajeError" severity="error" :closable="false">{{ mensajeError }}</Message>
-        <p>{{ pendiente?.tipo === 'eliminar' ? 'Se moverá a la papelera y conservará su contenido.' : pendiente?.tipo === 'version' ? 'Se creará una nueva revisión conservando el historial.' : 'Se devolverá el archivo a su carpeta original.' }}</p>
+        <p>{{ pendiente?.tipo === 'archivar' ? 'El repositorio dejará de estar disponible en el kiosco y la sincronización. Se conservan sus archivos, versiones, permisos y copias locales. Puedes recuperarlo desde Archivados.' : pendiente?.tipo === 'restaurar_espacio' ? 'El repositorio volverá a estar disponible con su contenido y permisos anteriores.' : pendiente?.tipo === 'eliminar' ? 'Se enviará a papelera. Si es una carpeta, también quedará oculto todo su contenido. No se borrará físicamente ningún archivo.' : pendiente?.tipo === 'version' ? 'Se creará una nueva revisión conservando el historial.' : 'Se restaurará en su carpeta original. Si es una carpeta, se recuperará también su contenido.' }}</p>
         <p>
             <strong>{{ pendiente?.registro.nombre }}</strong>
         </p>

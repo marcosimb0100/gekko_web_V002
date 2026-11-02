@@ -17,6 +17,9 @@ const useProceso = () => {
     const mensajeError = ref('');
     const papelera = ref(false);
     const administrador = ref(false);
+    const archivadosVisible = ref(false);
+    const archivados = ref([]);
+    const offsetArchivados = ref(0);
     const offset = ref(0);
     const offsetEspacios = ref(0);
     const hayMasEspacios = ref(false);
@@ -72,6 +75,9 @@ const useProceso = () => {
         offsetEspacios.value = espacios.value.length;
         hayMasEspacios.value = lote.length === limite;
         administrador.value = res.datos.administrador;
+        if (espacioId.value && !espacios.value.some(item => item._id === espacioId.value)) {
+            espacioId.value = ''; ruta.value = []; papelera.value = false;
+        }
         if (!espacioId.value && espacios.value.length) espacioId.value = espacios.value[0]._id;
     };
     const handleCargarContenido = async () => {
@@ -241,8 +247,15 @@ const useProceso = () => {
     const handleConfirmar = () =>
         handleEjecutar(async () => {
             const { tipo, registro, version } = pendiente.value;
-            const datosJson = { revision: registro.revision };
-            if (tipo === 'eliminar') {
+            const datosJson = { revision: registro.revision ?? 0 };
+            if (tipo === 'archivar' || tipo === 'restaurar_espacio') {
+                handleValidarRespuesta(await store.dispatch('api/apiPostToken', {
+                    direccion: `/sync/espacios/${registro._id}/${tipo === 'archivar' ? 'archivar' : 'restaurar'}`, datosJson
+                }));
+                espacioId.value = ''; ruta.value = []; papelera.value = false; offset.value = 0;
+                await handleCargarEspacios();
+                if (archivadosVisible.value) await handleCargarArchivados();
+            } else if (tipo === 'eliminar') {
                 handleValidarRespuesta(
                     await store.dispatch('api/apiDeleteToken', {
                         direccion: `/sync/entradas/${registro._id}`,
@@ -263,6 +276,21 @@ const useProceso = () => {
             await handleCargarContenido();
             toast.add({ severity: 'success', summary: 'Gekko Sync', detail: 'Operación completada.', life: 3000 });
         });
+    const handleCargarArchivados = async () => {
+        const res = handleValidarRespuesta(await store.dispatch('api/apiGetToken', {
+            direccion: `/sync/espacios/archivados?limite=${limite}&offset=${offsetArchivados.value}`
+        }));
+        archivados.value = res.datos.espacios;
+    };
+    const handleMostrarArchivados = () => handleEjecutar(async () => {
+        offsetArchivados.value = 0;
+        await handleCargarArchivados();
+        archivadosVisible.value = true;
+    });
+    const handlePaginarArchivados = paso => handleEjecutar(async () => {
+        offsetArchivados.value = Math.max(0, offsetArchivados.value + paso * limite);
+        await handleCargarArchivados();
+    });
     const handleRenombrar = registro => {
         seleccionado.value = registro;
         movimiento.value = 'renombrar';
@@ -281,6 +309,7 @@ const useProceso = () => {
     };
     onMounted(handleActualizar);
     return {
+        archivadosVisible, archivados, offsetArchivados, handleMostrarArchivados, handlePaginarArchivados,
         ...instaladorWindows,
         handleRenombrar,
         espacios,
