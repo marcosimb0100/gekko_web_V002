@@ -1139,10 +1139,16 @@ const useProceso = () => {
 
     // ============================================================
 
-    const handleDescargarBlob = async (direccion, nombreArchivo) => {
-        const res = await store.dispatch('api/apiGetblob', {
+    const handleDescargarBlob = async (direccion, nombreArchivo, direccionTimbrada = null) => {
+        let res = await store.dispatch('api/apiGetblob', {
             direccion
         });
+
+        let actualizarEstado = false;
+        if (res.estatus === 409 && res.datos?.codigo === 'CFDI_YA_TIMBRADO' && direccionTimbrada) {
+            res = await store.dispatch('api/apiGetblob', { direccion: direccionTimbrada });
+            actualizarEstado = true;
+        }
 
         if (res.estatus !== 200 || !res.data) {
             toast.add({
@@ -1173,6 +1179,7 @@ const useProceso = () => {
         link.remove();
 
         window.URL.revokeObjectURL(url);
+        if (actualizarEstado) await handleConsultar();
     };
 
     // ============================================================
@@ -1198,7 +1205,7 @@ const useProceso = () => {
     const handleDescargarXml = async (rowData) => {
         const complemento = tipoSolicitudFiltro.value === 'complementos_pago';
 
-        const timbrada = estatusFiltro.value === 'timbrada';
+        const timbrada = rowData.estatus === 'timbrada' || (!complemento && !!rowData.uuid) || estatusFiltro.value === 'timbrada';
 
         let direccion = '';
 
@@ -1214,7 +1221,7 @@ const useProceso = () => {
             nombre = timbrada ? `F-${rowData.factura_folio || rowData._id}.xml` : `cfdi_${rowData.uuid || rowData._id}.xml`;
         }
 
-        await handleDescargarBlob(direccion, nombre);
+        await handleDescargarBlob(direccion, nombre, !complemento && !timbrada ? `/solicitud_detallada/cfdi_timbrado/${rowData._id}` : null);
     };
 
     // ============================================================

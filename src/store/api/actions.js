@@ -250,7 +250,7 @@ export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) 
 
 export const apiGetblob = async ({ commit }, { direccion }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, data } = await apiGet_blob(direccion);
+    const { estatus, mensaje, data, datos } = await apiGet_blob(direccion);
     if (estatus === 200) {
         commit('visibleCargandoMutation');
     } else {
@@ -270,6 +270,7 @@ export const apiGetblob = async ({ commit }, { direccion }) => {
     return {
         estatus,
         mensaje,
+        datos,
         data
     };
 };

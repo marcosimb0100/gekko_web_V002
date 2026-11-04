@@ -274,12 +274,21 @@ export const apiGet_blob = async (direccion) => {
                 data: data
             };
         })
-        .catch((error) => {
+        .catch(async (error) => {
             const { response } = error;
 
+            let mensaje = 'No fue posible descargar el archivo.';
+            let datos = {};
+            try {
+                const body = response?.data;
+                const parsed = typeof body?.text === 'function' ? JSON.parse(await body.text()) : typeof body === 'string' ? JSON.parse(body) : body;
+                if (typeof parsed?.mensaje === 'string' && parsed.mensaje.trim()) mensaje = parsed.mensaje;
+                datos = parsed?.datos ?? {};
+            } catch { /* Un proxy puede responder HTML en lugar del error JSON de la API. */ }
             return {
                 estatus: response?.status ?? 500,
-                mensaje: `Error al obtener la imagen`,
+                mensaje,
+                datos,
                 data: null
             };
         });
