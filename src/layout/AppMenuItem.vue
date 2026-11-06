@@ -1,8 +1,11 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const { layoutState, isDesktop } = useLayout();
+const route = useRoute();
+const router = useRouter();
 
 const props = defineProps({
     item: {
@@ -19,10 +22,25 @@ const props = defineProps({
     }
 });
 
-const fullPath = computed(() => (props.item.path ? (props.parentPath ? props.parentPath + props.item.path : props.item.path) : null));
+// An absolute path already includes its ancestors; never concatenate it twice.
+const fullPath = computed(() => {
+    const path = props.item.path;
+    if (!path) return props.parentPath;
+    if (path.startsWith('/')) return path.replace(/\/$/, '') || '/';
+    return `${props.parentPath || ''}/${path}`.replace(/\/+/g, '/').replace(/\/$/, '');
+});
+
+const handlePathMatches = (current, target) => !!target && (current === target || (target !== '/' && current?.startsWith(`${target}/`)));
+const handleContainsRoute = (item) => {
+    if (item.visible === false) return false;
+    if (item.to && handlePathMatches(route.path, router.resolve(item.to).path)) return true;
+    return (item.items || []).some(handleContainsRoute);
+};
 
 const isActive = computed(() => {
-    return props.item.path ? layoutState.activePath?.startsWith(fullPath.value) : layoutState.activePath === props.item.to;
+    // Keep the current page's branch visible even while another branch is explored.
+    if (handleContainsRoute(props.item)) return true;
+    return !!props.item.items && handlePathMatches(layoutState.activePath, fullPath.value);
 });
 
 const itemClick = (event, item) => {
@@ -37,7 +55,7 @@ const itemClick = (event, item) => {
 
     if (item.items) {
         if (isActive.value) {
-            layoutState.activePath = layoutState.activePath.replace(item.path, '');
+            layoutState.activePath = props.parentPath || null;
         } else {
             layoutState.activePath = fullPath.value;
             layoutState.menuHoverActive = true;
@@ -60,18 +78,12 @@ const onMouseEnter = () => {
     <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': isActive }">
         <div v-if="root && item.visible !== false" class="layout-menuitem-root-text">{{ item.label }}</div>
         <a v-if="(!item.to || item.items) && item.visible !== false" :href="item.url" @click="itemClick($event, item)" :class="item.class" :target="item.target" tabindex="0" @mouseenter="onMouseEnter">
-            <font-icon
-                :icon="item.icon"
-                class="layout-menuitem-icon"
-            />
+            <font-icon :icon="item.icon" class="layout-menuitem-icon" />
             <span class="layout-menuitem-text">{{ item.label }}</span>
             <i class="pi pi-fw pi-angle-down layout-submenu-toggler" v-if="item.items" />
         </a>
         <router-link v-if="item.to && !item.items && item.visible !== false" @click="itemClick($event, item)" exactActiveClass="active-route" :class="item.class" tabindex="0" :to="item.to" @mouseenter="onMouseEnter">
-            <font-icon
-                :icon="item.icon"
-                class="layout-menuitem-icon"
-            />
+            <font-icon :icon="item.icon" class="layout-menuitem-icon" />
             <span class="layout-menuitem-text">{{ item.label }}</span>
             <i class="pi pi-fw pi-angle-down layout-submenu-toggler" v-if="item.items" />
         </router-link>
@@ -85,6 +97,6 @@ const onMouseEnter = () => {
 
 <style scoped>
 .icon-cyan .layout-menuitem-icon {
-    color: var(--p-primary-color) !important;;
+    color: var(--p-primary-color) !important;
 }
 </style>
