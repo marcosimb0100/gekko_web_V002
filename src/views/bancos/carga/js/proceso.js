@@ -21,6 +21,29 @@ const useProceso = () => {
     const guardando = ref(false);
     const resultado = ref(null);
     const dialogSaldo = ref(false);
+    const dialogDetalles = ref(false);
+    const dialogValidaciones = ref(false);
+    const dialogErrores = ref(false);
+    const handleMostrarDetalles = () => {
+        dialogDetalles.value = true;
+    };
+    const handleCerrarDetalles = () => {
+        dialogDetalles.value = false;
+    };
+    const handleMostrarValidaciones = () => {
+        soloDiferencias.value = diferenciasValidacion.value > 0;
+        dialogValidaciones.value = true;
+    };
+    const handleCerrarValidaciones = () => {
+        dialogValidaciones.value = false;
+    };
+    const handleMostrarErrores = () => {
+        dialogErrores.value = true;
+    };
+    const handleCerrarErrores = () => {
+        dialogErrores.value = false;
+    };
+
     const saldoInicial = ref(null);
     const saldoBorrador = ref(null);
     const saldoConfirmado = ref(false);
@@ -40,6 +63,19 @@ const useProceso = () => {
     const movimientos = ref([]);
     const validaciones = ref([]);
     const errores = ref([]);
+    const soloDiferencias = ref(false);
+    const diferenciasValidacion = computed(() => Math.max(validaciones.value.filter((item) => item.correcto === false).length, Number(resultado.value?.resumen?.errores_validacion || 0)));
+    const comprobacionesCorrectas = computed(() => validaciones.value.filter((item) => item.correcto === true).length);
+    const validacionesVisibles = computed(() => (soloDiferencias.value ? validaciones.value.filter((item) => item.correcto === false) : validaciones.value));
+    const estadoCarga = computed(() => {
+        if (cargaGuardada.value) return { severity: 'success', titulo: 'Estado de cuenta guardado', mensaje: 'La carga se guardo correctamente.' };
+        if (errores.value.length) return { severity: 'error', titulo: 'Hay errores de lectura', mensaje: `${errores.value.length} fila(s) no se pudieron leer. Abre Errores para revisar el detalle antes de guardar.` };
+        if (diferenciasValidacion.value) return { severity: 'warn', titulo: 'Hay diferencias por revisar', mensaje: `${diferenciasValidacion.value} comprobacion(es) presentan diferencias. Abre Comprobaciones para verlas.` };
+        if (!resultado.value?.control_saldos?.confirmado)
+            return { severity: 'info', titulo: 'Falta confirmar el saldo inicial', mensaje: 'Los calculos no presentan diferencias. Confirma el saldo inicial para habilitar Guardar; no necesitas revisar cada movimiento.' };
+        if (puedeGuardar.value) return { severity: 'success', titulo: 'Estado de cuenta listo para guardar', mensaje: 'Saldo inicial confirmado y comprobaciones sin diferencias.' };
+        return { severity: 'warn', titulo: 'Se necesita actualizar el analisis', mensaje: 'El servidor no autoriza guardar este analisis. Vuelve a analizar el archivo para obtener el motivo actualizado.' };
+    });
 
     // const cargas = ref([]);
     // const cargandoCargas = ref(false);
@@ -115,6 +151,9 @@ const useProceso = () => {
     };
 
     const handleLimpiarResultado = () => {
+        dialogDetalles.value = false;
+        dialogValidaciones.value = false;
+        dialogErrores.value = false;
         resultado.value = null;
         saldoInicial.value = null;
         saldoConfirmado.value = false;
@@ -589,7 +628,27 @@ const useProceso = () => {
     });
 
     return {
-        dialogSaldo, saldoBorrador, handleLimpiarResultado, puedeGuardar, cargaGuardada, handleConfirmarSaldo, handleEditarSaldo,
+        estadoCarga,
+        soloDiferencias,
+        diferenciasValidacion,
+        comprobacionesCorrectas,
+        validacionesVisibles,
+        dialogDetalles,
+        dialogValidaciones,
+        dialogErrores,
+        handleMostrarDetalles,
+        handleCerrarDetalles,
+        handleMostrarValidaciones,
+        handleCerrarValidaciones,
+        handleMostrarErrores,
+        handleCerrarErrores,
+        dialogSaldo,
+        saldoBorrador,
+        handleLimpiarResultado,
+        puedeGuardar,
+        cargaGuardada,
+        handleConfirmarSaldo,
+        handleEditarSaldo,
         empresas,
         empresaSeleccionada,
         cargandoEmpresas,
