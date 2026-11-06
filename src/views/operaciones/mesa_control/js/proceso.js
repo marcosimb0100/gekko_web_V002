@@ -69,6 +69,16 @@ const useProceso = () => {
 
     // ============================================================
 
+    const dashboardEnEspera = ref(null);
+    const resumenEnEspera = computed(() => {
+        if (!dashboardEnEspera.value) return null;
+        const empresas = dashboardEnEspera.value.filter((item) => !empresaFiltro.value || String(item.company_id) === String(empresaFiltro.value));
+        return empresas.reduce((suma, item) => ({ facturas: suma.facturas + Number(item.facturas || 0), complementos: suma.complementos + Number(item.complementos || 0), total: suma.total + Number(item.total || 0) }), {
+            facturas: 0,
+            complementos: 0,
+            total: 0
+        });
+    });
     const dashboardFacturasPendientes = ref([]);
 
     const dashboardFacturasTimbradas = ref([]);
@@ -434,7 +444,7 @@ const useProceso = () => {
         const parametros = handleParametrosFecha();
 
         try {
-            const [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados] = await Promise.all([
+            const [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera] = await Promise.all([
                 store.dispatch('api/apiGetToken', {
                     direccion: '/solicitud_detallada/pendientes' + '?' + parametros
                 }),
@@ -449,9 +459,11 @@ const useProceso = () => {
 
                 store.dispatch('api/apiGetToken', {
                     direccion: '/solicitud_detallada/' + 'complementos_pago/timbradas' + '?' + parametros
-                })
+                }),
+                store.dispatch('api/apiGetToken', { direccion: '/solicitud_detallada/resumen_en_espera_timbrado?' + parametros })
             ]);
 
+            dashboardEnEspera.value = enEspera?.estatus === 200 && Array.isArray(enEspera.datos?.empresas) ? enEspera.datos.empresas : null;
             dashboardFacturasPendientes.value = handleObtenerSolicitudesRespuesta(facturasPendientes);
 
             dashboardFacturasTimbradas.value = handleObtenerSolicitudesRespuesta(facturasTimbradas);
@@ -461,6 +473,7 @@ const useProceso = () => {
             dashboardComplementosTimbrados.value = handleObtenerSolicitudesRespuesta(complementosTimbrados);
         } catch (error) {
             console.error('ERROR DASHBOARD:', error);
+            dashboardEnEspera.value = null;
 
             dashboardFacturasPendientes.value = [];
 
@@ -533,7 +546,7 @@ const useProceso = () => {
     // ============================================================
 
     const empresasFiltro = computed(() => {
-        const todos = [...dashboardFacturasPendientes.value, ...dashboardFacturasTimbradas.value, ...dashboardComplementosPendientes.value, ...dashboardComplementosTimbrados.value];
+        const todos = [...dashboardFacturasPendientes.value, ...dashboardFacturasTimbradas.value, ...dashboardComplementosPendientes.value, ...dashboardComplementosTimbrados.value, ...(dashboardEnEspera.value || [])];
 
         const empresas = todos
 
@@ -1704,6 +1717,7 @@ const useProceso = () => {
 
         solicitudesExportables,
 
+        resumenEnEspera,
         resumenDashboard,
         resumenErroresTimbrado,
         dialogListadoErrores,

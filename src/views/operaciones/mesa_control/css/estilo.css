@@ -27,7 +27,7 @@
 .resumen-grid {
     display: grid;
 
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(245px, 1.65fr) minmax(0, 1fr);
 
     gap: 12px;
 
@@ -1393,5 +1393,42 @@
     .modal-errores-controles,
     .modal-errores-busqueda {
         width: 100%;
+    }
+}
+
+.resumen-en-espera .resumen-icono {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.12);
+}
+.resumen-en-espera .resumen-icono > i {
+    font-size: 1.4rem;
+}
+
+/* El importe completo necesita mas espacio que los contadores. */
+@media screen and (min-width: 1401px) {
+    .resumen-card {
+        min-width: 0;
+        padding: 14px 12px;
+        gap: 10px;
+    }
+    .resumen-icono {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+        font-size: 19px;
+    }
+}
+.resumen-importe .resumen-info {
+    flex: 1;
+}
+.resumen-importe .resumen-numero-moneda {
+    font-size: clamp(15px, 1.1vw, 18px);
+}
+@media screen and (max-width: 1400px) {
+    .resumen-importe {
+        flex-wrap: wrap;
+    }
+    .resumen-importe .resumen-numero-moneda {
+        font-size: 18px;
     }
 }

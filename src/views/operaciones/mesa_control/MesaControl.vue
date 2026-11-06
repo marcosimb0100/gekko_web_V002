@@ -27,6 +27,15 @@
                 </div>
             </div>
 
+            <div class="resumen-card resumen-en-espera" :title="resumenEnEspera ? resumenEnEspera.facturas + ' facturas y ' + resumenEnEspera.complementos + ' complementos aceptados sin timbre' : 'No se pudo consultar el contador'">
+                <div class="resumen-icono"><i class="pi pi-send" /></div>
+                <div class="resumen-info">
+                    <span class="resumen-label">En espera de timbrado</span>
+                    <strong class="resumen-numero">{{ resumenEnEspera ? resumenEnEspera.total : '—' }}</strong>
+                    <span class="resumen-descripcion">{{ resumenEnEspera ? resumenEnEspera.facturas + ' facturas / ' + resumenEnEspera.complementos + ' complementos' : 'Sin datos disponibles' }}</span>
+                </div>
+            </div>
+
             <!-- FACTURAS -->
 
             <button
