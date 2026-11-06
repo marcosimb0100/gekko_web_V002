@@ -18,10 +18,26 @@ const useProceso = () => {
     // ============================================================
 
     const cargas = ref([]);
+    const puedeRevertir = ref(false);
+    const verArchivadas = ref(false);
+    const mostrarReversion = ref(false);
+    const cargandoReversion = ref(false);
+    const guardandoReversion = ref(false);
+    const impactoReversion = ref(null);
+    const cargaReversion = ref(null);
+    const motivoReversion = ref('');
+    const confirmarReversion = ref(false);
+    const reversionSoloConsulta = ref(false);
+    const reversionRequiereRevision = ref(false);
+
 
     const cargando = ref(false);
 
     const eliminando = ref(false);
+    const mostrarEliminarCarga = ref(false);
+    const cargaPorEliminar = ref(null);
+    const errorEliminarCarga = ref('');
+    const eliminacionSinConfirmar = ref(false);
 
     const cargaEliminandoId = ref(null);
 
@@ -72,7 +88,7 @@ const useProceso = () => {
 
         try {
             const res = await store.dispatch('api/apiGetToken', {
-                direccion: '/estados_cuenta/cargas'
+                direccion: '/estados_cuenta/cargas' + (verArchivadas.value ? '?archivadas=1' : '')
             });
 
             console.log('RESPUESTA HISTORIAL CARGAS:', res);
@@ -283,25 +299,18 @@ const useProceso = () => {
     // ELIMINAR CARGA
     // ============================================================
 
-    const handleEliminarCarga = async (carga) => {
-        if (!carga?._id) {
-            return;
-        }
+    const handleEliminarCarga = (carga) => {
+        if (!carga?._id || carga.archivada || eliminando.value) return;
+        cargaPorEliminar.value = carga;
+        errorEliminarCarga.value = '';
+        eliminacionSinConfirmar.value = false;
+        mostrarEliminarCarga.value = true;
+    };
 
-        const nombreArchivo = carga?.archivo?.nombre_original ?? 'el archivo';
-
-        const empresa = carga?.empresa?.razon_social ?? 'la empresa';
-
-        const confirmacion = window.confirm('¿Desea eliminar esta carga?\n\n' + 'Empresa: ' + empresa + '\n' + 'Archivo: ' + nombreArchivo + '\n\n' + 'Se eliminará el archivo físico y ' + 'los movimientos que no pertenezcan ' + 'a otra carga.');
-
-        if (!confirmacion) {
-            return;
-        }
-
-        if (eliminando.value) {
-            return;
-        }
-
+    const handleConfirmarEliminarCarga = async () => {
+        const carga = cargaPorEliminar.value;
+        if (!carga?._id || eliminando.value || eliminacionSinConfirmar.value) return;
+        errorEliminarCarga.value = '';
         eliminando.value = true;
 
         cargaEliminandoId.value = carga._id;
@@ -313,10 +322,10 @@ const useProceso = () => {
                 datosJson: {}
             });
 
-            console.log('RESPUESTA ELIMINAR CARGA:', res);
 
             if (res?.estatus !== 200) {
-                handleToast('error', res?.mensaje || 'No fue posible eliminar la carga.');
+                errorEliminarCarga.value = res?.mensaje || 'No fue posible eliminar la carga.';
+                eliminacionSinConfirmar.value = !res?.estatus || res.estatus >= 500;
 
                 return;
             }
@@ -325,16 +334,80 @@ const useProceso = () => {
 
             handleToast('success', 'Carga eliminada correctamente. ' + 'Movimientos eliminados: ' + String(datos?.movimientos_eliminados ?? 0) + '. Conservados: ' + String(datos?.movimientos_conservados ?? 0) + '.');
 
+            mostrarEliminarCarga.value = false;
+            cargaPorEliminar.value = null;
             await handleCargarHistorial();
         } catch (error) {
             console.error('ERROR ELIMINANDO CARGA:', error);
 
-            handleToast('error', 'Ocurrió un error al ' + 'eliminar la carga.');
+            errorEliminarCarga.value = 'No se confirmó la eliminación. Actualiza el historial antes de intentar nuevamente.';
+            eliminacionSinConfirmar.value = true;
         } finally {
             eliminando.value = false;
 
             cargaEliminandoId.value = null;
         }
+    };
+
+
+    const handlePermisosReversion = async () => {
+        const res = await store.dispatch('api/apiGetToken', { direccion: '/estados_cuenta/cargas/permisos' });
+        puedeRevertir.value = res?.estatus === 200 && res?.datos?.puede_revertir === true;
+    };
+
+    const handleAbrirReversion = async (carga) => {
+        if (!puedeRevertir.value || cargandoReversion.value || !carga?._id) return;
+        cargaReversion.value = carga;
+        impactoReversion.value = null;
+        motivoReversion.value = '';
+        confirmarReversion.value = false;
+        reversionRequiereRevision.value = false;
+        reversionSoloConsulta.value = carga.archivada === true || ['aplicando', 'revision_requerida'].includes(carga.reversion?.estado);
+        mostrarReversion.value = true;
+        cargandoReversion.value = true;
+        try {
+            const endpoint = reversionSoloConsulta.value ? 'reversion' : 'impacto_reversion';
+            const res = await store.dispatch('api/apiGetToken', { direccion: `/estados_cuenta/cargas/${carga._id}/${endpoint}` });
+            if (res?.estatus !== 200) {
+                handleToast('error', res?.mensaje || 'No fue posible consultar el impacto.');
+                mostrarReversion.value = false;
+                return;
+            }
+            impactoReversion.value = reversionSoloConsulta.value ? { ...res.datos.impacto, historial: res.datos } : res.datos;
+            if (reversionSoloConsulta.value) motivoReversion.value = res.datos.motivo || '';
+        } catch {
+            handleToast('error', 'No fue posible consultar la reversión.');
+            mostrarReversion.value = false;
+        } finally { cargandoReversion.value = false; }
+    };
+
+    const handleArchivarDesdeEliminacion = async () => {
+        if (!puedeRevertir.value || eliminando.value || eliminacionSinConfirmar.value) return;
+        const carga = cargaPorEliminar.value;
+        mostrarEliminarCarga.value = false;
+        await handleAbrirReversion(carga);
+    };
+
+    const handleConfirmarReversion = async () => {
+        if (!puedeRevertir.value || guardandoReversion.value || reversionSoloConsulta.value || reversionRequiereRevision.value || !confirmarReversion.value || motivoReversion.value.trim().length < 10 || !impactoReversion.value?.revision_impacto) return;
+        guardandoReversion.value = true;
+        try {
+            const res = await store.dispatch('api/apiPostToken', {
+                direccion: `/estados_cuenta/cargas/${cargaReversion.value._id}/revertir`,
+                datosJson: { motivo: motivoReversion.value.trim(), confirmar: true, revision_impacto: impactoReversion.value.revision_impacto }
+            });
+            if (res?.estatus !== 200) {
+                reversionRequiereRevision.value = !res?.estatus || res.estatus >= 500;
+                handleToast('error', res?.mensaje || 'No se confirmó la operación. Revisa el historial antes de reintentar.');
+                return;
+            }
+            handleToast('success', res.mensaje || 'Carga revertida y archivada.');
+            mostrarReversion.value = false;
+            await handleCargarHistorial();
+        } catch {
+            reversionRequiereRevision.value = true;
+            handleToast('error', 'Resultado sin confirmar. Revisa el historial antes de reintentar.');
+        } finally { guardandoReversion.value = false; }
     };
 
     // ============================================================
@@ -410,6 +483,7 @@ const useProceso = () => {
     // ============================================================
 
     onMounted(async () => {
+        await handlePermisosReversion();
         await handleCargarHistorial();
     });
 
@@ -418,6 +492,11 @@ const useProceso = () => {
     // ============================================================
 
     return {
+        mostrarEliminarCarga, cargaPorEliminar, errorEliminarCarga, eliminacionSinConfirmar,
+        handleConfirmarEliminarCarga, handleArchivarDesdeEliminacion,
+        puedeRevertir, verArchivadas, mostrarReversion, cargandoReversion, guardandoReversion,
+        impactoReversion, cargaReversion, motivoReversion, confirmarReversion, reversionSoloConsulta,
+        reversionRequiereRevision, handleAbrirReversion, handleConfirmarReversion,
         // DATOS
 
         cargas,

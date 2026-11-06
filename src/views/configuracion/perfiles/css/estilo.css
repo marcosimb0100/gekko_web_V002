@@ -1,3 +1,5 @@
 .ejemplo{
     color: red;
 }
+.permiso-reversion-bancaria { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; margin-bottom: 1.5rem; }
+.permiso-reversion-bancaria small { flex-basis: 100%; color: var(--text-color-secondary); }

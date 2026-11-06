@@ -101,6 +101,12 @@
                                     <label for="activo">Activo</label>
                                 </div>
 
+                                <div class="permiso-reversion-bancaria">
+                                    <Checkbox inputId="revertir_cargas" v-model="frmPerfil.revertir_cargas_bancarias" binary />
+                                    <label for="revertir_cargas">Autorizar reversión de cargas bancarias conciliadas</label>
+                                    <small>Asignar solo a administradores. Requiere acceso al Historial de cargas.</small>
+                                </div>
+
                                 <!-- MENUS / PERMISOS -->
                                 <div style="border-top: 1px solid #ddd; padding-top: 20px">
                                     <div style="margin-bottom: 15px">

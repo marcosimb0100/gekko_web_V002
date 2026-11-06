@@ -143,6 +143,13 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "operaciones_mesa_control" */ '../views/operaciones/mesa_control/MesaControl.vue')
                 },
                 {
+                    path: '/operaciones/cancelaciones',
+                    name: 'operaciones_cancelaciones',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "operaciones_cancelaciones" */ '../views/operaciones/cancelaciones/Cancelaciones.vue')
+                },
+
+                {
                     path: '/operaciones/solicitud_detallada',
                     name: 'operaciones_solicitud_detallada',
                     beforeEnter: permisoRutas,
