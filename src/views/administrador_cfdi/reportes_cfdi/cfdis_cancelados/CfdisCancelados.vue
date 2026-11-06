@@ -7,7 +7,7 @@
         </Button>
     </Encabezado>
 
-    <div class="card p-0 m-0" style="height: 72vh">
+    <div class="card p-0 m-0 cancelados-contenedor">
         <!-- FILTROS -->
         <form @submit.prevent="handleConsultar" class="filtros-cancelados">
             <!-- EMPRESA -->
@@ -58,10 +58,10 @@
         </div>
 
         <!-- TABLA -->
-        <DataTable :value="catCfdisFiltrados" paginator :rows="500" :rowsPerPageOptions="[500, 1000, 1500]" scrollable scrollHeight="46vh" size="small" tableStyle="min-width: 110rem" class="tabla-encabezados tabla-cancelados" style="font-size: 11px">
+        <DataTable :value="catCfdisFiltrados" paginator :rows="500" :rowsPerPageOptions="[500, 1000, 1500]" scrollable scrollHeight="flex" size="small" tableStyle="min-width: 110rem" class="tabla-encabezados tabla-cancelados">
             <template #empty> No se encontraron CFDIs cancelados. </template>
 
-            <Column header="Documento" frozen alignFrozen="left" style="min-width: 130px">
+            <Column header="Documento" headerClass="encabezado-columna" bodyClass="columna-documento" frozen alignFrozen="left" style="min-width: 145px">
                 <template #body="{ data }"
                     ><Button
                         label="Constancia"

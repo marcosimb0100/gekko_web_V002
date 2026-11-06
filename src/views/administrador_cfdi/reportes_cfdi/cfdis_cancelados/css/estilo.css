@@ -77,7 +77,48 @@
 
 @media (max-width: 900px) {
     .filtros-cancelados {
-        grid-template-columns:
-            1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+/* Mantener altura de consulta y encabezados uniformes, incluso sin registros. */
+.cancelados-contenedor {
+    height: 72vh;
+    min-height: 32rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.tabla-cancelados {
+    flex: 1;
+    min-height: 0;
+    font-size: 12px;
+}
+:deep(.tabla-cancelados .p-datatable-thead > tr > th) {
+    padding: 10px 12px;
+}
+:deep(.tabla-cancelados .p-datatable-tbody > tr > td) {
+    padding: 10px 12px;
+}
+:deep(.tabla-cancelados .p-datatable-tbody > .p-datatable-empty-message > td) {
+    padding: 3rem 1rem;
+    height: 10rem;
+    text-align: center;
+    color: var(--text-color-secondary, #64748b);
+}
+:deep(.tabla-cancelados .columna-documento) {
+    white-space: nowrap;
+}
+:deep(.tabla-cancelados .p-paginator) {
+    padding: 0.9rem 0.5rem;
+    border-top: 1px solid var(--surface-border, #dce4ee);
+}
+@media (max-width: 600px) {
+    .cancelados-contenedor {
+        height: auto;
+        min-height: 32rem;
+    }
+    .barra-busqueda :deep(.p-iconfield),
+    .barra-busqueda :deep(.p-inputtext) {
+        width: 100% !important;
     }
 }
