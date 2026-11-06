@@ -17,3 +17,5 @@ api-generator/typedoc.json
 public/
 yml_dist/
 src/assets/images/
+# Archivos generados locales
+/outputs/

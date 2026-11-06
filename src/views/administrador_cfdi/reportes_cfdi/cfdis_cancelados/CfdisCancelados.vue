@@ -61,6 +61,19 @@
         <DataTable :value="catCfdisFiltrados" paginator :rows="500" :rowsPerPageOptions="[500, 1000, 1500]" scrollable scrollHeight="46vh" size="small" tableStyle="min-width: 110rem" class="tabla-encabezados tabla-cancelados" style="font-size: 11px">
             <template #empty> No se encontraron CFDIs cancelados. </template>
 
+            <Column header="Documento" frozen alignFrozen="left" style="min-width: 130px">
+                <template #body="{ data }"
+                    ><Button
+                        label="Constancia"
+                        icon="pi pi-file-pdf"
+                        outlined
+                        size="small"
+                        :loading="descargandoConstancia === data.uuid"
+                        :disabled="!!descargandoConstancia"
+                        @click="handleDescargarConstancia(data)"
+                        v-tooltip.top="'Generar constancia de Gekko'"
+                /></template>
+            </Column>
             <Column field="uuid" header="UUID" headerClass="encabezado-columna" bodyClass="nowrap" style="min-width: 290px" />
 
             <Column field="fecha" header="Fecha Emisión" headerClass="encabezado-columna" bodyClass="nowrap">

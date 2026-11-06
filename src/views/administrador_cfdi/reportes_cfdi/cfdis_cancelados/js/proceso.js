@@ -37,6 +37,27 @@ const useProceso = () => {
     const catCompaniasSat = ref([]);
     const catCfdis = ref([]);
     const ctrlBuscar = ref('');
+    const descargandoConstancia = ref('');
+    const handleDescargarConstancia = async (registro) => {
+        if (descargandoConstancia.value) return;
+        descargandoConstancia.value = registro.uuid;
+        try {
+            const res = await store.dispatch('api/apiGetblob', { direccion: `/solicitudes_cancelacion/constancia/${encodeURIComponent(registro.uuid)}?emisor_rfc=${encodeURIComponent(registro.emisorRfc)}` });
+            if (res?.estatus !== 200 || !(res.data instanceof Blob) || !res.data.size) throw new Error(res?.mensaje || 'No fue posible descargar la constancia.');
+            const url = URL.createObjectURL(res.data);
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `constancia-cancelacion-${registro.uuid}.pdf`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            toast.add({ severity: 'error', summary: 'Constancia de cancelaci\u00f3n', detail: error.message || 'No fue posible generar el documento.', life: 5000 });
+        } finally {
+            descargandoConstancia.value = '';
+        }
+    };
 
     // -------------------------------------------------------------------------
     // VALIDACIONES
@@ -353,6 +374,8 @@ const useProceso = () => {
 
         botonConsultarDeshabilitado,
 
+        descargandoConstancia,
+        handleDescargarConstancia,
         handleConsultar,
         handleCancelar,
 
