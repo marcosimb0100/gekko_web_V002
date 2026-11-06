@@ -303,3 +303,116 @@
         gap: 5px;
     }
 }
+
+/* El ancho se reparte entre datos agrupados; UUID y nombres pueden envolver. */
+.tabla-cfdi-compacta {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 12px;
+}
+:deep(.tabla-cfdi-compacta .p-datatable-table) {
+    width: 100%;
+    table-layout: fixed;
+}
+:deep(.tabla-cfdi-compacta .p-datatable-thead > tr > th),
+:deep(.tabla-cfdi-compacta .p-datatable-tbody > tr > td) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    padding: 10px 8px;
+}
+.celda-cfdi {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+.celda-cfdi strong {
+    font-size: 12px;
+    font-weight: 600;
+}
+.celda-cfdi small {
+    color: var(--text-color-secondary);
+    font-size: 11px;
+}
+.uuid-cfdi {
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+.tabla-cfdi-compacta .acciones-tabla-cfdi {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 5px;
+}
+.etiqueta-celda {
+    display: none;
+}
+.detalle-cfdi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.detalle-cfdi-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border: 1px solid var(--surface-border, #dce4ee);
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+.detalle-cfdi-campo small {
+    color: var(--text-color-secondary);
+}
+@media (max-width: 1500px) {
+    .filtros-cfdi {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+@media (max-width: 900px) {
+    :deep(.tabla-cfdi-compacta .p-datatable-thead) {
+        display: none;
+    }
+    :deep(.tabla-cfdi-compacta .p-datatable-tbody > tr) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border: 1px solid var(--surface-border, #dce4ee);
+        border-radius: 10px;
+        margin: 10px 0;
+        padding: 8px;
+    }
+    :deep(.tabla-cfdi-compacta .p-datatable-tbody > tr > td) {
+        width: auto !important;
+        border: 0;
+        min-width: 0;
+    }
+    :deep(.tabla-cfdi-compacta .p-datatable-tbody > tr > td:first-child) {
+        grid-column: 1 / -1;
+    }
+    .etiqueta-celda {
+        display: block;
+        font-size: 10px;
+        color: var(--text-color-secondary);
+        margin-bottom: 3px;
+        font-weight: 400;
+    }
+    .filtros-cfdi {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .barra-busqueda {
+        flex-wrap: wrap;
+    }
+    .buscador-cfdi {
+        width: 100%;
+    }
+    .barra-busqueda :deep(.p-iconfield) {
+        width: 100%;
+    }
+}
+@media (max-width: 500px) {
+    .detalle-cfdi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tabla-cfdi-compacta .estatus-cfdi { white-space: normal; max-width: 100%; overflow-wrap: anywhere; }

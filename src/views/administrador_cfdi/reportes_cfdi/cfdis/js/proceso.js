@@ -41,6 +41,34 @@ const useProceso = () => {
     const catCompaniasSat = ref([]);
 
     const ctrlBuscar = ref('');
+    const detalleVisible = ref(false);
+    const cfdiDetalle = ref(null);
+    const handleMostrarDetalle = (registro) => {
+        cfdiDetalle.value = registro;
+        detalleVisible.value = true;
+    };
+    const handleCerrarDetalle = () => {
+        detalleVisible.value = false;
+        cfdiDetalle.value = null;
+    };
+    const datosDetalle = computed(() => {
+        const d = cfdiDetalle.value;
+        if (!d) return [];
+        return [
+            { label: 'UUID', valor: d.uuid },
+            { label: 'Fecha', valor: handleFormatFecha(d.fecha) },
+            { label: 'Serie', valor: d.serie },
+            { label: 'Folio', valor: d.folio },
+            { label: 'Emisor', valor: d.emisorNombre },
+            { label: 'RFC emisor', valor: d.emisorRfc },
+            { label: 'Receptor', valor: d.receptorNombre },
+            { label: 'RFC receptor', valor: d.receptorRfc },
+            { label: 'Tipo de comprobante', valor: d.tipoDeComprobante },
+            { label: 'M\u00e9todo de pago', valor: d.metodoPago },
+            { label: 'Total', valor: '$ ' + handleFormatMX(d.total) },
+            { label: 'Estatus', valor: Number(d.estatusCFDI) === 1 ? 'Vigente' : 'Cancelado' }
+        ].map((campo) => ({ ...campo, valor: campo.valor === null || campo.valor === undefined || campo.valor === '' ? 'No registrado' : campo.valor }));
+    });
 
     // Cancelación: esta vista solo registra solicitudes en MongoDB.
     const modalCancelacion = ref(false);
@@ -786,6 +814,10 @@ const useProceso = () => {
     handleInit();
 
     return {
+        detalleVisible,
+        datosDetalle,
+        handleMostrarDetalle,
+        handleCerrarDetalle,
         frmFiltros,
 
         catCompaniasSat,

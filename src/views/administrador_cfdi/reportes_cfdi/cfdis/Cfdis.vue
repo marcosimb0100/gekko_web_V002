@@ -113,14 +113,22 @@
              TABLA
         ========================================================== -->
 
-        <DataTable :value="catCfdisFiltrados" paginator :rows="500" :rowsPerPageOptions="[500, 1000, 1500]" scrollable scrollHeight="46vh" size="small" tableStyle="min-width: 115rem" class="tabla-encabezados tabla-cfdi" style="font-size: 11px">
-            <template #empty> No se encontraron CFDI. </template>
-
-            <!-- OPCIONES -->
-
-            <Column header="Opciones" headerClass="encabezado-columna" bodyClass="nowrap" style="min-width: 100px">
-                <template #body="slotProps">
+        <DataTable
+            :value="catCfdisFiltrados"
+            paginator
+            :rows="500"
+            :rowsPerPageOptions="[500, 1000, 1500]"
+            scrollable
+            scrollHeight="46vh"
+            size="small"
+            tableStyle="width: 100%; table-layout: fixed"
+            class="tabla-encabezados tabla-cfdi tabla-cfdi-compacta"
+        >
+            <template #empty>No se encontraron CFDI.</template>
+            <Column header="Opciones" headerClass="encabezado-columna" style="width: 10%"
+                ><template #body="slotProps">
                     <div class="acciones-tabla-cfdi">
+                        <Button icon="pi pi-eye" outlined size="small" aria-label="Ver detalle del CFDI" v-tooltip.top="'Ver detalle'" @click="handleMostrarDetalle(slotProps.data)" />
                         <Button type="button" size="small" severity="help" v-tooltip.top="'Descargar XML'" @click="handleDescargaXml(slotProps.data)">
                             <template #icon>
                                 <font-icon icon="fa-solid fa-cloud-arrow-down" />
@@ -142,76 +150,61 @@
                                     <font-icon icon="fa-solid fa-ban" />
                                 </template>
                             </Button>
-                        </span>
-                    </div>
-                </template>
+                        </span></div></template
+            ></Column>
+            <Column header="Comprobante" headerClass="encabezado-columna" style="width: 24%">
+                <template #body="{ data }"
+                    ><div class="celda-cfdi">
+                        <span class="etiqueta-celda">Comprobante</span><strong>{{ data.serie || 'Sin serie' }} / {{ data.folio || 'Sin folio' }}</strong
+                        ><span class="uuid-cfdi">{{ data.uuid }}</span
+                        ><small>{{ handleFormatFecha(data.fecha) }}</small>
+                    </div></template
+                >
             </Column>
-
-            <!-- UUID -->
-
-            <Column field="uuid" header="UUID" headerClass="encabezado-columna" bodyClass="nowrap" style="min-width: 290px" />
-
-            <!-- FECHA -->
-
-            <Column header="Fecha" headerClass="encabezado-columna" bodyClass="nowrap" style="min-width: 110px">
-                <template #body="slotProps">
-                    {{ handleFormatFecha(slotProps.data.fecha) }}
-                </template>
+            <Column header="Emisor" headerClass="encabezado-columna" style="width: 19%">
+                <template #body="{ data }"
+                    ><div class="celda-cfdi">
+                        <span class="etiqueta-celda">Emisor</span><strong>{{ data.emisorNombre }}</strong
+                        ><small>{{ data.emisorRfc }}</small>
+                    </div></template
+                >
             </Column>
-
-            <!-- SERIE -->
-
-            <Column field="serie" header="Serie" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- FOLIO -->
-
-            <Column field="folio" header="Folio" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- TIPO -->
-
-            <Column field="tipoDeComprobante" header="Tipo" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- METODO PAGO -->
-
-            <Column field="metodoPago" header="Método Pago" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- EMISOR RFC -->
-
-            <Column field="emisorRfc" header="Emisor RFC" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- EMISOR NOMBRE -->
-
-            <Column field="emisorNombre" header="Emisor Nombre" headerClass="encabezado-columna" style="min-width: 220px" />
-
-            <!-- RECEPTOR RFC -->
-
-            <Column field="receptorRfc" header="Receptor RFC" headerClass="encabezado-columna" bodyClass="nowrap" />
-
-            <!-- RECEPTOR NOMBRE -->
-
-            <Column field="receptorNombre" header="Receptor Nombre" headerClass="encabezado-columna" style="min-width: 220px" />
-
-            <!-- ESTATUS -->
-
-            <Column header="Estatus" headerClass="encabezado-columna" bodyClass="nowrap">
-                <template #body="slotProps">
-                    <span class="estatus-cfdi" :class="slotProps.data.estatusCFDI === 1 ? 'estatus-vigente' : 'estatus-cancelado'">
-                        {{ slotProps.data.estatusCFDI === 1 ? 'Vigente' : 'Cancelado' }}
-                    </span>
-                </template>
+            <Column header="Receptor" headerClass="encabezado-columna" style="width: 19%">
+                <template #body="{ data }"
+                    ><div class="celda-cfdi">
+                        <span class="etiqueta-celda">Receptor</span><strong>{{ data.receptorNombre }}</strong
+                        ><small>{{ data.receptorRfc }}</small>
+                    </div></template
+                >
             </Column>
-
-            <!-- TOTAL -->
-
-            <Column header="Total" headerClass="encabezado-columna" bodyClass="nowrap total-cfdi" style="min-width: 120px">
-                <template #body="slotProps">
-                    $
-                    {{ handleFormatMX(slotProps.data.total) }}
-                </template>
+            <Column header="Tipo / pago" headerClass="encabezado-columna" style="width: 8%">
+                <template #body="{ data }"
+                    ><div class="celda-cfdi">
+                        <span class="etiqueta-celda">Tipo / pago</span><strong>{{ data.tipoDeComprobante }}</strong
+                        ><small>{{ data.metodoPago || 'No aplica' }}</small>
+                    </div></template
+                >
             </Column>
+            <Column header="Total" headerClass="encabezado-columna" bodyClass="total-cfdi" style="width: 12%"
+                ><template #body="{ data }"><span class="etiqueta-celda">Total</span>$ {{ handleFormatMX(data.total) }}</template></Column
+            >
+            <Column header="Estatus" headerClass="encabezado-columna" style="width: 8%"
+                ><template #body="{ data }"
+                    ><span class="estatus-cfdi" :class="Number(data.estatusCFDI) === 1 ? 'estatus-vigente' : 'estatus-cancelado'">{{ Number(data.estatusCFDI) === 1 ? 'Vigente' : 'Cancelado' }}</span></template
+                ></Column
+            >
         </DataTable>
     </div>
 
+    <Dialog v-model:visible="detalleVisible" header="Detalle del CFDI" modal :style="{ width: 'min(94vw, 860px)' }">
+        <div class="detalle-cfdi-grid">
+            <div v-for="campo in datosDetalle" :key="campo.label" class="detalle-cfdi-campo">
+                <small>{{ campo.label }}</small
+                ><strong>{{ campo.valor }}</strong>
+            </div>
+        </div>
+        <template #footer><Button label="Cerrar" @click="handleCerrarDetalle" /></template>
+    </Dialog>
     <!-- SOLICITUD DE CANCELACIÓN: solo registro, no ejecuta el SDK -->
     <Dialog v-model:visible="modalCancelacion" modal header="Solicitar cancelación de CFDI" :style="{ width: 'min(96vw, 580px)' }" :closable="!guardandoCancelacion" :closeOnEscape="!guardandoCancelacion" class="modal-cancelacion-cfdi">
         <div class="cancelacion-contenido" v-if="cfdiSeleccionado">
