@@ -4,17 +4,11 @@
 
 ===================================================== */
 
-
-
 .sat-portal-contenedor {
 
     height: 78vh;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -22,31 +16,19 @@
 
 ===================================================== */
 
-
-
 .form-sat-portal {
 
     display: flex;
 
     flex-direction: column;
 
-
-
     gap: 18px;
 
-
-
     width: 100%;
-
-
 
     padding: 20px 24px 35px 24px;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -54,33 +36,21 @@
 
 ===================================================== */
 
-
-
 .sat-card {
 
     width: 100%;
 
-
-
     padding: 20px 24px;
-
-
 
     border: 1px solid var(--surface-border);
 
     border-radius: 12px;
 
-
-
     background: var(--surface-card);
-
-
 
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.035);
 
 }
-
-
 
 .sat-card-conexion {
 
@@ -88,17 +58,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    TITULO SAT
 
 ===================================================== */
-
-
 
 .sat-titulo {
 
@@ -106,23 +70,15 @@
 
     align-items: center;
 
-
-
     gap: 11px;
-
-
 
     margin-bottom: 14px;
 
     padding-bottom: 12px;
 
-
-
     border-bottom: 1px solid var(--surface-border);
 
 }
-
-
 
 .sat-icono {
 
@@ -132,31 +88,19 @@
 
     justify-content: center;
 
-
-
     width: 38px;
 
     height: 38px;
 
-
-
     flex: 0 0 38px;
-
-
 
     border-radius: 9px;
 
-
-
     background: rgba(42, 194, 211, 0.14);
-
-
 
     font-size: 15px;
 
 }
-
-
 
 .sat-titulo-texto {
 
@@ -164,13 +108,9 @@
 
     flex-direction: column;
 
-
-
     gap: 2px;
 
 }
-
-
 
 .sat-titulo-texto span {
 
@@ -180,21 +120,13 @@
 
 }
 
-
-
 .sat-titulo-texto small {
 
     font-size: 9px;
 
-
-
     opacity: 0.7;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -202,39 +134,25 @@
 
 ===================================================== */
 
-
-
 .informacion-sat {
 
     display: flex;
 
     align-items: center;
 
-
-
     gap: 9px;
-
-
 
     margin-bottom: 12px;
 
-
-
     padding: 8px 10px;
-
-
 
     border: 1px solid rgba(42, 194, 211, 0.18);
 
     border-radius: 7px;
 
-
-
     background: rgba(42, 194, 211, 0.07);
 
 }
-
-
 
 .informacion-sat-icono {
 
@@ -244,19 +162,13 @@
 
     justify-content: center;
 
-
-
     width: 25px;
 
     height: 25px;
 
-
-
     flex: 0 0 25px;
 
 }
-
-
 
 .informacion-sat > div:last-child {
 
@@ -264,13 +176,9 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
 
 }
-
-
 
 .informacion-sat strong {
 
@@ -278,21 +186,13 @@
 
 }
 
-
-
 .informacion-sat span {
 
     font-size: 8px;
 
-
-
     opacity: 0.7;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -300,21 +200,15 @@
 
 ===================================================== */
 
-
-
 .campo-formulario {
 
     display: flex;
 
     flex-direction: column;
 
-
-
     gap: 6px;
 
 }
-
-
 
 .campo-formulario label {
 
@@ -324,15 +218,11 @@
 
 }
 
-
-
 .campo-empresa {
 
     margin-bottom: 0;
 
 }
-
-
 
 .campo-empresa-label {
 
@@ -342,15 +232,9 @@
 
     justify-content: space-between;
 
-
-
     gap: 10px;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -358,35 +242,21 @@
 
 ===================================================== */
 
-
-
 .empresa-bloqueada {
 
     display: inline-flex;
 
     align-items: center;
 
-
-
     gap: 5px;
-
-
 
     padding: 3px 8px;
 
-
-
     border-radius: 12px;
-
-
 
     background: rgba(34, 197, 94, 0.1);
 
-
-
     color: var(--green-600);
-
-
 
     font-size: 8px;
 
@@ -394,17 +264,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    OPCION EMPRESA
 
 ===================================================== */
-
-
 
 .empresa-opcion {
 
@@ -412,13 +276,9 @@
 
     flex-direction: column;
 
-
-
     gap: 2px;
 
 }
-
-
 
 .empresa-opcion strong {
 
@@ -426,29 +286,19 @@
 
 }
 
-
-
 .empresa-opcion span {
 
     font-size: 8px;
 
-
-
     opacity: 0.65;
 
 }
-
-
-
-
 
 /* =====================================================
 
    EMPRESA RESUMEN
 
 ===================================================== */
-
-
 
 .empresa-resumen {
 
@@ -458,31 +308,19 @@
 
     justify-content: space-between;
 
-
-
     gap: 18px;
-
-
 
     margin-top: 10px;
 
-
-
     padding: 9px 11px;
-
-
 
     border: 1px solid var(--surface-border);
 
     border-radius: 8px;
 
-
-
     background: var(--surface-ground);
 
 }
-
-
 
 .empresa-resumen-principal {
 
@@ -490,17 +328,11 @@
 
     align-items: center;
 
-
-
     gap: 8px;
-
-
 
     min-width: 180px;
 
 }
-
-
 
 .empresa-resumen-icono {
 
@@ -510,27 +342,17 @@
 
     justify-content: center;
 
-
-
     width: 30px;
 
     height: 30px;
 
-
-
     flex: 0 0 30px;
 
-
-
     border-radius: 7px;
-
-
 
     background: rgba(42, 194, 211, 0.12);
 
 }
-
-
 
 .empresa-resumen-nombre {
 
@@ -538,27 +360,17 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
-
-
 
     min-width: 0;
 
 }
 
-
-
 .empresa-resumen-nombre strong {
 
     overflow: hidden;
 
-
-
     font-size: 10px;
-
-
 
     text-overflow: ellipsis;
 
@@ -566,25 +378,17 @@
 
 }
 
-
-
 .empresa-resumen-nombre span {
 
     font-size: 8px;
-
-
 
     opacity: 0.65;
 
 }
 
-
-
 .empresa-resumen-datos {
 
     display: grid;
-
-
 
     grid-template-columns: repeat(
 
@@ -594,17 +398,11 @@
 
     );
 
-
-
     gap: 7px;
-
-
 
     flex: 1;
 
 }
-
-
 
 .empresa-resumen-datos > div {
 
@@ -612,49 +410,31 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
 
-
-
     padding: 6px 8px;
-
-
 
     border: 1px solid var(--surface-border);
 
     border-radius: 6px;
 
-
-
     background: var(--surface-card);
 
 }
-
-
 
 .empresa-resumen-datos span {
 
     font-size: 8px;
 
-
-
     opacity: 0.6;
 
 }
-
-
 
 .empresa-resumen-datos strong {
 
     overflow: hidden;
 
-
-
     font-size: 9px;
-
-
 
     text-overflow: ellipsis;
 
@@ -662,17 +442,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    E.FIRMA VALIDADA
 
 ===================================================== */
-
-
 
 .validacion-compacta {
 
@@ -680,31 +454,19 @@
 
     align-items: center;
 
-
-
     gap: 16px;
-
-
 
     margin-top: 10px;
 
-
-
     padding: 9px 11px;
-
-
 
     border: 1px solid rgba(34, 197, 94, 0.25);
 
     border-radius: 8px;
 
-
-
     background: rgba(34, 197, 94, 0.05);
 
 }
-
-
 
 .validacion-compacta-estado {
 
@@ -712,17 +474,11 @@
 
     align-items: center;
 
-
-
     gap: 8px;
-
-
 
     min-width: 180px;
 
 }
-
-
 
 .validacion-compacta-icono {
 
@@ -732,31 +488,19 @@
 
     justify-content: center;
 
-
-
     width: 30px;
 
     height: 30px;
 
-
-
     flex: 0 0 30px;
-
-
 
     border-radius: 50%;
 
-
-
     background: rgba(34, 197, 94, 0.14);
-
-
 
     color: var(--green-500);
 
 }
-
-
 
 .validacion-compacta-estado > div:last-child {
 
@@ -764,13 +508,9 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
 
 }
-
-
 
 .validacion-compacta-estado strong {
 
@@ -778,21 +518,13 @@
 
 }
 
-
-
 .validacion-compacta-estado span {
 
     font-size: 8px;
 
-
-
     opacity: 0.65;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -800,13 +532,9 @@
 
 ===================================================== */
 
-
-
 .validacion-compacta-datos {
 
     display: grid;
-
-
 
     grid-template-columns:
 
@@ -820,17 +548,11 @@
 
         0.7fr;
 
-
-
     gap: 6px;
-
-
 
     flex: 1;
 
 }
-
-
 
 .dato-compacto {
 
@@ -838,53 +560,33 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
-
-
 
     min-width: 0;
 
-
-
     padding: 6px 8px;
-
-
 
     border: 1px solid var(--surface-border);
 
     border-radius: 6px;
 
-
-
     background: var(--surface-card);
 
 }
-
-
 
 .dato-compacto span {
 
     font-size: 8px;
 
-
-
     opacity: 0.6;
 
 }
-
-
 
 .dato-compacto strong {
 
     overflow: hidden;
 
-
-
     font-size: 9px;
-
-
 
     text-overflow: ellipsis;
 
@@ -892,25 +594,17 @@
 
 }
 
-
-
 .estatus-ok {
 
     color: var(--green-500);
 
 }
 
-
-
-
-
 /* =====================================================
 
    SESION
 
 ===================================================== */
-
-
 
 .sesion-compacta {
 
@@ -920,31 +614,19 @@
 
     justify-content: space-between;
 
-
-
     gap: 12px;
-
-
 
     margin-top: 8px;
 
-
-
     padding: 7px 10px;
-
-
 
     border: 1px solid rgba(42, 194, 211, 0.22);
 
     border-radius: 7px;
 
-
-
     background: rgba(42, 194, 211, 0.07);
 
 }
-
-
 
 .sesion-compacta-info {
 
@@ -952,13 +634,9 @@
 
     align-items: center;
 
-
-
     gap: 7px;
 
 }
-
-
 
 .sesion-compacta-icono {
 
@@ -968,19 +646,13 @@
 
     justify-content: center;
 
-
-
     width: 27px;
 
     height: 27px;
 
-
-
     font-size: 14px;
 
 }
-
-
 
 .sesion-compacta-info > div:last-child {
 
@@ -988,13 +660,9 @@
 
     flex-direction: column;
 
-
-
     gap: 1px;
 
 }
-
-
 
 .sesion-compacta-info strong {
 
@@ -1002,19 +670,13 @@
 
 }
 
-
-
 .sesion-compacta-info span {
 
     font-size: 8px;
 
-
-
     opacity: 0.65;
 
 }
-
-
 
 .sesion-compacta-badge {
 
@@ -1022,29 +684,17 @@
 
     align-items: center;
 
-
-
     gap: 5px;
 
-
-
     padding: 3px 9px;
-
-
 
     border: 1px solid rgba(34, 197, 94, 0.22);
 
     border-radius: 15px;
 
-
-
     background: rgba(34, 197, 94, 0.09);
 
-
-
     color: var(--green-600);
-
-
 
     font-size: 8px;
 
@@ -1052,17 +702,11 @@
 
 }
 
-
-
 .sesion-compacta-badge i {
 
     font-size: 5px;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1070,31 +714,21 @@
 
 ===================================================== */
 
-
-
 .acciones-formulario {
 
     display: flex;
 
     justify-content: flex-end;
 
-
-
     gap: 8px;
-
-
 
     margin-top: 11px;
 
     padding-top: 11px;
 
-
-
     border-top: 1px solid var(--surface-border);
 
 }
-
-
 
 .acciones-formulario .p-button {
 
@@ -1102,17 +736,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    CERRAR SESION
 
 ===================================================== */
-
-
 
 .btn-cerrar-sesion {
 
@@ -1120,13 +748,9 @@
 
     border-color: #dc2626 !important;
 
-
-
     color: white !important;
 
 }
-
-
 
 .btn-cerrar-sesion:hover {
 
@@ -1136,25 +760,17 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    CONSULTA
 
 ===================================================== */
 
-
-
 .consulta-card {
 
     padding: 20px 24px;
 
 }
-
-
 
 .consulta-titulo {
 
@@ -1164,21 +780,13 @@
 
     justify-content: space-between;
 
-
-
     gap: 15px;
 
-
-
     padding-bottom: 13px;
-
-
 
     border-bottom: 1px solid var(--surface-border);
 
 }
-
-
 
 .consulta-titulo-izquierda {
 
@@ -1186,13 +794,9 @@
 
     align-items: center;
 
-
-
     gap: 10px;
 
 }
-
-
 
 .consulta-icono {
 
@@ -1202,27 +806,17 @@
 
     justify-content: center;
 
-
-
     width: 38px;
 
     height: 38px;
 
-
-
     flex: 0 0 38px;
 
-
-
     border-radius: 8px;
-
-
 
     background: rgba(42, 194, 211, 0.12);
 
 }
-
-
 
 .consulta-titulo-izquierda > div:last-child {
 
@@ -1230,13 +824,9 @@
 
     flex-direction: column;
 
-
-
     gap: 2px;
 
 }
-
-
 
 .consulta-titulo-izquierda strong {
 
@@ -1244,21 +834,13 @@
 
 }
 
-
-
 .consulta-titulo-izquierda span {
 
     font-size: 8px;
 
-
-
     opacity: 0.65;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1266,39 +848,25 @@
 
 ===================================================== */
 
-
-
 .sesion-indicador {
 
     display: inline-flex;
 
     align-items: center;
 
-
-
     gap: 6px;
 
-
-
     padding: 4px 12px;
-
-
 
     border: 1px solid rgba(34, 197, 94, 0.25);
 
     border-radius: 18px;
 
-
-
     background: rgba(34, 197, 94, 0.08);
-
-
 
     font-size: 8px;
 
 }
-
-
 
 .sesion-indicador-punto {
 
@@ -1306,19 +874,11 @@
 
     height: 6px;
 
-
-
     border-radius: 50%;
-
-
 
     background: var(--green-500);
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1326,13 +886,9 @@
 
 ===================================================== */
 
-
-
 .consulta-filtros {
 
     display: grid;
-
-
 
     grid-template-columns: repeat(
 
@@ -1342,17 +898,11 @@
 
     );
 
-
-
     gap: 12px;
-
-
 
     margin-top: 15px;
 
 }
-
-
 
 .campo-consulta {
 
@@ -1360,13 +910,9 @@
 
     flex-direction: column;
 
-
-
     gap: 5px;
 
 }
-
-
 
 .campo-consulta label {
 
@@ -1376,17 +922,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    BOTONES CONSULTA
 
 ===================================================== */
-
-
 
 .consulta-botones {
 
@@ -1394,25 +934,15 @@
 
     justify-content: flex-end;
 
-
-
     gap: 8px;
-
-
 
     margin-top: 10px;
 
     padding-bottom: 15px;
 
-
-
     border-bottom: 1px solid var(--surface-border);
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1420,29 +950,19 @@
 
 ===================================================== */
 
-
-
 .resultados-cfdi {
 
     width: 100%;
 
-
-
     margin-top: 15px;
 
 }
-
-
-
-
 
 /* =====================================================
 
    HEADER RESULTADOS
 
 ===================================================== */
-
-
 
 .resultados-header {
 
@@ -1452,21 +972,13 @@
 
     justify-content: space-between;
 
-
-
     width: 100%;
 
-
-
     gap: 20px;
-
-
 
     margin-bottom: 8px;
 
 }
-
-
 
 .resultados-header-info {
 
@@ -1474,17 +986,11 @@
 
     align-items: center;
 
-
-
     gap: 8px;
-
-
 
     flex-shrink: 0;
 
 }
-
-
 
 .resultados-header-info strong {
 
@@ -1492,51 +998,31 @@
 
     font-weight: 600;
 
-
-
     white-space: nowrap;
 
 }
-
-
 
 .resultados-header-info span {
 
     padding: 3px 7px;
 
-
-
     border-radius: 12px;
-
-
 
     background: var(--surface-ground);
 
-
-
     font-size: 8px;
 
-
-
     opacity: 0.7;
-
-
 
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
 
    ACCIONES RESULTADOS
 
 ===================================================== */
-
-
 
 .acciones-resultados {
 
@@ -1546,19 +1032,11 @@
 
     justify-content: flex-end;
 
-
-
     gap: 8px;
-
-
 
     margin-left: auto;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1566,19 +1044,13 @@
 
 ===================================================== */
 
-
-
 .buscador-tabla {
 
     position: relative;
 
-
-
     display: inline-flex;
 
     align-items: center;
-
-
 
     width: 280px;
 
@@ -1586,53 +1058,33 @@
 
 }
 
-
-
 .buscador-tabla .p-inputtext {
 
     width: 100%;
 
     height: 34px;
 
-
-
     padding-left: 32px;
-
-
 
     font-size: 9px;
 
 }
 
-
-
 .buscador-tabla > i {
 
     position: absolute;
-
-
 
     left: 11px;
 
     top: 50%;
 
-
-
     z-index: 2;
 
-
-
     transform: translateY(-50%);
-
-
 
     font-size: 11px;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1640,35 +1092,21 @@
 
 ===================================================== */
 
-
-
 .btn-excel {
 
     height: 34px !important;
 
-
-
     min-width: 90px !important;
-
-
 
     padding-left: 14px !important;
 
     padding-right: 14px !important;
 
-
-
     font-size: 9px !important;
-
-
 
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
    ACTUALIZACION CFDI NO BLOQUEANTE
@@ -1710,7 +1148,6 @@
     font-size: 13px;
 }
 
-
 .actualizacion-cfdi-texto {
     display: flex;
     flex-direction: column;
@@ -1720,7 +1157,6 @@
     flex: 1;
 }
 
-
 .actualizacion-cfdi-texto strong {
     color: #ef4444;
 
@@ -1728,13 +1164,11 @@
     font-weight: 600;
 }
 
-
 .actualizacion-cfdi-texto span {
     font-size: 8px;
 
     opacity: 0.7;
 }
-
 
 .actualizacion-cfdi-badge {
     display: inline-flex;
@@ -1764,14 +1198,11 @@
     white-space: nowrap;
 }
 
-
 /* =====================================================
 
    TABLA
 
 ===================================================== */
-
-
 
 .tabla-cfdi {
 
@@ -1779,21 +1210,13 @@
 
 }
 
-
-
 :deep(.tabla-cfdi .p-datatable-table) {
 
     width: 100%;
 
-
-
     min-width: 1450px;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1801,27 +1224,17 @@
 
 ===================================================== */
 
-
-
 :deep(.tabla-cfdi .p-datatable-table-container),
 
 :deep(.tabla-cfdi .p-datatable-wrapper) {
 
     max-height: 500px;
 
-
-
     overflow: auto;
-
-
 
     scrollbar-width: thin;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1829,43 +1242,25 @@
 
 ===================================================== */
 
-
-
 :deep(.tabla-cfdi .p-datatable-thead > tr > th) {
 
     position: sticky;
 
-
-
     top: 0;
-
-
 
     z-index: 3;
 
-
-
     padding: 7px;
 
-
-
     background: var(--surface-card);
-
-
 
     font-size: 8px;
 
     font-weight: 600;
 
-
-
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1873,25 +1268,15 @@
 
 ===================================================== */
 
-
-
 :deep(.tabla-cfdi .p-datatable-tbody > tr > td) {
 
     padding: 6px 7px;
 
-
-
     font-size: 8px;
-
-
 
     vertical-align: middle;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1899,33 +1284,19 @@
 
 ===================================================== */
 
-
-
 .texto-ajustable {
 
     display: block;
 
-
-
     max-width: 210px;
-
-
 
     white-space: normal;
 
-
-
     overflow-wrap: anywhere;
-
-
 
     line-height: 1.2;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1933,25 +1304,15 @@
 
 ===================================================== */
 
-
-
 .uuid-cfdi {
 
     display: block;
 
-
-
     font-size: 7.5px;
-
-
 
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1959,21 +1320,13 @@
 
 ===================================================== */
 
-
-
 .fecha-cfdi {
 
     font-size: 7.5px;
 
-
-
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -1981,31 +1334,21 @@
 
 ===================================================== */
 
-
-
 .total-cfdi {
 
     font-size: 8px;
 
     font-weight: 600;
 
-
-
     white-space: nowrap;
 
 }
-
-
-
-
 
 /* =====================================================
 
    ESTADO
 
 ===================================================== */
-
-
 
 .estado-cfdi {
 
@@ -2015,69 +1358,43 @@
 
     justify-content: center;
 
-
-
     min-width: 62px;
-
-
 
     padding: 3px 8px;
 
-
-
     border-radius: 15px;
 
-
-
     background: var(--surface-ground);
-
-
 
     font-size: 7px;
 
     font-weight: 600;
 
-
-
     white-space: nowrap;
 
 }
-
-
 
 .estado-vigente {
 
     background: rgba(34, 197, 94, 0.1);
 
-
-
     color: var(--green-600);
 
 }
-
-
 
 .estado-cancelado {
 
     background: rgba(239, 68, 68, 0.1);
 
-
-
     color: var(--red-600);
 
 }
-
-
-
-
 
 /* =====================================================
 
    XML
 
 ===================================================== */
-
-
 
 .acciones-cfdi {
 
@@ -2089,8 +1406,6 @@
 
 }
 
-
-
 .boton-accion {
 
     width: 27px !important;
@@ -2099,17 +1414,11 @@
 
     min-width: 27px !important;
 
-
-
     padding: 0 !important;
-
-
 
     border-radius: 6px !important;
 
 }
-
-
 
 .boton-xml {
 
@@ -2117,15 +1426,9 @@
 
     border-color: #22c55e !important;
 
-
-
     color: white !important;
 
 }
-
-
-
-
 
 /* =====================================================
 
@@ -2133,29 +1436,19 @@
 
 ===================================================== */
 
-
-
 :deep(.tabla-cfdi .p-paginator) {
 
     min-height: 42px;
 
-
-
     padding: 6px 8px;
 
 }
-
-
-
-
 
 /* =====================================================
 
    SCROLLBAR
 
 ===================================================== */
-
-
 
 :deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar),
 
@@ -2167,21 +1460,15 @@
 
 }
 
-
-
 :deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-thumb),
 
 :deep(.tabla-cfdi .p-datatable-wrapper::-webkit-scrollbar-thumb) {
 
     border-radius: 6px;
 
-
-
     background: rgba(120, 120, 120, 0.55);
 
 }
-
-
 
 :deep(.tabla-cfdi .p-datatable-table-container::-webkit-scrollbar-track),
 
@@ -2191,17 +1478,11 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    TABLA VACIA
 
 ===================================================== */
-
-
 
 .tabla-vacia {
 
@@ -2213,21 +1494,13 @@
 
     justify-content: center;
 
-
-
     gap: 6px;
 
-
-
     min-height: 110px;
-
-
 
     opacity: 0.55;
 
 }
-
-
 
 .tabla-vacia i {
 
@@ -2235,25 +1508,17 @@
 
 }
 
-
-
 .tabla-vacia span {
 
     font-size: 9px;
 
 }
 
-
-
-
-
 /* =====================================================
 
    PRIMEVUE
 
 ===================================================== */
-
-
 
 :deep(.sat-card .p-inputtext),
 
@@ -2267,23 +1532,17 @@
 
 }
 
-
-
 :deep(.sat-card .p-button) {
 
     font-size: 10px;
 
 }
 
-
-
 :deep(.sat-card .p-dropdown-label) {
 
     font-size: 10px;
 
 }
-
-
 
 :deep(.sat-card .p-inputtext) {
 
@@ -2293,33 +1552,21 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    RESPONSIVE 1100
 
 ===================================================== */
 
-
-
 @media (max-width: 1100px) {
-
-
 
     .validacion-compacta {
 
         align-items: stretch;
 
-
-
         flex-direction: column;
 
     }
-
-
 
     .validacion-compacta-datos {
 
@@ -2332,8 +1579,6 @@
         );
 
     }
-
-
 
     .consulta-filtros {
 
@@ -2349,21 +1594,13 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    RESPONSIVE 850
 
 ===================================================== */
 
-
-
 @media (max-width: 850px) {
-
-
 
     .form-sat-portal {
 
@@ -2371,27 +1608,19 @@
 
     }
 
-
-
     .sat-card {
 
         padding: 16px;
 
     }
 
-
-
     .empresa-resumen {
 
         align-items: stretch;
 
-
-
         flex-direction: column;
 
     }
-
-
 
     .empresa-resumen-datos {
 
@@ -2405,8 +1634,6 @@
 
     }
 
-
-
     .validacion-compacta-datos {
 
         grid-template-columns: repeat(
@@ -2419,37 +1646,25 @@
 
     }
 
-
-
     .resultados-header {
 
         align-items: stretch;
-
-
 
         flex-direction: column;
 
     }
 
-
-
     .acciones-resultados {
 
         width: 100%;
-
-
 
         margin-left: 0;
 
     }
 
-
-
     .buscador-tabla {
 
         flex: 1;
-
-
 
         width: auto;
 
@@ -2459,21 +1674,13 @@
 
 }
 
-
-
-
-
 /* =====================================================
 
    RESPONSIVE 600
 
 ===================================================== */
 
-
-
 @media (max-width: 600px) {
-
-
 
     .empresa-resumen-datos,
 
@@ -2485,15 +1692,11 @@
 
     }
 
-
-
     .acciones-formulario {
 
         flex-direction: column-reverse;
 
     }
-
-
 
     .acciones-formulario .p-button {
 
@@ -2501,15 +1704,11 @@
 
     }
 
-
-
     .consulta-botones {
 
         flex-direction: column;
 
     }
-
-
 
     .consulta-botones .p-button {
 
@@ -2517,19 +1716,13 @@
 
     }
 
-
-
     .sesion-compacta {
 
         align-items: flex-start;
 
-
-
         flex-direction: column;
 
     }
-
-
 
     .acciones-resultados {
 
@@ -2539,15 +1732,11 @@
 
     }
 
-
-
     .buscador-tabla {
 
         width: 100%;
 
     }
-
-
 
     .btn-excel {
 
@@ -2556,3 +1745,64 @@
     }
 
 }
+/* Distribucion del portal: conexion compacta y resultados con altura disponible. */
+.sat-portal-contenedor { height: auto; min-width: 0; }
+.form-sat-portal { padding: 16px; gap: 14px; height: calc(100dvh - 210px); min-height: 600px; }
+.sat-card { padding: 16px; min-width: 0; }
+.sat-card-conexion { flex-shrink: 0; }
+.sat-card-conexion.conectada { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 10px 20px; align-items: end; }
+.conectada .sat-titulo { display: none; }
+.conectada .campo-empresa { grid-column: 1; }
+.conectada .conexion-resumen { grid-column: 1; }
+.conectada .acciones-formulario { grid-column: 2; grid-row: 1 / 3; border: 0; padding: 0; margin: 0; align-self: center; }
+.conexion-resumen { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 12px; }
+.conexion-resumen .p-button { padding: 4px 8px; }
+.consulta-card { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.consulta-titulo { padding-bottom: 10px; }
+.consulta-filtros { margin-top: 10px; gap: 12px; }
+.consulta-botones { padding-bottom: 10px; margin-top: 8px; }
+.resultados-cfdi { flex: 1; min-height: 0; display: flex; flex-direction: column; margin-top: 10px; }
+.resultados-header { flex-wrap: wrap; gap: 10px; }
+.acciones-resultados { flex-wrap: wrap; gap: 8px; }
+.tabla-cfdi { flex: 1; min-height: 0; }
+:deep(.tabla-cfdi .p-datatable-wrapper) { flex: 1; max-height: none; }
+:deep(.tabla-cfdi .p-datatable-table) { min-width: 0; width: 100%; table-layout: fixed; }
+:deep(.tabla-cfdi .p-datatable-thead > tr > th) { font-size: 12px; white-space: normal; background: var(--surface-700); color: var(--surface-0); padding: 10px 8px; }
+:deep(.tabla-cfdi .p-datatable-tbody > tr > td) { font-size: 12px; padding: 10px 8px; overflow-wrap: anywhere; }
+:deep(.tabla-cfdi td small) { display: block; margin-top: 4px; font-size: 11px; color: var(--text-color-secondary); overflow-wrap: anywhere; }
+.uuid-cfdi, .fecha-cfdi { font-size: 11px; white-space: normal; overflow-wrap: anywhere; }
+.total-cfdi { font-size: 12px; white-space: normal; }
+.texto-ajustable { max-width: none; line-height: 1.4; font-weight: 500; }
+.estado-cfdi { font-size: 11px; min-width: 0; white-space: normal; }
+.campo-consulta label, .campo-formulario label, .resultados-header-info strong { font-size: 12px; }
+.consulta-titulo-izquierda strong { font-size: 14px; }
+.consulta-titulo-izquierda span, .sesion-indicador, .resultados-header-info span { font-size: 11px; }
+:deep(.sat-card .p-inputtext), :deep(.sat-card .p-dropdown), :deep(.sat-card .p-dropdown-label), :deep(.sat-card .p-button) { font-size: 12px; }
+.btn-excel, .btn-actualizar-cfdi { font-size: 12px !important; }
+.validacion-compacta { flex-direction: column; align-items: stretch; }
+.validacion-compacta-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dato-compacto span, .validacion-compacta-estado span, .sesion-compacta-info span { font-size: 12px; }
+.dato-compacto strong, .validacion-compacta-estado strong, .sesion-compacta-info strong { font-size: 13px; }
+@media (max-width: 1000px) {
+    .form-sat-portal { height: auto; min-height: 0; }
+    .consulta-card, .resultados-cfdi { display: block; }
+    :deep(.tabla-cfdi .p-datatable-wrapper) { max-height: 55vh; }
+    .sat-card-conexion.conectada { display: block; }
+    .conexion-resumen { margin-top: 10px; }
+    .conectada .acciones-formulario { margin-top: 10px; }
+}
+@media (max-width: 700px) {
+    .form-sat-portal { padding: 10px; }
+    .acciones-resultados { width: 100%; }
+    :deep(.tabla-cfdi .p-datatable-thead) { display: none; }
+    :deep(.tabla-cfdi .p-datatable-tbody > tr) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 10px 0; border-bottom: 1px solid var(--surface-border); }
+    :deep(.tabla-cfdi .p-datatable-tbody > tr > td) { width: auto !important; border: 0; }
+    :deep(.tabla-cfdi td:nth-child(3))::before { content: 'Emisor'; display: block; color: var(--text-color-secondary); }
+    :deep(.tabla-cfdi td:nth-child(4))::before { content: 'Receptor'; display: block; color: var(--text-color-secondary); }
+}
+
+.avance-actualizacion { flex-shrink: 0; padding: 12px 16px; border: 1px solid var(--primary-200); background: var(--primary-50); border-radius: 10px; }
+.avance-actualizacion > div:first-child { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.avance-actualizacion > div:first-child span { margin-left: auto; }
+.avance-actualizacion small { display: block; margin-top: 8px; color: var(--text-color-secondary); }
+.avance-actualizacion :deep(.p-progressbar) { height: 6px; }

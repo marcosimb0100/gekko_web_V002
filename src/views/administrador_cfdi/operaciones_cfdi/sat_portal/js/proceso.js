@@ -1,12 +1,15 @@
 import { useToast } from 'primevue/usetoast';
 
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 
 import { useStore } from 'vuex';
 
 import * as XLSX from 'xlsx';
 
 const useProceso = () => {
+    const mostrarDetalleEfirma = ref(false);
+    const handleMostrarDetalleEfirma = () => { mostrarDetalleEfirma.value = true; };
+    const handleCerrarDetalleEfirma = () => { mostrarDetalleEfirma.value = false; };
     const store = useStore();
 
     const toast = useToast();
@@ -861,216 +864,85 @@ const useProceso = () => {
     // - Mantiene el spinner solamente en el botón.
     // ==========================================================
 
-    const handleActualizarCfdiBase = async () => {
-        // ======================================================
-        // EVITAR DOBLE EJECUCION
-        // ======================================================
-
-        if (actualizandoCfdiBase.value) {
-            return;
-        }
-
-        // ======================================================
-        // VALIDAR SESION SAT
-        // ======================================================
-
-        if (!sesionSat.value?.sesion_id) {
-            toast.add({
-                severity: 'warn',
-                summary: 'Actualizar CFDI',
-                detail: 'Primero debes conectarte al SAT.',
-                life: 3000
-            });
-
-            return;
-        }
-
-        // ======================================================
-        // VALIDAR EMPRESA
-        // ======================================================
-
-        if (!companyId.value) {
-            toast.add({
-                severity: 'warn',
-                summary: 'Actualizar CFDI',
-                detail: 'Selecciona una empresa.',
-                life: 3000
-            });
-
-            return;
-        }
-
-        // ======================================================
-        // VALIDAR RESULTADOS
-        // ======================================================
-
-        if (!Array.isArray(cfdis.value) || !cfdis.value.length) {
-            toast.add({
-                severity: 'warn',
-                summary: 'Actualizar CFDI',
-                detail: 'Primero realiza una consulta CFDI.',
-                life: 3500
-            });
-
-            return;
-        }
-
-        // ======================================================
-        // FILTRAR CFDI VALIDOS PARA DESCARGA
-        //
-        // Se mandan TODOS los CFDI consultados,
-        // no solamente los filtrados por el buscador.
-        // ======================================================
-
-        const registros = cfdis.value.filter((item) => {
-            const uuid = String(item?.uuid || item?.folio_fiscal || '').trim();
-
-            const urlXml = String(item?.url_xml || '').trim();
-
-            return uuid && urlXml;
-        });
-
-        // ======================================================
-        // VALIDAR URL XML
-        // ======================================================
-
-        if (!registros.length) {
-            toast.add({
-                severity: 'warn',
-                summary: 'Actualizar CFDI',
-                detail: 'Los CFDI consultados no contienen ligas XML.',
-                life: 4000
-            });
-
-            return;
-        }
-
-        // ======================================================
-        // INICIAR PROCESO LOCAL
-        //
-        // Esto solamente activa el spinner del botón.
-        // ======================================================
-
+    const avanceActualizacion = ref({ porcentaje: 0, fase: 'preparando', completados: 0 });
+    const claveTrabajo = 'gekko_sat_actualizacion';
+    let vistaActiva = true;
+    const descripcionActualizacion = computed(() => {
+        const avance = avanceActualizacion.value;
+        const fases = { preparando: 'Preparando CFDI', descargando: 'Revisando y descargando XML', procesando: 'Procesando XML en la base', sincronizando: 'Actualizando estatus SAT' };
+        return `${fases[avance.fase] || 'Actualizando CFDI'}: ${avance.completados || 0} de ${avance.total_fase || avance.total || 0}`;
+    });
+    const handleSeguirActualizacion = async (trabajo) => {
         actualizandoCfdiBase.value = true;
-
-        try {
-            console.log('==========================================');
-
-            console.log('ACTUALIZAR CFDI BASE');
-
-            console.log('TIPO:', tipoConsulta.value);
-
-            console.log('TOTAL CONSULTADOS:', cfdis.value.length);
-
-            console.log('TOTAL CON XML:', registros.length);
-
-            console.log('==========================================');
-
-            // ==================================================
-            // LLAMADA API SIN LOADER GLOBAL
-            // ==================================================
-
-            const res = await store.dispatch('api/apiPostTokenSinCargando', {
-                direccion: '/sat_portal/' + 'actualizar_cfdi_base/' + sesionSat.value.sesion_id,
-
-                datosJson: {
-                    company_id: companyId.value,
-
-                    tipo_consulta: tipoConsulta.value,
-
-                    registros: registros
-                }
-            });
-
-            // ==================================================
-            // VALIDAR RESPUESTA
-            // ==================================================
-
-            if (!res || res.estatus !== 200) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Actualizar CFDI',
-                    detail: res?.mensaje || 'No fue posible actualizar la base CFDI.',
-                    life: 6000
+        let fallos = 0;
+        while (vistaActiva) {
+            try {
+                const respuesta = await store.dispatch('api/apiPostTokenSinCargando', {
+                    direccion: '/sat_portal/actualizacion_estado/' + trabajo, datosJson: {}
                 });
-
-                return;
+                if (!vistaActiva) return;
+                if (respuesta.estatus !== 200) {
+                    if ([401, 402, 403, 404].includes(respuesta.estatus)) {
+                        sessionStorage.removeItem(claveTrabajo);
+                        actualizandoCfdiBase.value = false;
+                        toast.add({ severity: 'warn', summary: 'Actualizar CFDI', detail: respuesta.mensaje || 'No fue posible consultar la actualizacion.', life: 6000 });
+                        return;
+                    }
+                    throw new Error('Estado temporalmente no disponible');
+                }
+                fallos = 0;
+                avanceActualizacion.value = respuesta.datos;
+                const datos = respuesta.datos;
+                if (datos.estado !== 'procesando') {
+                    sessionStorage.removeItem(claveTrabajo);
+                    actualizandoCfdiBase.value = false;
+                    const resultado = datos.resultado;
+                    const resumen = resultado?.datos || {};
+                    const correcto = datos.estado === 'finalizado' && resultado?.estatus === 200;
+                    toast.add({
+                        severity: correcto ? (resumen.errores ? 'warn' : 'success') : 'error', summary: 'Actualizar CFDI',
+                        detail: correcto ? `${resumen.procesados || 0} de ${resumen.total || 0} CFDI procesados. ${resumen.errores || 0} errores.` : (datos.mensaje || resultado?.mensaje || 'La actualizacion se interrumpio.'), life: 7000
+                    });
+                    return;
+                }
+            } catch (error) {
+                fallos += 1;
+                if (fallos === 3 && vistaActiva) toast.add({ severity: 'warn', summary: 'Actualizar CFDI', detail: 'Se perdio temporalmente la conexion. El trabajo no se vuelve a enviar; seguiremos consultando su avance.', life: 6000 });
             }
-
-            // ==================================================
-            // DATOS RESPUESTA
-            // ==================================================
-
-            const datos = res.datos || {};
-
-            const total = Number(datos.total || 0);
-
-            const descargados = Number(datos.descargados || 0);
-
-            const procesados = Number(datos.procesados || 0);
-
-            const existentes = Number(datos.archivos_existentes || 0);
-
-            const sinUrl = Number(datos.sin_url || 0);
-
-            const errores = Number(datos.errores || 0);
-
-            // ==================================================
-            // DEBUG
-            // ==================================================
-
-            console.log('==========================================');
-
-            console.log('ACTUALIZACION CFDI FINALIZADA');
-
-            console.log('TOTAL:', total);
-
-            console.log('DESCARGADOS:', descargados);
-
-            console.log('PROCESADOS:', procesados);
-
-            console.log('EXISTENTES:', existentes);
-
-            console.log('SIN URL:', sinUrl);
-
-            console.log('ERRORES:', errores);
-
-            console.log('DETALLE ERRORES:', datos.detalle_errores || []);
-
-            console.log('SINCRONIZACION MONGO:', datos.sincronizacion_mongo || {});
-
-            console.log('==========================================');
-
-            // ==================================================
-            // TOAST FINAL
-            // ==================================================
-
-            toast.add({
-                severity: errores > 0 ? 'warn' : 'success',
-
-                summary: 'Actualizar CFDI',
-
-                detail: `${procesados} de ${total} CFDI ` + 'procesados correctamente' + (errores > 0 ? `, ${errores} error(es).` : '.'),
-
-                life: errores > 0 ? 7000 : 4500
-            });
-        } catch (error) {
-            console.error('ERROR ACTUALIZAR CFDI BASE:', error);
-
-            toast.add({
-                severity: 'error',
-                summary: 'Actualizar CFDI',
-                detail: 'No fue posible actualizar la base CFDI.',
-                life: 5000
-            });
-        } finally {
-            // ==================================================
-            // TERMINAR SPINNER LOCAL
-            // ==================================================
-
-            actualizandoCfdiBase.value = false;
+            await new Promise((resolve) => setTimeout(resolve, fallos ? 5000 : 1500));
         }
     };
+    const handleActualizarCfdiBase = async () => {
+        if (actualizandoCfdiBase.value || !sesionSat.value?.sesion_id || !companyId.value) return;
+        const registros = cfdis.value.filter((item) => (item?.uuid || item?.folio_fiscal) && item?.url_xml);
+        if (!registros.length) {
+            toast.add({ severity: 'warn', summary: 'Actualizar CFDI', detail: 'Primero consulta CFDI que contengan ligas XML.', life: 4000 });
+            return;
+        }
+        actualizandoCfdiBase.value = true;
+        avanceActualizacion.value = { porcentaje: 0, fase: 'preparando', total: registros.length };
+        try {
+            const res = await store.dispatch('api/apiPostTokenSinCargando', {
+                direccion: '/sat_portal/actualizar_cfdi_base/' + sesionSat.value.sesion_id,
+                datosJson: { company_id: companyId.value, tipo_consulta: tipoConsulta.value, registros }
+            });
+            if (res.estatus !== 202 || !res.datos?.trabajo_id) {
+                throw new Error(res.mensaje || 'No fue posible iniciar la actualizacion.');
+            }
+            sessionStorage.setItem(claveTrabajo, res.datos.trabajo_id);
+            if (vistaActiva) await handleSeguirActualizacion(res.datos.trabajo_id);
+        } catch (error) {
+            if (vistaActiva) {
+                actualizandoCfdiBase.value = false;
+                toast.add({ severity: 'error', summary: 'Actualizar CFDI', detail: error.message, life: 6000 });
+            }
+        }
+    };
+    onMounted(() => {
+        const trabajo = sessionStorage.getItem(claveTrabajo);
+        if (trabajo) handleSeguirActualizacion(trabajo);
+    });
+    onBeforeUnmount(() => { vistaActiva = false; });
 
     // ==========================================================
 
@@ -1425,6 +1297,8 @@ const useProceso = () => {
     // ==========================================================
 
     return {
+        avanceActualizacion, descripcionActualizacion,
+        mostrarDetalleEfirma, handleMostrarDetalleEfirma, handleCerrarDetalleEfirma,
         empresas,
 
         companyId,

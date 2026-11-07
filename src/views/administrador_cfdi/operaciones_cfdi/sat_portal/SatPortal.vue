@@ -2,15 +2,20 @@
     <Encabezado titulo="Portal SAT" subtitulo="Acceso y consulta directa de CFDI mediante e.firma" icono="pi pi-cloud-download" />
 
     <div class="card p-0 m-0 sat-portal-contenedor">
-        <ScrollPanel style="height: 78vh">
+
             <div class="form-sat-portal">
+                <div v-if="actualizandoCfdiBase" class="avance-actualizacion" role="status" aria-live="polite">
+                    <div><i class="pi pi-spin pi-spinner"></i><strong>{{ descripcionActualizacion }}</strong><span>{{ avanceActualizacion.porcentaje || 0 }}%</span></div>
+                    <ProgressBar :value="avanceActualizacion.porcentaje || 0" :showValue="false" />
+                    <small>Puedes navegar, buscar en la tabla y exportar mientras termina. La sesión SAT queda reservada para esta actualización.</small>
+                </div>
                 <!-- =====================================================
 
                     CONEXION SAT
 
                 ====================================================== -->
 
-                <div class="sat-card sat-card-conexion">
+                <div class="sat-card sat-card-conexion" :class="{ conectada: !!sesionSat?.sesion_id }">
                     <div class="sat-titulo">
                         <div class="sat-icono">
                             <font-icon icon="fa-solid fa-cloud-arrow-down" />
@@ -105,88 +110,11 @@
                         </div>
                     </div>
 
-                    <!-- E.FIRMA VALIDADA -->
-
-                    <div v-if="efirmaValidada" class="validacion-compacta">
-                        <div class="validacion-compacta-estado">
-                            <div class="validacion-compacta-icono">
-                                <i class="pi pi-check"></i>
-                            </div>
-
-                            <div>
-                                <strong> e.firma validada </strong>
-
-                                <span> Certificado y llave privada correctos. </span>
-                            </div>
-                        </div>
-
-                        <div class="validacion-compacta-datos">
-                            <div class="dato-compacto">
-                                <span> Empresa </span>
-
-                                <strong>
-                                    {{ datosEfirma.empresa || empresaSeleccionada?.razon_social_nombre_completo || '-' }}
-                                </strong>
-                            </div>
-
-                            <div class="dato-compacto">
-                                <span> RFC </span>
-
-                                <strong>
-                                    {{ datosEfirma.rfc || empresaSeleccionada?.rfc || '-' }}
-                                </strong>
-                            </div>
-
-                            <div class="dato-compacto">
-                                <span> Vigencia inicio </span>
-
-                                <strong>
-                                    {{ handleFecha(datosEfirma.vigencia_inicio) }}
-                                </strong>
-                            </div>
-
-                            <div class="dato-compacto">
-                                <span> Vigencia fin </span>
-
-                                <strong>
-                                    {{ handleFecha(datosEfirma.vigencia_fin || datosEfirma.fecha_vencimiento_configurada) }}
-                                </strong>
-                            </div>
-
-                            <div class="dato-compacto">
-                                <span> Certificado </span>
-
-                                <strong class="estatus-ok"> Válido </strong>
-                            </div>
-                        </div>
+                    <div v-if="efirmaValidada" class="conexion-resumen">
+                        <Tag :value="sesionSat?.sesion_id ? 'SAT conectado' : 'e.firma validada'" severity="success" />
+                        <span>{{ datosEfirma.rfc || empresaSeleccionada?.rfc }}</span>
+                        <Button label="Detalle de e.firma" icon="pi pi-info-circle" class="p-button-text" @click="handleMostrarDetalleEfirma" />
                     </div>
-
-                    <!-- SESION SAT -->
-
-                    <div v-if="sesionSat?.sesion_id" class="sesion-compacta">
-                        <div class="sesion-compacta-info">
-                            <div class="sesion-compacta-icono">
-                                <i class="pi pi-wifi"></i>
-                            </div>
-
-                            <div>
-                                <strong> Sesión SAT activa </strong>
-
-                                <span>
-                                    RFC:
-
-                                    {{ sesionSat.rfc || datosEfirma.rfc || empresaSeleccionada?.rfc }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <span class="sesion-compacta-badge">
-                            <i class="pi pi-circle-fill"></i>
-
-                            Conectado
-                        </span>
-                    </div>
-
                     <!-- BOTONES -->
 
                     <div class="acciones-formulario">
@@ -326,29 +254,16 @@
 
                         <!-- ACTUALIZACION CFDI NO BLOQUEANTE -->
 
-                        <div v-if="actualizandoCfdiBase" class="actualizacion-cfdi-aviso">
-                            <div class="actualizacion-cfdi-icono">
-                                <i class="pi pi-spin pi-spinner"></i>
-                            </div>
-
-                            <div class="actualizacion-cfdi-texto">
-                                <strong>Actualizando CFDI en la base</strong>
-                                <span> Se están procesando CFDI. Puedes buscar y desplazarte por la tabla mientras termina. </span>
-                            </div>
-
-                            <span class="actualizacion-cfdi-badge">Procesando</span>
-                        </div>
-
                         <!-- =================================================
 
                             TABLA
 
                         ================================================== -->
 
-                        <DataTable :value="cfdisFiltrados" paginator :rows="100" :rowsPerPageOptions="[100, 200, 500]" stripedRows scrollable scrollHeight="500px" class="tabla-cfdi" dataKey="uuid">
+                        <DataTable :value="cfdisFiltrados" paginator :rows="100" :rowsPerPageOptions="[100, 200, 500]" stripedRows scrollable scrollHeight="flex" class="tabla-cfdi" dataKey="uuid">
                             <!-- XML -->
 
-                            <Column header="XML" :exportable="false" style="width: 60px; min-width: 60px">
+                            <Column header="XML" :exportable="false" style="width: 5%">
                                 <template #body="{ data }">
                                     <div class="acciones-cfdi">
                                         <Button type="button" icon="pi pi-download" class="boton-accion boton-xml" v-tooltip.top="'Descargar XML'" :disabled="actualizandoCfdiBase" @click="handleDescargarXml(data)" />
@@ -358,7 +273,7 @@
 
                             <!-- FOLIO FISCAL -->
 
-                            <Column field="uuid" header="Folio Fiscal" sortable style="min-width: 240px">
+                            <Column field="uuid" header="Folio Fiscal" sortable style="width: 15%">
                                 <template #body="{ data }">
                                     <span class="uuid-cfdi">
                                         {{ data.uuid || '-' }}
@@ -366,90 +281,35 @@
                                 </template>
                             </Column>
 
-                            <!-- RFC EMISOR -->
-
-                            <Column header="RFC Emisor" sortable style="min-width: 125px">
+                            <Column header="Emisor" style="width: 20%">
                                 <template #body="{ data }">
-                                    {{ handleObtenerRfcEmisor(data) }}
+                                    <strong class="texto-ajustable">{{ handleObtenerNombreEmisor(data) }}</strong>
+                                    <small>{{ handleObtenerRfcEmisor(data) }}</small>
                                 </template>
                             </Column>
-
-                            <!-- RAZON SOCIAL EMISOR -->
-
-                            <Column header="Razón Social Emisor" style="min-width: 210px">
+                            <Column header="Receptor" style="width: 20%">
                                 <template #body="{ data }">
-                                    <span class="texto-ajustable">
-                                        {{ handleObtenerNombreEmisor(data) }}
-                                    </span>
+                                    <strong class="texto-ajustable">{{ handleObtenerNombreReceptor(data) }}</strong>
+                                    <small>{{ handleObtenerRfcReceptor(data) }}</small>
                                 </template>
                             </Column>
-
-                            <!-- RFC RECEPTOR -->
-
-                            <Column header="RFC Receptor" style="min-width: 125px">
+                            <Column header="Fechas" style="width: 17%">
                                 <template #body="{ data }">
-                                    {{ handleObtenerRfcReceptor(data) }}
+                                    <span class="fecha-cfdi">{{ handleObtenerFechaCfdi(data) }}</span>
+                                    <small>Cancelación: {{ handleObtenerFechaCancelacion(data) }}</small>
                                 </template>
                             </Column>
-
-                            <!-- RAZON SOCIAL RECEPTOR -->
-
-                            <Column header="Razón Social Receptor" style="min-width: 210px">
+                            <Column header="Total / tipo" style="width: 13%">
                                 <template #body="{ data }">
-                                    <span class="texto-ajustable">
-                                        {{ handleObtenerNombreReceptor(data) }}
-                                    </span>
+                                    <strong class="total-cfdi">{{ handleFormatoMoneda(handleObtenerTotal(data)) }}</strong>
+                                    <small>{{ handleObtenerTipoComprobante(data) }}</small>
                                 </template>
                             </Column>
-
-                            <!-- FECHA EMISION -->
-
-                            <Column header="Fecha emisión" sortable style="min-width: 165px">
+                            <Column header="Estado" style="width: 10%">
                                 <template #body="{ data }">
-                                    <span class="fecha-cfdi">
-                                        {{ handleObtenerFechaCfdi(data) }}
-                                    </span>
+                                    <span :class="handleClaseEstado(handleObtenerEstado(data))">{{ handleObtenerEstado(data) }}</span>
                                 </template>
                             </Column>
-
-                            <!-- FECHA CANCELACION -->
-
-                            <Column header="Fecha cancelación" sortable style="min-width: 165px">
-                                <template #body="{ data }">
-                                    <span class="fecha-cfdi">
-                                        {{ handleObtenerFechaCancelacion(data) }}
-                                    </span>
-                                </template>
-                            </Column>
-
-                            <!-- TOTAL -->
-
-                            <Column header="Total" sortable style="min-width: 110px">
-                                <template #body="{ data }">
-                                    <span class="total-cfdi">
-                                        {{ handleFormatoMoneda(handleObtenerTotal(data)) }}
-                                    </span>
-                                </template>
-                            </Column>
-
-                            <!-- TIPO -->
-
-                            <Column header="Tipo" style="min-width: 85px">
-                                <template #body="{ data }">
-                                    {{ handleObtenerTipoComprobante(data) }}
-                                </template>
-                            </Column>
-
-                            <!-- ESTADO -->
-
-                            <Column header="Estado" style="min-width: 100px">
-                                <template #body="{ data }">
-                                    <span :class="handleClaseEstado(handleObtenerEstado(data))">
-                                        {{ handleObtenerEstado(data) }}
-                                    </span>
-                                </template>
-                            </Column>
-
                             <!-- VACIO -->
 
                             <template #empty>
@@ -463,8 +323,93 @@
                     </div>
                 </div>
             </div>
-        </ScrollPanel>
+
     </div>
+    <Dialog v-model:visible="mostrarDetalleEfirma" modal header="Detalle de e.firma y conexión" :style="{ width: '48rem' }" :breakpoints="{ '768px': '95vw' }" class="detalle-efirma">
+                    <!-- E.FIRMA VALIDADA -->
+
+                    <div v-if="efirmaValidada" class="validacion-compacta">
+                        <div class="validacion-compacta-estado">
+                            <div class="validacion-compacta-icono">
+                                <i class="pi pi-check"></i>
+                            </div>
+
+                            <div>
+                                <strong> e.firma validada </strong>
+
+                                <span> Certificado y llave privada correctos. </span>
+                            </div>
+                        </div>
+
+                        <div class="validacion-compacta-datos">
+                            <div class="dato-compacto">
+                                <span> Empresa </span>
+
+                                <strong>
+                                    {{ datosEfirma.empresa || empresaSeleccionada?.razon_social_nombre_completo || '-' }}
+                                </strong>
+                            </div>
+
+                            <div class="dato-compacto">
+                                <span> RFC </span>
+
+                                <strong>
+                                    {{ datosEfirma.rfc || empresaSeleccionada?.rfc || '-' }}
+                                </strong>
+                            </div>
+
+                            <div class="dato-compacto">
+                                <span> Vigencia inicio </span>
+
+                                <strong>
+                                    {{ handleFecha(datosEfirma.vigencia_inicio) }}
+                                </strong>
+                            </div>
+
+                            <div class="dato-compacto">
+                                <span> Vigencia fin </span>
+
+                                <strong>
+                                    {{ handleFecha(datosEfirma.vigencia_fin || datosEfirma.fecha_vencimiento_configurada) }}
+                                </strong>
+                            </div>
+
+                            <div class="dato-compacto">
+                                <span> Certificado </span>
+
+                                <strong class="estatus-ok"> Válido </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SESION SAT -->
+
+                    <div v-if="sesionSat?.sesion_id" class="sesion-compacta">
+                        <div class="sesion-compacta-info">
+                            <div class="sesion-compacta-icono">
+                                <i class="pi pi-wifi"></i>
+                            </div>
+
+                            <div>
+                                <strong> Sesión SAT activa </strong>
+
+                                <span>
+                                    RFC:
+
+                                    {{ sesionSat.rfc || datosEfirma.rfc || empresaSeleccionada?.rfc }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <span class="sesion-compacta-badge">
+                            <i class="pi pi-circle-fill"></i>
+
+                            Conectado
+                        </span>
+                    </div>
+
+        <template #footer><Button label="Cerrar" icon="pi pi-times" class="p-button-outlined" @click="handleCerrarDetalleEfirma" /></template>
+    </Dialog>
 </template>
 
 <script>
