@@ -1,7 +1,7 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, onBeforeUnmount } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -97,6 +97,74 @@ const useProceso = () => {
     // =========================================================
 
     const logosClientes = reactive({});
+    const logosOriginales = reactive({});
+    const versionesLogos = new Map(), pendientesLogos = new Set(), erroresLogos = new Set();
+    const elementosLogos = new Map(), logosVisibles = new Set();
+    let observadorLogos = null, descargasLogos = 0, colaLogos = [], vistaActiva = true;
+    const handleProcesarLogos = () => {
+        if (!vistaActiva) return;
+        while (descargasLogos < 4 && colaLogos.length) {
+            const cliente = colaLogos.shift();
+            const clave = cliente._id + ':' + cliente.logo_version;
+            if (!logosVisibles.has(cliente._id)) { pendientesLogos.delete(clave); continue; }
+            descargasLogos++;
+            (async () => {
+                try {
+                    const res = await store.dispatch('api/apiGetblobSinCargando', {
+                        direccion: '/clientes/logo/' + cliente._id + '?miniatura=1&v=' + encodeURIComponent(cliente.logo_version)
+                    });
+                    if (!vistaActiva || tablaClientes.value.find(item => item._id === cliente._id)?.logo_version !== cliente.logo_version) return;
+                    if (res.estatus === 200 && res.data instanceof Blob) {
+                        if (logosClientes[cliente._id]) URL.revokeObjectURL(logosClientes[cliente._id]);
+                        logosClientes[cliente._id] = URL.createObjectURL(res.data);
+                        versionesLogos.set(cliente._id, cliente.logo_version);
+                    } else erroresLogos.add(clave);
+                } catch { erroresLogos.add(clave); }
+                finally {
+                    descargasLogos--;
+                    pendientesLogos.delete(clave);
+                    handleProcesarLogos();
+                }
+            })();
+        }
+    };
+    const handleEncolarLogo = (cliente) => {
+        const clave = cliente._id + ':' + cliente.logo_version;
+        if (!vistaActiva || !cliente.tiene_logo || versionesLogos.get(cliente._id) === cliente.logo_version || pendientesLogos.has(clave) || erroresLogos.has(clave)) return;
+        pendientesLogos.add(clave); colaLogos.push(cliente); handleProcesarLogos();
+    };
+    const handleObservarLogo = (elemento, cliente) => {
+        const anterior = elementosLogos.get(cliente._id);
+        if (!elemento) {
+            if (anterior) observadorLogos?.unobserve(anterior.elemento);
+            elementosLogos.delete(cliente._id); logosVisibles.delete(cliente._id);
+            return;
+        }
+        if (anterior?.elemento === elemento && anterior.version === cliente.logo_version) return;
+        if (anterior) observadorLogos?.unobserve(anterior.elemento);
+        elementosLogos.set(cliente._id, { elemento, version: cliente.logo_version, cliente });
+        elemento.dataset.clienteLogo = cliente._id;
+        if (!cliente.tiene_logo) return;
+        if (typeof IntersectionObserver === 'undefined') { logosVisibles.add(cliente._id); handleEncolarLogo(cliente); return; }
+        if (!observadorLogos) observadorLogos = new IntersectionObserver((entradas) => {
+            entradas.forEach(entrada => {
+                const id = entrada.target.dataset.clienteLogo;
+                if (!entrada.isIntersecting) { logosVisibles.delete(id); return; }
+                logosVisibles.add(id);
+                const actual = elementosLogos.get(id);
+                if (actual) handleEncolarLogo(actual.cliente);
+            });
+        }, { rootMargin: '80px', threshold: 0 });
+        observadorLogos.observe(elemento);
+    };
+    onBeforeUnmount(() => {
+        vistaActiva = false; colaLogos = [];
+        observadorLogos?.disconnect(); elementosLogos.clear();
+        Object.values(logosClientes).forEach(url => URL.revokeObjectURL(url));
+        Object.values(logosOriginales).forEach(url => URL.revokeObjectURL(url));
+        if (logoPreview.value) URL.revokeObjectURL(logoPreview.value);
+    });
+
 
     const logoArchivo = ref(null);
 
@@ -144,9 +212,17 @@ const useProceso = () => {
         });
 
         if (res.estatus === 200) {
-            tablaClientes.value = res.datos?.clientes ?? [];
-
-            await Promise.all(tablaClientes.value.map((cliente) => handleCargarLogo(cliente._id)));
+            if (!vistaActiva) return;
+            const anteriores = new Map(tablaClientes.value.map(cliente => [cliente._id, cliente.logo_version]));
+            const clientes = res.datos?.clientes ?? [];
+            clientes.forEach(cliente => {
+                if (!cliente.tiene_logo || (anteriores.has(cliente._id) && anteriores.get(cliente._id) !== cliente.logo_version)) {
+                    if (logosClientes[cliente._id]) { URL.revokeObjectURL(logosClientes[cliente._id]); delete logosClientes[cliente._id]; }
+                    if (logosOriginales[cliente._id]) { URL.revokeObjectURL(logosOriginales[cliente._id]); delete logosOriginales[cliente._id]; }
+                    versionesLogos.delete(cliente._id);
+                }
+            });
+            tablaClientes.value = clientes;
         } else {
             tablaClientes.value = [];
 
@@ -223,26 +299,30 @@ const useProceso = () => {
     // =========================================================
 
     const handleCargarLogo = async (id, recargar = false) => {
-        if (!id) {
+        if (!id || !vistaActiva) {
             return;
         }
 
-        if (logosClientes[id] && !recargar) {
+        if (logosOriginales[id] && !recargar) {
             return;
         }
 
-        if (logosClientes[id] && recargar) {
-            URL.revokeObjectURL(logosClientes[id]);
+        if (recargar) {
+            versionesLogos.delete(id);
+            if (logosEmpresas[id]) { URL.revokeObjectURL(logosEmpresas[id]); delete logosEmpresas[id]; }
+        }
+        if (logosOriginales[id] && recargar) {
+            URL.revokeObjectURL(logosOriginales[id]);
 
-            delete logosClientes[id];
+            delete logosOriginales[id];
         }
 
         const res = await store.dispatch('api/apiGetblobSinCargando', {
             direccion: `/clientes/logo/${id}`
         });
 
-        if (res.estatus === 200 && res.data instanceof Blob) {
-            logosClientes[id] = URL.createObjectURL(res.data);
+        if (vistaActiva && res.estatus === 200 && res.data instanceof Blob) {
+            logosOriginales[id] = URL.createObjectURL(res.data);
         }
     };
 
@@ -1263,7 +1343,7 @@ const useProceso = () => {
         botonGuardarDeshabilitado,
 
         // LOGO
-        logosClientes,
+        logosClientes, logosOriginales, handleObservarLogo,
         logoArchivo,
         logoPreview,
         logoInput,

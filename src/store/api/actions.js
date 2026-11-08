@@ -1,3 +1,10 @@
+import { conectarSocket, desconectarSocket } from '../../helpers/socket';
+
+const handleLimpiarSesion = () => {
+    desconectarSocket();
+    localStorage.clear();
+};
+
 import {
     apiAltaPublicaForm,
     apiSyncPublicGet,
@@ -28,7 +35,7 @@ import router from '../../router/index';
 
 export const apiPostAcceso = async ({ commit }, { direccion, datosJson }) => {
     commit('visibleCargandoMutation');
-    const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, datosJson);
+    const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, { ...datosJson, sesion_web: true });
     if (estatus === 200) {
         commit('visibleCargandoMutation');
 
@@ -37,6 +44,7 @@ export const apiPostAcceso = async ({ commit }, { direccion, datosJson }) => {
         localStorage.setItem('nombre_completo', nombre_completo);
         // localStorage.setItem('id_profile', id_profile);
         localStorage.setItem('token', token);
+        conectarSocket();
 
         router.replace({ name: 'bienvenida_principal' });
     } else {
@@ -58,11 +66,11 @@ export const apiGetToken = async ({ commit }, { direccion }) => {
         commit('visibleCargandoMutation');
     }
     if (estatus === 401) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
@@ -84,11 +92,11 @@ export const apiPostToken = async ({ commit }, { direccion, datosJson }) => {
         commit('visibleCargandoMutation');
     }
     if (estatus === 401) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
@@ -110,11 +118,11 @@ export const apiPutToken = async ({ commit }, { direccion, datosJson }) => {
         commit('visibleCargandoMutation');
     }
     if (estatus === 401) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
@@ -136,11 +144,11 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
         commit('visibleCargandoMutation');
     }
     if (estatus === 401) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
@@ -161,11 +169,11 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
 //         commit('visibleCargandoMutation');
 //     }
 //     if (estatus === 401) {
-//         localStorage.clear();
+//         handleLimpiarSesion();
 //         router.replace({ name: 'acceso' });
 //     }
 //     if (estatus === 402) {
-//         localStorage.clear();
+//         handleLimpiarSesion();
 //         router.replace({ name: 'acceso' });
 //     }
 //     if (estatus === 403) {
@@ -206,7 +214,7 @@ export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) 
         // ========================================================
 
         if (estatus === 401 || estatus === 402) {
-            localStorage.clear();
+            handleLimpiarSesion();
 
             router.replace({
                 name: 'acceso'
@@ -257,11 +265,11 @@ export const apiGetblob = async ({ commit }, { direccion }) => {
         commit('visibleCargandoMutation');
     }
     if (estatus === 401) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
     if (estatus === 403) {
@@ -279,7 +287,7 @@ export const apiGetblobSinCargando = async ({ commit }, { direccion }) => {
     const { estatus, mensaje, data } = await apiGet_blob(direccion);
 
     if (estatus === 401 || estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
 
@@ -300,7 +308,7 @@ export const apiGetTokenSinCargando = async ({ commit }, { direccion }) => {
     const { estatus, mensaje, datos } = await apiGet_token(direccion);
 
     if (estatus === 401 || estatus === 402) {
-        localStorage.clear();
+        handleLimpiarSesion();
         router.replace({ name: 'acceso' });
     }
 
@@ -461,7 +469,7 @@ export const apiPostTokenFile = async ({ commit }, { direccion, datosJson }) => 
         // ========================================================
 
         if (estatus === 401 || estatus === 402) {
-            localStorage.clear();
+            handleLimpiarSesion();
 
             router.replace({
                 name: 'acceso'
@@ -518,7 +526,7 @@ export const apiPostTokenSinCargando = async ({ commit }, { direccion, datosJson
         // ======================================================
 
         if (estatus === 401 || estatus === 402) {
-            localStorage.clear();
+            handleLimpiarSesion();
 
             router.replace({
                 name: 'acceso'
@@ -566,7 +574,7 @@ export const apiPostblob = async ({ commit }, { direccion, datosJson }) => {
         const { estatus, mensaje, data, headers } = await apiPost_blob(direccion, datosJson);
 
         if (estatus === 401 || estatus === 402) {
-            localStorage.clear();
+            handleLimpiarSesion();
 
             router.replace({
                 name: 'acceso'
@@ -597,7 +605,7 @@ export const apiDeleteToken = async ({ commit }, { direccion, datosJson }) => {
         const { estatus, mensaje, datos } = await apiDelete_token(direccion, datosJson);
 
         if (estatus === 401 || estatus === 402) {
-            localStorage.clear();
+            handleLimpiarSesion();
 
             router.replace({
                 name: 'acceso'
@@ -626,4 +634,18 @@ export const apiDeleteToken = async ({ commit }, { direccion, datosJson }) => {
     } finally {
         commit('visibleCargandoMutation');
     }
+};
+
+export const apiCerrarSesionWeb = async () => {
+    return apiPost_token_sinCargando('/usuarios/salir', {});
+};
+
+// El permiso del chat puede revocarse sin retirar el acceso a la pantalla actual.
+export const apiPostChat = async (_context, { direccion, datosJson }) => {
+    const resultado = await apiPost_token_sinCargando(direccion, datosJson);
+    if (resultado.estatus === 401 || resultado.estatus === 402) {
+        handleLimpiarSesion();
+        router.replace({ name: 'acceso' });
+    }
+    return resultado;
 };

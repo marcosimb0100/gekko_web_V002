@@ -1,9 +1,18 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { useConfirm } from 'primevue/useconfirm';
+import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import EstadoConexion from '@/components/realtime/EstadoConexion.vue';
+import CampanaNotificaciones from '@/components/notificaciones/Notificaciones.vue';
+import ChatPrivado from '@/components/chat/ChatPrivado.vue';
+import { desconectarSocket } from '@/helpers/socket';
 
 const confirm = useConfirm();
+const store = useStore();
+const toast = useToast();
+let cerrandoSesion = false;
 const router = useRouter();
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
@@ -15,7 +24,18 @@ const handleCerrarSesion = () => {
         message: 'Estas seguro de cerrar la sesion.',
         header: 'Cierre de sesion',
         icon: 'pi pi-exclamation-triangle',
-        accept: () => {
+        accept: async () => {
+            if (cerrandoSesion) return;
+            cerrandoSesion = true;
+            try {
+                const res = await store.dispatch('api/apiCerrarSesionWeb');
+                if (![200, 401].includes(res.estatus)) throw new Error(res.mensaje || 'No fue posible cerrar la sesion. Intenta nuevamente.');
+            } catch (error) {
+                toast.add({ severity: 'error', summary: 'Sesion', detail: error.message, life: 5000 });
+                cerrandoSesion = false;
+                return;
+            }
+            desconectarSocket();
             localStorage.clear();
             router.replace({ name: 'acceso' });
         }
@@ -37,6 +57,7 @@ const handleCerrarSesion = () => {
         </div>
 
         <div class="layout-topbar-actions">
+            <EstadoConexion />
             <div class="layout-config-menu">
                 <!-- Modo claro / oscuro -->
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode" :title="isDarkTheme ? 'Modo claro' : 'Modo oscuro'">
@@ -88,15 +109,9 @@ const handleCerrarSesion = () => {
                         <span>Calendario</span>
                     </button>
 
-                    <button type="button" class="layout-topbar-action topbar-primary" title="Notificacion">
-                        <font-icon icon="fa-solid fa-bell" />
-                        <span>Notificaciones</span>
-                    </button>
+                    <CampanaNotificaciones />
 
-                    <button type="button" class="layout-topbar-action topbar-primary" title="Perfil">
-                        <font-icon icon="fa-solid fa-user" />
-                        <span>Perfil</span>
-                    </button>
+                    <ChatPrivado />
 
                     <button type="button" class="layout-topbar-action topbar-primary" @click="handleCerrarSesion">
                         <font-icon icon="fa-solid fa-right-from-bracket" title="Salir" />

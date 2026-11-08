@@ -52,7 +52,7 @@
                 <Column header="Logo" headerClass="encabezado-columna">
                     <template #body="slotProps">
                         <div class="flex align-items-center justify-content-center">
-                            <img :src="logosEmpresas[slotProps.data._id] || empresaDefault" alt="Empresa" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover" />
+                            <img :ref="(elemento) => handleObservarLogo(elemento, slotProps.data)" decoding="async" :src="logosEmpresas[slotProps.data._id] || empresaDefault" alt="Empresa" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover" />
                         </div>
                     </template>
                 </Column>
@@ -119,7 +119,7 @@
                                 <div style="padding: 10px">
                                     <div class="flex flex-column gap-2">
                                         <div style="width: 200px; height: 200px; border: 1px solid gray; border-radius: 5px; margin: 0 auto; overflow: hidden; cursor: pointer" @click="handleAbrirLogo">
-                                            <img :src="logoPreview || logosEmpresas[frmEmpresa._id] || empresaDefault" alt="Logo empresa" style="width: 100%; height: 100%; object-fit: cover" />
+                                            <img :src="logoPreview || logosOriginales[frmEmpresa._id] || logosEmpresas[frmEmpresa._id] || empresaDefault" alt="Logo empresa" style="width: 100%; height: 100%; object-fit: cover" />
                                         </div>
                                         <input ref="logoInput" type="file" accept=".jpg,.jpeg,.png" style="display: none" @change="handleSeleccionarLogo" />
                                     </div>

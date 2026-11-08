@@ -2,7 +2,8 @@ import { FilterMatchMode } from '@primevue/core/api';
 
 import { useToast } from 'primevue/usetoast';
 
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
+import { estadoSocket } from '../../../../helpers/socket';
 
 import { useStore } from 'vuex';
 
@@ -10,6 +11,41 @@ import * as XLSX from 'xlsx';
 
 const useProceso = () => {
     const store = useStore();
+    let vistaActiva = true;
+    let mesaPendiente = false, actualizandoMesa = false, timerMesa = null;
+    let ultimaActualizacion = 0;
+    const handleContextoMesa = () => JSON.stringify([fechaInicial.value, fechaFinal.value, tipoSolicitudFiltro.value, estatusFiltro.value, empresaFiltro.value]);
+    const handleProgramarMesa = () => {
+        mesaPendiente = true;
+        if (!vistaActiva || timerMesa || actualizandoMesa) return;
+        timerMesa = setTimeout(handleActualizarMesaTiempoReal, Math.max(800, 3000 - (Date.now() - ultimaActualizacion)));
+    };
+    const handleActualizarMesaTiempoReal = async () => {
+        timerMesa = null;
+        if (!vistaActiva || !mesaPendiente) return;
+        // No reemplazar filas mientras el usuario confirma o edita una solicitud.
+        if (cargandoSolicitudes.value || cargandoErroresTimbrado.value || procesandoMasivo.value || procesandoErrorTimbrado.value || dialogDetalle.value || dialogRechazo.value || dialogRechazoMasivo.value || dialogEditarConceptos.value || dialogResolverError.value) {
+            handleProgramarMesa();
+            return;
+        }
+        if (!fechaInicial.value || !fechaFinal.value || fechaInicial.value > fechaFinal.value) return;
+        mesaPendiente = false;
+        actualizandoMesa = true;
+        ultimaActualizacion = Date.now();
+        try {
+            await Promise.all([handleRecargarSolicitudes(true), handleCargarDashboard(true), handleCargarErroresTimbrado(true)]);
+        } finally {
+            actualizandoMesa = false;
+            if (vistaActiva && mesaPendiente) handleProgramarMesa();
+        }
+    };
+    watch(() => estadoSocket.revisionMesa, handleProgramarMesa);
+    watch(() => estadoSocket.revisionConexion, handleProgramarMesa);
+    onBeforeUnmount(() => {
+        vistaActiva = false;
+        mesaPendiente = false;
+        clearTimeout(timerMesa);
+    });
 
     const toast = useToast();
 
@@ -352,7 +388,9 @@ const useProceso = () => {
 
     // ============================================================
 
-    const handleRecargarSolicitudes = async () => {
+    const handleRecargarSolicitudes = async (silencioso = false) => {
+        silencioso = silencioso === true;
+        const contexto = handleContextoMesa();
         if (!handleValidarFechas()) {
             return;
         }
@@ -367,12 +405,18 @@ const useProceso = () => {
             }
             const direccion = handleEndpointSolicitudes() + '?' + parametros.toString();
 
-            const res = await store.dispatch('api/apiGetToken', {
+            const res = await store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                 direccion
             });
 
+            if (!vistaActiva || contexto !== handleContextoMesa()) return;
+            if (silencioso && res.estatus !== 200) return;
             if (res.estatus === 200) {
                 solicitudes.value = res.datos?.solicitudes ?? [];
+                if (silencioso) {
+                    const filas = new Map(solicitudes.value.map((fila) => [fila._id, fila]));
+                    facturasSeleccionadas.value = facturasSeleccionadas.value.filter((fila) => filas.has(fila._id)).map((fila) => filas.get(fila._id));
+                }
             } else {
                 solicitudes.value = [];
 
@@ -387,6 +431,7 @@ const useProceso = () => {
                 });
             }
         } catch (error) {
+            if (!vistaActiva || silencioso) return;
             console.error('ERROR CONSULTANDO SOLICITUDES:', error);
 
             solicitudes.value = [];
@@ -412,16 +457,19 @@ const useProceso = () => {
     // ============================================================
 
     // El endpoint de resumen devuelve contadores, NO el detalle de las solicitudes.
-    const handleCargarErroresTimbrado = async () => {
+    const handleCargarErroresTimbrado = async (silencioso = false) => {
+        silencioso = silencioso === true;
+        const contexto = handleContextoMesa();
         if (!handleValidarFechas()) return;
         cargandoErroresTimbrado.value = true;
-        erroresTimbrado.value = { facturas: 0, complementos: 0 };
+        if (!silencioso) erroresTimbrado.value = { facturas: 0, complementos: 0 };
         try {
             const parametros = new URLSearchParams(handleParametrosFecha());
             if (empresaFiltro.value) parametros.set('company_id', String(empresaFiltro.value));
-            const res = await store.dispatch('api/apiGetToken', {
+            const res = await store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                 direccion: '/solicitud_detallada/resumen_errores_timbrado?' + parametros.toString()
             });
+            if (!vistaActiva || contexto !== handleContextoMesa()) return;
             if (res?.estatus !== 200) throw new Error(res?.mensaje || 'Error al consultar los errores de timbrado');
             const datos = res?.datos || {};
             erroresTimbrado.value = {
@@ -429,6 +477,7 @@ const useProceso = () => {
                 complementos: Number(datos.complementos || 0)
             };
         } catch (error) {
+            if (!vistaActiva || silencioso) return;
             console.error('ERROR RESUMEN TIMBRADO:', error);
             toast.add({ severity: 'warn', summary: 'Error de timbrado', detail: 'No se pudo consultar el contador de errores.', life: 3500 });
         } finally {
@@ -436,7 +485,9 @@ const useProceso = () => {
         }
     };
 
-    const handleCargarDashboard = async () => {
+    const handleCargarDashboard = async (silencioso = false) => {
+        silencioso = silencioso === true;
+        const contexto = handleContextoMesa();
         if (!handleValidarFechas()) {
             return;
         }
@@ -445,24 +496,26 @@ const useProceso = () => {
 
         try {
             const [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera] = await Promise.all([
-                store.dispatch('api/apiGetToken', {
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/pendientes' + '?' + parametros
                 }),
 
-                store.dispatch('api/apiGetToken', {
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/timbradas' + '?' + parametros
                 }),
 
-                store.dispatch('api/apiGetToken', {
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/' + 'complementos_pago/pendientes' + '?' + parametros
                 }),
 
-                store.dispatch('api/apiGetToken', {
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/' + 'complementos_pago/timbradas' + '?' + parametros
                 }),
-                store.dispatch('api/apiGetToken', { direccion: '/solicitud_detallada/resumen_en_espera_timbrado?' + parametros })
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', { direccion: '/solicitud_detallada/resumen_en_espera_timbrado?' + parametros })
             ]);
 
+            if (!vistaActiva || contexto !== handleContextoMesa()) return;
+            if (silencioso && [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera].some((res) => res?.estatus !== 200)) return;
             dashboardEnEspera.value = enEspera?.estatus === 200 && Array.isArray(enEspera.datos?.empresas) ? enEspera.datos.empresas : null;
             dashboardFacturasPendientes.value = handleObtenerSolicitudesRespuesta(facturasPendientes);
 
@@ -472,6 +525,7 @@ const useProceso = () => {
 
             dashboardComplementosTimbrados.value = handleObtenerSolicitudesRespuesta(complementosTimbrados);
         } catch (error) {
+            if (!vistaActiva || silencioso) return;
             console.error('ERROR DASHBOARD:', error);
             dashboardEnEspera.value = null;
 

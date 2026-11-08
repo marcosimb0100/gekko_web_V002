@@ -64,7 +64,7 @@
                 <Column header="Logo" headerClass="encabezado-columna">
                     <template #body="slotProps">
                         <div class="flex align-items-center justify-content-center">
-                            <img :src="logosClientes[slotProps.data._id] || clienteDefault" alt="Cliente" class="logo-tabla" />
+                            <img :ref="(elemento) => handleObservarLogo(elemento, slotProps.data)" decoding="async" :src="logosClientes[slotProps.data._id] || clienteDefault" alt="Cliente" class="logo-tabla" />
                         </div>
                     </template>
                 </Column>
@@ -132,7 +132,7 @@
                                 <!-- LOGO -->
                                 <div class="contenedor-logo">
                                     <div class="logo-editor" @click="handleAbrirLogo">
-                                        <img :src="logoPreview || logosClientes[frmCliente._id] || clienteDefault" alt="Logo cliente" />
+                                        <img :src="logoPreview || logosOriginales[frmCliente._id] || logosClientes[frmCliente._id] || clienteDefault" alt="Logo cliente" />
                                     </div>
 
                                     <input ref="logoInput" type="file" accept=".jpg,.jpeg,.png" style="display: none" @change="handleSeleccionarLogo" />

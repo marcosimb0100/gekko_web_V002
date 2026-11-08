@@ -13,7 +13,7 @@
         </Button>
     </Encabezado>
 
-    <div class="card p-0 m-0" style="height: 72vh">
+    <div class="card p-0 m-0 perfiles-contenedor" :class="{ 'perfiles-edicion': mostrarTablaFormulario }">
         <!-- TABLA -->
         <ScrollPanel style="height: 65vh" v-if="!mostrarTablaFormulario">
             <DataTable
@@ -67,7 +67,7 @@
         </ScrollPanel>
 
         <!-- FORMULARIO -->
-        <Tabs value="0" v-if="mostrarTablaFormulario">
+        <Tabs value="0" v-if="mostrarTablaFormulario" class="perfiles-tabs">
             <TabList>
                 <Tab value="0">Datos</Tab>
                 <Tab value="1">Historial</Tab>
@@ -76,50 +76,45 @@
             <TabPanels>
                 <!-- DATOS -->
                 <TabPanel value="0">
-                    <ScrollPanel style="height: 60vh">
-                        <form id="formPerfil" @submit.prevent="handleGuardar">
-                            <div style="max-width: 900px; margin: 0 auto; padding: 40px 20px">
-                                <!-- NOMBRE -->
-                                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 30px">
-                                    <div style="display: flex; flex-direction: column; gap: 8px">
-                                        <label for="nombre_perfil">Nombre del Perfil:</label>
-
-                                        <InputText
-                                            id="nombre_perfil"
-                                            name="nombre_perfil"
-                                            v-model="frmPerfil.nombre_perfil"
-                                            :invalid="!nombrePerfilValido"
-                                            style="width: 100%; text-transform: uppercase"
-                                            @update:modelValue="frmPerfil.nombre_perfil = $event.toUpperCase()"
-                                        />
+                    <form id="formPerfil" class="perfil-formulario" @submit.prevent="handleGuardar">
+                        <div class="perfil-lateral">
+                            <Fieldset legend="Datos generales" class="perfil-seccion">
+                                <div class="perfil-campo">
+                                    <label for="nombre_perfil">Nombre del perfil</label>
+                                    <InputText id="nombre_perfil" name="nombre_perfil" v-model="frmPerfil.nombre_perfil" :invalid="!nombrePerfilValido" class="perfil-nombre" @update:modelValue="frmPerfil.nombre_perfil = $event.toUpperCase()" />
+                                </div>
+                                <div class="perfil-estado">
+                                    <div class="perfil-check">
+                                        <Checkbox inputId="activo" v-model="frmPerfil.activo" binary />
+                                        <label for="activo">Perfil activo</label>
                                     </div>
+                                    <Tag :value="frmPerfil.activo ? 'Activo' : 'Inactivo'" :severity="frmPerfil.activo ? 'success' : 'secondary'" />
                                 </div>
-
-                                <!-- ACTIVO -->
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 25px">
-                                    <Checkbox inputId="activo" v-model="frmPerfil.activo" binary />
-                                    <label for="activo">Activo</label>
-                                </div>
-
-                                <div class="permiso-reversion-bancaria">
+                            </Fieldset>
+                            <Fieldset legend="Permisos administrativos" class="perfil-seccion">
+                                <div class="perfil-permiso">
                                     <Checkbox inputId="revertir_cargas" v-model="frmPerfil.revertir_cargas_bancarias" binary />
-                                    <label for="revertir_cargas">Autorizar reversión de cargas bancarias conciliadas</label>
-                                    <small>Asignar solo a administradores. Requiere acceso al Historial de cargas.</small>
-                                </div>
-
-                                <!-- MENUS / PERMISOS -->
-                                <div style="border-top: 1px solid #ddd; padding-top: 20px">
-                                    <div style="margin-bottom: 15px">
-                                        <label style="font-weight: 600">Permisos del Perfil</label>
-                                    </div>
-
-                                    <div style="height: 280px; overflow: auto; border: 1px solid #ddd; border-radius: 6px; padding: 10px">
-                                        <Tree v-model:selectionKeys="menusSeleccionados" :value="arbolMenus" selectionMode="checkbox" class="w-full" />
+                                    <div>
+                                        <label for="revertir_cargas">Revertir cargas conciliadas</label>
+                                        <small>Autoriza la reversión de cargas bancarias. Requiere acceso al Historial de cargas.</small>
                                     </div>
                                 </div>
+                                <div class="perfil-permiso">
+                                    <Checkbox inputId="cerrar_sesiones" v-model="frmPerfil.cerrar_sesiones_usuarios" binary />
+                                    <div>
+                                        <label for="cerrar_sesiones">Cerrar sesiones de usuarios</label>
+                                        <small>Revoca las sesiones actuales de un usuario. Requiere acceso a Usuarios.</small>
+                                    </div>
+                                </div>
+                            </Fieldset>
+                        </div>
+                        <Fieldset legend="Acceso a menús" class="perfil-seccion perfil-menus">
+                            <p class="perfil-ayuda">Selecciona las opciones que podrán consultar los usuarios de este perfil.</p>
+                            <div class="perfil-arbol">
+                                <Tree v-model:selectionKeys="menusSeleccionados" :value="arbolMenus" selectionMode="checkbox" filter filterPlaceholder="Buscar menú..." class="w-full" />
                             </div>
-                        </form>
-                    </ScrollPanel>
+                        </Fieldset>
+                    </form>
                 </TabPanel>
 
                 <!-- HISTORIAL -->

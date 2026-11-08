@@ -1,3 +1,55 @@
 .ejemplo{
     color: red;
 }
+.usuarios-herramientas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.usuarios-presencia-ayuda { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; font-weight: normal; color: var(--p-text-muted-color); }
+.usuario-presencia { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.usuario-presencia small { color: var(--p-text-muted-color); }
+
+/* Una sola zona de desplazamiento: filas de la tabla, con paginador visible. */
+.usuarios-contenedor { height: 72vh; min-width: 0; }
+.usuarios-contenedor.usuarios-modo-tabla { height: calc(100dvh - 235px); min-height: 350px; }
+.usuarios-listado { height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+.usuarios-tabla { flex: 1; min-height: 0; min-width: 0; }
+.usuarios-tabla :deep(.p-datatable-header), .usuarios-tabla :deep(.p-paginator) { flex-shrink: 0; }
+.usuarios-tabla :deep(.p-datatable-table-container) { flex: 1; min-height: 0; }
+.usuarios-tabla :deep(.p-datatable-table) { min-width: 0; width: 100%; table-layout: fixed; }
+.usuarios-tabla :deep(th), .usuarios-tabla :deep(td) { white-space: normal; overflow-wrap: anywhere; }
+.usuarios-tabla :deep(td img) { max-width: 100%; }
+.usuarios-tabla :deep(.p-tag) { white-space: normal; }
+@media (max-width: 700px) {
+    .usuarios-herramientas { gap: 8px; }
+    .usuarios-presencia-ayuda { font-size: 11px; }
+    .usuarios-contenedor.usuarios-modo-tabla { height: calc(100dvh - 200px); }
+}
+
+.usuario-confirmar-cierre { display: flex; flex-direction: column; gap: 12px; }
+.usuario-confirmar-cierre p { margin: 0; line-height: 1.6; }
+
+
+.usuarios-contenedor:not(.usuarios-modo-tabla) { height: auto; min-height: 0; padding: 16px !important; }
+.usuario-formulario { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 24px; padding: 16px 4px 8px; align-items: start; }
+.usuario-identidad { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px 14px; border: 1px solid var(--p-content-border-color); border-radius: 12px; background: var(--p-content-hover-background); }
+.usuario-foto { width: 144px; height: 144px; object-fit: cover; border-radius: 50%; border: 4px solid var(--p-content-background); }
+.usuario-identidad small, .usuario-texto-ayuda { color: var(--p-text-muted-color); font-size: 12px; line-height: 1.6; }
+.usuario-configuracion { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.usuario-campos, .usuario-seguridad-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.usuario-campo, .usuario-claves { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.usuario-campo :deep(.p-inputtext), .usuario-campo :deep(.p-inputnumber) { width: 100%; min-width: 0; }
+.usuario-mayusculas { text-transform: uppercase; }
+.usuario-opciones { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 20px; }
+.usuario-opciones > div, .usuario-opcion-clave { display: flex; align-items: center; gap: 10px; }
+.usuario-opcion-clave { margin-bottom: 14px; }
+.usuario-claves { gap: 14px; }
+.usuario-sesiones-resumen { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.usuario-ayuda-sesiones { display: flex; flex-direction: column; gap: 16px; line-height: 1.65; }
+.usuario-ayuda-sesiones p { margin: 0; }
+@media (max-width: 1050px) {
+    .usuario-formulario { grid-template-columns: 170px minmax(0, 1fr); gap: 16px; }
+    .usuario-foto { width: 112px; height: 112px; }
+    .usuario-seguridad-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+    .usuario-formulario, .usuario-campos { grid-template-columns: 1fr; }
+    .usuario-identidad { padding: 16px; }
+}

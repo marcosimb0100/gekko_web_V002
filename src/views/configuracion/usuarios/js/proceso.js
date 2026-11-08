@@ -1,6 +1,6 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { computed, nextTick, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { regexCorreoElectronico, regexNombreCompleto, regex_clave } from '../../../../helpers/regex';
 
@@ -9,6 +9,8 @@ const frmUsuarioInit = () => ({
     nombre_completo: '',
     correo_electronico: '',
     correo_acceso: false,
+    limite_sesiones: 0,
+    chat_habilitado: false,
     activo: false,
     cambiar_clave: false,
     clave: '',
@@ -16,6 +18,8 @@ const frmUsuarioInit = () => ({
 });
 
 const useProceso = () => {
+    const ayudaSesiones = ref(false);
+    const handleMostrarAyudaSesiones = () => { ayudaSesiones.value = true; };
     const store = useStore();
     const toast = useToast();
 
@@ -35,6 +39,79 @@ const useProceso = () => {
     const fotoPreview = ref(null);
     const fotoInput = ref(null);
 
+    const puedeCerrarSesiones = ref(false);
+    const confirmarCierre = ref(false), usuarioCerrar = ref(null), cerrandoSesiones = ref(false);
+    let operacionCierre = '';
+    const handlePrepararCierre = (usuario) => {
+        if (!puedeCerrarSesiones.value || cerrandoSesiones.value) return;
+        usuarioCerrar.value = { _id: usuario._id, nombre_completo: usuario.nombre_completo };
+        operacionCierre = crypto.randomUUID();
+        confirmarCierre.value = true;
+    };
+    const handleCancelarCierre = () => { if (!cerrandoSesiones.value) confirmarCierre.value = false; };
+    const handleConfirmarCierre = async () => {
+        if (!usuarioCerrar.value || cerrandoSesiones.value || !puedeCerrarSesiones.value) return;
+        cerrandoSesiones.value = true;
+        try {
+            const res = await store.dispatch('api/apiPostTokenSinCargando', {
+                direccion: '/usuarios/cerrar_sesiones',
+                datosJson: { usuario_id: usuarioCerrar.value._id, operacion_id: operacionCierre }
+            });
+            if (!vistaActiva) return;
+            if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible cerrar las sesiones.');
+            confirmarCierre.value = false;
+            toast.add({ severity: 'success', summary: 'Sesiones', detail: res.mensaje, life: 5000 });
+            await handleActualizarConexiones();
+        } catch (error) {
+            if (vistaActiva) toast.add({ severity: 'error', summary: 'Sesiones', detail: error.message, life: 5000 });
+        } finally { if (vistaActiva) cerrandoSesiones.value = false; }
+    };
+    const conexionesUsuarios = ref({});
+    const soloConectados = ref(false);
+    const consultandoConexiones = ref(false);
+    const conexionesDisponibles = ref(false);
+    const errorConexiones = ref('');
+    const fechaConsultaConexiones = ref(null);
+    let vistaActiva = true;
+    const usuariosVisibles = computed(() => soloConectados.value
+        ? tablasUsuarios.value.filter((usuario) => conexionesUsuarios.value[usuario._id]?.conexiones > 0)
+        : tablasUsuarios.value);
+    const totalConectados = computed(() => tablasUsuarios.value.filter((usuario) => conexionesUsuarios.value[usuario._id]?.conexiones > 0).length);
+    const horaConsultaConexiones = computed(() => fechaConsultaConexiones.value
+        ? new Date(fechaConsultaConexiones.value).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '');
+    const handleActualizarConexiones = async () => {
+        if (consultandoConexiones.value || !vistaActiva) return;
+        consultandoConexiones.value = true;
+        errorConexiones.value = '';
+        try {
+            const res = await store.dispatch('api/apiPostTokenSinCargando', {
+                direccion: '/usuarios/conectados', datosJson: {}
+            });
+            if (!vistaActiva) return;
+            if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible consultar las conexiones.');
+            puedeCerrarSesiones.value = res.datos?.puede_cerrar_sesiones === true;
+            conexionesUsuarios.value = Object.fromEntries((res.datos?.usuarios || []).map((item) => [item.usuario_id, item]));
+            fechaConsultaConexiones.value = res.datos.consultado;
+            conexionesDisponibles.value = true;
+        } catch (error) {
+            if (!vistaActiva) return;
+            puedeCerrarSesiones.value = false;
+            conexionesDisponibles.value = false;
+            conexionesUsuarios.value = {};
+            soloConectados.value = false;
+            errorConexiones.value = error.message || 'No fue posible consultar las conexiones.';
+        } finally {
+            if (vistaActiva) consultandoConexiones.value = false;
+        }
+    };
+    const handleDescripcionConexion = (usuario) => {
+        if (!conexionesDisponibles.value) return 'Sin datos de conexion';
+        const item = conexionesUsuarios.value[usuario._id];
+        if (!item) return 'Sin conexion al servicio de tiempo real al consultar.';
+        return `Conectado desde ${new Date(item.conectado_desde).toLocaleString('es-MX')}. ${item.conexiones} conexion(es); pueden ser varias pestañas.`;
+    };
+    onBeforeUnmount(() => { vistaActiva = false; });
+
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -44,7 +121,8 @@ const useProceso = () => {
         });
 
         if (res.estatus === 200) {
-            tablasUsuarios.value = res.datos?.usuarios;
+            tablasUsuarios.value = res.datos?.usuarios || [];
+            await handleActualizarConexiones();
 
             for (const usuario of tablasUsuarios.value) {
                 await handleCargarFotoUsuario(usuario._id);
@@ -86,6 +164,7 @@ const useProceso = () => {
 
     const handleLimpiarFiltro = () => {
         filtros.value.global.value = null;
+        soloConectados.value = false;
     };
 
     const handleMostrarFormulario = async (tipo, data) => {
@@ -113,6 +192,8 @@ const useProceso = () => {
                     nombre_completo: usuario?.nombre_completo ?? '',
                     correo_electronico: usuario?.correo_electronico ?? '',
                     correo_acceso: usuario?.correo_acceso ?? false,
+                    limite_sesiones: usuario?.limite_sesiones ?? 0,
+                    chat_habilitado: usuario?.chat_habilitado === true,
                     activo: usuario?.activo ?? false,
 
                     cambiar_clave: false,
@@ -140,6 +221,10 @@ const useProceso = () => {
     };
 
     const handleGuardar = async () => {
+        if (!Number.isInteger(frmUsuario.limite_sesiones) || frmUsuario.limite_sesiones < 0 || frmUsuario.limite_sesiones > 100) {
+            toast.add({ severity: 'warn', summary: 'Sesiones', detail: 'Indica un limite entre 0 y 100.', life: 4000 });
+            return;
+        }
         // ==============================================
         // VALIDACIONES
         // ==============================================
@@ -522,6 +607,10 @@ const useProceso = () => {
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     return {
+        ayudaSesiones, handleMostrarAyudaSesiones,
+        puedeCerrarSesiones, confirmarCierre, usuarioCerrar, cerrandoSesiones, handlePrepararCierre, handleCancelarCierre, handleConfirmarCierre,
+        conexionesUsuarios, soloConectados, consultandoConexiones, conexionesDisponibles, errorConexiones,
+        usuariosVisibles, totalConectados, horaConsultaConexiones, handleActualizarConexiones, handleDescripcionConexion,
         tablasUsuarios,
         filtros,
         mostrarTablaFormulario,

@@ -9,7 +9,9 @@ import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
     optimizeDeps: {
-        noDiscovery: true
+        noDiscovery: true,
+        // Socket.IO usa dependencias CommonJS que deben convertirse durante desarrollo.
+        include: ['socket.io-client']
     },
     plugins: [
         vue(),

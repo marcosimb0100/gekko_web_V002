@@ -1,0 +1,13 @@
+ .campana-notificaciones { flex-shrink: 0; }
+.notificaciones-cabecera, .notificacion-titulo, .notificaciones-paginacion { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.notificaciones-lista { list-style: none; padding: 0; margin: 12px 0; max-height: 55vh; overflow: auto; }
+.notificaciones-lista li { padding: 16px; border: 1px solid var(--p-content-border-color); border-radius: 10px; margin-bottom: 10px; }
+.notificaciones-lista li.notificacion-nueva { border-left: 3px solid var(--p-primary-color); background: var(--p-primary-50); }
+.notificacion-titulo strong, .notificaciones-lista p { overflow-wrap: anywhere; }
+.notificaciones-lista p { margin: 10px 0; line-height: 1.5; }
+.notificaciones-lista small { color: var(--p-text-muted-color); }
+.notificacion-acciones { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+.notificaciones-vacio { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 30px 12px; color: var(--p-text-muted-color); }
+.notificaciones-vacio i { font-size: 28px; }
+.notificaciones-paginacion { width: 100%; }
+:global(.app-dark) .notificacion-nueva { background: var(--p-surface-800); }

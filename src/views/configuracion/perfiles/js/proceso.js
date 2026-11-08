@@ -7,6 +7,7 @@ const frmPerfilInit = () => ({
     _id: '',
     nombre_perfil: '',
     revertir_cargas_bancarias: false,
+    cerrar_sesiones_usuarios: false,
     activo: true
 });
 
@@ -191,6 +192,7 @@ const useProceso = () => {
                 _id: perfil?._id ?? '',
                 nombre_perfil: perfil?.nombre_perfil ?? '',
                 revertir_cargas_bancarias: perfil?.revertir_cargas_bancarias === true,
+                cerrar_sesiones_usuarios: perfil?.cerrar_sesiones_usuarios === true,
                 activo: perfil?.activo ?? false
             });
 
@@ -378,6 +380,7 @@ const useProceso = () => {
             ...frmPerfil,
             nombre_perfil: frmPerfil.nombre_perfil.trim().toUpperCase(),
             revertir_cargas_bancarias: frmPerfil.revertir_cargas_bancarias === true,
+            cerrar_sesiones_usuarios: frmPerfil.cerrar_sesiones_usuarios === true,
             menus_seleccionados: menusSeleccionados.value,
             menu_web: menuWeb,
             lista_url: listaUrl

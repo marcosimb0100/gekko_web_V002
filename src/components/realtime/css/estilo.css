@@ -1,0 +1,12 @@
+/* Indicador discreto, visible tambien fuera del menu movil. */
+.estado-tiempo-real { flex-shrink: 0; font-size: 12px; white-space: nowrap; }
+.estado-conectado { color: var(--p-green-600); }
+.estado-conectando, .estado-reconectando { color: var(--p-orange-600); }
+.estado-desconectado, .estado-sesion_vencida { color: var(--p-text-muted-color); }
+.conexion-detalle { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.conexion-detalle p { margin: 0; line-height: 1.5; }
+.conexion-detalle small { color: var(--p-text-muted-color); }
+.conexion-prueba { display: flex; gap: 8px; align-items: center; color: var(--p-green-600); }
+@media (max-width: 640px) {
+    .estado-tiempo-real :deep(.p-button-label) { display: none; }
+}

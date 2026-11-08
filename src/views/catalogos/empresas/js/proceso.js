@@ -1,6 +1,6 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import { regex_clabe_banco, regex_cuenta_banco } from '../../../../helpers/regex';
@@ -180,6 +180,73 @@ const useProceso = () => {
     // ------------------------------------------------------------------
 
     const logosEmpresas = reactive({});
+    const logosOriginales = reactive({});
+    const versionesLogos = new Map(), pendientesLogos = new Set(), erroresLogos = new Set();
+    const elementosLogos = new Map(), logosVisibles = new Set();
+    let observadorLogos = null, descargasLogos = 0, colaLogos = [], vistaActiva = true;
+    const handleProcesarLogos = () => {
+        if (!vistaActiva) return;
+        while (descargasLogos < 4 && colaLogos.length) {
+            const empresa = colaLogos.shift();
+            const clave = empresa._id + ':' + empresa.logo_version;
+            if (!logosVisibles.has(empresa._id)) { pendientesLogos.delete(clave); continue; }
+            descargasLogos++;
+            (async () => {
+                try {
+                    const res = await store.dispatch('api/apiGetblobSinCargando', {
+                        direccion: '/companias/logo/' + empresa._id + '?miniatura=1&v=' + encodeURIComponent(empresa.logo_version)
+                    });
+                    if (!vistaActiva || tablaEmpresas.value.find(item => item._id === empresa._id)?.logo_version !== empresa.logo_version) return;
+                    if (res.estatus === 200 && res.data instanceof Blob) {
+                        if (logosEmpresas[empresa._id]) URL.revokeObjectURL(logosEmpresas[empresa._id]);
+                        logosEmpresas[empresa._id] = URL.createObjectURL(res.data);
+                        versionesLogos.set(empresa._id, empresa.logo_version);
+                    } else erroresLogos.add(clave);
+                } catch { erroresLogos.add(clave); }
+                finally {
+                    descargasLogos--;
+                    pendientesLogos.delete(clave);
+                    handleProcesarLogos();
+                }
+            })();
+        }
+    };
+    const handleEncolarLogo = (empresa) => {
+        const clave = empresa._id + ':' + empresa.logo_version;
+        if (!vistaActiva || !empresa.tiene_logo || versionesLogos.get(empresa._id) === empresa.logo_version || pendientesLogos.has(clave) || erroresLogos.has(clave)) return;
+        pendientesLogos.add(clave); colaLogos.push(empresa); handleProcesarLogos();
+    };
+    const handleObservarLogo = (elemento, empresa) => {
+        const anterior = elementosLogos.get(empresa._id);
+        if (!elemento) {
+            if (anterior) observadorLogos?.unobserve(anterior.elemento);
+            elementosLogos.delete(empresa._id); logosVisibles.delete(empresa._id);
+            return;
+        }
+        if (anterior?.elemento === elemento && anterior.version === empresa.logo_version) return;
+        if (anterior) observadorLogos?.unobserve(anterior.elemento);
+        elementosLogos.set(empresa._id, { elemento, version: empresa.logo_version, empresa });
+        elemento.dataset.empresaLogo = empresa._id;
+        if (!empresa.tiene_logo) return;
+        if (typeof IntersectionObserver === 'undefined') { logosVisibles.add(empresa._id); handleEncolarLogo(empresa); return; }
+        if (!observadorLogos) observadorLogos = new IntersectionObserver((entradas) => {
+            entradas.forEach(entrada => {
+                const id = entrada.target.dataset.empresaLogo;
+                if (!entrada.isIntersecting) { logosVisibles.delete(id); return; }
+                logosVisibles.add(id);
+                const actual = elementosLogos.get(id);
+                if (actual) handleEncolarLogo(actual.empresa);
+            });
+        }, { rootMargin: '80px', threshold: 0 });
+        observadorLogos.observe(elemento);
+    };
+    onBeforeUnmount(() => {
+        vistaActiva = false; colaLogos = [];
+        observadorLogos?.disconnect(); elementosLogos.clear();
+        Object.values(logosEmpresas).forEach(url => URL.revokeObjectURL(url));
+        Object.values(logosOriginales).forEach(url => URL.revokeObjectURL(url));
+        if (logoPreview.value) URL.revokeObjectURL(logoPreview.value);
+    });
 
     const logoArchivo = ref(null);
     const logoPreview = ref(null);
@@ -366,13 +433,21 @@ const useProceso = () => {
         const accion = silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken';
 
         const res = await store.dispatch(accion, {
-            direccion: `/companias/`
+            direccion: `/companias/listado`
         });
 
         if (res.estatus === 200) {
-            tablaEmpresas.value = res.datos?.companias ?? [];
-
-            await Promise.all(tablaEmpresas.value.map((empresa) => handleCargarLogo(empresa._id, false)));
+            if (!vistaActiva) return;
+            const anteriores = new Map(tablaEmpresas.value.map(empresa => [empresa._id, empresa.logo_version]));
+            const empresas = res.datos?.companias ?? [];
+            empresas.forEach(empresa => {
+                if (!empresa.tiene_logo || (anteriores.has(empresa._id) && anteriores.get(empresa._id) !== empresa.logo_version)) {
+                    if (logosEmpresas[empresa._id]) { URL.revokeObjectURL(logosEmpresas[empresa._id]); delete logosEmpresas[empresa._id]; }
+                    if (logosOriginales[empresa._id]) { URL.revokeObjectURL(logosOriginales[empresa._id]); delete logosOriginales[empresa._id]; }
+                    versionesLogos.delete(empresa._id);
+                }
+            });
+            tablaEmpresas.value = empresas;
         } else {
             toast.add({
                 severity: 'error',
@@ -528,26 +603,30 @@ const useProceso = () => {
     // ------------------------------------------------------------------
 
     const handleCargarLogo = async (id, recargar = false) => {
-        if (!id) {
+        if (!id || !vistaActiva) {
             return;
         }
 
-        if (logosEmpresas[id] && !recargar) {
+        if (logosOriginales[id] && !recargar) {
             return;
         }
 
-        if (logosEmpresas[id] && recargar) {
-            URL.revokeObjectURL(logosEmpresas[id]);
+        if (recargar) {
+            versionesLogos.delete(id);
+            if (logosEmpresas[id]) { URL.revokeObjectURL(logosEmpresas[id]); delete logosEmpresas[id]; }
+        }
+        if (logosOriginales[id] && recargar) {
+            URL.revokeObjectURL(logosOriginales[id]);
 
-            delete logosEmpresas[id];
+            delete logosOriginales[id];
         }
 
         const res = await store.dispatch('api/apiGetblobSinCargando', {
             direccion: `/companias/logo/${id}`
         });
 
-        if (res.estatus === 200 && res.data instanceof Blob) {
-            logosEmpresas[id] = URL.createObjectURL(res.data);
+        if (vistaActiva && res.estatus === 200 && res.data instanceof Blob) {
+            logosOriginales[id] = URL.createObjectURL(res.data);
         }
     };
 
@@ -708,8 +787,8 @@ const useProceso = () => {
                 const empresa = resRegistro?.datos?.compania;
 
                 handleCargarEmpresa(empresa);
-
                 mostrarTablaFormulario.value = true;
+                handleCargarLogo(empresa._id);
             } else {
                 toast.add({
                     severity: 'error',
@@ -2369,7 +2448,7 @@ const useProceso = () => {
         movimiento,
         frmEmpresa,
 
-        logosEmpresas,
+        logosEmpresas, logosOriginales, handleObservarLogo,
         logoArchivo,
         logoPreview,
         logoInput,

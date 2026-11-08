@@ -1,5 +1,35 @@
-.ejemplo{
-    color: red;
+.perfiles-contenedor { height: 72vh; min-width: 0; }
+.perfiles-contenedor.perfiles-edicion { height: calc(100dvh - 235px); min-height: 440px; padding: 16px !important; }
+.perfiles-tabs { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.perfiles-tabs :deep(.p-tablist) { flex-shrink: 0; }
+.perfiles-tabs :deep(.p-tabpanels) { flex: 1; min-height: 0; padding: 18px 0 0; }
+.perfiles-tabs :deep(.p-tabpanel) { height: 100%; min-height: 0; }
+.perfil-formulario { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.5fr); gap: 20px; height: 100%; min-height: 0; }
+.perfil-lateral { display: flex; flex-direction: column; gap: 18px; min-width: 0; overflow: auto; }
+.perfil-seccion { min-width: 0; margin: 0; border-radius: 12px; }
+.perfil-seccion :deep(.p-fieldset-legend) { font-size: 14px; font-weight: 600; }
+.perfil-seccion :deep(.p-fieldset-content) { padding: 12px; }
+.perfil-campo { display: flex; flex-direction: column; gap: 8px; }
+.perfil-campo label, .perfil-permiso label { font-weight: 500; }
+.perfil-nombre { width: 100%; text-transform: uppercase; }
+.perfil-estado { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.perfil-check { display: flex; align-items: center; gap: 10px; }
+.perfil-permiso { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; }
+.perfil-permiso + .perfil-permiso { border-top: 1px solid var(--p-content-border-color); }
+.perfil-permiso :deep(.p-checkbox) { margin-top: 2px; flex-shrink: 0; }
+.perfil-permiso > div:last-child { display: flex; flex-direction: column; gap: 7px; }
+.perfil-permiso label { cursor: pointer; }
+.perfil-permiso small, .perfil-ayuda { color: var(--p-text-muted-color); line-height: 1.5; font-size: 12px; }
+.perfil-menus { display: flex; flex-direction: column; min-height: 0; }
+.perfil-menus :deep(.p-fieldset-content-container) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.perfil-menus :deep(.p-fieldset-content) { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.perfil-ayuda { margin: 0 0 12px; }
+.perfil-arbol { flex: 1; min-height: 0; overflow: auto; }
+.perfil-arbol :deep(.p-tree) { border: 0; padding: 0; }
+.perfil-arbol :deep(.p-tree-filter-input) { width: 100%; }
+@media (max-width: 900px) {
+    .perfiles-contenedor.perfiles-edicion { height: auto; min-height: 0; }
+    .perfil-formulario { grid-template-columns: 1fr; height: auto; }
+    .perfil-lateral { overflow: visible; }
+    .perfil-arbol { max-height: 50vh; min-height: 220px; }
 }
-.permiso-reversion-bancaria { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; margin-bottom: 1.5rem; }
-.permiso-reversion-bancaria small { flex-basis: 100%; color: var(--text-color-secondary); }
