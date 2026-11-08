@@ -2,8 +2,8 @@
     <div class="encabezado">
         <div class="encabezado-contenido">
 
-            <div class="encabezado-icono" v-if="icono">
-                <i :class="icono"></i>
+            <div class="encabezado-icono" v-if="icono || $slots.icono">
+                <slot name="icono"><i :class="icono"></i></slot>
             </div>
 
             <div class="encabezado-texto">

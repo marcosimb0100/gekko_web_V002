@@ -1,0 +1,146 @@
+/* =====================================================
+   TABLA
+===================================================== */
+
+:deep(.encabezado-columna) {
+    background: rgb(106, 196, 202) !important;
+    border-color: rgb(106, 196, 202) !important;
+    font-weight: 600 !important;
+}
+
+.logo-tabla {
+    width: 55px;
+    height: 55px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+}
+
+/* =====================================================
+   FORMULARIO GENERAL
+===================================================== */
+
+.form-datos-proveedor {
+    display: grid;
+
+    grid-template-columns: 230px 1fr;
+
+    gap: 30px;
+
+    padding: 20px;
+}
+
+.contenedor-logo {
+    padding: 10px;
+
+    text-align: center;
+}
+
+.logo-editor {
+    width: 200px;
+    height: 200px;
+
+    margin: 0 auto 8px auto;
+
+    border: 1px solid var(--p-surface-300);
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    background: var(--p-surface-100);
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.logo-editor:hover {
+    border-color: rgb(106, 196, 202);
+
+    box-shadow: 0 0 0 2px rgba(106, 196, 202, 0.15);
+}
+
+.logo-editor img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.contenedor-logo small {
+    color: var(--p-text-muted-color);
+}
+
+.grid-datos {
+    display: grid;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.grid-3 {
+    grid-template-columns: 0.5fr 0.5fr 1fr;
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.grid-direccion {
+    grid-template-columns: 2fr 1fr 1fr;
+}
+
+.seccion-formulario {
+    padding: 0 20px 20px 20px;
+}
+
+.campo-formulario {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    min-width: 0;
+}
+
+.campo-formulario label {
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+.requerido {
+    color: red;
+
+    margin-right: 2px;
+}
+
+
+@media (max-width: 1000px) { .form-datos-proveedor { grid-template-columns: 170px 1fr; gap: 16px; } .logo-editor { width: 150px; height: 150px; } .grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .form-datos-proveedor, .grid-3, .grid-4, .grid-5, .grid-direccion { grid-template-columns: 1fr; } }
+
+.btn-excel {
+    background: #21a366 !important;
+    border-color: #21a366 !important;
+    color: #ffffff !important;
+
+    white-space: nowrap !important;
+    width: auto !important;
+    min-width: max-content;
+}
+
+.btn-excel:hover {
+    background: #1b8a57 !important;
+    border-color: #1b8a57 !important;
+}
+

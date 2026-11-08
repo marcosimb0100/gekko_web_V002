@@ -118,6 +118,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "catalogos_clientes" */ '../views/catalogos/clientes/Clientes.vue')
                 },
                 {
+                    path: '/catalogos/proveedores',
+                    name: 'catalogos_proveedores',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "catalogos_proveedores" */ '../views/catalogos/proveedores/Proveedores.vue')
+                },
+                {
                     path: '/catalogos/impuestos',
                     name: 'catalogos_impuestos',
                     beforeEnter: permisoRutas,

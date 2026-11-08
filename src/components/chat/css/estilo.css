@@ -97,3 +97,7 @@
 .chat-confirmar-eliminar p { margin: 0; }
 .chat-agenda-cabecera, .chat-agenda-buscar, .chat-abecedario { flex-shrink: 0; }
 @media (max-width: 640px) { .chat-agenda { display: none; } .chat-en-conversacion .chat-agenda { display: flex; } }
+
+.chat-encabezado { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; }
+.chat-avisos-boton { flex-shrink: 0; }
+@media (max-width: 640px) { .chat-avisos-boton :deep(.p-button-label) { display: none; } }

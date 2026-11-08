@@ -3,13 +3,21 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { estadoSocket } from '@/helpers/socket';
+import useAvisosNavegador from '../../../helpers/avisosNavegador';
 
 export default function proceso() {
     const store = useStore(), router = useRouter(), toast = useToast();
     const mostrar = ref(false), cargando = ref(false), error = ref(''), leyendo = ref(''), archivando = ref('');
     const notificaciones = ref([]), sinLeer = ref(0), total = ref(0), offset = ref(0);
     let activo = true, temporizador = null, pendiente = false, avisoPendiente = false, reiniciarPendiente = false;
-    let inicializado = false;
+    let inicializado = false, ultimoAviso = '';
+    const avisosNavegador = useAvisosNavegador({
+        permitido: ref(true), handleAbrir: () => handleMostrar(), origen: 'mesa',
+        titulo: 'Gekko \u00b7 Nueva solicitud',
+        mensaje: 'Tienes nuevas solicitudes para revisar. Haz clic para abrir las notificaciones.',
+        textoActivacion: 'Recibir\u00e1s avisos de solicitudes y cancelaciones cuando Gekko no est\u00e9 en primer plano.',
+        validarId: id => typeof id === 'string' && id.length <= 300 && /^[0-9T:.+\-]+\|mesa:[A-Za-z0-9_:]+$/.test(id)
+    });
     const handleActualizar = async ({ avisar = false, reiniciar = false } = {}) => {
         if (!activo) return;
         if (cargando.value) {
@@ -31,7 +39,12 @@ export default function proceso() {
             notificaciones.value = res.datos?.notificaciones || [];
             sinLeer.value = Number(res.datos?.sin_leer || 0);
             total.value = Number(res.datos?.total || 0);
-            if (avisar && inicializado && sinLeer.value > anterior) {
+            const reciente = typeof res.datos?.ultimo_aviso === 'string' ? res.datos.ultimo_aviso : '';
+            const nuevo = reciente > ultimoAviso;
+            if (avisar && inicializado && nuevo) avisosNavegador.handleAvisar(reciente);
+            ultimoAviso = reciente > ultimoAviso ? reciente : ultimoAviso;
+            if (!sinLeer.value) avisosNavegador.handleCerrarAviso();
+            if (avisar && inicializado && (nuevo || sinLeer.value > anterior)) {
                 toast.add({ severity: 'info', summary: 'Nuevas notificaciones', detail: 'Tienes nuevas solicitudes para revisar. Consulta la campana.', life: 5000 });
             }
             inicializado = true;
@@ -60,7 +73,7 @@ export default function proceso() {
         }, 500);
     };
     watch(() => estadoSocket.revisionNotificaciones, () => handleProgramar(true));
-    watch(() => estadoSocket.revisionConexion, () => handleProgramar(false));
+    watch(() => estadoSocket.revisionConexion, () => handleProgramar(true));
     const handleMostrar = () => { mostrar.value = true; handleActualizar({ reiniciar: true }); };
     const handleCerrar = () => { mostrar.value = false; };
     const handleFecha = (fecha) => fecha ? new Date(fecha).toLocaleString('es-MX') : '';
@@ -101,6 +114,6 @@ export default function proceso() {
     };
     onMounted(() => handleActualizar());
     onBeforeUnmount(() => { activo = false; if (temporizador !== null) clearTimeout(temporizador); });
-    return { mostrar, cargando, error, leyendo, archivando, notificaciones, sinLeer, total, offset,
+    return { ...avisosNavegador, mostrar, cargando, error, leyendo, archivando, notificaciones, sinLeer, total, offset,
         handleActualizar, handleMostrar, handleCerrar, handleFecha, handlePagina, handleLeer, handleQuitar };
 }

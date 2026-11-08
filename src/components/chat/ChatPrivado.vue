@@ -2,8 +2,9 @@
     <Button v-if="puedeUsarChat" icon="pi pi-comments" text rounded class="chat-acceso" :badge="sinLeer ? (sinLeer > 99 ? '99+' : String(sinLeer)) : undefined" badgeSeverity="danger" :aria-label="'Mensajes: ' + sinLeer + ' sin leer'" title="Mensajes" @click="handleMostrar" />
     <Dialog v-model:visible="mostrar" modal position="topright" class="chat-dialogo" :style="{ width: '760px', maxWidth: 'calc(100vw - 24px)', margin: '64px 12px 12px', height: 'calc(100dvh - 88px)', maxHeight: 'calc(100dvh - 88px)' }" :contentStyle="{ display: 'flex', flexDirection: 'column', minHeight: '0', overflow: 'hidden' }" :draggable="false" :breakpoints="{ '640px': '100vw' }">
         <template #header>
-            <div class="chat-titulo"><i class="pi pi-comments" aria-hidden="true" /><div><strong>Mensajes</strong><small>Conversaciones privadas</small></div></div>
+            <div class="chat-encabezado"><div class="chat-titulo"><i class="pi pi-comments" aria-hidden="true" /><div><strong>Mensajes</strong><small>Conversaciones privadas</small></div></div><Button :icon="avisosActivos ? 'pi pi-bell' : 'pi pi-bell-slash'" :label="etiquetaAvisos" :title="etiquetaAvisos + ' del navegador'" :aria-label="etiquetaAvisos + ' del navegador'" text size="small" class="chat-avisos-boton" :disabled="!soportaAvisos" :loading="solicitandoAvisos" @click="handleActivarAvisos" /></div>
         </template>
+        <Message v-if="ayudaAvisos" severity="info" :closable="false" class="chat-error">{{ ayudaAvisos }}</Message>
         <Message v-if="error" severity="warn" :closable="false" class="chat-error">{{ error }}</Message>
         <div class="chat-paneles" :class="{ 'chat-en-conversacion': !!conversacion || mostrarAgenda }">
             <aside class="chat-bandeja" aria-label="Conversaciones">

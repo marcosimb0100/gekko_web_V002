@@ -4,8 +4,10 @@
         <div class="notificaciones-cabecera">
             <Tag :value="sinLeer + ' sin leer'" :severity="sinLeer ? 'info' : 'secondary'" />
             <Button label="Limpiar leidas" icon="pi pi-trash" text :loading="archivando === 'leidas'" :disabled="total <= sinLeer || !!archivando || !!leyendo || cargando" @click="handleQuitar()" />
+            <Button :label="etiquetaAvisos" :icon="avisosActivos ? 'pi pi-bell' : 'pi pi-bell-slash'" text :disabled="!soportaAvisos" :loading="solicitandoAvisos" title="Avisos del navegador para solicitudes y cancelaciones" @click="handleActivarAvisos" />
             <Button label="Actualizar" icon="pi pi-refresh" text :loading="cargando" @click="handleActualizar()" />
         </div>
+        <Message v-if="ayudaAvisos" severity="info" :closable="false">{{ ayudaAvisos }}</Message>
         <Message v-if="error" severity="warn" :closable="false">{{ error }}</Message>
         <div v-if="!notificaciones.length && !cargando && !error" class="notificaciones-vacio">
             <i class="pi pi-bell" aria-hidden="true" /><span>No tienes notificaciones.</span>

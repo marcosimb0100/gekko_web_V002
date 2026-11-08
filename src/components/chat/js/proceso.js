@@ -1,10 +1,12 @@
 import { computed, nextTick, reactive, ref, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { estadoSocket } from '../../../helpers/socket';
+import useAvisosChat from './avisos';
 
 export default function useProceso() {
     const store = useStore();
     const puedeUsarChat = ref(false);
+    const avisosNavegador = useAvisosChat({ puedeUsarChat, handleAbrir: () => handleMostrar() });
     const presenciaUsuarios = ref({});
     const handleAplicarPresencia = (usuarios) => {
         const mapa = { ...presenciaUsuarios.value };
@@ -34,6 +36,7 @@ export default function useProceso() {
         { label: 'Eliminar conversaci\u00f3n', icon: 'pi pi-trash', disabled: !contactoMenu.value?.ultimo?.id || procesandoAccion.value, command: () => { confirmarEliminar.value = true; } }
     ]);
 
+    let bandejaInicializada = false, ultimoRecibido = '', avisarPendiente = false;
     let activa = true, offset = 0, antes = null, versionHistorial = 0, versionBusqueda = 0;
     let timerBuscar, timerActualizar, timerLeer, actualizando = false, pendiente = false, leyendo = false, envioPendiente = null;
     const handleDia = (valor) => new Date(valor.getFullYear(), valor.getMonth(), valor.getDate());
@@ -52,6 +55,7 @@ export default function useProceso() {
     const handleIniciales = (nombre) => String(nombre || 'Usuario').split(/\s+/).filter(Boolean).slice(0, 2).map(parte => parte[0]).join('').toUpperCase();
     const handleRetirarAcceso = () => {
         puedeUsarChat.value = false; mostrar.value = false;
+        avisosNavegador.handleCerrarAviso(); bandejaInicializada = false; ultimoRecibido = ''; avisarPendiente = false;
         conversaciones.value = []; usuariosEncontrados.value = []; mensajesDelDia.value = [];
         mostrarAgenda.value = false; contactosAgenda.value = []; confirmarEliminar.value = false; menuContacto.value?.hide(); ++versionAgenda; clearTimeout(timerAgenda);
         conversacion.value = null; presenciaUsuarios.value = {}; sinLeer.value = 0; borrador.value = ''; busqueda.value = '';
@@ -73,8 +77,11 @@ export default function useProceso() {
         if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible consultar el chat.');
         return res.datos;
     };
-    const handleCargarConversaciones = async (mas = false) => {
-        if (cargandoConversaciones.value || !activa || !puedeUsarChat.value) return;
+    const handleCargarConversaciones = async (mas = false, notificar = false) => {
+        if (cargandoConversaciones.value || !activa || !puedeUsarChat.value) {
+            if (notificar && activa) { pendiente = true; avisarPendiente = true; }
+            return;
+        }
         cargandoConversaciones.value = true;
         const archivadas = verArchivadas.value;
         try {
@@ -86,6 +93,11 @@ export default function useProceso() {
             offset = mas ? offset + filas.length : filas.length;
             hayMasConversaciones.value = datos.hay_mas;
             sinLeer.value = datos.sin_leer || 0;
+            const recibido = typeof datos.ultimo_recibido === 'string' ? datos.ultimo_recibido : '';
+            if (bandejaInicializada && notificar && recibido > ultimoRecibido) avisosNavegador.handleAvisarMensaje(recibido);
+            ultimoRecibido = recibido > ultimoRecibido ? recibido : ultimoRecibido;
+            bandejaInicializada = true;
+            if (!sinLeer.value) avisosNavegador.handleCerrarAviso();
             const actual = conversaciones.value.find(item => item.id === conversacion.value?.id);
             if (actual) Object.assign(conversacion.value, actual);
         } catch (ex) { if (activa && mostrar.value) error.value = ex.message; }
@@ -186,9 +198,10 @@ export default function useProceso() {
         if (actualizando) { pendiente = true; return; }
         actualizando = true;
         pendiente = false;
+        const notificar = avisarPendiente; avisarPendiente = false;
         try {
             if (!await handleValidarAcceso()) return;
-            await handleCargarConversaciones();
+            await handleCargarConversaciones(false, notificar);
             if (mostrar.value && busqueda.value.trim().length >= 2) await handleBuscar();
             if (mostrar.value && mostrarAgenda.value) await handleCargarAgenda();
             if (mostrar.value && !mostrarAgenda.value && conversacion.value && !cargandoMensajes.value) await handleCargarMensajes(false, true);
@@ -197,13 +210,14 @@ export default function useProceso() {
             if (activa && pendiente) handleProgramarActualizacion();
         }
     };
-    const handleProgramarActualizacion = () => {
+    const handleProgramarActualizacion = (notificar = false) => {
         if (!activa) return;
+        if (notificar === true) avisarPendiente = true;
         pendiente = true;
         if (!timerActualizar && !actualizando) timerActualizar = setTimeout(handleActualizar, 800);
     };
-    watch(() => estadoSocket.revisionChat, handleProgramarActualizacion);
-    watch(() => estadoSocket.revisionConexion, handleProgramarActualizacion);
+    watch(() => estadoSocket.revisionChat, () => handleProgramarActualizacion(true));
+    watch(() => estadoSocket.revisionConexion, () => handleProgramarActualizacion(true));
     const handleMenuContacto = (event, usuario) => {
         contactoMenu.value = { ...usuario, ultimo: usuario.ultimo ? { ...usuario.ultimo } : null };
         menuContacto.value?.show(event);
@@ -309,7 +323,7 @@ export default function useProceso() {
         Object.values(fotosUsuarios).forEach(url => URL.revokeObjectURL(url));
     });
     handleActualizar();
-    return { verArchivadas, mostrarAgenda, contactosAgenda, busquedaAgenda, letraAgenda, letrasAgenda, cargandoAgenda, hayMasAgenda,
+    return { ...avisosNavegador, verArchivadas, mostrarAgenda, contactosAgenda, busquedaAgenda, letraAgenda, letrasAgenda, cargandoAgenda, hayMasAgenda,
         menuContacto, contactoMenu, opcionesContacto, confirmarEliminar, procesandoAccion, handleMenuContacto, handleAplicarAccion, handleVerArchivadas,
         handleCargarAgenda, handleAbrirAgenda, handleCerrarAgenda, handleLetraAgenda, handleElegirContacto, handleEstaConectado, handleEstadoConexion, puedeUsarChat, fotosUsuarios, mostrar, busqueda, borrador, contenedorMensajes, calendario, conversacion, conversaciones,
         conversacionesFiltradas, mensajesDelDia, sinLeer, hayMasConversaciones, hayMasMensajes,
