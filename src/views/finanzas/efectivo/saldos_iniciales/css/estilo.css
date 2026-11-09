@@ -1,0 +1,74 @@
+.saldos-iniciales {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+}
+.saldos-herramientas,
+.saldos-modalidad,
+.saldos-resumen {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.saldos-herramientas > .p-iconfield {
+    flex: 1;
+    max-width: 24rem;
+}
+.saldos-herramientas :deep(.p-inputtext) {
+    width: 100%;
+}
+.saldos-empresa {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.5rem 0;
+}
+.saldos-empresa small,
+.saldos-resumen > span {
+    color: var(--p-text-muted-color);
+}
+.saldos-importe {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.saldos-captura {
+    width: 190px;
+}
+.saldos-captura :deep(input) {
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.saldos-fecha {
+    width: 170px;
+}
+.saldos-fecha :deep(input) {
+    width: 100%;
+}
+.saldos-cambio,
+.saldos-cambio-formulario,
+.saldos-cambio-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.saldos-cambio-campo { gap: .5rem; }
+.saldos-cambio-total,
+.saldos-cambio-totales {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.saldos-cambio-total strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.saldos-cambio-confirmacion { display: flex; align-items: flex-start; gap: .75rem; }
+.saldos-cambio-confirmacion label { line-height: 1.5; }
+@media (max-width: 640px) {
+    .saldos-herramientas > * {
+        width: 100%;
+        max-width: none !important;
+    }
+}

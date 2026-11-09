@@ -93,6 +93,13 @@
                             </Fieldset>
                             <Fieldset legend="Permisos administrativos" class="perfil-seccion">
                                 <div class="perfil-permiso">
+                                    <Checkbox inputId="saldos_iniciales" v-model="frmPerfil.saldos_iniciales" binary />
+                                    <div>
+                                        <label for="saldos_iniciales">Saldos iniciales</label>
+                                        <small>Permite modificar saldos iniciales registrados y cambiar la modalidad entre caja global y por empresa. Requiere acceso a Saldos iniciales.</small>
+                                    </div>
+                                </div>
+                                <div class="perfil-permiso">
                                     <Checkbox inputId="revertir_cargas" v-model="frmPerfil.revertir_cargas_bancarias" binary />
                                     <div>
                                         <label for="revertir_cargas">Revertir cargas conciliadas</label>

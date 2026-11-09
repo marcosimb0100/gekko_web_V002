@@ -8,6 +8,7 @@ import ActualizacionSat from '@/components/actualizacion_sat/ActualizacionSat.vu
 import EstadoConexion from '@/components/realtime/EstadoConexion.vue';
 import CampanaNotificaciones from '@/components/notificaciones/Notificaciones.vue';
 import ChatPrivado from '@/components/chat/ChatPrivado.vue';
+import CalendarioPagos from '@/components/pagos_programados/CalendarioPagos.vue';
 import { desconectarSocket } from '@/helpers/socket';
 
 const confirm = useConfirm();
@@ -106,10 +107,7 @@ const handleCerrarSesion = () => {
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action topbar-primary" title="Calendario">
-                        <font-icon icon="fa-solid fa-calendar-days" />
-                        <span>Calendario</span>
-                    </button>
+                    <CalendarioPagos />
 
                     <CampanaNotificaciones />
 

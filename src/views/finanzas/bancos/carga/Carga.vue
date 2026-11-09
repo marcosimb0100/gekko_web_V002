@@ -373,10 +373,10 @@
 </template>
 
 <script>
-import Encabezado from '../../../components/encabezado/Encabezado.vue';
-import proceso from './js/proceso.js';
 import Dialog from 'primevue/dialog';
 import InputNumber from 'primevue/inputnumber';
+import Encabezado from '../../../../components/encabezado/Encabezado.vue';
+import proceso from './js/proceso.js';
 
 export default {
     name: 'CargaEstadoCuenta',

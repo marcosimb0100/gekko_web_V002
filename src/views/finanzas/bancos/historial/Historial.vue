@@ -375,10 +375,16 @@
                                 v-tooltip.top="'Eliminar carga'"
                                 @click="handleEliminarCarga(slotProps.data)"
                             />
-                            <Button v-if="puedeRevertir" type="button" :icon="slotProps.data.archivada ? 'pi pi-history' : 'pi pi-undo'"
-                                severity="warn" outlined :disabled="eliminando || cargandoReversion"
+                            <Button
+                                v-if="puedeRevertir"
+                                type="button"
+                                :icon="slotProps.data.archivada ? 'pi pi-history' : 'pi pi-undo'"
+                                severity="warn"
+                                outlined
+                                :disabled="eliminando || cargandoReversion"
                                 v-tooltip.top="slotProps.data.archivada ? 'Ver reversión' : 'Revertir conciliaciones y archivar carga'"
-                                @click="handleAbrirReversion(slotProps.data)" />
+                                @click="handleAbrirReversion(slotProps.data)"
+                            />
                             <Tag v-if="slotProps.data.archivada" value="Archivada" severity="secondary" />
                         </div>
                     </template>
@@ -386,13 +392,18 @@
             </DataTable>
         </div>
     </div>
-    <Dialog v-model:visible="mostrarEliminarCarga" modal header="Eliminar carga bancaria" class="dialog-eliminar-carga"
-        :closable="!eliminando" :closeOnEscape="!eliminando">
+    <Dialog v-model:visible="mostrarEliminarCarga" modal header="Eliminar carga bancaria" class="dialog-eliminar-carga" :closable="!eliminando" :closeOnEscape="!eliminando">
         <div class="contenido-reversion">
             <div class="detalle-eliminar-carga">
-                <div><small>Empresa</small><strong>{{ cargaPorEliminar?.empresa?.razon_social || '-' }}</strong></div>
-                <div><small>Archivo</small><strong>{{ cargaPorEliminar?.archivo?.nombre_original || '-' }}</strong></div>
-                <div><small>Cuenta</small><strong>{{ handleCuentaEnmascarada(cargaPorEliminar?.clabe_cuenta || cargaPorEliminar?.cuenta_banco) }}</strong></div>
+                <div>
+                    <small>Empresa</small><strong>{{ cargaPorEliminar?.empresa?.razon_social || '-' }}</strong>
+                </div>
+                <div>
+                    <small>Archivo</small><strong>{{ cargaPorEliminar?.archivo?.nombre_original || '-' }}</strong>
+                </div>
+                <div>
+                    <small>Cuenta</small><strong>{{ handleCuentaEnmascarada(cargaPorEliminar?.clabe_cuenta || cargaPorEliminar?.cuenta_banco) }}</strong>
+                </div>
             </div>
             <Message severity="warn" :closable="false">Se eliminará el archivo original y se retirarán los movimientos que no pertenezcan a otra carga. La cabecera de la carga se conserva en el historial interno.</Message>
             <Message severity="info" :closable="false">Si hay conciliaciones activas, la API impedirá la eliminación. Los movimientos compartidos con otras cargas y los CFDI timbrados se conservan.</Message>
@@ -402,37 +413,55 @@
         </div>
         <template #footer>
             <Button label="Cancelar" outlined :disabled="eliminando" @click="mostrarEliminarCarga = false" />
-            <Button v-if="puedeRevertir" label="Revertir y archivar" icon="pi pi-undo" severity="secondary" outlined
-                :disabled="eliminando || eliminacionSinConfirmar" @click="handleArchivarDesdeEliminacion" />
-            <Button label="Eliminar carga" icon="pi pi-trash" severity="danger" :loading="eliminando"
-                :disabled="!cargaPorEliminar || eliminacionSinConfirmar" @click="handleConfirmarEliminarCarga" />
+            <Button v-if="puedeRevertir" label="Revertir y archivar" icon="pi pi-undo" severity="secondary" outlined :disabled="eliminando || eliminacionSinConfirmar" @click="handleArchivarDesdeEliminacion" />
+            <Button label="Eliminar carga" icon="pi pi-trash" severity="danger" :loading="eliminando" :disabled="!cargaPorEliminar || eliminacionSinConfirmar" @click="handleConfirmarEliminarCarga" />
         </template>
     </Dialog>
-    <Dialog v-model:visible="mostrarReversion" modal :header="reversionSoloConsulta ? 'Historial de reversión' : 'Revertir conciliaciones y archivar carga'"
-        class="dialog-reversion" :closable="!guardandoReversion" :closeOnEscape="!guardandoReversion">
+    <Dialog
+        v-model:visible="mostrarReversion"
+        modal
+        :header="reversionSoloConsulta ? 'Historial de reversión' : 'Revertir conciliaciones y archivar carga'"
+        class="dialog-reversion"
+        :closable="!guardandoReversion"
+        :closeOnEscape="!guardandoReversion"
+    >
         <ProgressBar v-if="cargandoReversion" mode="indeterminate" />
         <div v-else-if="impactoReversion" class="contenido-reversion">
-            <Message severity="warn" :closable="false">Se revierten las conciliaciones y se retiran los movimientos exclusivos de esta carga. Se conservan el archivo original, la evidencia y los movimientos compartidos con otras cargas. Los CFDI y complementos timbrados permanecen intactos.</Message>
+            <Message severity="warn" :closable="false"
+                >Se revierten las conciliaciones y se retiran los movimientos exclusivos de esta carga. Se conservan el archivo original, la evidencia y los movimientos compartidos con otras cargas. Los CFDI y complementos timbrados permanecen
+                intactos.</Message
+            >
             <div class="resumen-reversion">
-                <div><small>Archivo</small><strong>{{ impactoReversion.archivo }}</strong></div>
-                <div><small>Conciliaciones afectadas</small><strong>{{ impactoReversion.conciliaciones }}</strong></div>
-                <div><small>Importe a desconciliar</small><strong>{{ handleFormatoMoneda(impactoReversion.importe_a_desconciliar) }}</strong></div>
+                <div>
+                    <small>Archivo</small><strong>{{ impactoReversion.archivo }}</strong>
+                </div>
+                <div>
+                    <small>Conciliaciones afectadas</small><strong>{{ impactoReversion.conciliaciones }}</strong>
+                </div>
+                <div>
+                    <small>Importe a desconciliar</small><strong>{{ handleFormatoMoneda(impactoReversion.importe_a_desconciliar) }}</strong>
+                </div>
             </div>
             <Message v-if="impactoReversion.historial" severity="info" :closable="false">
-                Estado: {{ impactoReversion.historial.estado }}. Fecha: {{ handleFormatoFechaHora(impactoReversion.historial.fecha) }}.
-                Usuario: {{ impactoReversion.historial.autor_nombre || impactoReversion.historial.autor }}.
+                Estado: {{ impactoReversion.historial.estado }}. Fecha: {{ handleFormatoFechaHora(impactoReversion.historial.fecha) }}. Usuario: {{ impactoReversion.historial.autor_nombre || impactoReversion.historial.autor }}.
             </Message>
             <h4>Facturas afectadas</h4>
             <DataTable :value="impactoReversion.facturas || []" paginator :rows="5" size="small" scrollable scrollHeight="12rem">
                 <template #empty>No hay conciliaciones activas que revertir.</template>
                 <Column field="uuid" header="UUID" />
-                <Column header="Importe que vuelve a quedar pendiente de conciliación"><template #body="{ data }">{{ handleFormatoMoneda(data.importe_a_desconciliar) }}</template></Column>
+                <Column header="Importe que vuelve a quedar pendiente de conciliación"
+                    ><template #body="{ data }">{{ handleFormatoMoneda(data.importe_a_desconciliar) }}</template></Column
+                >
             </DataTable>
             <h4>Movimientos de la carga</h4>
             <DataTable :value="impactoReversion.movimientos || []" paginator :rows="5" size="small" scrollable scrollHeight="12rem">
                 <Column field="fecha" header="Fecha" /><Column field="descripcion" header="Descripción" />
-                <Column header="Ingreso"><template #body="{ data }">{{ handleFormatoMoneda(data.ingreso) }}</template></Column>
-                <Column header="Egreso"><template #body="{ data }">{{ handleFormatoMoneda(data.egreso) }}</template></Column>
+                <Column header="Ingreso"
+                    ><template #body="{ data }">{{ handleFormatoMoneda(data.ingreso) }}</template></Column
+                >
+                <Column header="Egreso"
+                    ><template #body="{ data }">{{ handleFormatoMoneda(data.egreso) }}</template></Column
+                >
             </DataTable>
             <label for="motivo-reversion">Motivo {{ reversionSoloConsulta ? '' : '(obligatorio, mínimo 10 caracteres)' }}</label>
             <Textarea id="motivo-reversion" v-model="motivoReversion" rows="3" maxlength="1000" autoResize :disabled="reversionSoloConsulta || guardandoReversion" />
@@ -444,15 +473,21 @@
         </div>
         <template #footer>
             <Button :label="reversionSoloConsulta ? 'Cerrar' : 'Cancelar'" outlined :disabled="guardandoReversion" @click="mostrarReversion = false" />
-            <Button v-if="!reversionSoloConsulta" label="Revertir y archivar" icon="pi pi-undo" severity="danger" :loading="guardandoReversion"
+            <Button
+                v-if="!reversionSoloConsulta"
+                label="Revertir y archivar"
+                icon="pi pi-undo"
+                severity="danger"
+                :loading="guardandoReversion"
                 :disabled="cargandoReversion || !impactoReversion || !confirmarReversion || motivoReversion.trim().length < 10 || reversionRequiereRevision"
-                @click="handleConfirmarReversion" />
+                @click="handleConfirmarReversion"
+            />
         </template>
     </Dialog>
 </template>
 
 <script>
-import Encabezado from '../../../components/encabezado/Encabezado.vue';
+import Encabezado from '../../../../components/encabezado/Encabezado.vue';
 
 import proceso from './js/proceso.js';
 

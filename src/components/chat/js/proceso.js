@@ -20,6 +20,7 @@ export default function useProceso() {
     });
     const mostrar = ref(false), busqueda = ref(''), borrador = ref('');
     const contenedorMensajes = ref(null), calendario = ref(null);
+    const campoMensaje = ref(null);
     const fotosUsuarios = reactive({});
     const fotosPendientes = new Set();
     const conversaciones = ref([]), usuariosEncontrados = ref([]), conversacion = ref(null);
@@ -312,7 +313,15 @@ export default function useProceso() {
             if (verArchivadas.value) { verArchivadas.value = false; conversaciones.value = []; offset = 0; }
             await handleCargarConversaciones();
         } catch (ex) { if (activa) error.value = ex.message; }
-        finally { if (activa) enviando.value = false; }
+        finally {
+            if (activa) {
+                enviando.value = false;
+                await nextTick();
+                if (activa && mostrar.value && !mostrarAgenda.value && conversacion.value?.id === usuarioId && conversacion.value.activo !== false && conversacion.value.chat_habilitado !== false) {
+                    campoMensaje.value?.$el?.focus({ preventScroll: true });
+                }
+            }
+        }
     };
     const handleVisibilidad = () => { if (mostrar.value && document.visibilityState === 'visible') handleProgramarActualizacion(); };
     document.addEventListener('visibilitychange', handleVisibilidad);
@@ -324,7 +333,7 @@ export default function useProceso() {
     });
     handleActualizar();
     return { ...avisosNavegador, verArchivadas, mostrarAgenda, contactosAgenda, busquedaAgenda, letraAgenda, letrasAgenda, cargandoAgenda, hayMasAgenda,
-        menuContacto, contactoMenu, opcionesContacto, confirmarEliminar, procesandoAccion, handleMenuContacto, handleAplicarAccion, handleVerArchivadas,
+        menuContacto, contactoMenu, opcionesContacto, confirmarEliminar, procesandoAccion, handleMenuContacto, handleAplicarAccion, handleVerArchivadas, campoMensaje,
         handleCargarAgenda, handleAbrirAgenda, handleCerrarAgenda, handleLetraAgenda, handleElegirContacto, handleEstaConectado, handleEstadoConexion, puedeUsarChat, fotosUsuarios, mostrar, busqueda, borrador, contenedorMensajes, calendario, conversacion, conversaciones,
         conversacionesFiltradas, mensajesDelDia, sinLeer, hayMasConversaciones, hayMasMensajes,
         cargandoConversaciones, cargandoMensajes, buscando, enviando, error, hoy, fechaSeleccionada, viendoHoy, etiquetaFecha,

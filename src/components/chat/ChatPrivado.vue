@@ -52,7 +52,7 @@
                     <div v-for="mensaje in mensajesDelDia" :key="mensaje.id" :data-mensaje-id="mensaje.id" class="chat-mensaje" :class="{ 'chat-mensaje-propio': mensaje.propio }"><p>{{ mensaje.texto }}</p><small>{{ handleHora(mensaje.fecha) }}<i v-if="mensaje.propio" :class="mensaje.leido ? 'pi pi-check-circle' : 'pi pi-check'" :title="mensaje.leido ? 'Leído' : 'Enviado'" /></small></div>
                 </div>
                 <form class="chat-redactar" @submit.prevent="handleEnviar">
-                    <Textarea :disabled="enviando || conversacion.activo === false || conversacion.chat_habilitado === false" v-model="borrador" placeholder="Escribe un mensaje..." aria-label="Mensaje" rows="2" :maxlength="2000" @keydown.enter.exact.prevent="handleEnviar" />
+                    <Textarea ref="campoMensaje" :disabled="enviando || conversacion.activo === false || conversacion.chat_habilitado === false" v-model="borrador" placeholder="Escribe un mensaje..." aria-label="Mensaje" rows="2" :maxlength="2000" @keydown.enter.exact.prevent="handleEnviar" />
                     <Button type="submit" icon="pi pi-send" rounded aria-label="Enviar mensaje" title="Enviar mensaje" :loading="enviando" :disabled="!borrador.trim() || conversacion.activo === false || conversacion.chat_habilitado === false" />
                     <small v-if="conversacion.activo === false || conversacion.chat_habilitado === false">Este usuario no recibe nuevos mensajes.</small>
                     <small v-else-if="!viendoHoy">Al enviar, volverás a la conversación de hoy.</small>

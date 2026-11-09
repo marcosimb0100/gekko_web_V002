@@ -312,7 +312,7 @@
 </template>
 
 <script>
-import Encabezado from '../../../components/encabezado/Encabezado.vue';
+import Encabezado from '../../../../components/encabezado/Encabezado.vue';
 
 import proceso from './js/proceso.js';
 

@@ -273,6 +273,13 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/finanzas/efectivo/saldos_iniciales',
+                    name: 'finanzas_efectivo_saldos_iniciales',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/efectivo/saldos_iniciales/SaldosIniciales.vue')
+                },
+
+                {
                     path: '/finanzas/pagos_programados',
                     name: 'finanzas_pagos_programados',
                     beforeEnter: permisoRutas,
@@ -283,41 +290,41 @@ const router = createRouter({
                     path: '/bancos/layouts',
                     name: 'bancos_layouts',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "bancos_layouts" */ '../views/bancos/layouts/Layouts.vue')
+                    component: () => import(/* webpackChunkName: "bancos_layouts" */ '../views/finanzas/bancos/layouts/Layouts.vue')
                 },
 
                 {
                     path: '/bancos/estados_cuenta',
                     name: 'bancos_estados_cuenta',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "bancos_estados_cuenta" */ '../views/bancos/carga/Carga.vue')
+                    component: () => import(/* webpackChunkName: "bancos_estados_cuenta" */ '../views/finanzas/bancos/carga/Carga.vue')
                 },
 
                 {
                     path: '/bancos/movimientos',
                     name: 'bancos_movimientos',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "bancos_movimientos" */ '../views/bancos/movimientos/Movimientos.vue')
+                    component: () => import(/* webpackChunkName: "bancos_movimientos" */ '../views/finanzas/bancos/movimientos/Movimientos.vue')
                 },
 
                 {
                     path: '/bancos/historial_cargas',
                     name: 'bancos_historial_cargas',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "bancos_historial_cargas" */ '../views/bancos/historial/Historial.vue')
+                    component: () => import(/* webpackChunkName: "bancos_historial_cargas" */ '../views/finanzas/bancos/historial/Historial.vue')
                 },
 
                 {
                     path: '/bancos/exportar_conciliacion',
                     name: 'bancos_exportar_conciliacion',
-                    component: () => import(/* webpackChunkName: "bancos_exportar_conciliacion" */ '../views/bancos/conciliacion/Conciliacion.vue')
+                    component: () => import(/* webpackChunkName: "bancos_exportar_conciliacion" */ '../views/finanzas/bancos/conciliacion/Conciliacion.vue')
                 },
 
                 {
                     path: '/bancos/conceptos_conciliacion',
                     name: 'bancos_conceptos_conciliacion',
                     beforeEnter: permisoRutas,
-                    component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
+                    component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/finanzas/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
                 },
 
                 {
