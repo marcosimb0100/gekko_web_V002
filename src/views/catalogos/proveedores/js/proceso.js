@@ -88,7 +88,7 @@ const useProceso = () => {
     const logoArchivo = ref(null), logoPreview = ref(null), logoInput = ref(null);
     const etiquetaRazonSocial = computed(() => frmProveedor.tipo_persona?.toLowerCase() === 'moral' ? 'Razón Social' : 'Nombre Completo');
     const estadosFiltrados = computed(() => (catalogoSat.value?.estado || []).filter(item => item.pais === frmProveedor.pais).map(item => ({ ...item, texto: `${item.estado} - ${item.nombre_estado}`.toUpperCase() })));
-    const requeridos = ['tipo_persona','rfc','razon_social_nombre_completo','calle','numero_ext','colonia','poblacion','municipio','codigo_postal','pais','estado'];
+    const requeridos = ['tipo_persona','rfc','razon_social_nombre_completo','codigo_postal'];
     const botonGuardarDeshabilitado = computed(() => requeridos.some(c => !String(frmProveedor[c] || '').trim()) || !/^[A-ZÑ&]{3,4}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[A-Z0-9]{3}$/.test(frmProveedor.rfc) || !/^\d{5}$/.test(frmProveedor.codigo_postal) || (!!frmProveedor.correo_electronico && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(frmProveedor.correo_electronico)));
     const handleFecha = valor => valor ? new Date(valor).toLocaleString('es-MX') : '';
     const handleLimpiarFiltro = () => { filtros.value.global.value = null; };

@@ -143,7 +143,7 @@
                 </TabPanel>
 
                 <TabPanel value="1">
-                    <Message severity="secondary" :closable="false">No hay un historial disponible en esta vista.</Message>
+                    <HistorialCatalogo modulo="usuarios" :registroId="frmUsuario._id" entidad="Usuario" :nombre="frmUsuario.nombre_completo" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -151,7 +151,7 @@
     <Dialog v-model:visible="ayudaSesiones" modal header="Sesiones del navegador" :style="{ width: '32rem' }" :breakpoints="{ '640px': '95vw' }">
         <div class="usuario-ayuda-sesiones">
             <p><strong>0 significa sin límite.</strong> Cada navegador cuenta como una sesión; sus pestañas comparten la misma.</p>
-            <p>Al alcanzar el máximo, se rechaza el nuevo inicio de sesión. Usa la opción Salir para liberar un lugar; cerrar la ventana no cierra la sesión.</p>
+            <p>Al alcanzar el máximo, se rechaza el nuevo inicio de sesión. Usa la opción Salir para liberar un lugar; al cerrar todas las pestañas de Gekko, la sesión caduca tras aproximadamente 3 minutos sin conexión.</p>
             <p>Reducir el límite conserva las sesiones existentes. Para retirarlas, usa Cerrar sesiones en la lista de usuarios.</p>
             <p>Windows Sync se administra por dispositivos y tiene su propio control de acceso.</p>
         </div>
@@ -171,12 +171,13 @@
 
 <script>
 import perfil from '../../../assets/images/Perfil.jpg';
+import HistorialCatalogo from '../../../components/historial_catalogo/HistorialCatalogo.vue';
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'Usuarios',
-    components: { Encabezado },
+    components: { Encabezado, HistorialCatalogo },
     setup() {
         return {
             ...proceso(),

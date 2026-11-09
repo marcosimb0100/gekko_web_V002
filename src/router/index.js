@@ -87,6 +87,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "configuracion_perfiles" */ '../views/configuracion/perfiles/Perfiles.vue')
                 },
                 {
+                    path: '/configuracion/menus',
+                    name: 'configuracion_menus',
+                    beforeEnter: permisoRutas,
+                    component: () => import(/* webpackChunkName: "configuracion_menus" */ '../views/configuracion/menus/Menus.vue')
+                },
+                {
                     path: '/configuracion/asignar_perfil',
                     name: 'configuracion_asignar_perfil',
                     beforeEnter: permisoRutas,
@@ -264,6 +270,13 @@ const router = createRouter({
                     name: 'administrador_cfdi_reportes_cfdi_conciliacion',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "administrador_cfdi_reportes_cfdi_conciliacion" */ '../views/administrador_cfdi/reportes_cfdi/conciliacion/Conciliacion.vue')
+                },
+
+                {
+                    path: '/finanzas/pagos_programados',
+                    name: 'finanzas_pagos_programados',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/pagos_programados/PagosProgramados.vue')
                 },
 
                 {

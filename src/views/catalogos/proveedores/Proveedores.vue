@@ -170,7 +170,7 @@
                                     <div class="grid-datos grid-direccion">
                                         <div class="campo-formulario">
                                             <label>
-                                                <span class="requerido">*</span>
+
                                                 Calle:
                                             </label>
 
@@ -179,7 +179,7 @@
 
                                         <div class="campo-formulario">
                                             <label>
-                                                <span class="requerido">*</span>
+
                                                 Número Ext:
                                             </label>
 
@@ -197,7 +197,7 @@
                                     <div class="grid-datos grid-4">
                                         <div class="campo-formulario">
                                             <label>
-                                                <span class="requerido">*</span>
+
                                                 Colonia:
                                             </label>
 
@@ -206,7 +206,7 @@
 
                                         <div class="campo-formulario">
                                             <label>
-                                                <span class="requerido">*</span>
+
                                                 Población:
                                             </label>
 
@@ -215,7 +215,7 @@
 
                                         <div class="campo-formulario">
                                             <label>
-                                                <span class="requerido">*</span>
+
                                                 Municipio:
                                             </label>
 
@@ -241,7 +241,7 @@
                             <div class="grid-datos grid-5 seccion-formulario">
                                 <div class="campo-formulario">
                                     <label>
-                                        <span class="requerido">*</span>
+
                                         País:
                                     </label>
 
@@ -250,7 +250,7 @@
 
                                 <div class="campo-formulario">
                                     <label>
-                                        <span class="requerido">*</span>
+
                                         Estado:
                                     </label>
 
@@ -282,12 +282,7 @@
                     </ScrollPanel>
                 </TabPanel>
                 <TabPanel value="1">
-                    <DataTable :value="frmProveedor.historial" paginator :rows="10" size="small" scrollable scrollHeight="50vh" class="tabla-encabezados">
-                        <template #empty>No hay movimientos registrados.</template>
-                        <Column header="Fecha"><template #body="{ data }">{{ handleFecha(data.fecha) }}</template></Column>
-                        <Column field="usuario" header="Usuario" /><Column field="accion" header="Movimiento" />
-                        <Column header="Campos actualizados"><template #body="{ data }">{{ data.campos?.join(', ') }}</template></Column>
-                    </DataTable>
+                    <HistorialCatalogo modulo="proveedores" :registroId="frmProveedor._id" :movimientos="frmProveedor.historial || []" entidad="Proveedor" :nombre="frmProveedor.razon_social_nombre_completo" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -295,9 +290,10 @@
 </template>
 <script>
 import proveedorDefault from '../../../assets/images/Empresa.jpg';
+import HistorialCatalogo from '../../../components/historial_catalogo/HistorialCatalogo.vue';
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
-export default { name: 'Proveedores', components: { Encabezado }, setup() { return { ...proceso(), proveedorDefault }; } };
+export default { name: 'Proveedores', components: { Encabezado, HistorialCatalogo }, setup() { return { ...proceso(), proveedorDefault }; } };
 </script>
 <style scoped>
 @import './css/estilo.css';

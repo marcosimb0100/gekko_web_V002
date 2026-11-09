@@ -1,0 +1,13 @@
+.sat-nube { position: relative; color: var(--p-primary-color); flex-shrink: 0; }
+.sat-porcentaje { position: absolute; bottom: -6px; font-size: 9px; font-weight: 600; background: var(--p-surface-0); border-radius: 6px; padding: 0 3px; }
+.sat-avance { display: flex; flex-direction: column; gap: 16px; }
+.sat-resumen { display: flex; align-items: center; gap: 14px; }
+.sat-resumen > svg { font-size: 28px; color: var(--p-primary-color); }
+.sat-resumen small { display: block; margin-top: 4px; color: var(--p-text-muted-color); }
+.sat-avance p { margin: 0; }
+.sat-avance > small { color: var(--p-text-muted-color); line-height: 1.5; }
+.sat-totales { display: grid; gap: 10px; }
+.sat-totales span { display: flex; justify-content: space-between; }
+.sat-descargando { animation: sat-pulso 1.4s ease-in-out infinite; }
+@keyframes sat-pulso { 50% { opacity: .4; transform: translateY(2px); } }
+@media (prefers-reduced-motion: reduce) { .sat-descargando { animation: none; } }

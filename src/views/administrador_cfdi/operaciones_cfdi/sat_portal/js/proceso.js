@@ -1,6 +1,7 @@
 import { useToast } from 'primevue/usetoast';
 
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { avanceSat, actualizandoSat, descripcionSat, handleSeguirSat } from '@/helpers/actualizacionSat';
 
 import { useStore } from 'vuex';
 
@@ -864,54 +865,12 @@ const useProceso = () => {
     // - Mantiene el spinner solamente en el botón.
     // ==========================================================
 
-    const avanceActualizacion = ref({ porcentaje: 0, fase: 'preparando', completados: 0 });
+    const avanceActualizacion = avanceSat;
     const claveTrabajo = 'gekko_sat_actualizacion';
     let vistaActiva = true;
-    const descripcionActualizacion = computed(() => {
-        const avance = avanceActualizacion.value;
-        const fases = { preparando: 'Preparando CFDI', descargando: 'Revisando y descargando XML', procesando: 'Procesando XML en la base', sincronizando: 'Actualizando estatus SAT' };
-        return `${fases[avance.fase] || 'Actualizando CFDI'}: ${avance.completados || 0} de ${avance.total_fase || avance.total || 0}`;
-    });
-    const handleSeguirActualizacion = async (trabajo) => {
-        actualizandoCfdiBase.value = true;
-        let fallos = 0;
-        while (vistaActiva) {
-            try {
-                const respuesta = await store.dispatch('api/apiPostTokenSinCargando', {
-                    direccion: '/sat_portal/actualizacion_estado/' + trabajo, datosJson: {}
-                });
-                if (!vistaActiva) return;
-                if (respuesta.estatus !== 200) {
-                    if ([401, 402, 403, 404].includes(respuesta.estatus)) {
-                        sessionStorage.removeItem(claveTrabajo);
-                        actualizandoCfdiBase.value = false;
-                        toast.add({ severity: 'warn', summary: 'Actualizar CFDI', detail: respuesta.mensaje || 'No fue posible consultar la actualizacion.', life: 6000 });
-                        return;
-                    }
-                    throw new Error('Estado temporalmente no disponible');
-                }
-                fallos = 0;
-                avanceActualizacion.value = respuesta.datos;
-                const datos = respuesta.datos;
-                if (datos.estado !== 'procesando') {
-                    sessionStorage.removeItem(claveTrabajo);
-                    actualizandoCfdiBase.value = false;
-                    const resultado = datos.resultado;
-                    const resumen = resultado?.datos || {};
-                    const correcto = datos.estado === 'finalizado' && resultado?.estatus === 200;
-                    toast.add({
-                        severity: correcto ? (resumen.errores ? 'warn' : 'success') : 'error', summary: 'Actualizar CFDI',
-                        detail: correcto ? `${resumen.procesados || 0} de ${resumen.total || 0} CFDI procesados. ${resumen.errores || 0} errores.` : (datos.mensaje || resultado?.mensaje || 'La actualizacion se interrumpio.'), life: 7000
-                    });
-                    return;
-                }
-            } catch (error) {
-                fallos += 1;
-                if (fallos === 3 && vistaActiva) toast.add({ severity: 'warn', summary: 'Actualizar CFDI', detail: 'Se perdio temporalmente la conexion. El trabajo no se vuelve a enviar; seguiremos consultando su avance.', life: 6000 });
-            }
-            await new Promise((resolve) => setTimeout(resolve, fallos ? 5000 : 1500));
-        }
-    };
+    const descripcionActualizacion = descripcionSat;
+    watch(actualizandoSat, valor => { actualizandoCfdiBase.value = valor; }, { immediate: true });
+    const handleSeguirActualizacion = trabajo => handleSeguirSat(store, trabajo);
     const handleActualizarCfdiBase = async () => {
         if (actualizandoCfdiBase.value || !sesionSat.value?.sesion_id || !companyId.value) return;
         const registros = cfdis.value.filter((item) => (item?.uuid || item?.folio_fiscal) && item?.url_xml);
@@ -930,7 +889,7 @@ const useProceso = () => {
                 throw new Error(res.mensaje || 'No fue posible iniciar la actualizacion.');
             }
             sessionStorage.setItem(claveTrabajo, res.datos.trabajo_id);
-            if (vistaActiva) await handleSeguirActualizacion(res.datos.trabajo_id);
+            handleSeguirActualizacion(res.datos.trabajo_id);
         } catch (error) {
             if (vistaActiva) {
                 actualizandoCfdiBase.value = false;

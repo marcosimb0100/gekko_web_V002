@@ -497,7 +497,7 @@
                 <!-- ================================================= -->
 
                 <TabPanel value="4" v-if="movimiento === 'E'">
-                    <p class="m-0">Aquí se mostrará el historial del cliente.</p>
+                    <HistorialCatalogo modulo="clientes" :registroId="frmCliente._id" :movimientos="frmCliente.historial || []" entidad="Cliente" :nombre="frmCliente.razon_social_nombre_completo" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -541,6 +541,7 @@
 
 <script>
 import clienteDefault from '../../../assets/images/Empresa.jpg';
+import HistorialCatalogo from '../../../components/historial_catalogo/HistorialCatalogo.vue';
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
 
@@ -548,6 +549,7 @@ export default {
     name: 'Clientes',
 
     components: {
+        HistorialCatalogo,
         Encabezado
     },
 

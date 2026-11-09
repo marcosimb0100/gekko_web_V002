@@ -16,18 +16,18 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
-    parentPath: {
+    parentKey: {
         type: String,
         default: null
     }
 });
 
-// An absolute path already includes its ancestors; never concatenate it twice.
-const fullPath = computed(() => {
-    const path = props.item.path;
-    if (!path) return props.parentPath;
-    if (path.startsWith('/')) return path.replace(/\/$/, '') || '/';
-    return `${props.parentPath || ''}/${path}`.replace(/\/+/g, '/').replace(/\/$/, '');
+// La expansion representa la rama del menu, no una URL de la aplicacion.
+// Los agrupadores movidos pueden no tener path y las rutas hijas no necesitan
+// compartir el prefijo del padre.
+const branchKey = computed(() => {
+    const identidad = props.item.id_menu ?? props.item.path ?? props.item.to ?? props.item.label;
+    return `${props.parentKey || 'menu'}/${encodeURIComponent(String(identidad || 'opcion'))}`;
 });
 
 const handlePathMatches = (current, target) => !!target && (current === target || (target !== '/' && current?.startsWith(`${target}/`)));
@@ -40,7 +40,7 @@ const handleContainsRoute = (item) => {
 const isActive = computed(() => {
     // Keep the current page's branch visible even while another branch is explored.
     if (handleContainsRoute(props.item)) return true;
-    return !!props.item.items && handlePathMatches(layoutState.activePath, fullPath.value);
+    return !!props.item.items && handlePathMatches(layoutState.activePath, branchKey.value);
 });
 
 const itemClick = (event, item) => {
@@ -55,9 +55,9 @@ const itemClick = (event, item) => {
 
     if (item.items) {
         if (isActive.value) {
-            layoutState.activePath = props.parentPath || null;
+            layoutState.activePath = props.parentKey || null;
         } else {
-            layoutState.activePath = fullPath.value;
+            layoutState.activePath = branchKey.value;
             layoutState.menuHoverActive = true;
         }
     } else {
@@ -69,7 +69,7 @@ const itemClick = (event, item) => {
 
 const onMouseEnter = () => {
     if (isDesktop() && props.root && props.item.items && layoutState.menuHoverActive) {
-        layoutState.activePath = fullPath.value;
+        layoutState.activePath = branchKey.value;
     }
 };
 </script>
@@ -89,7 +89,7 @@ const onMouseEnter = () => {
         </router-link>
         <Transition v-if="item.items && item.visible !== false" name="layout-submenu">
             <ul v-show="root ? true : isActive" class="layout-submenu">
-                <app-menu-item v-for="child in item.items" :key="child.label + '_' + (child.to || child.path)" :item="child" :root="false" :parentPath="fullPath" />
+                <app-menu-item v-for="child in item.items" :key="child.id_menu || child.to || child.path || child.label" :item="child" :root="false" :parentKey="branchKey" />
             </ul>
         </Transition>
     </li>

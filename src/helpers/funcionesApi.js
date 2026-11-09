@@ -51,8 +51,8 @@ export const apiPost_sinToken = async (direccion, datos) => {
         .catch((error) => {
             const { response } = error;
             return {
-                estatus: response.status === 0 ? 500 : response.status,
-                mensaje: response.status === 0 ? `[Api] Error ${error}` : response.data.mensaje,
+                estatus: response?.status || 500,
+                mensaje: response?.data?.mensaje || 'No fue posible conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
                 datos: {}
             };
         });

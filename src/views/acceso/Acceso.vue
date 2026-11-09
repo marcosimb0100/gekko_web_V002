@@ -1,5 +1,6 @@
 <template>
     <div class="login-wrapper">
+        <Toast />
         <div class="login-box">
             <div class="login-left">
                 <div class="overlay">
@@ -52,9 +53,11 @@
 
 <script>
 import proceso from './js/proceso.js';
+import Toast from 'primevue/toast';
 
 export default {
     name: 'Acceso',
+    components: { Toast },
     setup() {
         return {
             ...proceso()

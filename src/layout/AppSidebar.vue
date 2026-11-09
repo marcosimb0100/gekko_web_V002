@@ -63,3 +63,11 @@ onBeforeUnmount(() => {
         <AppMenu />
     </div>
 </template>
+
+<style scoped>
+.layout-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+</style>

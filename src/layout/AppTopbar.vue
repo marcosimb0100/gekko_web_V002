@@ -4,6 +4,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useStore } from 'vuex';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import ActualizacionSat from '@/components/actualizacion_sat/ActualizacionSat.vue';
 import EstadoConexion from '@/components/realtime/EstadoConexion.vue';
 import CampanaNotificaciones from '@/components/notificaciones/Notificaciones.vue';
 import ChatPrivado from '@/components/chat/ChatPrivado.vue';
@@ -57,6 +58,7 @@ const handleCerrarSesion = () => {
         </div>
 
         <div class="layout-topbar-actions">
+            <ActualizacionSat />
             <EstadoConexion />
             <div class="layout-config-menu">
                 <!-- Modo claro / oscuro -->

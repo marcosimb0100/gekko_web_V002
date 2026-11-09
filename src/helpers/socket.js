@@ -1,7 +1,7 @@
 import { reactive, readonly } from 'vue';
 import { io } from 'socket.io-client';
 
-const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {} });
+const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionSat: 0, trabajoSat: null, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {} });
 export const estadoSocket = readonly(estado);
 let conexion = null;
 let tokenConexion = '';
@@ -109,6 +109,11 @@ export const conectarSocket = () => {
     });
     actual.on('chat_actualizado', (aviso) => {
         if (vigente() && estado.autorizado && aviso?.origen === 'chat') estado.revisionChat += 1;
+    });
+    actual.on('sat_actualizacion', (aviso) => {
+        if (vigente() && estado.autorizado && /^[a-f0-9]{32}$/.test(aviso?.trabajo_id || '')) {
+            estado.trabajoSat = aviso.trabajo_id; estado.revisionSat += 1;
+        }
     });
     actual.on('mesa_actualizada', (aviso) => {
         if (vigente() && estado.autorizado && aviso?.origen === 'mesa_control') estado.revisionMesa += 1;

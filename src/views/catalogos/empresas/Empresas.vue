@@ -650,7 +650,7 @@
                 </TabPanel>
 
                 <TabPanel value="9" v-if="movimiento === 'E'">
-                    <p class="m-0">Historial de la empresa.</p>
+                    <HistorialCatalogo modulo="empresas" :registroId="frmEmpresa._id" entidad="Empresa" :nombre="frmEmpresa.razon_social_nombre_completo" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -1263,12 +1263,13 @@
 
 <script>
 import empresaDefault from '../../../assets/images/Empresa.jpg';
+import HistorialCatalogo from '../../../components/historial_catalogo/HistorialCatalogo.vue';
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'Empresas',
-    components: { Encabezado },
+    components: { Encabezado, HistorialCatalogo },
     setup() {
         return {
             ...proceso(),

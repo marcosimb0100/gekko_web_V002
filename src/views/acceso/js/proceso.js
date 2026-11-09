@@ -14,15 +14,18 @@ const useProceso = () => {
     const frmAcceso = reactive(frmAccesoInit());
 
     const correoInput = ref(null);
+    const errorAcceso = ref('');
 
     const handleAcceso = async () => {
+        errorAcceso.value = '';
         const res = await store.dispatch('api/apiPostAcceso', {
             direccion: `usuarios/acceso`,
             datosJson: frmAcceso
         });
 
         if (res.estatus !== 200) {
-            toast.add({ severity: 'error', summary: 'Notificacion', detail: res.mensaje, life: 3000 });
+            errorAcceso.value = res.mensaje || 'No fue posible iniciar sesión. Intenta nuevamente.';
+            toast.add({ severity: 'error', summary: 'Acceso', detail: errorAcceso.value, life: 6000 });
             limpiarFormulario();
         }
     };
@@ -73,7 +76,8 @@ const useProceso = () => {
         correoElectronicoValido,
         claveValida,
         botonEntrarDeshabilitado,
-        correoInput
+        correoInput,
+        errorAcceso
     };
 };
 

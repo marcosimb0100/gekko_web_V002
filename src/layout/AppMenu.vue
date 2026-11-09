@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import Avatar from 'primevue/avatar';
 import { useStore } from 'vuex';
 import AppMenuItem from './AppMenuItem.vue';
 
@@ -7,6 +8,20 @@ const store = useStore();
 
 const modelMenu = ref([]);
 const nombreUsuario = ref(localStorage.getItem('nombre_completo') || 'Usuario');
+const fotoUsuario = ref(null);
+let desmontado = false;
+
+const handleCargarFoto = async () => {
+    const res = await store.dispatch('api/apiGetblob', { direccion: '/usuarios/foto' });
+    if (!desmontado && res.estatus === 200 && res.data instanceof Blob && res.data.type.startsWith('image/')) {
+        fotoUsuario.value = URL.createObjectURL(res.data);
+    }
+};
+
+onUnmounted(() => {
+    desmontado = true;
+    if (fotoUsuario.value) URL.revokeObjectURL(fotoUsuario.value);
+});
 
 const handleCargarMenu = async () => {
     const res = await store.dispatch('api/apiGetToken', {
@@ -21,7 +36,7 @@ const handleCargarMenu = async () => {
 };
 
 onMounted(async () => {
-    await handleCargarMenu();
+    await Promise.allSettled([handleCargarMenu(), handleCargarFoto()]);
 });
 
 // const model = ref([
@@ -216,10 +231,10 @@ onMounted(async () => {
 
 <template>
     <span class="usuario-menu" style="font-size: 12px; white-space: nowrap;">
-        <font-icon icon="fa-solid fa-user" />
-        {{ nombreUsuario }}
+        <Avatar :image="fotoUsuario || undefined" :icon="fotoUsuario ? undefined : 'pi pi-user'" shape="circle" class="usuario-menu-foto" :aria-label="nombreUsuario" />
+        <span class="usuario-menu-nombre" :title="nombreUsuario">{{ nombreUsuario }}</span>
     </span>
-    <ul class="layout-menu" style="border-top: 1px solid gray; margin-top: 10px">
+    <ul class="layout-menu">
         <template v-for="(item, i) in modelMenu" :key="item">
             <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
             <li v-if="item.separator" class="menu-separator"></li>
@@ -229,6 +244,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .usuario-menu {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -237,10 +253,49 @@ onMounted(async () => {
     margin: 0 10px;
 
     font-weight: 600;
+    position: relative;
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--p-surface-200), transparent);
+    }
+}
+
+.usuario-menu-foto {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.usuario-menu-foto :deep(img) {
+    object-fit: cover;
+}
+
+.usuario-menu-nombre {
+    font-size: 11px;
+    font-weight: 500;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
 }
 
 .layout-menu {
-    border-top: 1px solid var(--p-surface-300);
-    margin-top: 10px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    border-top: 0;
+    margin-top: 0;
 }
 </style>

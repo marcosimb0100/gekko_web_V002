@@ -1,9 +1,16 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
+import { useStore } from 'vuex';
+import { iniciarActividadSesion } from '@/helpers/sesionNavegador';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
+
+const store = useStore();
+let detenerActividad;
+onMounted(() => { detenerActividad = iniciarActividadSesion(store); });
+onUnmounted(() => { detenerActividad?.(); });
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
 
