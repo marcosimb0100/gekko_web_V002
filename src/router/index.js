@@ -1,6 +1,7 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import permisoRutas from './permisosRutas';
+import { registrarPantallaActual } from '@/helpers/socket';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -79,6 +80,12 @@ const router = createRouter({
                     name: 'configuracion_usuarios',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "configuracion_usuarios" */ '../views/configuracion/usuarios/Usuarios.vue')
+                },
+                {
+                    path: '/configuracion/seguimiento_usuarios',
+                    name: 'configuracion_seguimiento_usuarios',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/configuracion/seguimiento_usuarios/SeguimientoUsuarios.vue')
                 },
                 {
                     path: '/configuracion/perfiles',
@@ -422,6 +429,10 @@ const router = createRouter({
             ]
         }
     ]
+});
+
+router.afterEach((to, from, failure) => {
+    if (!failure) registrarPantallaActual(to.matched.some((registro) => registro.name === 'app') ? to.path : '');
 });
 
 export default router;

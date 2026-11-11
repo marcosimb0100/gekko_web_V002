@@ -9,6 +9,7 @@ const frmPerfilInit = () => ({
     revertir_cargas_bancarias: false,
     cerrar_sesiones_usuarios: false,
     saldos_iniciales: false,
+    ver_pantallas_usuarios: false,
     activo: true
 });
 
@@ -195,6 +196,7 @@ const useProceso = () => {
                 revertir_cargas_bancarias: perfil?.revertir_cargas_bancarias === true,
                 cerrar_sesiones_usuarios: perfil?.cerrar_sesiones_usuarios === true,
                 saldos_iniciales: perfil?.saldos_iniciales === true,
+                ver_pantallas_usuarios: perfil?.ver_pantallas_usuarios === true,
                 activo: perfil?.activo ?? false
             });
 
@@ -384,6 +386,7 @@ const useProceso = () => {
             revertir_cargas_bancarias: frmPerfil.revertir_cargas_bancarias === true,
             cerrar_sesiones_usuarios: frmPerfil.cerrar_sesiones_usuarios === true,
             saldos_iniciales: frmPerfil.saldos_iniciales === true,
+            ver_pantallas_usuarios: frmPerfil.ver_pantallas_usuarios === true,
             menus_seleccionados: menusSeleccionados.value,
             menu_web: menuWeb,
             lista_url: listaUrl

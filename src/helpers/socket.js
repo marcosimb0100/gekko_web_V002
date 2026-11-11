@@ -1,11 +1,23 @@
 import { reactive, readonly } from 'vue';
 import { io } from 'socket.io-client';
 
-const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionSat: 0, trabajoSat: null, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {} });
+const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionSat: 0, trabajoSat: null, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {}, revisionConexionesUsuarios: 0 });
+estado.revisionSeguimientoUsuarios = 0;
 export const estadoSocket = readonly(estado);
 let conexion = null;
 let tokenConexion = '';
 let alCerrarSesion = null;
+let rutaPantalla = '';
+let avisoPantalla = null;
+export const registrarPantallaActual = (ruta) => {
+    rutaPantalla = typeof ruta === 'string' && ruta.length <= 240 && /^\/[a-zA-Z0-9_/-]*$/.test(ruta) ? ruta : '';
+    window.clearTimeout(avisoPantalla);
+    const actual = conexion;
+    if (!actual?.connected || !estado.autorizado) return;
+    avisoPantalla = window.setTimeout(() => {
+        if (conexion === actual && actual.connected && estado.autorizado) actual.emit('usuario_pantalla', { ruta: rutaPantalla });
+    }, 500);
+};
 export const registrarCierreSesion = (handler) => {
     alCerrarSesion = handler;
     return () => { if (alCerrarSesion === handler) alCerrarSesion = null; };
@@ -14,6 +26,7 @@ export const registrarCierreSesion = (handler) => {
 const handleToken = () => localStorage.getItem('token')?.trim() || '';
 
 export const desconectarSocket = (motivo = 'desconectado') => {
+    window.clearTimeout(avisoPantalla);
     const anterior = conexion;
     conexion = null;
     tokenConexion = '';
@@ -65,6 +78,7 @@ export const conectarSocket = () => {
         if (!vigente()) return;
         estado.revisionConexion += 1;
         Object.assign(estado, { estado: 'conectado', autorizado: true, mensaje: 'Conexión autenticada. Sala personal asignada por el servidor.' });
+        registrarPantallaActual(rutaPantalla);
     });
     actual.on('disconnect', () => {
         if (!vigente()) return;
@@ -109,6 +123,12 @@ export const conectarSocket = () => {
     });
     actual.on('chat_actualizado', (aviso) => {
         if (vigente() && estado.autorizado && aviso?.origen === 'chat') estado.revisionChat += 1;
+    });
+    actual.on('usuarios_conexiones_actualizadas', (aviso) => {
+        if (vigente() && estado.autorizado && aviso?.origen === 'usuarios') estado.revisionConexionesUsuarios += 1;
+    });
+    actual.on('usuarios_seguimiento_actualizado', (aviso) => {
+        if (vigente() && estado.autorizado && aviso?.origen === 'seguimiento') estado.revisionSeguimientoUsuarios += 1;
     });
     actual.on('sat_actualizacion', (aviso) => {
         if (vigente() && estado.autorizado && /^[a-f0-9]{32}$/.test(aviso?.trabajo_id || '')) {

@@ -17,10 +17,6 @@ const useProceso = () => {
 
     const arbol = ref([]);
 
-    const empresas = ref([]);
-
-    const bancos = ref([]);
-
     const buscar = ref('');
 
     const cargando = ref(false);
@@ -47,10 +43,6 @@ const useProceso = () => {
         descripcion: '',
 
         orden: 1,
-
-        empresas: [],
-
-        bancos: [],
 
         activo: true
     });
@@ -109,57 +101,7 @@ const useProceso = () => {
 
         frmConcepto.orden = 1;
 
-        frmConcepto.empresas = [];
-
-        frmConcepto.bancos = [];
-
         frmConcepto.activo = true;
-    };
-
-    // ============================================================
-    // CATÁLOGOS
-    // ============================================================
-
-    const handleCargarCatalogos = async () => {
-        try {
-            const res = await store.dispatch('api/apiGetToken', {
-                direccion: '/conciliacion_bancaria/conceptos/catalogos'
-            });
-
-            if (res?.estatus !== 200) {
-                empresas.value = [];
-
-                bancos.value = [];
-
-                handleToast('error', res?.mensaje || 'No fue posible consultar los catálogos.');
-
-                return false;
-            }
-
-            const datos = obtenerDatosRespuesta(res);
-
-            empresas.value = Array.isArray(datos.empresas) ? datos.empresas : [];
-
-            bancos.value = Array.isArray(datos.bancos)
-                ? datos.bancos.map((item) => ({
-                      ...item,
-
-                      label: `${item.banco || 'BANCO'}` + ` · ${item.cuenta_banco || item.clabe_banco || ''}` + ` · ${item.empresa || ''}`
-                  }))
-                : [];
-
-            return true;
-        } catch (error) {
-            console.error('ERROR CATÁLOGOS:', error);
-
-            empresas.value = [];
-
-            bancos.value = [];
-
-            handleToast('error', 'Ocurrió un error al consultar los catálogos.');
-
-            return false;
-        }
     };
 
     // ============================================================
@@ -203,48 +145,6 @@ const useProceso = () => {
             return false;
         } finally {
             cargando.value = false;
-        }
-    };
-
-    // ============================================================
-    // NIVEL 1
-    // ============================================================
-
-    const esNivelUno = computed(() => !frmConcepto.parent_id);
-
-    // ============================================================
-    // BANCOS DISPONIBLES
-    // ============================================================
-
-    const bancosDisponibles = computed(() => {
-        const empresasIds = frmConcepto.empresas.map((item) => String(item));
-
-        if (empresasIds.length === 0) {
-            return [];
-        }
-
-        return bancos.value.filter((item) => empresasIds.includes(String(item.company_id)));
-    });
-
-    // ============================================================
-    // CAMBIAR EMPRESAS
-    // ============================================================
-
-    const handleCambiarEmpresas = () => {
-        const permitidos = new Set(bancosDisponibles.value.map((item) => String(item._id)));
-
-        frmConcepto.bancos = frmConcepto.bancos.filter((item) => permitidos.has(String(item)));
-    };
-
-    // ============================================================
-    // CAMBIAR PADRE
-    // ============================================================
-
-    const handleCambiarPadre = () => {
-        if (frmConcepto.parent_id) {
-            frmConcepto.empresas = [];
-
-            frmConcepto.bancos = [];
         }
     };
 
@@ -326,10 +226,6 @@ const useProceso = () => {
 
         frmConcepto.orden = Number(concepto.orden || 1);
 
-        frmConcepto.empresas = Array.isArray(concepto.empresas) ? [...concepto.empresas] : [];
-
-        frmConcepto.bancos = Array.isArray(concepto.bancos) ? [...concepto.bancos] : [];
-
         frmConcepto.activo = concepto.activo !== false;
 
         visibleFormulario.value = true;
@@ -373,10 +269,6 @@ const useProceso = () => {
         descripcion: String(frmConcepto.descripcion || '').trim(),
 
         orden: Number(frmConcepto.orden || 1),
-
-        empresas: esNivelUno.value ? [...frmConcepto.empresas] : [],
-
-        bancos: esNivelUno.value ? [...frmConcepto.bancos] : [],
 
         activo: frmConcepto.activo !== false
     });
@@ -502,11 +394,7 @@ const useProceso = () => {
         nodos.forEach((nodo) => {
             const data = nodo.data || {};
 
-            const empresasTexto = (data.empresas_detalle || []).map((item) => item.nombre).join(' ');
-
-            const bancosTexto = (data.bancos_detalle || []).map((item) => `${item.banco} ${item.cuenta_banco} ${item.clabe_banco}`).join(' ');
-
-            const contenido = [data.nombre, data.clave, data.descripcion, empresasTexto, bancosTexto].join(' ').toLowerCase();
+            const contenido = [data.nombre, data.clave, data.descripcion].join(' ').toLowerCase();
 
             const hijos = filtrarNodos(nodo.children || [], texto);
 
@@ -558,20 +446,6 @@ const useProceso = () => {
     };
 
     // ============================================================
-    // CUENTA CORTA
-    // ============================================================
-
-    const handleCuentaCorta = (cuenta) => {
-        const valor = String(cuenta || '');
-
-        if (valor.length <= 4) {
-            return valor || '-';
-        }
-
-        return '••••' + valor.slice(-4);
-    };
-
-    // ============================================================
     // TOTAL
     // ============================================================
 
@@ -581,15 +455,11 @@ const useProceso = () => {
     // MOUNTED
     // ============================================================
 
-    onMounted(async () => {
-        await Promise.all([handleCargarCatalogos(), handleConsultar()]);
-    });
+    onMounted(handleConsultar);
 
     return {
         conceptos,
         arbol,
-        empresas,
-        bancos,
 
         buscar,
 
@@ -601,10 +471,6 @@ const useProceso = () => {
         expandedKeys,
 
         frmConcepto,
-
-        esNivelUno,
-
-        bancosDisponibles,
 
         opcionesPadres,
 
@@ -618,13 +484,8 @@ const useProceso = () => {
         handleGuardar,
         handleEliminar,
 
-        handleCambiarPadre,
-        handleCambiarEmpresas,
-
         handleExpandirTodo,
-        handleContraerTodo,
-
-        handleCuentaCorta
+        handleContraerTodo
     };
 };
 

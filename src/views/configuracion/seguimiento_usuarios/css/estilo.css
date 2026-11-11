@@ -1,0 +1,6 @@
+.seguimiento-usuarios { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.seguimiento-herramientas { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; }
+.seguimiento-identidad { display: flex; flex-direction: column; gap: .35rem; padding: .5rem 0; }
+.seguimiento-identidad small, .seguimiento-nota, .seguimiento-herramientas > span { color: var(--p-text-muted-color); }
+.seguimiento-nota { margin: 0; line-height: 1.5; }
+@media (max-width: 640px) { .seguimiento-herramientas > .p-iconfield, .seguimiento-herramientas :deep(.p-inputtext) { width: 100%; } }

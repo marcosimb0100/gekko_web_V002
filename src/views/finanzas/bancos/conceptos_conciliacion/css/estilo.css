@@ -239,59 +239,6 @@
 }
 
 /* =========================================================
-   CHIPS
-   ========================================================= */
-
-.chips-resumen {
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 4px;
-}
-
-.chip-empresa,
-.chip-banco,
-.chip-mas {
-    max-width: 150px;
-
-    padding: 3px 7px;
-
-    overflow: hidden;
-
-    border-radius: 10px;
-
-    font-size: 8px;
-
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
-}
-
-.chip-empresa {
-    background: rgba(37, 99, 235, 0.11);
-
-    color: #2563eb;
-}
-
-.chip-banco {
-    background: rgba(22, 163, 74, 0.11);
-
-    color: #15803d;
-}
-
-.chip-mas {
-    background: rgba(125, 125, 125, 0.12);
-}
-
-.texto-vacio,
-.texto-heredado {
-    font-size: 8px;
-
-    opacity: 0.55;
-}
-
-/* =========================================================
    ESTADOS
    ========================================================= */
 
@@ -436,96 +383,10 @@
 }
 
 /* =========================================================
-   NIVEL 1
+   ALCANCE GLOBAL
    ========================================================= */
 
-.asignaciones-nivel-uno {
-    margin-top: 5px;
-
-    padding: 16px;
-
-    border: 1px solid var(--surface-border);
-
-    border-radius: 9px;
-
-    background: rgba(0, 180, 210, 0.025);
-}
-
-.titulo-seccion {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-    margin-bottom: 15px;
-}
-
-.titulo-seccion > div {
-    display: flex;
-
-    flex-direction: column;
-}
-
-.titulo-seccion strong {
-    font-size: 11px;
-}
-
-.titulo-seccion small {
-    margin-top: 2px;
-
-    font-size: 8px;
-
-    opacity: 0.6;
-}
-
-.badge-nivel {
-    padding: 4px 10px;
-
-    border-radius: 12px;
-
-    background: #2563eb;
-
-    color: white;
-
-    font-size: 8px;
-
-    font-weight: 600;
-}
-
-/* =========================================================
-   OPCIONES
-   ========================================================= */
-
-.opcion-empresa,
-.opcion-banco {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 1px;
-}
-
-.opcion-empresa strong,
-.opcion-banco strong {
-    font-size: 10px;
-}
-
-.opcion-empresa small,
-.opcion-banco small,
-.opcion-banco span {
-    font-size: 8px;
-
-    opacity: 0.65;
-}
-
-/* =========================================================
-   HERENCIA
-   ========================================================= */
-
-.mensaje-herencia {
+.mensaje-global {
     display: flex;
 
     align-items: center;
@@ -543,17 +404,17 @@
     color: #2563eb;
 }
 
-.mensaje-herencia > div {
+.mensaje-global > div {
     display: flex;
 
     flex-direction: column;
 }
 
-.mensaje-herencia strong {
+.mensaje-global strong {
     font-size: 10px;
 }
 
-.mensaje-herencia span {
+.mensaje-global span {
     margin-top: 2px;
 
     font-size: 8px;

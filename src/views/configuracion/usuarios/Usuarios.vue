@@ -41,7 +41,7 @@
                         <Tag v-if="conexionesDisponibles" :value="totalConectados + ' conectado(s)'" severity="success" />
                     </div>
                     <div class="usuarios-presencia-ayuda">
-                        <span>Conexion al servicio de tiempo real; no indica actividad del usuario ni numero de equipos.</span>
+                        <span>Actualización automática por socket al cambiar las conexiones; no indica actividad del usuario ni número de equipos.</span>
                         <span v-if="horaConsultaConexiones && conexionesDisponibles">Consultado: {{ horaConsultaConexiones }}</span>
                     </div>
                     <Message v-if="errorConexiones" severity="warn" :closable="false">{{ errorConexiones }}</Message>

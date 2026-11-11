@@ -1,8 +1,9 @@
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { computed, nextTick, reactive, ref, onBeforeUnmount } from 'vue';
+import { computed, nextTick, reactive, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { regexCorreoElectronico, regexNombreCompleto, regex_clave } from '../../../../helpers/regex';
+import { estadoSocket } from '../../../../helpers/socket';
 
 const frmUsuarioInit = () => ({
     _id: '',
@@ -73,6 +74,8 @@ const useProceso = () => {
     const errorConexiones = ref('');
     const fechaConsultaConexiones = ref(null);
     let vistaActiva = true;
+    let temporizadorConexiones = null;
+    let actualizacionPendiente = false;
     const usuariosVisibles = computed(() => soloConectados.value
         ? tablasUsuarios.value.filter((usuario) => conexionesUsuarios.value[usuario._id]?.conexiones > 0)
         : tablasUsuarios.value);
@@ -81,6 +84,7 @@ const useProceso = () => {
         ? new Date(fechaConsultaConexiones.value).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '');
     const handleActualizarConexiones = async () => {
         if (consultandoConexiones.value || !vistaActiva) return;
+        actualizacionPendiente = false;
         consultandoConexiones.value = true;
         errorConexiones.value = '';
         try {
@@ -101,7 +105,10 @@ const useProceso = () => {
             soloConectados.value = false;
             errorConexiones.value = error.message || 'No fue posible consultar las conexiones.';
         } finally {
-            if (vistaActiva) consultandoConexiones.value = false;
+            if (vistaActiva) {
+                consultandoConexiones.value = false;
+                if (actualizacionPendiente) handleActualizarConexionesAutomaticamente();
+            }
         }
     };
     const handleDescripcionConexion = (usuario) => {
@@ -110,7 +117,36 @@ const useProceso = () => {
         if (!item) return 'Sin conexion al servicio de tiempo real al consultar.';
         return `Conectado desde ${new Date(item.conectado_desde).toLocaleString('es-MX')}. ${item.conexiones} conexion(es); pueden ser varias pestañas.`;
     };
-    onBeforeUnmount(() => { vistaActiva = false; });
+    const handleActualizarConexionesAutomaticamente = () => {
+        actualizacionPendiente = true;
+        if (!vistaActiva || mostrarTablaFormulario.value || document.visibilityState !== 'visible' || navigator.onLine === false) return;
+        // El socket avisa de cambios; HTTP revalida el permiso y entrega la lista.
+        // Agrupar rafagas evita consultar por cada pestaña que entra o sale.
+        window.clearTimeout(temporizadorConexiones);
+        temporizadorConexiones = window.setTimeout(() => {
+            temporizadorConexiones = null;
+            if (vistaActiva && !mostrarTablaFormulario.value && document.visibilityState === 'visible' && navigator.onLine !== false) void handleActualizarConexiones();
+        }, 200);
+    };
+    watch(() => estadoSocket.revisionConexionesUsuarios, handleActualizarConexionesAutomaticamente);
+    watch(() => estadoSocket.revisionConexion, handleActualizarConexionesAutomaticamente);
+    watch(mostrarTablaFormulario, (mostrando) => { if (!mostrando && actualizacionPendiente) handleActualizarConexionesAutomaticamente(); });
+    watch(() => estadoSocket.autorizado, (autorizado) => {
+        if (!autorizado) {
+            conexionesDisponibles.value = false;
+            conexionesUsuarios.value = {};
+        }
+    });
+    onMounted(() => {
+        document.addEventListener('visibilitychange', handleActualizarConexionesAutomaticamente);
+        window.addEventListener('online', handleActualizarConexionesAutomaticamente);
+    });
+    onBeforeUnmount(() => {
+        vistaActiva = false;
+        window.clearTimeout(temporizadorConexiones);
+        document.removeEventListener('visibilitychange', handleActualizarConexionesAutomaticamente);
+        window.removeEventListener('online', handleActualizarConexionesAutomaticamente);
+    });
 
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------

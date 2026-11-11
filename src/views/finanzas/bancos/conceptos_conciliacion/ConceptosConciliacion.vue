@@ -1,5 +1,5 @@
 <template>
-    <Encabezado titulo="Conceptos de Conciliación" subtitulo="Catálogo jerárquico para clasificación de movimientos bancarios" icono="pi pi-sitemap">
+    <Encabezado titulo="Conceptos de Conciliación" subtitulo="Catálogo global para clasificación de movimientos bancarios" icono="pi pi-sitemap">
         <Button type="button" label="Nuevo Concepto" class="btn-nuevo" @click="handleNuevo">
             <template #icon>
                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
@@ -21,7 +21,7 @@
                 <div>
                     <div class="titulo-modulo">Estructura de Conceptos</div>
 
-                    <div class="subtitulo-modulo">El nivel 1 puede asignarse a empresas y cuentas bancarias. Los niveles inferiores pueden crecer sin límite.</div>
+                    <div class="subtitulo-modulo">Los conceptos y subconceptos están disponibles para todas las empresas y cuentas bancarias.</div>
                 </div>
             </div>
 
@@ -40,7 +40,7 @@
             <span class="p-input-icon-left campo-busqueda">
                 <i class="pi pi-search"></i>
 
-                <InputText v-model="buscar" placeholder="Buscar concepto, clave, empresa o banco..." />
+                <InputText v-model="buscar" placeholder="Buscar concepto, clave o descripción..." />
             </span>
 
             <div class="contador-conceptos">
@@ -79,40 +79,6 @@
                     <span class="clave-concepto">
                         {{ slotProps.node.data.clave || '-' }}
                     </span>
-                </template>
-            </Column>
-
-            <Column header="Empresas" style="min-width: 220px">
-                <template #body="slotProps">
-                    <div v-if="slotProps.node.data.nivel === 1" class="chips-resumen">
-                        <span v-for="empresa in slotProps.node.data.empresas_detalle.slice(0, 2)" :key="empresa._id" class="chip-empresa">
-                            {{ empresa.nombre }}
-                        </span>
-
-                        <span v-if="slotProps.node.data.empresas_detalle.length > 2" class="chip-mas"> +{{ slotProps.node.data.empresas_detalle.length - 2 }} </span>
-
-                        <span v-if="slotProps.node.data.empresas_detalle.length === 0" class="texto-vacio"> Todas / Sin restricción </span>
-                    </div>
-
-                    <span v-else class="texto-heredado"> Heredado </span>
-                </template>
-            </Column>
-
-            <Column header="Bancos / Cuentas" style="min-width: 240px">
-                <template #body="slotProps">
-                    <div v-if="slotProps.node.data.nivel === 1" class="chips-resumen">
-                        <span v-for="banco in slotProps.node.data.bancos_detalle.slice(0, 2)" :key="banco._id" class="chip-banco">
-                            {{ banco.banco }}
-                            •
-                            {{ handleCuentaCorta(banco.cuenta_banco) }}
-                        </span>
-
-                        <span v-if="slotProps.node.data.bancos_detalle.length > 2" class="chip-mas"> +{{ slotProps.node.data.bancos_detalle.length - 2 }} </span>
-
-                        <span v-if="slotProps.node.data.bancos_detalle.length === 0" class="texto-vacio"> Todas / Sin restricción </span>
-                    </div>
-
-                    <span v-else class="texto-heredado"> Heredado </span>
                 </template>
             </Column>
 
@@ -160,7 +126,7 @@
                         {{ frmConcepto._id ? 'Editar Concepto' : 'Nuevo Concepto' }}
                     </div>
 
-                    <small> Configuración jerárquica de conciliación bancaria </small>
+                    <small> Concepto global de conciliación bancaria </small>
                 </div>
             </div>
         </template>
@@ -173,7 +139,7 @@
             <div class="campo-formulario campo-completo">
                 <label>Concepto Padre</label>
 
-                <Dropdown v-model="frmConcepto.parent_id" :options="opcionesPadres" optionLabel="label" optionValue="_id" placeholder="Sin padre - Nivel 1" filter showClear class="w-full" @change="handleCambiarPadre" />
+                <Dropdown v-model="frmConcepto.parent_id" :options="opcionesPadres" optionLabel="label" optionValue="_id" placeholder="Sin padre - Nivel 1" filter showClear class="w-full" />
 
                 <small> Sin padre significa que será un concepto de nivel 1. </small>
             </div>
@@ -219,100 +185,11 @@
                 <Textarea v-model="frmConcepto.descripcion" rows="3" maxlength="500" class="w-full" placeholder="Descripción opcional del concepto" />
             </div>
 
-            <!-- ================================================= -->
-            <!-- SOLO NIVEL 1 -->
-            <!-- ================================================= -->
-
-            <div v-if="esNivelUno" class="asignaciones-nivel-uno">
-                <div class="titulo-seccion">
-                    <div>
-                        <strong> Asignación del nivel 1 </strong>
-
-                        <small> Estas asignaciones aplicarán a todos sus subconceptos. </small>
-                    </div>
-
-                    <span class="badge-nivel"> Nivel 1 </span>
-                </div>
-
-                <!-- ============================================= -->
-                <!-- EMPRESAS -->
-                <!-- ============================================= -->
-
-                <div class="campo-formulario campo-completo">
-                    <label>Empresas</label>
-
-                    <MultiSelect v-model="frmConcepto.empresas" :options="empresas" optionLabel="nombre" optionValue="_id" placeholder="Seleccione una o más empresas" display="chip" filter class="w-full" @change="handleCambiarEmpresas">
-                        <template #option="slotProps">
-                            <div class="opcion-empresa">
-                                <strong>
-                                    {{ slotProps.option.nombre }}
-                                </strong>
-
-                                <small>
-                                    RFC:
-                                    {{ slotProps.option.rfc || 'Sin RFC' }}
-                                </small>
-                            </div>
-                        </template>
-                    </MultiSelect>
-
-                    <small> Si no seleccionas empresas, el concepto no tendrá restricción por empresa. </small>
-                </div>
-
-                <!-- ============================================= -->
-                <!-- BANCOS -->
-                <!-- ============================================= -->
-
-                <div class="campo-formulario campo-completo">
-                    <label>Cuentas Bancarias</label>
-
-                    <MultiSelect
-                        v-model="frmConcepto.bancos"
-                        :options="bancosDisponibles"
-                        optionLabel="label"
-                        optionValue="_id"
-                        placeholder="Seleccione las cuentas bancarias"
-                        display="chip"
-                        filter
-                        class="w-full"
-                        :disabled="frmConcepto.empresas.length === 0"
-                    >
-                        <template #option="slotProps">
-                            <div class="opcion-banco">
-                                <strong>
-                                    {{ slotProps.option.banco }}
-                                </strong>
-
-                                <span>
-                                    {{ slotProps.option.empresa }}
-                                </span>
-
-                                <small>
-                                    Cuenta:
-                                    {{ slotProps.option.cuenta_banco || '-' }}
-
-                                    · CLABE:
-                                    {{ slotProps.option.clabe_banco || '-' }}
-                                </small>
-                            </div>
-                        </template>
-                    </MultiSelect>
-
-                    <small> Las cuentas se filtran según las empresas seleccionadas. </small>
-                </div>
-            </div>
-
-            <!-- ================================================= -->
-            <!-- NIVEL HIJO -->
-            <!-- ================================================= -->
-
-            <div v-else class="mensaje-herencia">
+            <div class="mensaje-global">
                 <font-icon icon="fa-solid fa-circle-info" />
-
                 <div>
-                    <strong> Este concepto es un nivel inferior. </strong>
-
-                    <span> Las empresas y cuentas bancarias se determinan desde su concepto de nivel 1. </span>
+                    <strong>Concepto global</strong>
+                    <span>Disponible para todas las empresas y cuentas bancarias, al igual que sus subconceptos.</span>
                 </div>
             </div>
         </div>

@@ -93,6 +93,13 @@
                             </Fieldset>
                             <Fieldset legend="Permisos administrativos" class="perfil-seccion">
                                 <div class="perfil-permiso">
+                                    <Checkbox inputId="ver_pantallas_usuarios" v-model="frmPerfil.ver_pantallas_usuarios" binary />
+                                    <div>
+                                        <label for="ver_pantallas_usuarios">Seguimiento de usuarios</label>
+                                        <small>Permite consultar las páginas abiertas por las sesiones conectadas. Requiere acceso al menú Seguimiento de usuarios.</small>
+                                    </div>
+                                </div>
+                                <div class="perfil-permiso">
                                     <Checkbox inputId="saldos_iniciales" v-model="frmPerfil.saldos_iniciales" binary />
                                     <div>
                                         <label for="saldos_iniciales">Saldos iniciales</label>
