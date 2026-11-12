@@ -9,6 +9,9 @@ const frmPerfilInit = () => ({
     revertir_cargas_bancarias: false,
     cerrar_sesiones_usuarios: false,
     saldos_iniciales: false,
+    traspasar_efectivo: false,
+    revisar_diferencias_caja: false,
+    anular_movimientos_caja: false,
     ver_pantallas_usuarios: false,
     activo: true
 });
@@ -196,6 +199,9 @@ const useProceso = () => {
                 revertir_cargas_bancarias: perfil?.revertir_cargas_bancarias === true,
                 cerrar_sesiones_usuarios: perfil?.cerrar_sesiones_usuarios === true,
                 saldos_iniciales: perfil?.saldos_iniciales === true,
+                traspasar_efectivo: perfil?.traspasar_efectivo === true,
+                revisar_diferencias_caja: perfil?.revisar_diferencias_caja === true,
+                anular_movimientos_caja: perfil?.anular_movimientos_caja === true,
                 ver_pantallas_usuarios: perfil?.ver_pantallas_usuarios === true,
                 activo: perfil?.activo ?? false
             });
@@ -386,6 +392,9 @@ const useProceso = () => {
             revertir_cargas_bancarias: frmPerfil.revertir_cargas_bancarias === true,
             cerrar_sesiones_usuarios: frmPerfil.cerrar_sesiones_usuarios === true,
             saldos_iniciales: frmPerfil.saldos_iniciales === true,
+            traspasar_efectivo: frmPerfil.traspasar_efectivo === true,
+            revisar_diferencias_caja: frmPerfil.revisar_diferencias_caja === true,
+            anular_movimientos_caja: frmPerfil.anular_movimientos_caja === true,
             ver_pantallas_usuarios: frmPerfil.ver_pantallas_usuarios === true,
             menus_seleccionados: menusSeleccionados.value,
             menu_web: menuWeb,

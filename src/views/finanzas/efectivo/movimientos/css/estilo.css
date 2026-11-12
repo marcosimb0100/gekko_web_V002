@@ -1,0 +1,35 @@
+.efectivo-movimientos { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+.efectivo-filtros { display: flex; align-items: flex-end; flex-wrap: wrap; gap: .8rem; }
+.efectivo-filtros > div { display: flex; flex-direction: column; gap: .5rem; flex: 1 1 10rem; min-width: 0; }
+.efectivo-filtros > .efectivo-caja { flex-basis: 16rem; }
+.efectivo-contexto { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.efectivo-contexto small { color: var(--p-text-muted-color); }
+.efectivo-resumen { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1rem; }
+.efectivo-resumen > div { display: flex; align-items: center; gap: .8rem; padding: 1rem; border: 1px solid var(--p-surface-200); border-radius: 12px; }
+.efectivo-resumen i { padding: .8rem; border-radius: 10px; background: var(--p-primary-50); color: var(--p-primary-color); }
+.efectivo-resumen span { color: var(--p-text-muted-color); font-size: .85rem; }
+.efectivo-resumen strong { display: block; font-size: 1.45rem; color: var(--p-text-color); margin-top: .35rem; }
+.importe-entrada { color: #15803d; } .importe-salida { color: #b91c1c; }
+.efectivo-dato { display: flex; flex-direction: column; gap: .3rem; padding: .5rem 0; max-width: 25rem; overflow-wrap: anywhere; }
+.efectivo-dato small { color: var(--p-text-muted-color); }
+.efectivo-formulario { display: flex; flex-direction: column; gap: 1.25rem; padding-top: 1rem; }
+.efectivo-formulario > small { color: var(--p-text-muted-color); }
+.efectivo-saldo-dialog { display: flex; gap: .8rem; justify-content: space-between; flex-wrap: wrap; padding: 1rem; background: var(--p-surface-50); border-radius: 10px; }
+.efectivo-rejilla { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.efectivo-rejilla > div { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.efectivo-ancho { grid-column: 1 / -1; }
+.efectivo-detalle { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.efectivo-detalle div { border-bottom: 1px solid var(--p-surface-200); padding-bottom: .75rem; }
+.efectivo-detalle dt { color: var(--p-text-muted-color); font-size: .85rem; }
+.efectivo-detalle dd { margin: .4rem 0 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) { .efectivo-resumen, .efectivo-rejilla, .efectivo-detalle { grid-template-columns: 1fr; } }
+
+.efectivo-acciones { display: flex; align-items: center; gap: .5rem; }
+.efectivo-campo-anulacion, .efectivo-anulacion-datos { display: flex; flex-direction: column; gap: .5rem; }
+.efectivo-anulacion-datos small { color: var(--p-text-muted-color); }
+
+.efectivo-comprobantes :deep(table) { table-layout:fixed; width:100%; }
+.efectivo-comprobantes :deep(td) { overflow-wrap:anywhere; }
+
+.efectivo-comprobantes-filtro { display:flex; align-items:center; gap:.65rem; flex-wrap:wrap; }
+.efectivo-archivo-retirar { overflow-wrap:anywhere; }

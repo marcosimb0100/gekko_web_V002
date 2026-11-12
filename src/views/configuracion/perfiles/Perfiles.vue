@@ -91,7 +91,14 @@
                                     <Tag :value="frmPerfil.activo ? 'Activo' : 'Inactivo'" :severity="frmPerfil.activo ? 'success' : 'secondary'" />
                                 </div>
                             </Fieldset>
-                            <Fieldset legend="Permisos administrativos" class="perfil-seccion">
+                            <Fieldset legend="Permisos administrativos" class="perfil-seccion perfil-permisos">
+                                <div class="perfil-permiso">
+                                    <Checkbox inputId="saldos_iniciales" v-model="frmPerfil.saldos_iniciales" binary />
+                                    <div>
+                                        <label for="saldos_iniciales">Saldos iniciales</label>
+                                        <small>Permite modificar el importe y la fecha de saldos iniciales ya registrados. Requiere acceso a Cajas. El alta de una caja con su saldo inicial no requiere este permiso adicional.</small>
+                                    </div>
+                                </div>
                                 <div class="perfil-permiso">
                                     <Checkbox inputId="ver_pantallas_usuarios" v-model="frmPerfil.ver_pantallas_usuarios" binary />
                                     <div>
@@ -99,11 +106,12 @@
                                         <small>Permite consultar las páginas abiertas por las sesiones conectadas. Requiere acceso al menú Seguimiento de usuarios.</small>
                                     </div>
                                 </div>
+                                <div class="perfil-permiso"><Checkbox inputId="revisar_diferencias_caja" v-model="frmPerfil.revisar_diferencias_caja" binary /><div><label for="revisar_diferencias_caja">Revisar diferencias de caja</label><small>Permite tomar faltantes o sobrantes en revision y autorizar su resolucion. Requiere acceso a Cortes de caja.</small></div></div>
                                 <div class="perfil-permiso">
-                                    <Checkbox inputId="saldos_iniciales" v-model="frmPerfil.saldos_iniciales" binary />
+                                    <Checkbox inputId="anular_movimientos_caja" v-model="frmPerfil.anular_movimientos_caja" binary />
                                     <div>
-                                        <label for="saldos_iniciales">Saldos iniciales</label>
-                                        <small>Permite modificar saldos iniciales registrados y cambiar la modalidad entre caja global y por empresa. Requiere acceso a Saldos iniciales.</small>
+                                        <label for="anular_movimientos_caja">Anular movimientos de caja</label>
+                                        <small>Autoriza correcciones mediante un movimiento inverso con motivo obligatorio. Requiere acceso a Movimientos de caja y una jornada abierta.</small>
                                     </div>
                                 </div>
                                 <div class="perfil-permiso">

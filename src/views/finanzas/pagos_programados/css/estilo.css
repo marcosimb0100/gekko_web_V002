@@ -17,3 +17,52 @@
 .pagos-ancho { grid-column: 1 / -1; }
 .pagos-rejilla > .pagos-check { flex-direction: row; align-items: center; }
 @media (max-width: 768px) { .pagos-resumen, .pagos-rejilla { grid-template-columns: 1fr; } .pagos-aviso { align-items: flex-start; flex-direction: column; } .pagos-herramientas > * { width: 100%; } }
+
+.pagos-acciones { display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
+.pagos-registro-resumen { display:flex; flex-direction:column; gap:.4rem; padding:1rem; border:1px solid var(--p-surface-200); border-radius:.6rem; background:var(--p-surface-50); }
+.pagos-movimientos-tabla :deep(table) { table-layout:fixed; width:100%; }
+.pagos-movimientos-tabla :deep(td) { overflow-wrap:anywhere; white-space:normal; }
+
+/* Registro horizontal: datos del periodo a la izquierda y origen a la derecha. */
+.pagos-registro-layout { display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr); gap:1rem; align-items:start; }
+.pagos-registro-datos, .pagos-registro-origen { display:flex; flex-direction:column; gap:.8rem; min-width:0; }
+.pagos-registro-layout .pagos-rejilla { gap:.7rem; }
+.pagos-registro-layout .pagos-rejilla > div { gap:.35rem; }
+.pagos-registro-layout .pagos-identidad { padding:.15rem 0; }
+.pagos-registro-layout :deep(.p-fieldset-content) { padding:.7rem; }
+.pagos-registro-layout :deep(.p-fieldset) { margin:0; min-width:0; }
+.pagos-registro-layout :deep(.p-message-text) { font-size:.82rem; }
+.pagos-registro-layout .pagos-ancho > .p-button { align-self:flex-start; width:auto; }
+.pagos-registro-layout :deep(.p-paginator) { padding:.3rem; }
+#registroPago { gap:.8rem; }
+#registroPago .pagos-registro-resumen { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,auto); gap:.25rem 1rem; padding:.75rem 1rem; }
+#registroPago .pagos-registro-resumen > strong, #registroPago .pagos-registro-resumen > span { grid-column:1; overflow-wrap:anywhere; }
+#registroPago .pagos-registro-resumen > small { grid-column:2; grid-row:1 / 3; align-self:center; max-width:20rem; overflow-wrap:anywhere; }
+@media (max-width:1000px) {
+    .pagos-registro-layout { grid-template-columns:1fr; }
+    #registroPago .pagos-registro-resumen { grid-template-columns:1fr; }
+    #registroPago .pagos-registro-resumen > small { grid-column:1; grid-row:auto; max-width:none; }
+}
+
+.pagos-importe-guardado { display:flex; flex-direction:column; gap:.35rem; }
+.pagos-importe-guardado > strong { font-size:1.25rem; font-variant-numeric:tabular-nums; }
+
+/* Acuerdo compacto en horizontal, sin recortar campos en pantallas pequenas. */
+#programacionPago { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:.8rem 1rem; align-items:start; }
+#programacionPago > .pagos-form-aviso, #programacionPago > .p-fieldset:first-of-type { grid-column:1 / -1; }
+#programacionPago > .p-fieldset { margin:0; min-width:0; }
+#programacionPago :deep(.p-fieldset-content) { padding:.65rem .8rem; }
+#programacionPago .pagos-rejilla { gap:.65rem .8rem; }
+#programacionPago .pagos-rejilla > div { gap:.3rem; }
+#programacionPago .pagos-form-aviso { padding:.45rem .65rem; font-size:.78rem; }
+#programacionPago :deep(.p-textarea) { resize:vertical; min-height:3rem; }
+@media (max-width:850px) {
+    #programacionPago { grid-template-columns:1fr; }
+}
+
+.pagos-vencimiento-fijo { background:var(--p-surface-100); color:var(--p-text-muted-color); cursor:default; }
+.pagos-registro-datos :deep(.p-textarea) { width:100%; resize:vertical; }
+
+.pagos-banco-ayuda { margin:0 0 .8rem; color:var(--p-text-muted-color); font-size:.85rem; }
+#registro-origen { display:flex; width:100%; }
+#registro-origen :deep(.p-togglebutton) { flex:1; }

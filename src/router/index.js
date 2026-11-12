@@ -281,9 +281,24 @@ const router = createRouter({
 
                 {
                     path: '/finanzas/efectivo/saldos_iniciales',
+                    alias: '/finanzas/efectivo/cajas',
                     name: 'finanzas_efectivo_saldos_iniciales',
                     beforeEnter: permisoRutas,
-                    component: () => import('../views/finanzas/efectivo/saldos_iniciales/SaldosIniciales.vue')
+                    component: () => import('../views/finanzas/efectivo/cajas/Cajas.vue')
+                },
+
+                {
+                    path: '/finanzas/efectivo/movimientos',
+                    name: 'finanzas_efectivo_movimientos',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/efectivo/movimientos/MovimientosCaja.vue')
+                },
+
+                {
+                    path: '/finanzas/efectivo/cortes',
+                    name: 'finanzas_efectivo_cortes',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/efectivo/cortes/CortesCaja.vue')
                 },
 
                 {

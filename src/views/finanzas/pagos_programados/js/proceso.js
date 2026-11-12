@@ -1,3 +1,4 @@
+import useRegistro from './registro';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useToast } from 'primevue/usetoast';
@@ -13,6 +14,10 @@ export default () => {
     const errorFormulario = ref('');
     const busqueda = ref('');
     const periodicidad = ref(null);
+    const vistaPagos = ref('pendientes');
+    const vistasPagos = [{ id: 'pendientes', nombre: 'Pendientes y parciales' }, { id: 'todas', nombre: 'Todas las programaciones' }];
+    const estadosPago = { pendiente: 'Pendiente', parcial: 'Parcial', pagado: 'Pagado', revisar: 'Revisar importe' };
+    const handleEstadoPago = item => !item.activo ? 'Pausado' : !item.exigible && item.proxima_fecha ? 'Próximo periodo' : estadosPago[item.estado_pago] || 'Pendiente';
     const formulario = reactive(inicial());
     const proveedores = ref([]);
     const empresas = ref([]);
@@ -20,11 +25,11 @@ export default () => {
     const medios = ['Transferencia', 'Efectivo', 'Cheque', 'Tarjeta de debito', 'Tarjeta de credito', 'Otro'];
     const plazos = ['Contado', '15 dias', '30 dias', '60 dias', 'Fecha acordada'];
     const registros = ref([]);
-    const filas = computed(() => registros.value.filter(item => (!periodicidad.value || item.periodicidad === periodicidad.value) && (item.proveedor_nombre + ' ' + item.empresa_nombre + ' ' + item.concepto).toLocaleLowerCase().includes(busqueda.value.trim().toLocaleLowerCase())));
+    const filas = computed(() => registros.value.filter(item => (vistaPagos.value === 'todas' || item.exigible) && (!periodicidad.value || item.periodicidad === periodicidad.value) && (item.proveedor_nombre + ' ' + item.empresa_nombre + ' ' + item.concepto).toLocaleLowerCase().includes(busqueda.value.trim().toLocaleLowerCase())));
     const resumen = computed(() => [
         { etiqueta: 'Acuerdos registrados', valor: registros.value.length, icono: 'pi pi-calendar' },
         { etiqueta: 'Programaciones activas', valor: registros.value.filter(i => i.activo).length, icono: 'pi pi-check-circle' },
-        { etiqueta: 'Importe variable', valor: registros.value.filter(i => i.variable).length, icono: 'pi pi-receipt' }
+        { etiqueta: 'Pagos parciales', valor: registros.value.filter(i => i.exigible && i.estado_pago === 'parcial').length, icono: 'pi pi-receipt' }
     ]);
     const handleCargar = async () => {
         if (cargando.value) return;
@@ -40,15 +45,16 @@ export default () => {
     };
     const handleNuevo = () => { Object.assign(formulario, inicial()); errorFormulario.value = ''; mostrar.value = true; };
     const handleEditar = (item) => { Object.assign(formulario, inicial(), item, { inicio: new Date(item.inicio + 'T12:00:00'), fecha_acordada: item.fecha_acordada ? new Date(item.fecha_acordada + 'T12:00:00') : null, importe: Number(item.importe || 0) }); errorFormulario.value = ''; mostrar.value = true; };
-    const handleLimpiar = () => { busqueda.value = ''; periodicidad.value = null; };
+    const handleLimpiar = () => { busqueda.value = ''; periodicidad.value = null; vistaPagos.value = 'pendientes'; };
     const handleMoneda = (valor) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valor || 0);
     const handleFecha = (valor) => valor ? new Date(valor + 'T12:00:00').toLocaleDateString('es-MX') : '\u2014';
     const handleRegla = (item) => item.periodicidad === 'Mensual' ? `Dia ${item.dia} de cada mes` : item.periodicidad === 'Quincenal' ? 'Dia 15 y ultimo del mes' : item.periodicidad === 'Personalizada' ? `Cada ${item.intervalo} dias` : `Desde ${handleFecha(item.inicio)}`;
+    const handleConcepto = (valor) => { formulario.concepto = String(valor || '').toLocaleUpperCase('es-MX'); };
     const handleGuardar = async () => {
         if (guardando.value || !formulario.proveedor || !formulario.empresa || !formulario.concepto.trim() || !formulario.inicio) return;
         guardando.value = true; errorFormulario.value = '';
         try {
-            const datosJson = { ...formulario, inicio: fechaLocal(formulario.inicio), fecha_acordada: fechaLocal(formulario.fecha_acordada), importe: formulario.variable ? null : String(formulario.importe), moneda: 'MXN' };
+            const datosJson = { ...formulario, concepto: formulario.concepto.trim().toLocaleUpperCase('es-MX'), inicio: fechaLocal(formulario.inicio), fecha_acordada: fechaLocal(formulario.fecha_acordada), importe: formulario.variable ? null : String(formulario.importe), moneda: 'MXN' };
             const res = await store.dispatch(formulario.id ? 'api/apiPutToken' : 'api/apiPostToken', { direccion: '/pagos_programados/', datosJson });
             if (res.estatus !== 200) { errorFormulario.value = res.mensaje || 'No fue posible guardar la programacion.'; return; }
             mostrar.value = false;
@@ -57,6 +63,7 @@ export default () => {
         } catch { errorFormulario.value = 'No fue posible guardar. Verifica la conexion e intenta nuevamente.'; }
         finally { guardando.value = false; }
     };
+    const registro = useRegistro({ handleCargar });
     onMounted(handleCargar);
-    return { mostrar, cargando, guardando, error, errorFormulario, busqueda, periodicidad, formulario, proveedores, empresas, periodicidades, medios, plazos, filas, resumen, handleCargar, handleNuevo, handleEditar, handleLimpiar, handleGuardar, handleMoneda, handleFecha, handleRegla };
+    return { ...registro, vistaPagos, vistasPagos, handleEstadoPago, mostrar, cargando, guardando, error, errorFormulario, busqueda, periodicidad, formulario, proveedores, empresas, periodicidades, medios, plazos, filas, resumen, handleCargar, handleNuevo, handleEditar, handleLimpiar, handleConcepto, handleGuardar, handleMoneda, handleFecha, handleRegla };
 };
