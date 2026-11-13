@@ -20,7 +20,7 @@ export default function useRegistro({ handleCargar }) {
     const pendientePeriodo = computed(() => Number.isFinite(pago.total_periodo) && saldoPeriodo.value ? Math.round((pago.total_periodo - Number(saldoPeriodo.value.abonado))*100)/100 : null);
     const totalPeriodoValido = computed(() => !!saldoPeriodo.value && Number.isFinite(pago.total_periodo) && pago.total_periodo > 0 && pago.total_periodo <= 999999999999.99 && pendientePeriodo.value >= 0);
     const pagoValido = computed(() => !cargandoPeriodo.value && !!saldoPeriodo.value && saldoPeriodo.value.estado_pago !== 'pagado' && totalPeriodoValido.value && Math.round(Number(pago.importe || 0)*100) <= Math.round(Number(pendientePeriodo.value || 0)*100) && !cargandoRegistro.value && !cargandoCuentasPago.value && !cargandoMovimientosPago.value && !!fechaLocal(pago.vencimiento) && Number.isFinite(pago.importe) && pago.importe > 0 && pago.importe <= 999999999999.99 &&
-        (pago.origen === 'efectivo' ? opcionesPago.value.puede_efectivo && !!cajaPago.value?.jornada_id && !!pago.concepto_id && !!fechaLocal(pago.fecha) && pago.fecha <= hoyPago.value && Math.round(pago.importe*100) <= Math.round(Number(cajaPago.value.saldo)*100) : opcionesPago.value.puede_bancario && !!pago.empresa_id && !!pago.cuenta_id && !!movimientoPago.value && !movimientoPago.value.usado));
+        (pago.origen === 'efectivo' ? opcionesPago.value.puede_efectivo && !!cajaPago.value?.jornada_id && !!pago.concepto_id && !!fechaLocal(pago.fecha) && pago.fecha <= hoyPago.value && Math.round(pago.importe*100) <= Math.round(Number(cajaPago.value.saldo)*100) : opcionesPago.value.puede_bancario && !!pago.concepto_id && !!pago.empresa_id && !!pago.cuenta_id && !!movimientoPago.value && !movimientoPago.value.usado));
     const handleConsultarPeriodo = async () => {
         const consulta = ++consultaPeriodo;
         saldoPeriodo.value = null; pago.total_periodo = null; errorRegistro.value = ''; cargandoPeriodo.value = false;
@@ -38,7 +38,7 @@ export default function useRegistro({ handleCargar }) {
     };
     const handleCuentasPago = async () => {
         const consulta = ++consultaCuentas; ++consultaMovimientos;
-        cuentasPago.value = []; movimientosPago.value = []; totalMovimientosPago.value = 0; pago.cuenta_id = null; pago.movimiento_id = null;
+        cuentasPago.value = []; movimientosPago.value = []; totalMovimientosPago.value = 0; pago.importe = null; pago.cuenta_id = null; pago.movimiento_id = null;
         if (!pago.empresa_id || pago.origen !== 'banco') return;
         cargandoCuentasPago.value = true; errorRegistro.value = '';
         try {
@@ -51,7 +51,7 @@ export default function useRegistro({ handleCargar }) {
     };
     const handleMovimientosPago = async (reiniciar = true) => {
         const consulta = ++consultaMovimientos;
-        movimientosPago.value = []; pago.movimiento_id = null; totalMovimientosPago.value = 0;
+        movimientosPago.value = []; pago.movimiento_id = null; pago.importe = null; totalMovimientosPago.value = 0;
         if (reiniciar) primeroMovimientosPago.value = 0;
         if (!pago.cuenta_id || !fechaLocal(pago.desde) || !fechaLocal(pago.hasta)) return;
         if (pago.desde > pago.hasta) { errorRegistro.value = 'Revisa el periodo bancario.'; return; }
@@ -66,7 +66,7 @@ export default function useRegistro({ handleCargar }) {
         finally { if (consulta === consultaMovimientos) cargandoMovimientosPago.value = false; }
     };
     const handlePaginaMovimientosPago = e => { primeroMovimientosPago.value = e.first; return handleMovimientosPago(false); };
-    const handleSeleccionarMovimientoPago = () => { pago.importe = movimientoPago.value ? Number(movimientoPago.value.importe) : null; };
+    const handleSeleccionarMovimientoPago = () => { pago.importe = movimientoPago.value ? Number(movimientoPago.value.importe) : null; pago.concepto_id = movimientoPago.value?.concepto_id || pago.concepto_id; };
     const handleOrigenPago = () => {
         ++consultaCuentas; ++consultaMovimientos; cargandoCuentasPago.value = false; cargandoMovimientosPago.value = false;
         errorRegistro.value = ''; pago.movimiento_id = null; movimientosPago.value = []; totalMovimientosPago.value = 0;
@@ -96,11 +96,11 @@ export default function useRegistro({ handleCargar }) {
             const datosJson = { operacion_id: operacion, programacion_id: programacionPago.value.id, revision: programacionPago.value.revision, origen: pago.origen, vencimiento: programacionPago.value.proxima_fecha, importe: String(pago.importe), notas: pago.notas, periodo_revision: saldoPeriodo.value.periodo_revision };
             if (totalPeriodoEditable.value) datosJson.total_periodo = String(pago.total_periodo);
             if (pago.origen === 'efectivo') Object.assign(datosJson, { caja_id: pago.caja_id, concepto_id: pago.concepto_id, fecha: fechaLocal(pago.fecha), secuencia: cajaPago.value.secuencia, jornada_id: cajaPago.value.jornada_id });
-            else Object.assign(datosJson, { empresa_id: pago.empresa_id, cuenta_id: pago.cuenta_id, movimiento_id: pago.movimiento_id });
+            else Object.assign(datosJson, { empresa_id: pago.empresa_id, cuenta_id: pago.cuenta_id, movimiento_id: pago.movimiento_id, concepto_id: pago.concepto_id });
             const r = await store.dispatch('api/apiPostToken', { direccion: '/pagos_programados/registro', datosJson });
             if (r.estatus !== 200) throw new Error(r.mensaje);
             mostrarRegistro.value = false; registrado = true;
-            toast.add({ severity: 'success', summary: 'Registro de pago', detail: r.mensaje, life: 6000 });
+            toast.add({ severity: r.datos?.conciliacion_pendiente ? 'warn' : 'success', summary: 'Registro de pago', detail: r.mensaje, life: 6000 });
         } catch (e) { errorRegistro.value = e.message || 'No fue posible confirmar. Reintenta con la misma operacion.'; }
         finally { guardandoRegistro.value = false; }
         if (registrado) await handleCargar();

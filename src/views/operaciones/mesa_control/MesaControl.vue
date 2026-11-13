@@ -1,5 +1,23 @@
 <template>
-    <Encabezado titulo="Mesa de Control" subtitulo="Administración de solicitudes" icono="pi pi-gauge" />
+    <Encabezado titulo="Mesa de Control" subtitulo="Administración de solicitudes" icono="pi pi-gauge">
+        <Button label="Procesar CFDI timbrados" icon="pi pi-cloud-upload" outlined @click="handleAbrirPostproceso" />
+    </Encabezado>
+    <Dialog v-model:visible="mostrarPostproceso" modal header="Procesar CFDI timbrados" :style="{ width: '42rem', maxWidth: '95vw' }" class="mesa-postproceso-dialog">
+        <div class="mesa-postproceso">
+            <Message v-if="errorPostproceso" severity="error" :closable="false">{{ errorPostproceso }}</Message>
+            <p>Guarda el desglose de los CFDI ya timbrados en Mongo y envía sus documentos por SSH cuando la conexión esté habilitada. No vuelve a timbrar.</p>
+            <div v-if="filtrosPostproceso" class="mesa-postproceso-filtros"><strong>Fechas de la Mesa: {{ filtrosPostproceso.fecha_inicial }} al {{ filtrosPostproceso.fecha_final }}</strong><span>{{ filtrosPostproceso.company_id ? 'Solo la empresa seleccionada' : 'Todas las empresas' }} · Facturas y complementos de pago timbrados</span><small>Se usa la fecha de la solicitud, igual que en la consulta de la Mesa. El estado y el tipo del listado no cambian esta selección.</small></div>
+            <small>{{ estadoPostproceso.facturas || 0 }} facturas y {{ estadoPostproceso.complementos || 0 }} complementos disponibles en estas fechas. Los CFDI ya procesados se omiten.</small>
+            <Message v-if="estadoPostproceso.filtros_trabajo && estadoPostproceso.trabajo_id" severity="info" :closable="false">{{ postprocesoActivo ? 'Trabajo en curso' : 'Resultado del último lote' }}: {{ estadoPostproceso.filtros_trabajo.fecha_inicial }} al {{ estadoPostproceso.filtros_trabajo.fecha_final }}. {{ estadoPostproceso.filtros_trabajo.company_id ? 'Solo la empresa seleccionada al iniciar.' : 'Todas las empresas.' }}</Message>
+            <div class="mesa-postproceso-resumen"><div><small>Timbrados por procesar</small><strong>{{ estadoPostproceso.pendientes || 0 }}</strong></div><div><small>Completados del lote</small><strong>{{ estadoPostproceso.completados || 0 }}</strong></div><div><small>Con error</small><strong>{{ estadoPostproceso.errores || 0 }}</strong></div></div>
+            <Tag :value="postprocesoActivo ? 'Procesando' : estadoPostproceso.estado === 'finalizado' ? 'Lote terminado' : estadoPostproceso.estado === 'interrumpido' ? 'Interrumpido' : estadoPostproceso.estado === 'error' ? 'Error' : 'Listo para iniciar'" :severity="postprocesoActivo ? 'info' : estadoPostproceso.errores || ['error', 'interrumpido'].includes(estadoPostproceso.estado) ? 'warn' : 'success'" />
+            <ProgressBar v-if="postprocesoActivo || estadoPostproceso.total" :value="estadoPostproceso.porcentaje || 0" />
+            <small v-if="estadoPostproceso.total">{{ estadoPostproceso.revisados || 0 }} de {{ estadoPostproceso.total }} revisados. {{ estadoPostproceso.en_otro_proceso || 0 }} tomados por otro proceso o no disponibles.</small>
+            <Message v-if="estadoPostproceso.mensaje" :severity="estadoPostproceso.errores || estadoPostproceso.estado === 'error' ? 'warn' : 'info'" :closable="false">{{ estadoPostproceso.mensaje }}</Message>
+            <small>Procesa hasta 500 CFDI timbrados del rango por lote. Conserva la estructura de carpetas y los nombres de XML y PDF configurados para SSH. Puedes cerrar esta ventana o cambiar de pantalla; el trabajo sigue en la API. Si la API se reinicia, los pendientes se conservan y podrás reintentarlos.</small>
+        </div>
+        <template #footer><Button label="Cerrar" outlined @click="mostrarPostproceso = false" /><Button label="Actualizar" icon="pi pi-refresh" outlined :loading="consultandoPostproceso" @click="handleConsultarPostproceso" /><Button label="Iniciar procesamiento" icon="pi pi-play" :loading="iniciandoPostproceso" :disabled="postprocesoActivo || iniciandoPostproceso || consultandoPostproceso || !!errorPostproceso || !estadoPostproceso.pendientes" @click="handleIniciarPostproceso" /></template>
+    </Dialog>
 
     <div class="card panel-control">
         <!-- =====================================================

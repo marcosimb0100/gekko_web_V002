@@ -8,9 +8,11 @@ import { estadoSocket } from '../../../../helpers/socket';
 import { useStore } from 'vuex';
 
 import * as XLSX from 'xlsx';
+import usePostproceso from './postproceso';
 
 const useProceso = () => {
     const store = useStore();
+    const postproceso = usePostproceso({ obtenerFiltros: () => ({ fecha_inicial: handleFechaApi(fechaInicial.value), fecha_final: handleFechaApi(fechaFinal.value), company_id: String(empresaFiltro.value || '') }) });
     let vistaActiva = true;
     let mesaPendiente = false, actualizandoMesa = false, timerMesa = null;
     let ultimaActualizacion = 0;
@@ -1747,6 +1749,7 @@ const useProceso = () => {
     // ============================================================
 
     return {
+        ...postproceso,
         fechaActual,
 
         fechaInicial,

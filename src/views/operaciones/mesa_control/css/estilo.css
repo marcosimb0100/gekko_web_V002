@@ -1432,3 +1432,14 @@
         font-size: 18px;
     }
 }
+
+.mesa-postproceso { display:flex; flex-direction:column; gap:1rem; }
+.mesa-postproceso p { margin:0; line-height:1.5; }
+.mesa-postproceso > small { color:var(--p-text-muted-color); line-height:1.5; }
+.mesa-postproceso-resumen { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }
+.mesa-postproceso-resumen > div { display:flex; flex-direction:column; gap:.4rem; padding:.8rem; border:1px solid var(--p-surface-200); border-radius:8px; }
+.mesa-postproceso-resumen strong { font-size:1.4rem; }
+@media(max-width:550px) { .mesa-postproceso-resumen { grid-template-columns:1fr; } }
+
+.mesa-postproceso-filtros { display:flex; flex-direction:column; gap:.4rem; padding:.8rem; border:1px solid var(--p-surface-200); background:var(--p-surface-50); border-radius:8px; }
+.mesa-postproceso-filtros small { color:var(--p-text-muted-color); }

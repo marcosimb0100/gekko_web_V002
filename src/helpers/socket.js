@@ -1,7 +1,7 @@
 import { reactive, readonly } from 'vue';
 import { io } from 'socket.io-client';
 
-const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionSat: 0, trabajoSat: null, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {}, revisionConexionesUsuarios: 0 });
+const estado = reactive({ estado: 'desconectado', autorizado: false, mensaje: 'Sin conexión en tiempo real.', ultimoAviso: null, revisionAviso: 0, revisionConexion: 0, revisionNotificaciones: 0, revisionMesa: 0, revisionPostproceso: 0, revisionSat: 0, trabajoSat: null, revisionChat: 0, revisionPresenciaChat: 0, presenciaChat: {}, revisionConexionesUsuarios: 0 });
 estado.revisionSeguimientoUsuarios = 0;
 export const estadoSocket = readonly(estado);
 let conexion = null;
@@ -129,6 +129,10 @@ export const conectarSocket = () => {
     });
     actual.on('usuarios_seguimiento_actualizado', (aviso) => {
         if (vigente() && estado.autorizado && aviso?.origen === 'seguimiento') estado.revisionSeguimientoUsuarios += 1;
+    });
+    actual.on('cfdi_postproceso', () => {
+        if (!vigente() || !estado.autorizado) return;
+        estado.revisionPostproceso += 1;
     });
     actual.on('sat_actualizacion', (aviso) => {
         if (vigente() && estado.autorizado && /^[a-f0-9]{32}$/.test(aviso?.trabajo_id || '')) {
