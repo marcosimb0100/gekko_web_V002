@@ -1,0 +1,175 @@
+.cal-acceso {
+    color: var(--p-primary-color);
+    flex-shrink: 0;
+}
+.cal-nota {
+    color: var(--p-text-muted-color);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+}
+.cal-barra,
+.cal-navegacion,
+.cal-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.cal-barra {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.cal-navegacion h2 {
+    margin: 0;
+    min-width: 12rem;
+    text-align: center;
+    font-size: 1.2rem;
+    text-transform: capitalize;
+}
+.cal-resumen {
+    color: var(--p-text-muted-color);
+    font-size: 0.9rem;
+}
+.cal-contenido {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 1.5rem;
+}
+.cal-semana,
+.cal-cuadricula {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.35rem;
+}
+.cal-semana {
+    text-align: center;
+    color: var(--p-text-muted-color);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.cal-dia {
+    min-height: 4.4rem;
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 0.6rem;
+    background: var(--p-content-background);
+    color: var(--p-text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    cursor: pointer;
+}
+.cal-con-pagos {
+    background: var(--p-primary-50);
+    color: var(--p-primary-800);
+    border-color: var(--p-primary-300);
+}
+.cal-hoy strong {
+    text-decoration: underline;
+    text-underline-offset: 0.25rem;
+}
+.cal-seleccionado {
+    border: 2px solid var(--p-primary-color);
+    box-shadow: 0 0 0 1px var(--p-primary-color);
+}
+.cal-dia:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 3px;
+}
+.cal-cantidad {
+    border-radius: 1rem;
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+}
+.cal-detalle {
+    border-left: 1px solid var(--p-content-border-color);
+    padding-left: 1.5rem;
+    max-height: 30rem;
+    overflow-y: auto;
+}
+.cal-detalle h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+}
+.cal-pago {
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 0.7rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    overflow-wrap: anywhere;
+}
+.cal-pago p {
+    margin: 0.35rem 0;
+}
+.cal-pago small {
+    color: var(--p-text-muted-color);
+    display: block;
+}
+.cal-importe {
+    font-weight: 700;
+    margin: 0.75rem 0 0.35rem;
+}
+@media (max-width: 700px) {
+    .cal-contenido {
+        grid-template-columns: 1fr;
+    }
+    .cal-detalle {
+        border-left: 0;
+        border-top: 1px solid var(--p-content-border-color);
+        padding: 1rem 0 0;
+    }
+    .cal-dia {
+        min-height: 3.5rem;
+    }
+    .cal-texto-pago {
+        display: none;
+    }
+    .cal-navegacion h2 {
+        min-width: 9rem;
+        font-size: 1rem;
+    }
+}
+
+.cal-leyenda {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+}
+.cal-leyenda > span {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+}
+.cal-leyenda i,
+.cal-cantidad-legal {
+    background: #7c3aed;
+}
+.cal-leyenda i {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+}
+.cal-leyenda .cal-leyenda-pago {
+    background: var(--p-primary-color);
+}
+.cal-juridico {
+    border-left: 3px solid #7c3aed;
+}
+.cal-cantidades {
+    display: flex;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.cal-dia > strong {
+    font-size: 0.95rem;
+}
+.cal-juridico .p-button {
+    margin-top: 0.6rem;
+}

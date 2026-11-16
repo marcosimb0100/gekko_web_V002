@@ -649,3 +649,13 @@ export const apiPostChat = async (_context, { direccion, datosJson }) => {
     }
     return resultado;
 };
+
+// El calendario combina modulos opcionales: un 403 no debe sacar al usuario de su pantalla.
+export const apiGetCalendario = async (_context, { direccion }) => {
+    const resultado = await apiGet_token(direccion);
+    if ([401, 402].includes(resultado.estatus)) {
+        handleLimpiarSesion();
+        router.replace({ name: 'acceso' });
+    }
+    return resultado;
+};

@@ -68,6 +68,50 @@ const router = createRouter({
             name: 'app',
             component: AppLayout,
             children: [
+
+                // Juridico: estructura inicial, con el mismo acceso por rutas.
+                {
+                    path: '/juridico/tablero',
+                    name: 'juridico_tablero',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/tablero/Tablero.vue')
+                },
+                {
+                    path: '/juridico/solicitudes',
+                    name: 'juridico_solicitudes',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/solicitudes/Solicitudes.vue')
+                },
+                {
+                    path: '/juridico/expedientes',
+                    name: 'juridico_expedientes',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/expedientes/Expedientes.vue')
+                },
+                {
+                    path: '/juridico/agenda',
+                    name: 'juridico_agenda',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/agenda/Agenda.vue')
+                },
+                {
+                    path: '/juridico/configuracion/tipos_asunto',
+                    name: 'juridico_configuracion_tipos_asunto',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/configuracion/tipos_asunto/TiposAsunto.vue')
+                },
+                {
+                    path: '/juridico/configuracion/etapas',
+                    name: 'juridico_configuracion_etapas',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/configuracion/etapas/Etapas.vue')
+                },
+                {
+                    path: '/juridico/configuracion/tipos_actuacion',
+                    name: 'juridico_configuracion_tipos_actuacion',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/juridico/configuracion/tipos_actuacion/TiposActuacion.vue')
+                },
                 {
                     path: '/principal',
                     name: 'bienvenida_principal',

@@ -1,0 +1,152 @@
+.juridico-contenido { display:flex; flex-direction:column; gap:1.25rem; min-width:0; }
+.juridico-presentacion { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem; background:var(--p-surface-50); border:1px solid var(--p-surface-200); border-radius:10px; }
+.juridico-presentacion h2 { margin:0 0 .4rem; font-size:1.05rem; font-weight:600; }
+.juridico-presentacion p { margin:0; color:var(--p-text-muted-color); line-height:1.5; }
+.juridico-herramientas { display:flex; align-items:center; flex-wrap:wrap; gap:.75rem; }
+.juridico-herramientas > .p-iconfield { flex:1; max-width:26rem; }
+.juridico-herramientas :deep(.p-inputtext) { width:100%; }
+.juridico-tabla { min-width:0; }
+.juridico-tabla :deep(table) { width:100%; table-layout:fixed; }
+.juridico-tabla :deep(th), .juridico-tabla :deep(td) { white-space:normal; overflow-wrap:anywhere; }
+.juridico-vacio { display:flex; align-items:center; flex-direction:column; gap:.75rem; padding:3.5rem 1rem; text-align:center; color:var(--p-text-muted-color); }
+.juridico-vacio > i, .juridico-vacio > svg { font-size:2rem; color:var(--p-primary-color); }
+.juridico-vacio strong { font-weight:500; color:var(--p-text-color); }
+@media(max-width:700px) { .juridico-presentacion { align-items:flex-start; flex-direction:column; } .juridico-herramientas > * { width:100%; max-width:none!important; } }
+
+.juridico-indicadores { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; }
+.juridico-indicadores > div { display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--p-surface-200); border-radius:10px; }
+.juridico-indicadores i { font-size:1.4rem; color:var(--p-primary-color); padding:.8rem; background:var(--p-primary-50); border-radius:10px; }
+.juridico-indicadores small { color:var(--p-text-muted-color); }
+.juridico-indicadores strong { display:block; margin-top:.4rem; font-size:1.6rem; }
+.juridico-seccion h2 { margin:0 0 .4rem; font-size:1.1rem; }
+.juridico-seccion p { margin:0; color:var(--p-text-muted-color); }
+.juridico-accesos { display:flex; gap:.75rem; flex-wrap:wrap; }
+@media(max-width:1100px) { .juridico-indicadores { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:600px) { .juridico-indicadores { grid-template-columns:1fr; } .juridico-accesos > * { width:100%; } }
+
+.juridico-nota { color:var(--p-text-muted-color); font-size:.9rem; }
+.juridico-herramientas > .p-select { min-width:16rem; max-width:28rem; }
+
+.juridico-pagina-detalle {
+    height: 72vh;
+    height: 72dvh;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+.juridico-pagina-detalle :deep(.p-tabs) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+.juridico-pagina-detalle :deep(.p-tablist) {
+    flex: 0 0 auto;
+}
+.juridico-pagina-detalle :deep(.p-tablist-tab-list) {
+    flex-wrap: wrap;
+}
+.juridico-pagina-detalle :deep(.p-tabpanels) {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+}
+
+.juridico-listado, .juridico-vista-resumen {
+    height:72vh;
+    height:72dvh;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior-y:contain;
+    scrollbar-gutter:stable;
+}
+.requerido { color:red; }
+
+.juridico-manual { display:flex; flex-direction:column; gap:1rem; max-height:65vh; max-height:65dvh; overflow-y:auto; padding-right:.65rem; overscroll-behavior:contain; }
+.juridico-manual-intro { display:flex; align-items:flex-start; gap:1rem; padding:1rem; border-radius:10px; background:var(--p-surface-50); border:1px solid var(--p-surface-200); }
+.juridico-manual-intro > i { font-size:1.5rem; color:var(--p-primary-color); padding:.6rem; background:var(--p-primary-50); border-radius:10px; }
+.juridico-manual h2 { font-size:1.1rem; margin:0 0 .4rem; }
+.juridico-manual p { margin:0; color:var(--p-text-muted-color); line-height:1.6; }
+.juridico-manual-flujo { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.55rem; padding:.35rem; }
+.juridico-manual-seccion { padding:1rem 1.25rem; border:1px solid var(--p-surface-200); border-radius:10px; }
+.juridico-manual h3 { display:flex; align-items:center; gap:.6rem; font-size:1rem; margin:0 0 .75rem; }
+.juridico-manual h3 i { color:var(--p-primary-color); }
+.juridico-manual ul { margin:0; padding-left:1.2rem; }
+.juridico-manual li { line-height:1.65; margin-bottom:.6rem; }
+.juridico-manual li:last-child { margin-bottom:0; }
+
+/* Mismo encabezado global y controles de tabla que Empresas. */
+.juridico-tabla :deep(.p-datatable-table-container) {
+    max-height:48vh;
+    max-height:48dvh;
+    overflow:auto;
+}
+.juridico-tabla :deep(.p-datatable-thead > tr > th) {
+    padding:.45rem .55rem;
+    font-weight:600;
+}
+.juridico-tabla :deep(.p-datatable-tbody > tr > td) {
+    padding:.8rem .55rem;
+    border-bottom:1px solid var(--p-surface-200);
+    vertical-align:middle;
+}
+.juridico-tabla :deep(.p-paginator) {
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:.3rem;
+    padding:.6rem .4rem;
+}
+.juridico-tabla :deep(.p-paginator .p-select) {
+    width:auto;
+    min-width:5.5rem;
+    max-width:8rem;
+}
+.juridico-tabla :deep(.p-button) {
+    border-radius:4px;
+    margin:.15rem;
+}
+.juridico-tabla :deep(.p-button.btn-nuevo) {
+    min-width:2.5rem;
+    padding:.45rem .7rem;
+}
+.juridico-herramientas { flex-direction:row; }
+
+.tablero-expediente { display:flex; flex-direction:column; gap:.35rem; min-width:0; }
+.tablero-expediente strong { font-weight:600; }
+.tablero-expediente span { overflow-wrap:anywhere; line-height:1.5; }
+
+.tablero-seguimiento { display:flex; flex-direction:column; gap:1rem; min-width:0; min-height:0; height:65vh; height:65dvh; overflow:hidden; }
+.seguimiento-resumen { display:flex; align-items:center; flex-wrap:wrap; gap:.7rem 1.25rem; padding:1rem; border:1px solid var(--p-surface-200); background:var(--p-surface-50); border-radius:10px; }
+.tablero-seguimiento :deep(.p-tabs) { display:flex; flex:1 1 0; flex-direction:column; min-height:0; overflow:hidden; }
+.tablero-seguimiento :deep(.p-tablist) { flex:0 0 auto; position:relative; z-index:1; background:var(--p-content-background); }
+.tablero-seguimiento > .seguimiento-resumen, .tablero-seguimiento > :deep(.p-paginator) { flex:0 0 auto; }
+.tablero-seguimiento :deep(.p-tabpanels) { flex:1 1 0; overflow-y:auto; overflow-x:hidden; min-height:0; padding-top:1rem; overscroll-behavior:contain; }
+.seguimiento-nota { color:var(--p-text-muted-color); margin:0 0 1rem; }
+.seguimiento-linea :deep(.p-timeline-event-opposite) { display:none; }
+.seguimiento-marca { display:flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:50%; background:var(--p-primary-50); color:var(--p-primary-color); }
+.seguimiento-evento { padding:1rem; margin:0 0 1rem .5rem; border:1px solid var(--p-surface-200); border-radius:10px; min-width:0; overflow-wrap:anywhere; }
+.seguimiento-evento h3 { margin:0 0 .4rem; font-size:1rem; }
+.seguimiento-evento > small { display:block; color:var(--p-text-muted-color); margin-bottom:.7rem; }
+.seguimiento-cambio { display:grid; grid-template-columns:minmax(8rem,1fr) minmax(0,4fr); gap:.6rem 1rem; padding:.65rem 0; border-bottom:1px solid var(--p-surface-200); align-items:start; }
+.seguimiento-cambio:last-of-type { border-bottom:0; }
+.seguimiento-valor { min-width:0; }
+@media (max-width:600px) { .seguimiento-cambio { grid-template-columns:minmax(0,1fr); gap:.3rem; } }
+.seguimiento-cambio span { white-space:pre-wrap; overflow-wrap:anywhere; }
+.seguimiento-texto { white-space:pre-wrap; line-height:1.6; overflow-wrap:anywhere; }
+.seguimiento-evidencias { display:flex; flex-wrap:wrap; gap:.4rem; }
+.seguimiento-correo { max-height:65vh; overflow-y:auto; overflow-wrap:anywhere; }
+.seguimiento-correo dl { padding:1rem; background:var(--p-surface-50); border-radius:10px; }
+.seguimiento-correo dl > div { display:grid; grid-template-columns:4rem minmax(0,1fr); gap:.7rem; margin-bottom:.5rem; }
+.seguimiento-correo dd { margin:0; white-space:pre-wrap; }
+
+.seguimiento-filtro { display:flex; align-items:center; gap:.65rem; width:fit-content; padding:.7rem 1rem; margin:.25rem 0 1.25rem; border:1px solid var(--p-surface-200); border-radius:8px; background:var(--p-surface-50); }
+.seguimiento-filtro label { cursor:pointer; line-height:1.4; }
