@@ -61,9 +61,9 @@
             <Select v-model="permisoActual.alcance" inputId="sync-alcance" :options="alcances" optionLabel="label" optionValue="value" :disabled="cargando || permisoActual.heredar" />
             <small>El alcance limita los cambios. Cada operaci&oacute;n requiere tambi&eacute;n su permiso. Puedes agregar contenido propio dentro de una carpeta compartida.</small>
             <div class="sync-permisos-opciones">
-                <div v-for="col in columnasVisibles" :key="col.accion" class="sync-permiso-opcion">
+                <div v-for="col in columnasVisibles" :key="col.accion" class="sync-permiso-opcion" :title="col.descripcion">
                     <Checkbox v-model="permisoActual.acciones" :inputId="`permiso-${col.accion}`" :value="col.accion" :disabled="cargando || permisoActual.heredar" @change="handleCambiarPermiso(permisoActual, col.accion)" />
-                    <label :for="`permiso-${col.accion}`">{{ col.nombre }}</label>
+                    <label :for="`permiso-${col.accion}`" class="sync-permiso-texto"><span>{{ col.nombre }}</span><small>{{ col.descripcion }}</small></label>
                 </div>
             </div>
         </div>
