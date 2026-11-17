@@ -1,11 +1,20 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import permisoRutas from './permisosRutas';
+import permisosArchivos from './permisosArchivos';
 import { registrarPantallaActual } from '@/helpers/socket';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        {
+            path: '/archivos/acceso', name: 'archivos_acceso', meta: { archivos: true },
+            component: () => import('../views/nube/portal/AccesoArchivos.vue')
+        },
+        {
+            path: '/archivos', name: 'archivos_portal', meta: { archivos: true }, beforeEnter: permisosArchivos,
+            component: () => import('../views/nube/portal/PortalArchivos.vue')
+        },
         {
             path: '/alta-personal/:token',
             name: 'alta_personal_publica',
@@ -515,7 +524,7 @@ const router = createRouter({
 });
 
 router.afterEach((to, from, failure) => {
-    if (!failure) registrarPantallaActual(to.matched.some((registro) => registro.name === 'app') ? to.path : '');
+    if (!failure) registrarPantallaActual(to.name === 'archivos_portal' ? '/nube/kiosco' : to.matched.some((registro) => registro.name === 'app') ? to.path : '');
 });
 
 export default router;

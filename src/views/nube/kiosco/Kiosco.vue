@@ -1,5 +1,5 @@
 <template>
-    <Encabezado titulo="Kiosco" subtitulo="Archivos, versiones y papelera" icono="pi pi-cloud">
+    <Encabezado v-if="!portal" titulo="Kiosco" subtitulo="Archivos, versiones y papelera" icono="pi pi-cloud">
         <Button v-if="instalador" type="button" label="Descargar Gekko Sync" icon="pi pi-download" outlined :loading="descargandoInstalador" @click="handleDescargarInstalador" />
         <Button v-if="administrador" type="button" label="Nuevo repositorio" icon="pi pi-plus" class="btn-nuevo" :disabled="cargando" @click="handleMostrarFormulario('espacio')" />
         <Button v-if="administrador" type="button" label="Archivados" icon="pi pi-inbox" outlined :disabled="cargando" @click="handleMostrarArchivados" />
@@ -11,10 +11,13 @@
         <Toolbar>
             <template #start>
                 <div class="sync-controles">
-                    <label for="sync-espacio">Repositorio</label>
-                    <Select v-model="espacioId" inputId="sync-espacio" :options="espacios" optionLabel="nombre" optionValue="_id" placeholder="Selecciona un repositorio" :disabled="cargando || !espacios.length" @change="handleCambiarEspacio" />
-                    <Button v-if="hayMasEspacios" type="button" label="Más repositorios" text :disabled="cargando" @click="handleMasEspacios" />
+                    <template v-if="!portal">
+                        <label for="sync-espacio">Repositorio</label>
+                        <Select v-model="espacioId" inputId="sync-espacio" :options="espacios" optionLabel="nombre" optionValue="_id" placeholder="Selecciona un repositorio" :disabled="cargando || !espacios.length" @change="handleCambiarEspacio" />
+                        <Button v-if="hayMasEspacios" type="button" label="Más repositorios" text :disabled="cargando" @click="handleMasEspacios" />
+                    </template>
                     <Button type="button" label="Actualizar" icon="pi pi-refresh" outlined :disabled="cargando" @click="handleActualizar" />
+                    <Button v-if="espacioId && !papelera" type="button" label="Enlace de carpeta" icon="pi pi-link" outlined :disabled="cargando" @click="handleEnlaceCarpeta()" />
                 </div>
             </template>
             <template #end>
@@ -26,19 +29,29 @@
             </template>
         </Toolbar>
 
+        <div class="sync-vistas-barra">
+            <div class="sync-controles">
+                <Button type="button" label="Detalle" icon="pi pi-list" size="small" :outlined="vistaArchivos !== 'detalle'" :aria-pressed="vistaArchivos === 'detalle'" @click="vistaArchivos = 'detalle'" />
+                <Button type="button" label="Iconos" icon="pi pi-th-large" size="small" :outlined="vistaArchivos !== 'iconos'" :aria-pressed="vistaArchivos === 'iconos'" @click="vistaArchivos = 'iconos'" />
+                <div class="sync-vista-interruptor"><ToggleSwitch v-model="vistaPreviaActiva" inputId="sync-vista-previa" /><label for="sync-vista-previa">Vista previa</label></div>
+            </div>
+            <div class="sync-busqueda"><i class="pi pi-search" aria-hidden="true" /><InputText v-model="busqueda" placeholder="Buscar en esta página..." aria-label="Buscar archivos en esta página" /><Button v-if="busqueda" type="button" icon="pi pi-times" text rounded aria-label="Limpiar búsqueda" @click="busqueda = ''" /></div>
+        </div>
+
         <ProgressBar v-if="cargando" mode="indeterminate" class="sync-progreso" aria-label="Procesando operación" />
         <Breadcrumb v-if="espacioId && !papelera" :home="rutaInicio" :model="rutaItems" class="sync-ruta">
             <template #item="{ item }"><Button type="button" :label="item.label" text :disabled="cargando" @click="handleNavegar(item.indice)" /></template>
         </Breadcrumb>
         <Message v-if="papelera" severity="info" :closable="false">Las carpetas se restauran con su contenido. Los elementos que ya estaban en papelera permanecen allí. Todo se conserva indefinidamente.</Message>
 
-        <ScrollPanel class="sync-listado">
-            <DataTable :value="registros" dataKey="_id" :loading="cargando" scrollable scrollHeight="48vh" size="small" tableStyle="min-width: 55rem" class="tabla-encabezados">
-            <template #empty>{{ !espacioId ? 'No hay espacios disponibles para tu usuario.' : papelera ? 'No hay archivos en la papelera.' : 'Esta carpeta está vacía.' }}</template>
+        <Splitter :key="`${vistaPreviaActiva}-${visorVertical}`" :layout="visorVertical ? 'vertical' : 'horizontal'" class="sync-explorador" :gutterSize="6">
+        <SplitterPanel :size="vistaPreviaActiva ? 60 : 100" :minSize="30" class="sync-panel-archivos">
+            <DataTable v-if="vistaArchivos === 'detalle'" :value="registrosVisibles" :selection="archivoActivo" selectionMode="single" @row-select="handleSeleccionarArchivo($event.data)" dataKey="_id" :loading="cargando" scrollable scrollHeight="flex" size="small" tableStyle="min-width: 42rem" class="tabla-encabezados sync-tabla">
+            <template #empty>{{ busqueda ? 'No hay coincidencias en esta página.' : !espacioId ? 'No hay espacios disponibles para tu usuario.' : papelera ? 'No hay archivos en la papelera.' : 'Esta carpeta está vacía.' }}</template>
                 <Column field="nombre" header="Nombre" headerClass="encabezado-columna">
                     <template #body="{ data }">
-                        <Button v-if="data.tipo === 'carpeta' && !papelera" type="button" :label="data.nombre" icon="pi pi-folder" text :disabled="cargando" @click="handleAbrirCarpeta(data)" />
-                        <span v-else class="sync-nombre"><i class="pi pi-file" aria-hidden="true" />{{ data.nombre }}</span>
+                        <Button v-if="data.tipo === 'carpeta' && !papelera" type="button" :label="data.nombre" icon="pi pi-folder" text :disabled="cargando" @click.stop="handleAbrirCarpeta(data)" />
+                        <button v-else type="button" class="sync-nombre sync-seleccionar" :disabled="cargando" @click.stop="handleSeleccionarArchivo(data)"><font-icon :icon="handleIconoArchivo(data.nombre)" aria-hidden="true" />{{ data.nombre }}</button>
                     </template>
                 </Column>
                 <Column field="tipo" header="Tipo" headerClass="encabezado-columna"
@@ -50,25 +63,42 @@
                 >
                 <Column header="Opciones" headerClass="encabezado-columna">
                     <template #body="{ data }">
-                        <div class="sync-controles">
-                            <Button v-if="papelera && handleTienePermiso('restaurar', data)" type="button" label="Restaurar" icon="pi pi-replay" :disabled="cargando" @click="handleMostrarConfirmacion('restaurar', data)" />
-                            <Button v-if="!papelera && handleTienePermiso('escribir', data)" type="button" label="Renombrar" icon="pi pi-pencil" outlined :disabled="cargando" @click="handleRenombrar(data)" />
-                            <Button v-if="!papelera && data.tipo === 'carpeta' && handleTienePermiso('eliminar', data)" type="button" label="A papelera" icon="pi pi-trash" severity="danger" outlined :disabled="cargando" @click="handleMostrarConfirmacion('eliminar', data)" />
-                            <template v-if="!papelera && data.tipo === 'archivo'">
-                                <Button v-if="handleTienePermiso('compartir', data) && handleTienePermiso('leer', data)" type="button" label="Compartir" icon="pi pi-share-alt" outlined :disabled="cargando" @click="handleCompartir(data)" />
-                                <Button v-if="handleTienePermiso('leer', data)" type="button" label="Descargar" icon="pi pi-download" outlined :disabled="cargando" @click="handleDescargar(data)" />
-                                <Button v-if="handleTienePermiso('historial', data)" type="button" label="Versiones" icon="pi pi-history" outlined :disabled="cargando" @click="handleHistorial(data)" />
-                                <Button v-if="handleTienePermiso('cargar', data)" type="button" label="Nueva versión" icon="pi pi-upload" outlined :disabled="cargando" @click="handleMostrarCarga(data)" />
-                                <Button v-if="handleTienePermiso('eliminar', data)" type="button" label="A papelera" icon="pi pi-trash" severity="danger" outlined :disabled="cargando" @click="handleMostrarConfirmacion('eliminar', data)" />
-                            </template>
+                        <div class="sync-acciones-archivo">
+                            <Button v-for="accion in handleAccionesRegistro(data)" :key="accion.label" type="button" :icon="accion.icon" :title="accion.label" :aria-label="`${accion.label}: ${data.nombre}`" :severity="accion.severity" outlined size="small" :disabled="cargando" @click.stop="accion.ejecutar()" />
                         </div>
                     </template>
                 </Column>
             </DataTable>
-        </ScrollPanel>
+            <div v-else class="sync-iconos-contenedor" :aria-busy="cargando">
+                <p v-if="!registrosVisibles.length" class="sync-lista-vacia">{{ busqueda ? 'No hay coincidencias en esta página.' : 'No hay archivos disponibles.' }}</p>
+                <div class="sync-iconos">
+                    <article v-for="data in registrosVisibles" :key="data._id" class="sync-tarjeta-archivo" :class="{ 'sync-tarjeta-activa': archivoActivo?._id === data._id }">
+                        <button type="button" class="sync-tarjeta-seleccion" :disabled="cargando" :aria-pressed="archivoActivo?._id === data._id" @click="handleSeleccionarArchivo(data)" @dblclick="data.tipo === 'carpeta' && !papelera && handleAbrirCarpeta(data)">
+                            <i v-if="data.tipo === 'carpeta'" class="pi pi-folder sync-icono-carpeta" aria-hidden="true" />
+                            <font-icon v-else :icon="handleIconoArchivo(data.nombre)" aria-hidden="true" />
+                            <strong>{{ data.nombre }}</strong>
+                            <small>{{ data.tipo === 'carpeta' ? 'Carpeta' : `Revisión ${data.revision}` }}</small>
+                        </button>
+                        <Button v-if="data.tipo === 'carpeta' && !papelera" type="button" label="Abrir carpeta" icon="pi pi-folder-open" text size="small" :disabled="cargando" @click="handleAbrirCarpeta(data)" />
+                        <div class="sync-acciones-archivo">
+                            <Button v-for="accion in handleAccionesRegistro(data)" :key="accion.label" type="button" :icon="accion.icon" :title="accion.label" :aria-label="`${accion.label}: ${data.nombre}`" :severity="accion.severity" outlined size="small" :disabled="cargando" @click.stop="accion.ejecutar()" />
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </SplitterPanel>
+        <SplitterPanel v-if="vistaPreviaActiva" :size="40" :minSize="25" class="sync-panel-visor">
+            <div class="sync-panel-visor-cabecera">
+                <div><strong>Vista previa</strong><span :title="visorNombre || archivoActivo?.nombre">{{ visorNombre || archivoActivo?.nombre || 'Selecciona un archivo' }}</span></div>
+                <Button v-if="visorVisible" type="button" icon="pi pi-window-maximize" title="Ampliar vista previa" aria-label="Ampliar vista previa" text rounded @click="visorAmpliado = true" />
+                <Button type="button" icon="pi pi-times" title="Ocultar vista previa" aria-label="Ocultar vista previa" text rounded @click="vistaPreviaActiva = false" />
+            </div>
+            <VistaPreviaSync v-if="!visorAmpliado" :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :tipo="visorTipo" :nombre="visorNombre" :vacio="papelera ? 'La vista previa no está disponible en la papelera.' : archivoActivo?.tipo === 'carpeta' ? 'Abre la carpeta para seleccionar un archivo.' : archivoActivo && !handleTienePermiso('visualizar', archivoActivo) ? 'No tienes permiso para visualizar este archivo.' : 'Selecciona un archivo para visualizar su contenido.'" @error="handleErrorVisor" />
+        </SplitterPanel>
+        </Splitter>
         <div v-if="espacioId" class="sync-paginacion">
             <Button type="button" label="Anterior" icon="pi pi-angle-left" outlined :disabled="cargando || offset === 0" @click="handlePaginar(-1)" />
-            <span>Página {{ offset / limite + 1 }}</span>
+            <span>Página {{ offset / limite + 1 }} · {{ registrosVisibles.length }} de {{ registros.length }} elementos</span>
             <Button type="button" label="Siguiente" icon="pi pi-angle-right" iconPos="right" outlined :disabled="cargando || registros.length < limite" @click="handlePaginar(1)" />
         </div>
     </div>
@@ -217,17 +247,44 @@
                 @click="handleConfirmar"
         /></template>
     </Dialog>
+    <Dialog v-model:visible="enlaceCarpetaVisible" modal header="Enlace de carpeta" class="sync-dialogo">
+        <div class="sync-formulario"><p>Este enlace abre la carpeta después de iniciar sesión. Cada persona conserva los permisos de su cuenta; el enlace no concede acceso.</p><InputText :modelValue="enlaceCarpeta" readonly aria-label="Enlace de acceso a la carpeta" @focus="$event.target.select()" /><Button type="button" label="Copiar enlace" icon="pi pi-copy" @click="handleCopiarEnlaceCarpeta" /></div>
+    </Dialog>
+    <Dialog v-model:visible="permisosDescargaVisible" modal header="Permisos de descarga" :closable="!cargando" class="sync-dialogo">
+        <div class="sync-formulario">
+            <strong>{{ archivoPermisosDescarga?.nombre }}</strong>
+            <p>El propietario original y los administradores pueden descargar. Autoriza aquí a otros usuarios. La autorización permite descargar, pero no concede acceso al repositorio.</p>
+            <Message v-if="mensajeError" severity="error" :closable="false">{{ mensajeError }}</Message>
+            <div class="sync-controles"><InputText v-model="buscarUsuarioDescarga" placeholder="Buscar usuario" aria-label="Buscar usuario para autorizar descarga" :disabled="cargando" @keydown.enter.prevent="handleBuscarUsuariosDescarga" /><Button type="button" label="Buscar" icon="pi pi-search" :disabled="cargando" @click="handleBuscarUsuariosDescarga" /></div>
+            <Select v-model="usuarioDescarga" :options="usuariosDescarga" optionLabel="nombre" optionValue="_id" placeholder="Selecciona un usuario" aria-label="Usuario para autorizar descarga" :disabled="cargando" />
+            <div class="sync-controles"><Button v-if="hayMasUsuariosDescarga" type="button" label="Más usuarios" text :disabled="cargando" @click="handleMasUsuariosDescarga" /><Button type="button" label="Autorizar descarga" icon="pi pi-unlock" :disabled="cargando || !usuarioDescarga" @click="handleAutorizarDescarga(usuarioDescarga, true)" /></div>
+            <DataTable :value="autorizadosDescarga" size="small" :loading="cargando" scrollable scrollHeight="30vh">
+                <template #empty>No hay autorizaciones adicionales.</template>
+                <Column field="nombre" header="Usuario" />
+                <Column header="Acción"><template #body="{ data }"><Button type="button" label="Revocar" severity="danger" outlined size="small" :disabled="cargando" @click="handleAutorizarDescarga(data._id, false)" /></template></Column>
+            </DataTable>
+        </div>
+        <template #footer><Button type="button" label="Cerrar" :disabled="cargando" @click="permisosDescargaVisible = false" /></template>
+    </Dialog>
+    <Dialog v-model:visible="visorAmpliado" modal maximizable :header="`Vista previa: ${visorNombre}`" class="sync-dialogo-visor">
+        <div class="sync-visor-ampliado"><VistaPreviaSync :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :tipo="visorTipo" :nombre="visorNombre" @error="handleErrorVisor" /></div>
+        <template #footer><Button type="button" label="Volver al panel" @click="visorAmpliado = false" /></template>
+    </Dialog>
 </template>
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 import proceso from './js/proceso.js';
+import VistaPreviaSync from './VistaPreviaSync.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
     name: 'Kiosco',
-    components: { Encabezado },
+    components: { Encabezado, VistaPreviaSync },
+    props: { portal: Boolean },
     setup() {
-        return { ...proceso() };
+        const route = useRoute(), router = useRouter();
+        return { ...proceso({ ubicacionInicial: route.query, resolverEnlace: query => new URL(router.resolve({ name: 'archivos_portal', query }).href, window.location.origin).href }) };
     }
 };
 </script>

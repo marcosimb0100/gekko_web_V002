@@ -1,11 +1,17 @@
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useSyncInstaller } from '../../../../helpers/syncInstaller';
+import { consultaCarpeta } from '../../../../helpers/archivosPortal';
+import { apiGet_token } from '../../../../helpers/funcionesApi';
 
-const useProceso = () => {
+const useProceso = (opciones = {}) => {
     const store = useStore();
     const toast = useToast();
+    const destinoInicial = opciones.ubicacionInicial || {};
+    let ubicacionPendiente = !!(destinoInicial.espacio || destinoInicial.carpeta);
+    const enlaceCarpetaVisible = ref(false);
+    const enlaceCarpeta = ref('');
     const instaladorWindows = useSyncInstaller(store, toast);
 
     const espacios = ref([]);
@@ -15,6 +21,138 @@ const useProceso = () => {
     const ruta = ref([]);
     const cargando = ref(false);
     const mensajeError = ref('');
+    const visorVisible = ref(false);
+    const visorCargando = ref(false);
+    const visorError = ref('');
+    const visorNombre = ref('');
+    const visorUrl = ref('');
+    const visorTipo = ref('');
+    const visorOffice = ref(false);
+    const visorLibro = ref(null);
+    const visorDocumento = ref(null);
+    const permisosDescargaVisible = ref(false);
+    const archivoPermisosDescarga = ref(null);
+    const autorizadosDescarga = ref([]);
+    const revisionDescargas = ref(0);
+    const usuariosDescarga = ref([]);
+    const buscarUsuarioDescarga = ref('');
+    const usuarioDescarga = ref(null);
+    const offsetUsuariosDescarga = ref(0);
+    const hayMasUsuariosDescarga = ref(false);
+    const vistaPreviaActiva = ref(true);
+    const visorAmpliado = ref(false);
+    const archivoActivo = ref(null);
+    const busqueda = ref('');
+    const vistaArchivos = ref('detalle');
+    const visorVertical = ref(false);
+    const registrosVisibles = computed(() => {
+        const texto = busqueda.value.trim().toLocaleLowerCase('es-MX');
+        return texto ? registros.value.filter(registro => registro.nombre.toLocaleLowerCase('es-MX').includes(texto)) : registros.value;
+    });
+    const handleCerrarVistaPrevia = () => {
+        visorVisible.value = false;
+        visorAmpliado.value = false;
+        visorNombre.value = '';
+        visorError.value = '';
+        archivoActivo.value = null;
+        handleLimpiarVisor();
+    };
+    const handleSeleccionarArchivo = registro => {
+        if (cargando.value) return;
+        if (archivoActivo.value?._id === registro._id && visorVisible.value) return;
+        handleCerrarVistaPrevia();
+        archivoActivo.value = registro;
+        if (vistaPreviaActiva.value && !papelera.value && registro.tipo === 'archivo' && handleTienePermiso('visualizar', registro)) handleVisualizar(registro);
+    };
+    watch(vistaPreviaActiva, activa => {
+        if (!activa) handleCerrarVistaPrevia();
+    });
+    watch(registros, handleCerrarVistaPrevia, { flush: 'sync' });
+    let solicitudVisor = 0;
+    const tiposVistaPrevia = {
+        pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+        gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp', avif: 'image/avif'
+    };
+    const extensionesOffice = ['doc', 'docx', 'odt', 'ppt', 'pptx', 'odp'];
+    const extensionesHojaCalculo = ['xls', 'xlsx', 'ods'];
+    const handleExtensionVistaPrevia = registro => registro?.nombre?.split('.').pop().toLowerCase() || '';
+    const handleTipoVistaPrevia = registro => {
+        const extension = handleExtensionVistaPrevia(registro);
+        if (extensionesHojaCalculo.includes(extension)) return 'spreadsheet';
+        return tiposVistaPrevia[extension] || (extensionesOffice.includes(extension) ? 'application/pdf' : '');
+    };
+    const handleLimpiarVisor = () => {
+        solicitudVisor += 1;
+        if (visorUrl.value) URL.revokeObjectURL(visorUrl.value);
+        visorUrl.value = '';
+        visorLibro.value = null;
+        visorDocumento.value = null;
+        visorCargando.value = false;
+    };
+    watch(visorVisible, visible => { if (!visible) handleLimpiarVisor(); });
+    onBeforeUnmount(handleLimpiarVisor);
+    const handleErrorVisor = () => {
+        visorError.value = 'No se pudo mostrar el archivo. Puedes intentar descargarlo para abrirlo en tu equipo.';
+    };
+    const handleVisualizar = async registro => {
+        if (papelera.value || registro.tipo !== 'archivo' || !handleTienePermiso('visualizar', registro)) return;
+        vistaPreviaActiva.value = true;
+        archivoActivo.value = registro;
+        handleLimpiarVisor();
+        const solicitud = solicitudVisor;
+        visorNombre.value = registro.nombre;
+        visorTipo.value = handleTipoVistaPrevia(registro);
+        visorOffice.value = extensionesOffice.includes(handleExtensionVistaPrevia(registro));
+        visorError.value = '';
+        visorVisible.value = true;
+        if (!visorTipo.value) {
+            visorError.value = 'Este formato no admite vista previa. Puedes descargarlo para abrirlo en tu equipo.';
+            return;
+        }
+        visorCargando.value = true;
+        try {
+            const parametros = new URLSearchParams({ revision: registro.revision });
+            if (visorTipo.value === 'spreadsheet') {
+                visorLibro.value = { id: registro._id, revision: registro.revision };
+                return;
+            }
+            let direccion = `/sync/archivos/${registro._id}/visualizacion/imagen?${parametros}`;
+            if (visorOffice.value) {
+                direccion = `/sync/archivos/${registro._id}/vista-previa?${new URLSearchParams({ revision: registro.revision })}`;
+                const inicio = Date.now();
+                while (true) {
+                    const estado = handleValidarRespuesta(await store.dispatch('api/apiPostTokenSinCargando', {
+                        direccion, datosJson: {}
+                    }));
+                    if (solicitud !== solicitudVisor || !visorVisible.value) return;
+                    if (estado.datos?.estado === 'lista') break;
+                    if (estado.datos?.estado !== 'procesando') throw new Error('El servidor devolvió un estado de vista previa no válido.');
+                    if (Date.now() - inicio > 420000) throw new Error('La vista previa está tardando demasiado. Intenta abrirla de nuevo más tarde.');
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    if (solicitud !== solicitudVisor || !visorVisible.value) return;
+                }
+            }
+            if (visorTipo.value === 'application/pdf') {
+                const info = handleValidarRespuesta(await store.dispatch('api/apiGetTokenSinCargando', {
+                    direccion: `/sync/archivos/${registro._id}/visualizacion?${parametros}`
+                }));
+                if (solicitud !== solicitudVisor || !visorVisible.value) return;
+                visorDocumento.value = { id: registro._id, revision: registro.revision, paginas: info.datos.paginas };
+                return;
+            }
+            const res = handleValidarRespuesta(await store.dispatch('api/apiGetblobSinCargando', {
+                direccion
+            }));
+            if (solicitud !== solicitudVisor || !visorVisible.value) return;
+            if (!(res.data instanceof Blob) || !res.data.size) throw new Error('El archivo está vacío o no está disponible.');
+            // The download endpoint may return application/octet-stream; use the supported file type for display.
+            visorUrl.value = URL.createObjectURL(new Blob([res.data], { type: 'image/png' }));
+        } catch (error) {
+            if (solicitud === solicitudVisor && visorVisible.value) visorError.value = error?.message || 'No fue posible cargar la vista previa.';
+        } finally {
+            if (solicitud === solicitudVisor) visorCargando.value = false;
+        }
+    };
     const papelera = ref(false);
     const administrador = ref(false);
     const compartirVisible = ref(false);
@@ -47,6 +185,7 @@ const useProceso = () => {
     const controlCarga = ref(null);
     const espacioActual = computed(() => espacios.value.find((item) => item._id === espacioId.value));
     const carpetaActual = computed(() => ruta.value.at(-1)?._id || null);
+    watch([espacioId, carpetaActual, papelera, offset], () => { busqueda.value = ''; });
     const rutaInicio = computed(() => ({ label: espacioActual.value?.nombre || 'Inicio', indice: -1 }));
     const rutaItems = computed(() => ruta.value.map((item, indice) => ({ label: item.nombre, indice })));
 
@@ -85,7 +224,13 @@ const useProceso = () => {
         hayMasEspacios.value = lote.length === limite;
         administrador.value = res.datos.administrador;
         if (espacioId.value && !espacios.value.some(item => item._id === espacioId.value)) {
-            espacioId.value = ''; ruta.value = []; papelera.value = false;
+            // A direct-link repository may be beyond the first page of repositories.
+            const parametros = new URLSearchParams({ espacio: espacioId.value });
+            if (carpetaActual.value) parametros.set('carpeta', carpetaActual.value);
+            const ubicacion = await apiGet_token(`/sync/ubicacion?${parametros}`);
+            if (ubicacion.estatus === 200) espacios.value.push(ubicacion.datos.espacio);
+            else if ([403, 404].includes(ubicacion.estatus)) { espacioId.value = ''; ruta.value = []; papelera.value = false; }
+            else handleValidarRespuesta(ubicacion);
         }
         if (!espacioId.value && espacios.value.length) espacioId.value = espacios.value[0]._id;
     };
@@ -106,11 +251,24 @@ const useProceso = () => {
     const handleActualizar = () =>
         handleEjecutar(async () => {
             await handleCargarEspacios();
+            if (ubicacionPendiente) {
+                registros.value = []; accionesCarpeta.value = [];
+                const consulta = consultaCarpeta(destinoInicial);
+                if (!consulta.espacio || (destinoInicial.carpeta && !consulta.carpeta)) throw new Error('El enlace de carpeta no es válido.');
+                const ubicacion = handleValidarRespuesta(await apiGet_token(`/sync/ubicacion?${new URLSearchParams(consulta)}`));
+                const destino = ubicacion.datos;
+                if (!espacios.value.some(espacio => espacio._id === destino.espacio._id)) espacios.value.push(destino.espacio);
+                espacioId.value = destino.espacio._id;
+                ruta.value = destino.ruta;
+                papelera.value = false; offset.value = 0;
+                ubicacionPendiente = false;
+            }
             await handleCargarContenido();
         });
     const handleMasEspacios = () => handleEjecutar(() => handleCargarEspacios(true));
     const handleCambiarEspacio = () =>
         handleEjecutar(async () => {
+            ubicacionPendiente = false;
             ruta.value = [];
             offset.value = 0;
             papelera.value = false;
@@ -214,6 +372,7 @@ const useProceso = () => {
         });
     const handleDescargar = (registro) =>
         handleEjecutar(async () => {
+            if (!handleTienePermiso('descargar', registro)) throw new Error('No tienes autorización para descargar este archivo.');
             const res = handleValidarRespuesta(
                 await store.dispatch('api/apiGetblob', {
                     direccion: `/sync/archivos/${registro._id}/contenido`
@@ -357,13 +516,103 @@ const useProceso = () => {
         const extension = nombre.split('.').pop().toLowerCase();
         if (['doc', 'docx', 'odt'].includes(extension)) return 'fa-solid fa-file-word';
         if (['xls', 'xlsx', 'csv', 'ods'].includes(extension)) return 'fa-solid fa-file-excel';
+        if (['ppt', 'pptx', 'odp'].includes(extension)) return 'fa-solid fa-file-powerpoint';
         if (extension === 'pdf') return 'fa-solid fa-file-pdf';
         if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(extension)) return 'fa-solid fa-file-image';
         if (['zip', 'rar', '7z', 'gz'].includes(extension)) return 'fa-solid fa-file-zipper';
         return 'fa-solid fa-file';
     };
+    const handleAccionesRegistro = registro => {
+        const permiso = accion => handleTienePermiso(accion, registro);
+        const archivo = registro.tipo === 'archivo';
+        return [
+            { label: 'Restaurar', icon: 'pi pi-replay', visible: papelera.value && permiso('restaurar'), ejecutar: () => handleMostrarConfirmacion('restaurar', registro) },
+            { label: 'Renombrar', icon: 'pi pi-pencil', visible: !papelera.value && permiso('escribir'), ejecutar: () => handleRenombrar(registro) },
+            { label: 'Enlace de carpeta', icon: 'pi pi-link', visible: !papelera.value && !archivo && permiso('listar'), ejecutar: () => handleEnlaceCarpeta(registro) },
+            { label: 'Visualizar', icon: 'pi pi-eye', visible: !papelera.value && archivo && permiso('visualizar') && handleTipoVistaPrevia(registro), ejecutar: () => handleVisualizar(registro) },
+            { label: 'Compartir', icon: 'pi pi-share-alt', visible: !papelera.value && archivo && permiso('compartir') && permiso('descargar'), ejecutar: () => handleCompartir(registro) },
+            { label: 'Descargar', icon: 'pi pi-download', visible: !papelera.value && archivo && permiso('descargar'), ejecutar: () => handleDescargar(registro) },
+            { label: 'Permisos de descarga', icon: 'pi pi-lock', visible: !papelera.value && archivo && permiso('administrar_descargas'), ejecutar: () => handlePermisosDescarga(registro) },
+            { label: 'Versiones', icon: 'pi pi-history', visible: !papelera.value && archivo && permiso('historial'), ejecutar: () => handleHistorial(registro) },
+            { label: 'Nueva versión', icon: 'pi pi-upload', visible: !papelera.value && archivo && permiso('cargar'), ejecutar: () => handleMostrarCarga(registro) },
+            { label: 'A papelera', icon: 'pi pi-trash', severity: 'danger', visible: !papelera.value && permiso('eliminar'), ejecutar: () => handleMostrarConfirmacion('eliminar', registro) }
+        ].filter(accion => accion.visible);
+    };
+    const handleEnlaceCarpeta = (registro = null) => {
+        if (!espacioId.value || papelera.value || !opciones.resolverEnlace) return;
+        const consulta = { espacio: espacioId.value };
+        const carpeta = registro?._id || carpetaActual.value;
+        if (carpeta) consulta.carpeta = carpeta;
+        enlaceCarpeta.value = opciones.resolverEnlace(consultaCarpeta(consulta));
+        enlaceCarpetaVisible.value = true;
+    };
+    const handleCopiarEnlaceCarpeta = async () => {
+        try {
+            await navigator.clipboard.writeText(enlaceCarpeta.value);
+            toast.add({ severity: 'success', summary: 'Carpeta', detail: 'Enlace copiado.', life: 2500 });
+        } catch {
+            toast.add({ severity: 'info', summary: 'Carpeta', detail: 'Selecciona el enlace y cópialo manualmente.', life: 4000 });
+        }
+    };
+    const handleCargarPermisosDescarga = async () => {
+        const respuesta = handleValidarRespuesta(await store.dispatch('api/apiGetTokenSinCargando', {
+            direccion: `/sync/archivos/${archivoPermisosDescarga.value._id}/permisos-descarga`
+        }));
+        autorizadosDescarga.value = respuesta.datos.autorizados;
+        revisionDescargas.value = respuesta.datos.revision_descargas;
+    };
+    const handleCargarUsuariosDescarga = async (agregar = false) => {
+        const offset = agregar ? offsetUsuariosDescarga.value : 0;
+        const parametros = new URLSearchParams({ buscar: buscarUsuarioDescarga.value, offset, limite: 50 });
+        const respuesta = handleValidarRespuesta(await store.dispatch('api/apiGetTokenSinCargando', {
+            direccion: `/sync/archivos/${archivoPermisosDescarga.value._id}/usuarios-descarga?${parametros}`
+        }));
+        const usuarios = respuesta.datos.usuarios;
+        usuariosDescarga.value = agregar ? [...usuariosDescarga.value, ...usuarios] : usuarios;
+        offsetUsuariosDescarga.value = offset + usuarios.length;
+        hayMasUsuariosDescarga.value = usuarios.length === 50;
+    };
+    const handlePermisosDescarga = registro => handleEjecutar(async () => {
+        archivoPermisosDescarga.value = registro;
+        buscarUsuarioDescarga.value = ''; usuarioDescarga.value = null;
+        autorizadosDescarga.value = []; usuariosDescarga.value = [];
+        permisosDescargaVisible.value = true;
+        await handleCargarPermisosDescarga();
+        await handleCargarUsuariosDescarga();
+    });
+    const handleBuscarUsuariosDescarga = () => handleEjecutar(async () => {
+        usuarioDescarga.value = null;
+        await handleCargarUsuariosDescarga();
+    });
+    const handleMasUsuariosDescarga = () => handleEjecutar(() => handleCargarUsuariosDescarga(true));
+    const handleAutorizarDescarga = (usuario, permitir) => handleEjecutar(async () => {
+        try {
+            handleValidarRespuesta(await store.dispatch('api/apiPutToken', {
+                direccion: `/sync/archivos/${archivoPermisosDescarga.value._id}/permisos-descarga`,
+                datosJson: { usuario, permitir, revision_descargas: revisionDescargas.value }
+            }));
+        } catch (e) { await handleCargarPermisosDescarga(); throw e; }
+        await handleCargarPermisosDescarga();
+        usuarioDescarga.value = null;
+        toast.add({ severity: 'success', summary: 'Permisos de descarga', detail: permitir ? 'Descarga autorizada.' : 'Autorización retirada.', life: 3000 });
+    });
+    let pantallaVisor;
+    const handlePantallaVisor = () => { visorVertical.value = pantallaVisor.matches; };
+    onMounted(() => {
+        pantallaVisor = window.matchMedia('(max-width: 900px)');
+        handlePantallaVisor();
+        pantallaVisor.addEventListener('change', handlePantallaVisor);
+    });
+    onBeforeUnmount(() => pantallaVisor?.removeEventListener('change', handlePantallaVisor));
     onMounted(handleActualizar);
     return {
+        enlaceCarpetaVisible, enlaceCarpeta, handleEnlaceCarpeta, handleCopiarEnlaceCarpeta,
+        permisosDescargaVisible, archivoPermisosDescarga, autorizadosDescarga, usuariosDescarga, buscarUsuarioDescarga,
+        usuarioDescarga, hayMasUsuariosDescarga, handleBuscarUsuariosDescarga, handleMasUsuariosDescarga, handleAutorizarDescarga,
+        vistaPreviaActiva, visorAmpliado, archivoActivo, busqueda, registrosVisibles, vistaArchivos, visorVertical,
+        handleSeleccionarArchivo, handleAccionesRegistro,
+        visorVisible, visorCargando, visorError, visorNombre, visorUrl, visorTipo, visorOffice, visorLibro, visorDocumento,
+        handleVisualizar, handleTipoVistaPrevia, handleErrorVisor,
         compartirVisible, archivoCompartido, usarVigencia, usarLimite, fechaEnlace, limiteEnlace, enlaceGenerado, enlaces, offsetEnlaces,
         handleCompartir, handleGenerarEnlace, handleCopiarEnlace, handleRevocarEnlace, handlePaginarEnlaces, handleEstadoEnlace,
         archivadosVisible, archivados, offsetArchivados, handleMostrarArchivados, handlePaginarArchivados,

@@ -28,14 +28,14 @@ const useProceso = () => {
     const columnas = [
         { accion: 'listar', nombre: 'Lectura', descripcion: 'Ver carpetas, nombres y metadatos.' },
         { accion: 'escribir', nombre: 'Escritura', descripcion: 'Renombrar carpetas y archivos.' },
-        { accion: 'leer', nombre: 'Descarga', descripcion: 'Descargar el contenido desde el kiosco.' },
-        { accion: 'compartir', nombre: 'Compartir', descripcion: 'Generar enlaces públicos con vigencia o límite de descargas. También requiere Descarga.' },
+        { accion: 'leer', nombre: 'Visualizar', descripcion: 'Ver el contenido sin autorizar la descarga del original. La descarga se autoriza por archivo en el kiosco.' },
+        { accion: 'compartir', nombre: 'Compartir', descripcion: 'Generar enlaces públicos. Requiere Visualizar y autorización de descarga del archivo.' },
         { accion: 'cargar', nombre: 'Carga', descripcion: 'Subir archivos y versiones.' },
         { accion: 'crear_carpeta', nombre: 'Directorios', descripcion: 'Crear carpetas dentro del repositorio.' },
         { accion: 'historial', nombre: 'Versiones', descripcion: 'Consultar el historial de versiones.' },
         { accion: 'eliminar', nombre: 'Eliminar', descripcion: 'Enviar archivos a papelera, sin borrado físico.' },
         { accion: 'restaurar', nombre: 'Restaurar', descripcion: 'Recuperar archivos y versiones anteriores.' },
-        { accion: 'sync_local', nombre: 'Sync local', descripcion: 'Recibir contenido en equipos aprobados, independiente de Descarga manual.' },
+        { accion: 'sync_local', nombre: 'Sync local', descripcion: 'Recibir en equipos aprobados los archivos con autorización de descarga.' },
         { accion: 'editar_local', nombre: 'Editar local', descripcion: 'Publicar cambios desde Windows. Requiere Sync local; no equivale a Carga web.' }
     ];
     const columnasVisibles = computed(() => columnas.filter(col => mostrarColumnasSyncLocal.value || !['sync_local', 'editar_local'].includes(col.accion)));

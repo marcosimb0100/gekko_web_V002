@@ -32,8 +32,12 @@ export const apiSyncPublicInfo = (_context, { direccion }) => apiSyncPublicGet(d
 export const apiSyncPublicFile = (_context, { direccion }) => apiSyncPublicDownload(direccion);
 // import { notify } from "@kyvg/vue3-notification";
 import router from '../../router/index';
+import { consultaCarpeta, destinoAccesoArchivos } from '../../helpers/archivosPortal';
 
-export const apiPostAcceso = async ({ commit }, { direccion, datosJson }) => {
+const destinoAcceso = () => router.currentRoute.value.meta?.archivos ? destinoAccesoArchivos(router.currentRoute.value.query, 'sesion') : { name: 'acceso' };
+const destinoDenegado = () => router.currentRoute.value.meta?.archivos ? destinoAccesoArchivos(router.currentRoute.value.query, 'sin_acceso') : { name: 'notfound' };
+
+export const apiPostAcceso = async ({ commit }, { direccion, datosJson, accesoArchivos = false, carpetaDestino = {} }) => {
     commit('visibleCargandoMutation');
     const { estatus, mensaje, datos } = await apiPost_sinToken(direccion, { ...datosJson, sesion_web: true });
     if (estatus === 200) {
@@ -46,7 +50,7 @@ export const apiPostAcceso = async ({ commit }, { direccion, datosJson }) => {
         localStorage.setItem('token', token);
         conectarSocket();
 
-        router.replace({ name: 'bienvenida_principal' });
+        await router.replace(accesoArchivos ? { name: 'archivos_portal', query: consultaCarpeta(carpetaDestino) } : { name: 'bienvenida_principal' });
     } else {
         commit('visibleCargandoMutation');
     }
@@ -67,14 +71,14 @@ export const apiGetToken = async ({ commit }, { direccion }) => {
     }
     if (estatus === 401) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 403) {
-        router.replace({ name: 'notfound' });
+        router.replace(destinoDenegado());
     }
     return {
         estatus,
@@ -93,14 +97,14 @@ export const apiPostToken = async ({ commit }, { direccion, datosJson }) => {
     }
     if (estatus === 401) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 403) {
-        router.replace({ name: 'notfound' });
+        router.replace(destinoDenegado());
     }
     return {
         estatus,
@@ -119,14 +123,14 @@ export const apiPutToken = async ({ commit }, { direccion, datosJson }) => {
     }
     if (estatus === 401) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 403) {
-        router.replace({ name: 'notfound' });
+        router.replace(destinoDenegado());
     }
     return {
         estatus,
@@ -145,14 +149,14 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
     }
     if (estatus === 401) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 403) {
-        router.replace({ name: 'notfound' });
+        router.replace(destinoDenegado());
     }
     return {
         estatus,
@@ -170,14 +174,14 @@ export const apiPutTokenFormData = async ({ commit }, { direccion, formData }) =
 //     }
 //     if (estatus === 401) {
 //         handleLimpiarSesion();
-//         router.replace({ name: 'acceso' });
+//         router.replace(destinoAcceso());
 //     }
 //     if (estatus === 402) {
 //         handleLimpiarSesion();
-//         router.replace({ name: 'acceso' });
+//         router.replace(destinoAcceso());
 //     }
 //     if (estatus === 403) {
-//         router.replace({ name: 'notfound' });
+//         router.replace(destinoDenegado());
 //     }
 //     return {
 //         estatus,
@@ -216,9 +220,7 @@ export const apiPostTokenFormData = async ({ commit }, { direccion, formData }) 
         if (estatus === 401 || estatus === 402) {
             handleLimpiarSesion();
 
-            router.replace({
-                name: 'acceso'
-            });
+            router.replace(destinoAcceso());
         }
 
         if (estatus === 403) {
@@ -266,14 +268,14 @@ export const apiGetblob = async ({ commit }, { direccion }) => {
     }
     if (estatus === 401) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     if (estatus === 403) {
-        router.replace({ name: 'notfound' });
+        router.replace(destinoDenegado());
     }
     return {
         estatus,
@@ -288,13 +290,11 @@ export const apiGetblobSinCargando = async ({ commit }, { direccion }) => {
 
     if (estatus === 401 || estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
 
     if (estatus === 403) {
-        router.replace({
-            name: 'notfound'
-        });
+        router.replace(destinoDenegado());
     }
 
     return {
@@ -309,11 +309,11 @@ export const apiGetTokenSinCargando = async ({ commit }, { direccion }) => {
 
     if (estatus === 401 || estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
 
     if (estatus === 403) {
-        router.replace({ name: 'notpagefound' });
+        router.replace(destinoDenegado());
     }
 
     return {
@@ -471,15 +471,11 @@ export const apiPostTokenFile = async ({ commit }, { direccion, datosJson }) => 
         if (estatus === 401 || estatus === 402) {
             handleLimpiarSesion();
 
-            router.replace({
-                name: 'acceso'
-            });
+            router.replace(destinoAcceso());
         }
 
         if (estatus === 403) {
-            router.replace({
-                name: 'notfound'
-            });
+            router.replace(destinoDenegado());
         }
 
         return {
@@ -528,15 +524,11 @@ export const apiPostTokenSinCargando = async ({ commit }, { direccion, datosJson
         if (estatus === 401 || estatus === 402) {
             handleLimpiarSesion();
 
-            router.replace({
-                name: 'acceso'
-            });
+            router.replace(destinoAcceso());
         }
 
         if (estatus === 403) {
-            router.replace({
-                name: 'notfound'
-            });
+            router.replace(destinoDenegado());
         }
 
         // ======================================================
@@ -576,15 +568,11 @@ export const apiPostblob = async ({ commit }, { direccion, datosJson }) => {
         if (estatus === 401 || estatus === 402) {
             handleLimpiarSesion();
 
-            router.replace({
-                name: 'acceso'
-            });
+            router.replace(destinoAcceso());
         }
 
         if (estatus === 403) {
-            router.replace({
-                name: 'notfound'
-            });
+            router.replace(destinoDenegado());
         }
 
         return {
@@ -607,15 +595,11 @@ export const apiDeleteToken = async ({ commit }, { direccion, datosJson }) => {
         if (estatus === 401 || estatus === 402) {
             handleLimpiarSesion();
 
-            router.replace({
-                name: 'acceso'
-            });
+            router.replace(destinoAcceso());
         }
 
         if (estatus === 403) {
-            router.replace({
-                name: 'notfound'
-            });
+            router.replace(destinoDenegado());
         }
 
         return {
@@ -645,7 +629,7 @@ export const apiPostChat = async (_context, { direccion, datosJson }) => {
     const resultado = await apiPost_token_sinCargando(direccion, datosJson);
     if (resultado.estatus === 401 || resultado.estatus === 402) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     return resultado;
 };
@@ -655,7 +639,7 @@ export const apiGetCalendario = async (_context, { direccion }) => {
     const resultado = await apiGet_token(direccion);
     if ([401, 402].includes(resultado.estatus)) {
         handleLimpiarSesion();
-        router.replace({ name: 'acceso' });
+        router.replace(destinoAcceso());
     }
     return resultado;
 };
