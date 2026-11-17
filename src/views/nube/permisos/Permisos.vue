@@ -42,7 +42,7 @@
                     </div>
                 </template>
             </Column>
-            <Column header="Alcance"><template #body="{ node }"><Tag v-if="!node.data.esMas" :value="node.data.alcance === 'propios' ? 'Solo contenido propio' : 'Contenido propio y de otros'" severity="info" /></template></Column>
+            <Column header="Alcance"><template #body="{ node }"><Tag v-if="!node.data.esMas" :value="handleResumenAlcance(node.data)" severity="info" /></template></Column>
             <Column header="Permisos"><template #body="{ node }"><span v-if="!node.data.esMas">{{ node.data.acciones.length }} acciones</span></template></Column>
             <Column header="Acciones"><template #body="{ node }"><Button v-if="!node.data.esMas" type="button" label="Configurar permisos" icon="pi pi-sliders-h" outlined :disabled="cargando" @click="handleConfigurarPermisos(node.data)" /></template></Column>
         </TreeTable>
@@ -57,13 +57,19 @@
                 <Checkbox v-model="permisoActual.heredar" inputId="sync-heredar-dialogo" binary :disabled="cargando" @change="handleHeredar(permisoActual)" />
                 <label for="sync-heredar-dialogo">{{ handleOrigenHerencia(permisoActual) }}</label>
             </div>
-            <label for="sync-alcance">Contenido que puede modificar</label>
-            <Select v-model="permisoActual.alcance" inputId="sync-alcance" :options="alcances" optionLabel="label" optionValue="value" :disabled="cargando || permisoActual.heredar" />
-            <small>El alcance limita los cambios. Cada operaci&oacute;n requiere tambi&eacute;n su permiso. Puedes agregar contenido propio dentro de una carpeta compartida.</small>
+            <small>Activa cada permiso y elige sobre qu&eacute; contenido aplica. Carga permite subir documentos nuevos; su alcance limita las nuevas versiones de archivos existentes.</small>
+            <div class="sync-descarga-control">
+                <label for="sync-descarga">Descarga de archivos originales</label>
+                <Select v-model="permisoActual.alcances_por_operacion.descargar" inputId="sync-descarga" :options="opcionesDescarga" optionLabel="label" optionValue="value" :disabled="cargando || permisoActual.heredar" />
+                <small>No permitir descargas bloquea el original, incluso de archivos propios y aunque tenga una autorizaci&oacute;n individual. Compartir y recibir archivos mediante Windows tambi&eacute;n requieren descarga autorizada.</small>
+            </div>
             <div class="sync-permisos-opciones">
                 <div v-for="col in columnasVisibles" :key="col.accion" class="sync-permiso-opcion" :title="col.descripcion">
                     <Checkbox v-model="permisoActual.acciones" :inputId="`permiso-${col.accion}`" :value="col.accion" :disabled="cargando || permisoActual.heredar" @change="handleCambiarPermiso(permisoActual, col.accion)" />
-                    <label :for="`permiso-${col.accion}`" class="sync-permiso-texto"><span>{{ col.nombre }}</span><small>{{ col.descripcion }}</small></label>
+                    <div class="sync-permiso-texto">
+                        <label :for="`permiso-${col.accion}`">{{ col.nombre }}</label><small>{{ col.descripcion }}</small>
+                        <Select v-if="operacionesConAlcance.includes(col.accion)" v-model="permisoActual.alcances_por_operacion[col.accion]" :options="alcances" optionLabel="label" optionValue="value" :aria-label="`Alcance de ${col.nombre}`" :disabled="cargando || permisoActual.heredar || !permisoActual.acciones.includes(col.accion)" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,7 +78,7 @@
 
     <Dialog v-model:visible="informacionVisible" modal header="Guía de permisos" class="sync-ayuda-dialogo">
         <div class="sync-ayuda">
-            <div><h3>Contenido propio y de otros</h3><p>Configurar permisos permite elegir las acciones y su alcance. Solo contenido propio limita renombrar, reemplazar versiones, eliminar, restaurar y editar desde Windows a archivos y carpetas creados por ese usuario. Una carpeta con contenido ajeno queda protegida frente a esos cambios.</p><p>Lectura y Visualizar permiten consultar contenido compartido. Carga y Directorios permiten agregar contenido propio. La descarga mantiene su autorizaci&oacute;n por archivo. Los archivos sin creador registrado se consideran ajenos.</p><p>Las carpetas heredan acciones y alcance del padre hasta que guardes permisos personalizados. Las reglas anteriores conservan Contenido propio y de otros. Los administradores de Nube mantienen acceso completo.</p></div>
+            <div><h3>Contenido propio y de otros</h3><p>Configurar permisos permite elegir un alcance independiente para Escritura, Carga, Eliminar, Restaurar y Editar local. Solo contenido propio limita renombrar, reemplazar versiones, eliminar, restaurar y editar desde Windows a archivos y carpetas creados por ese usuario. Una carpeta con contenido ajeno queda protegida frente a esos cambios.</p><p>Lectura y Visualizar permiten consultar contenido compartido. Carga y Directorios permiten agregar contenido propio. Descarga permite bloquear todos los originales, permitir solo los propios, permitir todos o conservar la autorizaci&oacute;n por archivo. Visualizar permite ver una vista previa; no impide capturas de pantalla. Los archivos sin creador registrado se consideran ajenos.</p><p>Las carpetas heredan acciones y alcances del padre hasta que guardes permisos personalizados. Las reglas anteriores conservan Contenido propio y de otros. Los administradores de Nube mantienen acceso completo.</p></div>
             <div><h3>Administradores de Nube</h3><p>Los usuarios incluidos en Administradores, en Nube → Configuración, tienen acceso completo a todos los repositorios y sus carpetas. Por eso no aparecen en el selector de usuarios de esta pantalla y no necesitan marcar permisos individuales.</p><p>Administra esa lista desde Nube → Configuración. Para los usuarios que no son administradores, se aplican los permisos del modelo seleccionado. Incluso los administradores necesitan que la API de sincronización Windows esté habilitada y que su equipo esté autorizado para sincronizar.</p></div>
             <div><h3>Acceso por repositorio</h3><p>Despliega un repositorio para ver sus carpetas y niveles inferiores. Cada carpeta hereda sus permisos hasta que guardes una regla propia. Abre Configurar permisos y guarda los cambios del repositorio o carpeta.</p></div>
             <div><h3>Permisos disponibles</h3><DataTable :value="columnas" size="small"><Column field="nombre" header="Permiso" /><Column field="descripcion" header="Qué permite" /></DataTable></div>

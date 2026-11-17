@@ -30,3 +30,8 @@
 .sync-permiso-texto { display: flex; flex-direction: column; gap: .35rem; cursor: pointer; min-width: 0; }
 .sync-permiso-texto > span { font-weight: 600; }
 .sync-permiso-texto small { font-size: .78rem; line-height: 1.4; }
+
+.sync-descarga-control { display: grid; gap: .5rem; padding: 1rem; background: var(--surface-50); border: 1px solid var(--surface-border); border-radius: 6px; }
+.sync-permiso-texto { flex: 1; }
+.sync-permiso-texto > label { font-weight: 600; cursor: pointer; }
+.sync-permiso-texto :deep(.p-select) { width: 100%; font-size: .8rem; }

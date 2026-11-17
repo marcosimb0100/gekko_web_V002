@@ -10,8 +10,20 @@ const useProceso = () => {
         { label: 'Solo contenido propio', value: 'propios' },
         { label: 'Contenido propio y de otros', value: 'todos' }
     ];
+    const operacionesConAlcance = ['escribir', 'cargar', 'eliminar', 'restaurar', 'editar_local'];
+    const opcionesDescarga = [
+        { label: 'No permitir descargas', value: 'ninguno' },
+        { label: 'Solo archivos propios', value: 'propios' },
+        { label: 'Archivos propios y de otros', value: 'todos' },
+        { label: 'Autorizaci\u00f3n por archivo (actual)', value: 'archivo' }
+    ];
+    const handleResumenAlcance = fila => {
+        const valores = operacionesConAlcance.filter(accion => fila.acciones.includes(accion)).map(accion => fila.alcances_por_operacion?.[accion] || fila.alcance || 'todos');
+        if (new Set(valores).size > 1) return 'Por operaci\u00f3n';
+        return valores[0] === 'propios' ? 'Solo contenido propio' : 'Contenido propio y de otros';
+    };
     const handleConfigurarPermisos = fila => {
-        permisoActual.value = { ...fila, acciones: [...fila.acciones], alcance: fila.alcance || 'todos' };
+        permisoActual.value = { ...fila, acciones: [...fila.acciones], alcance: fila.alcance || 'todos', alcances_por_operacion: { ...Object.fromEntries(operacionesConAlcance.map(accion => [accion, fila.alcance || 'todos'])), descargar: 'archivo', ...fila.alcances_por_operacion } };
         permisosVisible.value = true;
     };
     const mostrarColumnasSyncLocal = ref(false);
@@ -118,6 +130,7 @@ const useProceso = () => {
         if (fila.heredar) {
             fila.acciones = [...fila.acciones_perfil];
             fila.alcance = fila.alcance_heredado || 'todos';
+            fila.alcances_por_operacion = { ...fila.alcances_heredados };
         }
     };
     const handleCambiarPermiso = (fila, accion) => {
@@ -133,7 +146,7 @@ const useProceso = () => {
             const datos = handleRespuesta(
                 await store.dispatch('api/apiPutToken', {
                     direccion: fila.tipo_recurso === 'carpeta' ? `/sync/carpetas/${fila._id}/permisos` : `/sync/espacios/${fila._id}/permisos`,
-                    datosJson: { tipo: tipo.value, sujeto: sujetoId.value, acciones: fila.heredar ? null : fila.acciones, alcance: fila.alcance, revision_permisos: fila.revision_permisos }
+                    datosJson: { tipo: tipo.value, sujeto: sujetoId.value, acciones: fila.heredar ? null : fila.acciones, alcance: fila.alcance, alcances_operaciones: fila.alcances_por_operacion, revision_permisos: fila.revision_permisos }
                 })
             );
             fila.revision_permisos = datos.revision_permisos;
@@ -180,6 +193,7 @@ const useProceso = () => {
     // Catalog data is loaded only when the administrator opens this component.
     handleBuscarSujetos();
     return {
+        operacionesConAlcance, opcionesDescarga, handleResumenAlcance,
         permisosVisible, permisoActual, alcances, handleConfigurarPermisos,
         expandedKeys, handleExpandirNodo, handleMasCarpetas, handleOrigenHerencia,
         informacionVisible, handleMostrarInformacion, handleCerrarInformacion, mostrarColumnasSyncLocal,
