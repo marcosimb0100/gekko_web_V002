@@ -4,6 +4,16 @@ import { useStore } from 'vuex';
 
 const useProceso = () => {
     const informacionVisible = ref(false);
+    const permisosVisible = ref(false);
+    const permisoActual = ref(null);
+    const alcances = [
+        { label: 'Solo contenido propio', value: 'propios' },
+        { label: 'Contenido propio y de otros', value: 'todos' }
+    ];
+    const handleConfigurarPermisos = fila => {
+        permisoActual.value = { ...fila, acciones: [...fila.acciones], alcance: fila.alcance || 'todos' };
+        permisosVisible.value = true;
+    };
     const mostrarColumnasSyncLocal = ref(false);
     const handleMostrarInformacion = () => { informacionVisible.value = true; };
     const handleCerrarInformacion = () => { informacionVisible.value = false; };
@@ -105,7 +115,10 @@ const useProceso = () => {
         return `Usar permisos del padre: ${fila.nombre_padre || 'Directorio padre'}`;
     };
     const handleHeredar = (fila) => {
-        if (fila.heredar) fila.acciones = [...fila.acciones_perfil];
+        if (fila.heredar) {
+            fila.acciones = [...fila.acciones_perfil];
+            fila.alcance = fila.alcance_heredado || 'todos';
+        }
     };
     const handleCambiarPermiso = (fila, accion) => {
         if (accion === 'compartir' && fila.acciones.includes('compartir') && !fila.acciones.includes('leer')) fila.acciones.push('leer');
@@ -120,16 +133,18 @@ const useProceso = () => {
             const datos = handleRespuesta(
                 await store.dispatch('api/apiPutToken', {
                     direccion: fila.tipo_recurso === 'carpeta' ? `/sync/carpetas/${fila._id}/permisos` : `/sync/espacios/${fila._id}/permisos`,
-                    datosJson: { tipo: tipo.value, sujeto: sujetoId.value, acciones: fila.heredar ? null : fila.acciones, revision_permisos: fila.revision_permisos }
+                    datosJson: { tipo: tipo.value, sujeto: sujetoId.value, acciones: fila.heredar ? null : fila.acciones, alcance: fila.alcance, revision_permisos: fila.revision_permisos }
                 })
             );
             fila.revision_permisos = datos.revision_permisos;
             const nodo = handleEncontrarNodo(filas.value, fila._id);
             if (nodo) {
+                Object.assign(nodo.data, fila);
                 nodo.children = undefined;
                 nodo.cargado = false;
                 delete expandedKeys.value[nodo.key];
             }
+            permisosVisible.value = false;
             toast.add({ severity: 'success', summary: 'Permisos Sync', detail: `Permisos guardados para ${fila.nombre}.`, life: 3500 });
         });
     const handleCrearNodo = fila => ({
@@ -165,6 +180,7 @@ const useProceso = () => {
     // Catalog data is loaded only when the administrator opens this component.
     handleBuscarSujetos();
     return {
+        permisosVisible, permisoActual, alcances, handleConfigurarPermisos,
         expandedKeys, handleExpandirNodo, handleMasCarpetas, handleOrigenHerencia,
         informacionVisible, handleMostrarInformacion, handleCerrarInformacion, mostrarColumnasSyncLocal,
         tipo,

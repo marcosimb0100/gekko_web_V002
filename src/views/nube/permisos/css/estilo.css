@@ -20,3 +20,9 @@
 .sync-herencia-control { display: flex; align-items: center; gap: .5rem; }
 .sync-herencia-control label { max-width: 16rem; white-space: normal; font-size: .85rem; line-height: 1.4; cursor: pointer; }
 .sync-matriz :deep(.sync-origen-columna) { min-width: 15rem; }
+.sync-editar-permisos { width: 46rem; max-width: 95vw; }
+.sync-permisos-formulario { display: flex; flex-direction: column; gap: 1rem; }
+.sync-permisos-formulario small { color: var(--text-color-secondary); line-height: 1.5; }
+.sync-permisos-opciones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.sync-permiso-opcion { display: flex; align-items: center; gap: .6rem; padding: .75rem; border: 1px solid var(--surface-border); border-radius: 6px; }
+@media (max-width: 600px) { .sync-permisos-opciones { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
