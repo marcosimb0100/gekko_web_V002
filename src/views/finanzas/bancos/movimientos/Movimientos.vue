@@ -1,6 +1,6 @@
 <template>
     <Encabezado titulo="Movimientos Bancarios" subtitulo="Consulta y exportación de movimientos de estados de cuenta" icono="pi pi-money-bill">
-        <Button type="button" label="Exportar Excel" class="btn-exportar" :disabled="movimientos.length === 0" @click="handleExportarExcel">
+        <Button type="button" label="Exportar Excel" class="btn-exportar" :disabled="bloqueado || movimientos.length === 0" @click="handleExportarExcel">
             <template #icon>
                 <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
             </template>
@@ -41,7 +41,7 @@
                         filter
                         showClear
                         :loading="cargandoEmpresas"
-                        :disabled="consultando"
+                        :disabled="filtrosBloqueados"
                         class="w-full"
                         @change="handleCambiarEmpresa"
                     >
@@ -72,7 +72,7 @@
                         filter
                         showClear
                         :loading="cargandoCuentas"
-                        :disabled="!empresaSeleccionada || consultando"
+                        :disabled="!empresaSeleccionada || filtrosBloqueados"
                         class="w-full"
                         @change="handleCambiarCuenta"
                     >
@@ -131,7 +131,7 @@
                 <div class="campo-filtro">
                     <label> Fecha Inicial </label>
 
-                    <Calendar v-model="fechaInicial" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :maxDate="fechaFinal" :disabled="consultando" class="w-full" />
+                    <Calendar v-model="fechaInicial" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :maxDate="fechaFinal" :disabled="filtrosBloqueados" class="w-full" />
                 </div>
 
                 <!-- FECHA FINAL -->
@@ -139,18 +139,18 @@
                 <div class="campo-filtro">
                     <label> Fecha Final </label>
 
-                    <Calendar v-model="fechaFinal" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :minDate="fechaInicial" :disabled="consultando" class="w-full" />
+                    <Calendar v-model="fechaFinal" dateFormat="dd/mm/yy" showIcon :showOnFocus="false" :minDate="fechaInicial" :disabled="filtrosBloqueados" class="w-full" />
                 </div>
             </div>
 
             <div class="acciones-filtros">
-                <Button type="button" label="Limpiar" class="btn-cancelar" :disabled="consultando" @click="handleRestablecer">
+                <Button type="button" label="Limpiar" class="btn-cancelar" :disabled="bloqueado" @click="handleRestablecer">
                     <template #icon>
                         <font-icon icon="fa-solid fa-filter-circle-xmark" class="mr-2" />
                     </template>
                 </Button>
 
-                <Button type="button" label="Consultar" class="btn-guardar" :loading="consultando" :disabled="!empresaSeleccionada || !cuentaSeleccionada || !fechaInicial || !fechaFinal || consultando" @click="handleConsultar">
+                <Button type="button" label="Consultar" class="btn-guardar" :loading="consultando" :disabled="!empresaSeleccionada || !cuentaSeleccionada || !fechaInicial || !fechaFinal || filtrosBloqueados" @click="handleConsultar">
                     <template #icon>
                         <font-icon icon="fa-solid fa-magnifying-glass" class="mr-2" />
                     </template>
@@ -216,14 +216,14 @@
                     <!-- BUSCADOR -->
 
                     <div class="barra-busqueda">
-                        <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined @click="handleLimpiarFiltrosTabla" />
+                        <Button type="button" icon="pi pi-filter-slash" label="Limpiar" outlined :disabled="bloqueado" @click="handleLimpiarFiltrosTabla" />
 
                         <IconField iconPosition="left">
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
 
-                            <InputText v-model="filtros.global.value" placeholder="Buscar..." class="buscador" />
+                            <InputText v-model="filtros.global.value" placeholder="Buscar..." class="buscador" :disabled="bloqueado" />
                         </IconField>
                     </div>
 
@@ -242,7 +242,7 @@
                                 class="selector-concepto"
                                 filter
                                 :loading="cargandoConceptos"
-                                :disabled="cargandoConceptos || movimientosSeleccionados.length === 0"
+                                :disabled="bloqueado || movimientosSeleccionados.length === 0"
                             />
                         </div>
 
@@ -252,9 +252,11 @@
                             icon="pi pi-check"
                             class="btn-aplicar-concepto"
                             :loading="aplicandoConcepto"
-                            :disabled="aplicandoConcepto || !conceptoSeleccionado || movimientosSeleccionados.length === 0"
+                            :disabled="bloqueado || !conceptoSeleccionado || movimientosSeleccionados.length === 0"
                             @click="handleAplicarConcepto"
                         />
+
+                        <Button label="Nota" icon="pi pi-comment" outlined :disabled="bloqueado || !movimientosSeleccionados.length" @click="handleAbrirNota()" />
 
                         <span v-if="movimientosSeleccionados.length > 0" class="contador-seleccionados">
                             {{ movimientosSeleccionados.length }}
@@ -270,7 +272,7 @@
                             movimiento(s)
                         </span>
 
-                        <Button type="button" label="Exportar Excel" class="btn-exportar-tabla" :disabled="movimientos.length === 0" @click="handleExportarExcel">
+                        <Button type="button" label="Exportar Excel" class="btn-exportar-tabla" :disabled="bloqueado || movimientos.length === 0" @click="handleExportarExcel">
                             <template #icon>
                                 <font-icon icon="fa-solid fa-file-excel" class="mr-2" />
                             </template>
@@ -283,6 +285,9 @@
                      ================================================= -->
 
                 <DataTable
+                    :loading="consultando || aplicandoConcepto"
+                    :inert="bloqueado ? true : undefined"
+                    :aria-busy="bloqueado"
                     v-model:filters="filtros"
                     v-model:selection="movimientosSeleccionados"
                     :value="movimientos"
@@ -318,7 +323,7 @@
 
                     <!-- COLUMNAS -->
 
-                    <Column v-for="columna in columnasMovimientos" :key="columna.field" :field="columna.field" :header="columna.header" headerClass="encabezado-columna" :style="columna.style">
+                    <Column v-for="columna in columnasMovimientos" :key="columna.field" :field="columna.field" :header="columna.header" :headerClass="['nota', 'facturas'].includes(columna.tipo) ? 'encabezado-columna encabezado-nota' : 'encabezado-columna'" :bodyClass="['nota', 'facturas'].includes(columna.tipo) ? 'celda-nota' : undefined" :style="columna.style">
                         <template #body="slotProps">
                             <!-- MONEDA -->
                             <span v-if="columna.tipo === 'moneda'" :class="handleClaseImporte(columna.field, slotProps.data[columna.field])">
@@ -326,6 +331,9 @@
                             </span>
 
                             <!-- CONCEPTO CONCILIACIÓN -->
+                            <Button v-else-if="columna.tipo === 'facturas'" unstyled class="boton-nota boton-facturas" :class="{ 'nota-presente': slotProps.data.facturas_relacionadas > 0 }" :title="`${slotProps.data.facturas_relacionadas || 0} facturas relacionadas`" :aria-label="`${slotProps.data.facturas_relacionadas || 0} facturas relacionadas`" :disabled="bloqueado || cargandoFacturas" @click="handleAbrirFacturas(slotProps.data)"><i class="pi pi-copy"></i><small v-if="slotProps.data.facturas_relacionadas">{{ slotProps.data.facturas_relacionadas }}</small></Button>
+                            <Button v-else-if="columna.tipo === 'nota'" icon="pi pi-file-edit" unstyled class="boton-nota" :class="{ 'nota-presente': !!slotProps.data.nota_movimiento }" :severity="slotProps.data.nota_movimiento ? 'info' : 'secondary'" :title="slotProps.data.nota_movimiento ? 'Ver o editar nota' : 'Agregar nota'" :aria-label="slotProps.data.nota_movimiento ? 'Ver o editar nota' : 'Agregar nota'" :disabled="bloqueado" @click="handleAbrirNota(slotProps.data)" />
+
                             <div v-else-if="columna.tipo === 'conciliacion'" class="celda-conciliacion">
                                 <span v-if="slotProps.data.conciliacion" class="concepto-conciliado" v-tooltip.top="handleNombreConciliacion(slotProps.data.conciliacion)">
                                     <i class="pi pi-check-circle"></i>
@@ -346,6 +354,30 @@
             </div>
         </template>
     </div>
+    <Dialog v-model:visible="mostrarFacturas" modal header="Facturas relacionadas" :style="{ width: '62rem', maxWidth: '95vw' }">
+        <p class="nota-resumen">{{ movimientoFacturas?.fecha_hora }} &middot; {{ movimientoFacturas?.descripcion }}</p>
+        <Message v-if="errorFacturas" severity="error" :closable="false">{{ errorFacturas }}</Message>
+        <DataTable :value="facturasRelacionadas" :loading="cargandoFacturas" paginator :rows="10" dataKey="uuid" class="tabla-encabezados" :tableStyle="{ tableLayout: 'fixed', width: '100%' }">
+            <template #empty>No hay facturas relacionadas con este movimiento.</template>
+            <Column header="Comprobante"><template #body="{ data }"><strong>{{ data.serie }} / {{ data.folio }}</strong><div class="factura-uuid">{{ data.uuid }}</div></template></Column>
+            <Column field="emisor" header="Emisor" />
+            <Column field="receptor" header="Receptor" />
+            <Column header="Total factura"><template #body="{ data }">{{ data.total === null ? 'Sin dato' : handleFormatoMoneda(data.total) }}</template></Column>
+            <Column header="Aplicado al movimiento"><template #body="{ data }">{{ handleFormatoMoneda(data.aplicado) }}</template></Column>
+        </DataTable>
+        <template #footer><Button label="Cerrar" outlined @click="mostrarFacturas = false" /></template>
+    </Dialog>
+    <Dialog v-model:visible="mostrarNota" modal header="Nota del movimiento" :style="{ width: '36rem' }" :breakpoints="{ '640px': '95vw' }" :closable="!guardandoNota">
+        <p v-if="movimientosNota.length === 1" class="nota-resumen">{{ movimientosNota[0].fecha_hora }} &middot; {{ movimientosNota[0].descripcion }}</p>
+        <p v-else>La misma nota se guardar&aacute; en {{ movimientosNota.length }} movimientos seleccionados.</p>
+        <Message v-if="errorNota" severity="error" :closable="false">{{ errorNota }}</Message>
+        <label for="nota-movimiento">Nota</label>
+        <Textarea inputId="nota-movimiento" id="nota-movimiento" v-model="textoNota" rows="5" maxlength="1000" class="w-full nota-texto" :disabled="guardandoNota" />
+        <small>{{ textoNota.length }}/1000 caracteres. Deja el campo vac&iacute;o para retirar la nota.</small>
+        <div v-if="requiereReemplazo" class="nota-confirmacion"><Checkbox inputId="reemplazar-notas" v-model="reemplazarNotas" binary :disabled="guardandoNota" /><label for="reemplazar-notas">Confirmo reemplazar las notas existentes en los movimientos seleccionados.</label></div>
+        <p v-if="movimientosNota.length === 1 && movimientosNota[0].nota_usuario" class="nota-resumen">&Uacute;ltima modificaci&oacute;n por {{ movimientosNota[0].nota_usuario }}.</p>
+        <template #footer><Button label="Cancelar" outlined :disabled="guardandoNota" @click="mostrarNota = false" /><Button label="Guardar" icon="pi pi-save" :loading="guardandoNota" :disabled="bloqueado || (requiereReemplazo && !reemplazarNotas)" @click="handleGuardarNota" /></template>
+    </Dialog>
 </template>
 
 <script>

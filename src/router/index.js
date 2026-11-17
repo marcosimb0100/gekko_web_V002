@@ -144,6 +144,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "configuracion_menus" */ '../views/configuracion/menus/Menus.vue')
                 },
                 {
+                    path: '/configuracion/tareas_programadas',
+                    name: 'configuracion_tareas_programadas',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/configuracion/tareas_programadas/TareasProgramadas.vue')
+                },
+                {
                     path: '/configuracion/asignar_perfil',
                     name: 'configuracion_asignar_perfil',
                     beforeEnter: permisoRutas,
@@ -346,6 +352,18 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/finanzas/reportes/configuracion',
+                    name: 'finanzas_reportes_configuracion',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/reportes/configuracion/ConfiguracionReportes.vue')
+                },
+                {
+                    path: '/finanzas/tablero',
+                    name: 'finanzas_tablero',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/tablero/Tablero.vue')
+                },
+                {
                     path: '/finanzas/pagos_programados',
                     name: 'finanzas_pagos_programados',
                     beforeEnter: permisoRutas,
@@ -393,6 +411,12 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/finanzas/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
                 },
 
+                {
+                    path: '/reportes/reportes_dinamicos',
+                    name: 'reportes_dinamicos',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/reportes/reportes_dinamicos/ReportesDinamicos.vue')
+                },
                 {
                     path: '/reportes/contabilidad_fac',
                     name: 'reportes_contabilidad_fac',

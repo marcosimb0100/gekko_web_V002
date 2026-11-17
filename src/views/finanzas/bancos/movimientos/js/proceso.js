@@ -59,6 +59,18 @@ const useProceso = () => {
 
     const aplicandoConcepto = ref(false);
 
+    const guardandoNota = ref(false);
+    const mostrarNota = ref(false);
+    const textoNota = ref('');
+    const movimientosNota = ref([]);
+    const reemplazarNotas = ref(false);
+    const errorNota = ref('');
+    const requiereReemplazo = computed(() => movimientosNota.value.length > 1 && movimientosNota.value.some(item => !!item.nota_movimiento));
+
+    const bloqueado = computed(() => consultando.value || aplicandoConcepto.value || guardandoNota.value || cargandoEmpresas.value || cargandoCuentas.value || cargandoConceptos.value);
+
+    const filtrosBloqueados = computed(() => bloqueado.value || consultado.value);
+
     // ============================================================
     // RESUMEN
     // ============================================================
@@ -112,7 +124,7 @@ const useProceso = () => {
                 field: 'descripcion',
                 header: 'Descripción',
                 tipo: 'texto',
-                style: 'width: 31%'
+                style: 'width: 25%'
             },
             {
                 field: 'descripcion_2',
@@ -160,6 +172,15 @@ const useProceso = () => {
                 header: 'Concepto Conciliación',
                 tipo: 'conciliacion',
                 style: 'width: 12%'
+            },
+            {
+                field: 'facturas_relacionadas', header: 'CFDI', tipo: 'facturas', style: 'width: 3%'
+            },
+            {
+                field: 'nota_movimiento',
+                header: 'Nota',
+                tipo: 'nota',
+                style: 'width: 3%'
             }
         ];
     });
@@ -171,7 +192,7 @@ const useProceso = () => {
     // ============================================================
 
     const camposBusqueda = computed(() => {
-        return ['fecha_hora', 'descripcion', 'descripcion_2', 'conciliacion.nombre', 'conciliacion.ruta', 'beneficiario_ordenante', 'banco_movimiento', 'cuenta_clabe', 'clave_rastreo', 'referencia'];
+        return ['fecha_hora', 'descripcion', 'descripcion_2', 'conciliacion.nombre', 'conciliacion.ruta', 'nota_movimiento', 'beneficiario_ordenante', 'banco_movimiento', 'cuenta_clabe', 'clave_rastreo', 'referencia'];
     });
 
     // ============================================================
@@ -401,6 +422,8 @@ const useProceso = () => {
     // ============================================================
 
     const handleCambiarEmpresa = async () => {
+        if (filtrosBloqueados.value) return;
+
         cuentaSeleccionada.value = null;
 
         cuentasBancarias.value = [];
@@ -419,6 +442,8 @@ const useProceso = () => {
     // ============================================================
 
     const handleCambiarCuenta = () => {
+        if (filtrosBloqueados.value) return;
+
         handleLimpiarResultado();
     };
 
@@ -504,7 +529,7 @@ const useProceso = () => {
     // CONSULTAR MOVIMIENTOS
     // ============================================================
 
-    const handleConsultar = async () => {
+    const handleCargarMovimientos = async () => {
         if (!handleValidarConsulta() || consultando.value) {
             return;
         }
@@ -568,6 +593,11 @@ const useProceso = () => {
         }
     };
 
+    const handleConsultar = async () => {
+        if (filtrosBloqueados.value) return;
+        await handleCargarMovimientos();
+    };
+
     // ============================================================
     // OBTENER ID DEL TREESELECT
     // ============================================================
@@ -609,7 +639,7 @@ const useProceso = () => {
     // ============================================================
 
     const handleAplicarConcepto = async () => {
-        if (aplicandoConcepto.value) {
+        if (bloqueado.value) {
             return;
         }
 
@@ -668,7 +698,7 @@ const useProceso = () => {
 
             // Volver a consultar para traer
             // conciliacion actualizada desde Mongo.
-            await handleConsultar();
+            await handleCargarMovimientos();
         } catch (error) {
             console.error('ERROR APLICANDO CONCEPTO:', error);
 
@@ -740,6 +770,8 @@ const useProceso = () => {
     // ============================================================
 
     const handleLimpiarFiltrosTabla = () => {
+        if (bloqueado.value) return;
+
         filtros.value = {
             global: {
                 value: null,
@@ -753,6 +785,8 @@ const useProceso = () => {
     // ============================================================
 
     const handleRestablecer = () => {
+        if (bloqueado.value) return;
+
         empresaSeleccionada.value = null;
 
         cuentaSeleccionada.value = null;
@@ -777,6 +811,8 @@ const useProceso = () => {
     // ============================================================
 
     const handleExportarExcel = () => {
+        if (bloqueado.value) return;
+
         // ========================================================
         // VALIDAR MOVIMIENTOS
         // ========================================================
@@ -980,6 +1016,49 @@ const useProceso = () => {
     // MOUNTED
     // ============================================================
 
+    const handleAbrirNota = (movimiento = null) => {
+        if (bloqueado.value) return;
+        const seleccion = movimiento ? [movimiento] : movimientosSeleccionados.value;
+        if (!seleccion.length || seleccion.length > 500) {
+            handleToast('warn', 'Selecciona entre 1 y 500 movimientos para la nota.');
+            return;
+        }
+        movimientosNota.value = seleccion.map(item => ({ ...item }));
+        textoNota.value = seleccion.length === 1 ? (seleccion[0].nota_movimiento || '') : '';
+        reemplazarNotas.value = false;
+        errorNota.value = '';
+        mostrarNota.value = true;
+    };
+
+    const handleGuardarNota = async () => {
+        if (bloqueado.value || !movimientosNota.value.length) return;
+        if (requiereReemplazo.value && !reemplazarNotas.value) return;
+        guardandoNota.value = true;
+        errorNota.value = '';
+        try {
+            const res = await store.dispatch('api/apiPutToken', {
+                direccion: '/estados_cuenta/movimientos/notas',
+                datosJson: {
+                    movimientos: movimientosNota.value.map(item => ({ id: item._id, revision: item.nota_revision || 0 })),
+                    nota: textoNota.value,
+                    reemplazar: reemplazarNotas.value
+                }
+            });
+            if (res?.estatus !== 200) {
+                errorNota.value = res?.mensaje || 'No fue posible guardar la nota.';
+                if (res?.estatus === 409 && !res.datos?.requiere_confirmacion) await handleCargarMovimientos();
+                return;
+            }
+            mostrarNota.value = false;
+            handleToast('success', res.mensaje || 'Notas guardadas.');
+            await handleCargarMovimientos();
+        } catch (error) {
+            errorNota.value = 'No fue posible guardar la nota. Actualiza la consulta antes de reintentar.';
+        } finally {
+            guardandoNota.value = false;
+        }
+    };
+
     onMounted(async () => {
         await handleCargarEmpresas();
     });
@@ -988,7 +1067,44 @@ const useProceso = () => {
     // RETURN
     // ============================================================
 
+    const mostrarFacturas = ref(false);
+    const cargandoFacturas = ref(false);
+    const facturasRelacionadas = ref([]);
+    const errorFacturas = ref('');
+    const movimientoFacturas = ref(null);
+    const handleAbrirFacturas = async (movimiento) => {
+        if (bloqueado.value || cargandoFacturas.value) return;
+        movimientoFacturas.value = movimiento;
+        facturasRelacionadas.value = [];
+        errorFacturas.value = '';
+        mostrarFacturas.value = true;
+        cargandoFacturas.value = true;
+        try {
+            const res = await store.dispatch('api/apiGetToken', { direccion: `/estados_cuenta/movimientos/${movimiento._id}/facturas` });
+            if (res?.estatus !== 200) {
+                errorFacturas.value = res?.mensaje || 'No fue posible consultar las facturas.';
+                return;
+            }
+            const datos = obtenerDatosRespuesta(res);
+            facturasRelacionadas.value = Array.isArray(datos) ? datos : [];
+        } catch {
+            errorFacturas.value = 'No fue posible consultar las facturas. Intenta nuevamente.';
+        } finally {
+            cargandoFacturas.value = false;
+        }
+    };
+
     return {
+        mostrarFacturas, cargandoFacturas, facturasRelacionadas, errorFacturas, movimientoFacturas, handleAbrirFacturas,
+        mostrarNota,
+        textoNota,
+        movimientosNota,
+        reemplazarNotas,
+        requiereReemplazo,
+        guardandoNota,
+        errorNota,
+        handleAbrirNota,
+        handleGuardarNota,
         empresas,
         empresaSeleccionada,
         cargandoEmpresas,
@@ -1002,6 +1118,8 @@ const useProceso = () => {
 
         consultando,
         consultado,
+        bloqueado,
+        filtrosBloqueados,
 
         movimientos,
         resumen,

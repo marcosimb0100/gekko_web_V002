@@ -670,3 +670,37 @@
 
     white-space: nowrap;
 }
+
+.boton-nota {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    margin: 0;
+    border: 0 !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: #8794a3;
+    cursor: pointer;
+    vertical-align: middle;
+}
+.boton-nota :deep(.pi) { font-size: 12px; line-height: 1; }
+.boton-nota.nota-presente { color: #0891b2; background: #ecfeff !important; }
+.boton-nota:hover { color: #0891b2; background: #e9f5f8 !important; }
+.boton-nota:focus { outline: none; }
+.boton-nota:focus-visible { outline: 2px solid #0891b2; outline-offset: 1px; }
+.boton-nota:disabled { opacity: .5; cursor: default; }
+:deep(.celda-nota) { text-align: center; }
+:deep(.encabezado-nota .p-datatable-column-header-content) { justify-content: center; }
+.nota-texto { margin: .5rem 0; resize: vertical; }
+.nota-confirmacion { display: flex; align-items: flex-start; gap: .65rem; margin-top: 1rem; }
+.nota-resumen { color: var(--text-color-secondary); font-size: .9rem; overflow-wrap: anywhere; }
+
+.boton-facturas { position: relative; }
+.boton-facturas small { position: absolute; top: -3px; right: -3px; font-size: 8px; background: #0891b2; color: white; border-radius: 5px; padding: 0 3px; }
+.factura-uuid { overflow-wrap: anywhere; font-size: 11px; margin-top: 4px; }

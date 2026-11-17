@@ -92,6 +92,11 @@
                                 </div>
                             </Fieldset>
                             <Fieldset legend="Permisos administrativos" class="perfil-seccion perfil-permisos">
+                                <div class="perfil-permisos-lista" tabindex="0" role="region" aria-label="Permisos administrativos">
+                                <div class="perfil-permiso">
+                                    <Checkbox inputId="administrar_tareas_programadas" v-model="frmPerfil.administrar_tareas_programadas" binary />
+                                    <div><label for="administrar_tareas_programadas">Modificar tareas programadas</label><small>Permite cambiar los intervalos de los servicios. Requiere acceso al men&uacute; Tareas programadas.</small></div>
+                                </div>
                                 <div class="perfil-permiso">
                                     <Checkbox inputId="saldos_iniciales" v-model="frmPerfil.saldos_iniciales" binary />
                                     <div>
@@ -128,6 +133,7 @@
                                         <small>Revoca las sesiones actuales de un usuario. Requiere acceso a Usuarios.</small>
                                     </div>
                                 </div>
+                                                            </div>
                             </Fieldset>
                         </div>
                         <Fieldset legend="Acceso a menús" class="perfil-seccion perfil-menus">

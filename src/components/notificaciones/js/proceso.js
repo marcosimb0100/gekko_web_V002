@@ -13,10 +13,10 @@ export default function proceso() {
     let inicializado = false, ultimoAviso = '';
     const avisosNavegador = useAvisosNavegador({
         permitido: ref(true), handleAbrir: () => handleMostrar(), origen: 'mesa',
-        titulo: 'Gekko \u00b7 Nueva solicitud',
-        mensaje: 'Tienes nuevas solicitudes para revisar. Haz clic para abrir las notificaciones.',
-        textoActivacion: 'Recibir\u00e1s avisos de solicitudes y cancelaciones cuando Gekko no est\u00e9 en primer plano.',
-        validarId: id => typeof id === 'string' && id.length <= 300 && /^[0-9T:.+\-]+\|mesa:[A-Za-z0-9_:]+$/.test(id)
+        titulo: 'Gekko \u00b7 Nueva notificacion',
+        mensaje: 'Tienes nuevos avisos para revisar. Haz clic para abrir las notificaciones.',
+        textoActivacion: 'Recibir\u00e1s avisos de solicitudes, cancelaciones, pagos y agenda cuando Gekko no est\u00e9 en primer plano.',
+        validarId: id => typeof id === 'string' && id.length <= 300 && /^[0-9T:.+\-]+\|(mesa|pago|juridico):[A-Za-z0-9_:\-]+$/.test(id)
     });
     const handleActualizar = async ({ avisar = false, reiniciar = false } = {}) => {
         if (!activo) return;
@@ -45,7 +45,7 @@ export default function proceso() {
             ultimoAviso = reciente > ultimoAviso ? reciente : ultimoAviso;
             if (!sinLeer.value) avisosNavegador.handleCerrarAviso();
             if (avisar && inicializado && (nuevo || sinLeer.value > anterior)) {
-                toast.add({ severity: 'info', summary: 'Nuevas notificaciones', detail: 'Tienes nuevas solicitudes para revisar. Consulta la campana.', life: 5000 });
+                toast.add({ severity: 'info', summary: 'Nuevas notificaciones', detail: 'Tienes nuevos avisos para revisar. Consulta la campana.', life: 5000 });
             }
             inicializado = true;
         } catch (err) {
@@ -90,7 +90,7 @@ export default function proceso() {
             await handleActualizar();
             if (navegar && activo) {
                 const ruta = item.ruta || '/operaciones/mesa_control';
-                if (!['/operaciones/mesa_control', '/operaciones/cancelaciones'].includes(ruta)) throw new Error('Destino de notificacion no valido.');
+                if (!['/operaciones/mesa_control', '/operaciones/cancelaciones', '/finanzas/pagos_programados', '/juridico/agenda'].includes(ruta)) throw new Error('Destino de notificacion no valido.');
                 mostrar.value = false;
                 router.push(ruta);
             }
