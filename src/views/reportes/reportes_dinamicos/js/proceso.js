@@ -8,6 +8,7 @@ export default function useProceso() {
     const desde = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), hasta = ref(new Date());
     const banco = ref(null), cuenta = ref(null), concepto = ref(''), tipo = ref(null), estado = ref(null), conFacturas = ref(null);
     const cargando = ref(false), resultado = ref(null), errorConsulta = ref(''), mostrarAyuda = ref(false), valorGrafica = ref(null);
+    const expandedRows = ref({});
     const reporte = computed(() => reportes.value.find(item => item._id === reporteId.value));
     const handleFiltro = campo => reporte.value?.filtros?.includes(campo);
     const bancos = computed(() => [...new Map(cuentas.value.map(item => [item.clave_banco, { value: item.clave_banco, label: `${item.clave_banco} - ${item.banco}` }])).values()]);
@@ -15,7 +16,7 @@ export default function useProceso() {
     const tipos = ['Ingreso', 'Egreso'];
     const estados = [{ label: 'Sin aplicacion', value: 'Sin aplicacion' }, { label: 'Parcial', value: 'Parcial' }, { label: 'Completa', value: 'Completa' }];
     const facturasOpciones = ['Con facturas', 'Sin facturas'];
-    const etiquetas = { ingresos: 'Ingresos', egresos: 'Egresos', aplicado: 'Importe aplicado a CFDI', pendiente: 'Importe pendiente de aplicar', movimientos: 'Cantidad de movimientos', facturas: 'Facturas diferentes', empresa: 'Empresa', banco: 'Banco', cuenta: 'Cuenta', concepto: 'Concepto', anio: 'Anio', mes: 'Mes', tipo_movimiento: 'Ingreso / egreso', estado_aplicacion: 'Estado CFDI', con_facturas: 'Con / sin facturas' };
+    const etiquetas = { renglon: 'Renglon', importe: 'Importe', ingresos: 'Ingresos', egresos: 'Egresos', aplicado: 'Importe aplicado a CFDI', pendiente: 'Importe pendiente de aplicar', movimientos: 'Cantidad de movimientos', facturas: 'Facturas diferentes', empresa: 'Empresa', banco: 'Banco', cuenta: 'Cuenta', concepto: 'Concepto', anio: 'Anio', mes: 'Mes', tipo_movimiento: 'Ingreso / egreso', estado_aplicacion: 'Estado CFDI', con_facturas: 'Con / sin facturas' };
     const handleEtiqueta = campo => etiquetas[campo] || campo;
     const valoresGrafica = computed(() => (resultado.value?.reporte.valores || []).map(value => ({ value, label: handleEtiqueta(value) })));
     const graficaDatos = computed(() => ({ labels: (resultado.value?.grafica || []).slice(0,15).map(item => item.nombre), datasets: [{ label: handleEtiqueta(valorGrafica.value), data: (resultado.value?.grafica || []).slice(0,15).map(item => item[valorGrafica.value] || 0), backgroundColor: '#06b6d4', borderRadius: 5, maxBarThickness: 35 }] }));
@@ -54,13 +55,33 @@ export default function useProceso() {
         if(!reporte.value || !empresa.value || !handleFecha(desde.value) || !handleFecha(hasta.value) || desde.value > hasta.value) {
             toast.add({severity:'warn',summary:'Reportes dinamicos',detail:'Selecciona reporte, empresa y un periodo valido.',life:4000}); return;
         }
-        cargando.value = true; resultado.value = null; errorConsulta.value = '';
+        cargando.value = true; resultado.value = null; expandedRows.value = {}; errorConsulta.value = '';
         try {
             const parametros = new URLSearchParams({company_id:empresa.value,desde:handleFecha(desde.value),hasta:handleFecha(hasta.value)});
             const filtros = {banco:banco.value,cuenta:cuenta.value,concepto:concepto.value,tipo_movimiento:tipo.value,estado_aplicacion:estado.value,con_facturas:conFacturas.value};
             for(const [campo,valor] of Object.entries(filtros)) if(handleFiltro(campo) && valor) parametros.set(campo,valor);
             resultado.value = await handlePeticion(`${direccion}/${reporteId.value}/generar?${parametros}`);
             valorGrafica.value = resultado.value.reporte.valores[0];
+        } catch(error) { handleError(error); } finally { cargando.value = false; }
+    };
+    const handleExportar = async () => {
+        if (!resultado.value || cargando.value) return;
+        cargando.value = true;
+        try {
+            const XLSX = await import('xlsx'), r = resultado.value;
+            const filas = r.filas.map(f=>Object.fromEntries([...r.reporte.filas.map(c=>[handleEtiqueta(c),f[c]]), ...r.columnas.map(c=>[c.header,f[c.field]])]));
+            const handleFormatoHoja = hoja => { for(const [celda,dato] of Object.entries(hoja)) if(!celda.startsWith('!') && dato.t === 'n') dato.z = '#,##0.00'; return hoja; };
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(filas);
+            if(r.reporte.modalidad === 'estado_resultados') handleFormatoHoja(ws);
+            ws['!cols'] = Object.keys(filas[0] || {}).map((_,i)=>({wch:i===0?42:22}));
+            XLSX.utils.book_append_sheet(wb,ws,'Reporte');
+            if(r.reporte.modalidad === 'estado_resultados') {
+                const detalle = r.filas.flatMap(f=>(f.detalle || []).map(d=>({Renglon:f.renglon,Concepto:d.concepto,Banco:d.banco,Cuenta:d.cuenta,Importe:d.importe})));
+                XLSX.utils.book_append_sheet(wb,handleFormatoHoja(XLSX.utils.json_to_sheet(detalle)),'Detalle');
+                XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Origen:r.origen,Desde:r.desde,Hasta:r.hasta,'Sin clasificar':r.sin_clasificar,'Ingresos sin clasificar':r.sin_clasificar_ingresos,'Egresos sin clasificar':r.sin_clasificar_egresos}]),'Cobertura');
+            }
+            XLSX.writeFile(wb,`Reporte_${r.desde}_${r.hasta}.xlsx`);
         } catch(error) { handleError(error); } finally { cargando.value = false; }
     };
     const handleLimpiar = () => {
@@ -70,6 +91,6 @@ export default function useProceso() {
     };
     watch([desde,hasta,banco,cuenta,concepto,tipo,estado,conFacturas], () => { resultado.value = null; });
     onMounted(handleActualizar);
-    return { reportes,empresas,cuentasFiltradas,bancos,reporteId,reporte,empresa,desde,hasta,banco,cuenta,concepto,tipo,estado,conFacturas,cargando,resultado,errorConsulta,mostrarAyuda,valorGrafica,valoresGrafica,graficaDatos,graficaOpciones,tipos,estados,facturasOpciones,
+    return { expandedRows, handleExportar, reportes,empresas,cuentasFiltradas,bancos,reporteId,reporte,empresa,desde,hasta,banco,cuenta,concepto,tipo,estado,conFacturas,cargando,resultado,errorConsulta,mostrarAyuda,valorGrafica,valoresGrafica,graficaDatos,graficaOpciones,tipos,estados,facturasOpciones,
         handleFiltro,handleEtiqueta,handleFormato,handleClase,handleCambiarReporte,handleCambiarEmpresa,handleActualizar,handleGenerar,handleLimpiar };
 }

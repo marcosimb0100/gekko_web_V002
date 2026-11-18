@@ -8,8 +8,28 @@ export default function useProceso() {
     const reportes = ref([]), opciones = ref({ dimensiones: [], valores: [], filtros: [] });
     const cargando = ref(false), guardando = ref(false), editando = ref(false), busqueda = ref(''), estado = ref(null);
     const mostrarAyuda = ref(false), mostrarCambio = ref(false), cambioSeleccionado = ref(null), errorFormulario = ref('');
-    const handleVacio = () => ({ nombre: '', descripcion: '', origen: 'movimientos_bancarios', filas: ['concepto'], columnas: ['mes'], valores: ['ingresos', 'egresos'], filtros: ['empresa', 'periodo'], subtotales: true, total_general: true, mostrar_grafica: true, activo: true, historial: [] });
+    const handleVacio = () => ({ nombre: '', descripcion: '', origen: 'movimientos_bancarios', modalidad: 'dinamico', renglones: [], filas: ['concepto'], columnas: ['mes'], valores: ['ingresos', 'egresos'], filtros: ['empresa', 'periodo'], subtotales: true, total_general: true, mostrar_grafica: true, activo: true, historial: [] });
     const formulario = ref(handleVacio());
+    const modalidades = [{label:'Reporte din\u00e1mico',value:'dinamico'},{label:'Estado de resultados',value:'estado_resultados'}];
+    const tiposRenglon = [{label:'Ingresos',value:'ingresos'},{label:'Gastos / egresos',value:'egresos'},{label:'Suma o resta de renglones',value:'calculo'}];
+    const signos = [{label:'Sumar',value:1},{label:'Restar',value:-1}];
+    const handlePlantillaEstado = () => {
+        formulario.value.renglones = [
+            {id:'ingresos',nombre:'TOTAL INGRESOS',tipo:'ingresos',todos_conceptos:true,conceptos:[],terminos:[]},
+            ...['GASTO CLIENTES','GASTO PROMOTORIA','GASTOS COMERCIALES','GASTO ADMINISTRATIVO'].map((nombre,i)=>({id:`gasto_${i}`,nombre,tipo:'egresos',todos_conceptos:false,conceptos:[],terminos:[]})),
+            {id:'utilidad',nombre:'UTILIDAD',tipo:'calculo',conceptos:[],terminos:[{renglon:'ingresos',factor:1},...[0,1,2,3].map(i=>({renglon:`gasto_${i}`,factor:-1}))]}
+        ];
+    };
+    const handleAgregarRenglon = () => formulario.value.renglones.push({id:`r_${Date.now()}_${formulario.value.renglones.length}`,nombre:'',tipo:'egresos',todos_conceptos:false,conceptos:[],terminos:[]});
+    const handleRenglonesAnteriores = indice => formulario.value.renglones.slice(0,indice).map(r=>({label:r.nombre || r.id,value:r.id}));
+    const handleConceptosRenglon = (renglon, valor) => { renglon.conceptos_texto = valor; renglon.conceptos = [...new Set(valor.split('\n').map(v=>v.trim()).filter(Boolean))]; };
+    const handleQuitarRenglon = indice => {
+        const id = formulario.value.renglones[indice].id;
+        if (formulario.value.renglones.some(r=>r.tipo==='calculo' && r.terminos.some(t=>t.renglon===id))) { handleToast('warn','Quita primero este renglon de las formulas que lo utilizan.'); return; }
+        formulario.value.renglones.splice(indice,1);
+    };
+    const handleAgregarTermino = renglon => renglon.terminos.push({renglon:null,factor:1});
+
     const ocupado = computed(() => cargando.value || guardando.value);
     const estados = [{ label: 'Activos', value: true }, { label: 'Inactivos', value: false }];
     const datos = computed(() => reportes.value.filter(item => (estado.value === null || item.activo === estado.value) && `${item.nombre} ${item.descripcion}`.toLocaleLowerCase().includes(busqueda.value.toLocaleLowerCase())));
@@ -34,13 +54,14 @@ export default function useProceso() {
     const handleEditar = async item => {
         if (ocupado.value) return;
         cargando.value = true;
-        try { formulario.value = (await handlePeticion('apiGetToken', `${direccion}/${item._id}`)).reporte; formulario.value.mostrar_grafica ??= true; errorFormulario.value = ''; editando.value = true; }
+        try { formulario.value = (await handlePeticion('apiGetToken', `${direccion}/${item._id}`)).reporte; formulario.value.mostrar_grafica ??= true; formulario.value.modalidad ??= 'dinamico'; formulario.value.renglones ??= []; errorFormulario.value = ''; editando.value = true; }
         catch (error) { handleToast('error', error.message); } finally { cargando.value = false; }
     };
     const handleCancelar = () => { if (ocupado.value) return; editando.value = false; formulario.value = handleVacio(); errorFormulario.value = ''; };
     const handleValidar = () => {
         const f = formulario.value;
         if (f.nombre.trim().length < 3) return 'Escribe un nombre de al menos 3 caracteres.';
+        if (f.modalidad === 'estado_resultados' && (!f.renglones.length || f.renglones.some(r=>!r.nombre.trim() || (r.tipo==='calculo' && (!r.terminos.length || r.terminos.some(t=>!t.renglon)))))) return 'Revisa los nombres y formulas de los renglones.';
         if (f.filas.length < 1 || f.filas.length > 4) return 'Selecciona entre una y cuatro agrupaciones en filas.';
         if (f.columnas.length > 2) return 'Selecciona hasta dos agrupaciones en columnas.';
         if (!f.valores.length) return 'Selecciona al menos un valor para el reporte.';
@@ -53,7 +74,7 @@ export default function useProceso() {
         guardando.value = true;
         try {
             const f = formulario.value;
-            const payload = { nombre: f.nombre.trim(), descripcion: f.descripcion, filas: [...f.filas], columnas: [...f.columnas], valores: [...f.valores], filtros: [...f.filtros], subtotales: f.subtotales, total_general: f.total_general, mostrar_grafica: f.mostrar_grafica, activo: f.activo, ...(f._id ? { revision: f.revision } : {}) };
+            const payload = { modalidad: f.modalidad, renglones: f.renglones, nombre: f.nombre.trim(), descripcion: f.descripcion, filas: [...f.filas], columnas: [...f.columnas], valores: [...f.valores], filtros: [...f.filtros], subtotales: f.subtotales, total_general: f.total_general, mostrar_grafica: f.mostrar_grafica, activo: f.activo, ...(f._id ? { revision: f.revision } : {}) };
             await handlePeticion(f._id ? 'apiPutToken' : 'apiPostToken', f._id ? `${direccion}/${f._id}` : `${direccion}/`, payload);
             handleToast('success', 'Diseno del reporte guardado.'); editando.value = false;
         } catch (error) { errorFormulario.value = error.message; handleToast('error', error.message); }
@@ -64,11 +85,15 @@ export default function useProceso() {
         if (ocupado.value) return;
         const lista = formulario.value[campo], siguiente = indice + sentido;
         if (siguiente < 0 || siguiente >= lista.length) return;
+        if (campo === 'renglones') {
+            const orden = [...lista]; [orden[indice],orden[siguiente]]=[orden[siguiente],orden[indice]];
+            if(orden.some((r,i)=>r.tipo==='calculo' && r.terminos.some(t=>!orden.slice(0,i).some(a=>a.id===t.renglon)))) { handleToast('warn','Un calculo debe quedar despues de los renglones que utiliza.'); return; }
+        }
         [lista[indice], lista[siguiente]] = [lista[siguiente], lista[indice]];
     };
     const handleEtiqueta = campo => [...opciones.value.dimensiones, ...opciones.value.valores, ...opciones.value.filtros].find(item => item.value === campo)?.label || campo;
-    const handleCampo = campo => ({ nombre: 'Nombre', descripcion: 'Descripcion', activo: 'Activo', filas: 'Filas', columnas: 'Columnas', valores: 'Valores', filtros: 'Filtros', subtotales: 'Subtotales', total_general: 'Total general', mostrar_grafica: 'Mostrar grafica', origen: 'Origen de datos', version_esquema: 'Version del diseno' }[campo] || campo);
-    const handleValor = valor => valor === null || valor === undefined ? 'Sin dato' : typeof valor === 'boolean' ? (valor ? 'Si' : 'No') : Array.isArray(valor) ? valor.map(handleEtiqueta).join(' / ') || 'Sin seleccion' : valor === 'movimientos_bancarios' ? 'Movimientos bancarios' : String(valor);
+    const handleCampo = campo => ({ modalidad: 'Modalidad', renglones: 'Renglones del estado de resultados', nombre: 'Nombre', descripcion: 'Descripcion', activo: 'Activo', filas: 'Filas', columnas: 'Columnas', valores: 'Valores', filtros: 'Filtros', subtotales: 'Subtotales', total_general: 'Total general', mostrar_grafica: 'Mostrar grafica', origen: 'Origen de datos', version_esquema: 'Version del diseno' }[campo] || campo);
+    const handleValor = valor => typeof valor === 'object' && valor !== null && (Array.isArray(valor) ? valor.some(v=>typeof v==='object') : true) ? JSON.stringify(valor, null, 2) : valor === null || valor === undefined ? 'Sin dato' : typeof valor === 'boolean' ? (valor ? 'Si' : 'No') : Array.isArray(valor) ? valor.map(handleEtiqueta).join(' / ') || 'Sin seleccion' : valor === 'movimientos_bancarios' ? 'Movimientos bancarios' : String(valor);
     const handleFecha = valor => { if (!valor) return ''; const fecha = new Date(valor); return `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')} ${fecha.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' })}`; };
     const handleCambios = item => { cambioSeleccionado.value = item; mostrarCambio.value = true; };
     const handleLimpiar = () => { busqueda.value = ''; estado.value = null; };
@@ -114,6 +139,15 @@ export default function useProceso() {
         if (f.total_general) agregar(muestrasReporte, ['Total general'], 'total', 0);
         return { columnas, filas };
     });
+    const previaEstado = computed(() => {
+        const totales = {}, salida = [];
+        for (const r of formulario.value.renglones) {
+            const base = muestrasReporte.filter(m=>r.todos_conceptos || r.conceptos.some(c=>c.toLowerCase()===m.concepto.toLowerCase()));
+            totales[r.id] = r.tipo === 'calculo' ? r.terminos.reduce((total,t)=>total+(totales[t.renglon] || 0)*t.factor,0) : base.reduce((total,m)=>total+Number(m[r.tipo] || 0),0);
+            salida.push({id:r.id,nombre:r.nombre,importe:totales[r.id],tipo:r.tipo==='calculo'?'total':'detalle'});
+        }
+        return salida;
+    });
     const handleImportePrevia = (valor, campo) => new Intl.NumberFormat('es-MX', ['movimientos', 'facturas'].includes(campo) ? { maximumFractionDigits: 0 } : { style: 'currency', currency: 'MXN' }).format(valor || 0);
     const handleClasePrevia = fila => fila.tipo === 'total' ? 'previa-total' : fila.tipo === 'subtotal' ? 'previa-subtotal' : '';
     onMounted(async () => {
@@ -121,6 +155,6 @@ export default function useProceso() {
         try { opciones.value = await handlePeticion('apiGetToken', `${direccion}/opciones`); reportes.value = (await handlePeticion('apiGetToken', `${direccion}/`)).reportes || []; }
         catch (error) { handleToast('error', error.message); } finally { cargando.value = false; }
     });
-    return { vistaPrevia, handleImportePrevia, handleClasePrevia, reportes, opciones, datos, cargando, guardando, editando, busqueda, estado, estados, formulario, ocupado, dimensionesFilas, dimensionesColumnas, filtrosAdicionales, filtrosElegidos, mostrarAyuda, errorFormulario, mostrarCambio, cambioSeleccionado,
+    return { previaEstado, modalidades, tiposRenglon, signos, handlePlantillaEstado, handleAgregarRenglon, handleRenglonesAnteriores, handleConceptosRenglon, handleQuitarRenglon, handleAgregarTermino, vistaPrevia, handleImportePrevia, handleClasePrevia, reportes, opciones, datos, cargando, guardando, editando, busqueda, estado, estados, formulario, ocupado, dimensionesFilas, dimensionesColumnas, filtrosAdicionales, filtrosElegidos, mostrarAyuda, errorFormulario, mostrarCambio, cambioSeleccionado,
         handleActualizar, handleNuevo, handleEditar, handleCancelar, handleGuardar, handleMover, handleEtiqueta, handleCampo, handleValor, handleFecha, handleCambios, handleLimpiar };
 }

@@ -39,3 +39,7 @@
 .tabla-previa :deep(.previa-subtotal > td) { background:#f1f5f9; font-weight:600; color:#334155; }
 .tabla-previa :deep(.previa-total > td) { background:#e0f7fa; font-weight:700; color:#155e75; border-top:2px solid #67d5e4; }
 .previa-vacia { display:flex; gap:.75rem; padding:1.5rem; justify-content:center; align-items:center; color:#64748b; background:#f8fafc; border-radius:8px; }
+
+.estado-resultados-diseno { display:grid; gap:1rem; }
+.formula-estado { display:grid; grid-template-columns:8rem minmax(0,1fr) 3rem; gap:.6rem; margin:.6rem 0; }
+.acciones-renglon { display:flex; justify-content:flex-end; gap:.4rem; margin-top:.7rem; }
