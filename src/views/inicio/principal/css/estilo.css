@@ -64,3 +64,7 @@
 @media(min-width:1650px) { .resumen-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 @media(max-width:1000px) { .resumen-grid { grid-template-columns:1fr; } .resumen-cabecera { align-items:flex-start; flex-direction:column; gap:.7rem; } }
 @media(max-width:550px) { .bienvenida { padding:1rem; flex-wrap:wrap; } .principal-avatar { width:3rem; height:3rem; } .registro { align-items:flex-start; padding:.75rem; } .indicadores { gap:.5rem; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); } .indicadores-cuatro { grid-template-columns:repeat(2,minmax(0,1fr)); } .indicador { padding:.75rem .6rem; } .indicador > strong { font-size:1.45rem; } .bloque-cabecera { padding:1.2rem 1rem 1rem; } }
+
+.bloque-periodo { display:flex; align-items:center; gap:.45rem; margin:0 1.3rem .8rem; color:var(--text-color-secondary); font-size:.74rem; }
+.bloque-periodo i { color:var(--modulo-color); }
+.indicador > small { color:var(--text-color-secondary); font-size:.66rem; line-height:1.55; overflow-wrap:anywhere; }

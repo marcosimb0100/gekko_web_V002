@@ -23,8 +23,9 @@
                 </header>
                 <Message v-if="bloque.error" severity="warn" :closable="false" class="bloque-error">{{ bloque.error }}</Message>
                 <template v-else>
+                    <div v-if="bloque.periodo" class="bloque-periodo"><i class="pi pi-calendar" aria-hidden="true" /><span>{{ bloque.periodo }}</span></div>
                     <div v-if="bloque.indicadores.length" class="indicadores" :class="{ 'indicadores-cuatro': bloque.indicadores.length === 4 }">
-                        <div v-for="item in bloque.indicadores" :key="item.etiqueta" class="indicador" :class="'tono-' + handleTono(item)"><span>{{ item.etiqueta }}</span><strong>{{ handleValor(item) }}</strong></div>
+                        <div v-for="item in bloque.indicadores" :key="item.etiqueta" class="indicador" :class="'tono-' + handleTono(item)"><span>{{ item.etiqueta }}</span><strong>{{ handleValor(item) }}</strong><small v-if="item.detalle">{{ item.detalle }}</small></div>
                     </div>
                     <h3 v-if="bloque.registros.length" class="lista-titulo">{{ handleTituloLista(bloque) }}</h3>
                     <div v-if="bloque.registros.length" class="registros" :class="{ 'registros-repositorios': bloque.id === 'nube' }">
