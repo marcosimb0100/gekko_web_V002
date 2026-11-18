@@ -1,126 +1,51 @@
-import { ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-const useProceso = () => {
-    const router = useRouter();
-    const store = useStore();
-
-    // =========================================================
-    // USUARIO
-    // =========================================================
-
+export default function proceso() {
+    const store = useStore(), router = useRouter();
     const nombreUsuario = ref(localStorage.getItem('nombre_completo') || 'Usuario');
-
-    const fotoUsuario = ref(null);
-
-    // =========================================================
-    // FECHA
-    // =========================================================
-
-    const fechaActual = new Date().toLocaleDateString('es-MX', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-
-    // =========================================================
-    // ACCESOS RÁPIDOS
-    // =========================================================
-
-    const accesosRapidos = ref([
-        {
-            titulo: 'Mesa de Control',
-            descripcion: 'Consulta y seguimiento de operaciones.',
-            icono: 'fa-solid fa-gauge',
-            ruta: '/operaciones/mesa_control'
-        },
-        {
-            titulo: 'Solicitud SAT',
-            descripcion: 'Genera solicitudes de descarga al SAT.',
-            icono: 'fa-solid fa-cloud-arrow-up',
-            ruta: '/administrador_cfdi/operaciones_cfdi/solicitud_sat'
-        },
-        {
-            titulo: 'Consultas SAT',
-            descripcion: 'Consulta el estado de solicitudes realizadas.',
-            icono: 'fa-solid fa-cloud-arrow-down',
-            ruta: '/administrador_cfdi/operaciones_cfdi/consultas_sat'
-        },
-        {
-            titulo: 'CFDI',
-            descripcion: 'Consulta los comprobantes fiscales.',
-            icono: 'fa-solid fa-file-invoice',
-            ruta: '/administrador_cfdi/reportes_cfdi/cfdis'
-        },
-        {
-            titulo: 'Complementos de Pago',
-            descripcion: 'Consulta complementos de pago CFDI.',
-            icono: 'fa-solid fa-file-invoice-dollar',
-            ruta: '/administrador_cfdi/reportes_cfdi/complementos_pagos'
-        },
-        {
-            titulo: 'CFDI Cancelados',
-            descripcion: 'Consulta los comprobantes cancelados.',
-            icono: 'fa-solid fa-file-circle-xmark',
-            ruta: '/administrador_cfdi/reportes_cfdi/cfdis_cancelados'
-        }
-    ]);
-
-    // =========================================================
-    // NAVEGACIÓN
-    // =========================================================
-
-    const handleIrRuta = (ruta) => {
-        router.push(ruta);
+    const fotoUsuario = ref(null), secciones = ref([]), cargando = ref(false), error = ref(''), actualizado = ref('');
+    const ayuda = ref(null);
+    const handleAyuda = bloque => { ayuda.value = bloque; };
+    const handleTono = item => Number(item.valor) > 0 ? item.tono : 'normal';
+    const handleSubtitulo = bloque => ({ mesa: 'Revisi\u00f3n y timbrado', pagos: 'Vencimientos y abonos', bancos: 'Informaci\u00f3n bancaria registrada', efectivo: 'Disponibilidad y jornadas', juridico: 'Asuntos y compromisos', cancelaciones: 'Seguimiento de solicitudes', rh: 'Solicitudes de personal', nube: 'Contenido disponible para ti' }[bloque.id] || 'Resumen operativo');
+    const handleTituloLista = bloque => ({ pagos: 'Vencimientos por atender', bancos: '\u00daltimos saldos por cuenta', efectivo: 'Tus cajas', juridico: 'Compromisos por atender', nube: 'Repositorios autorizados' }[bloque.id] || 'Registros recientes');
+    const fechaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    let activo = true;
+    const handleMoneda = valor => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(valor));
+    const handleFecha = valor => /^\d{4}-\d{2}-\d{2}/.test(String(valor || '')) ? String(valor).slice(0, 10) : '';
+    const handleHora = valor => valor ? new Date(valor).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '';
+    const handleValor = item => item.tipo === 'moneda' ? handleMoneda(item.valor) : new Intl.NumberFormat('es-MX').format(item.valor);
+    const handleImporte = item => Object.prototype.hasOwnProperty.call(item, 'importe');
+    const handleIrModulo = bloque => {
+        if (secciones.value.some(item => item.id === bloque.id && item.ruta === bloque.ruta) && bloque.ruta) router.push(bloque.ruta);
     };
-
-    // =========================================================
-    // FOTO USUARIO
-    // =========================================================
-
-    const handleCargarFotoUsuario = async () => {
-        /*
-         * Aquí necesitamos el _id del usuario logueado.
-         *
-         * Cuando lo tengamos en localStorage podemos hacer:
-         *
-         * const idUsuario = localStorage.getItem('_id');
-         *
-         * const res = await store.dispatch('api/apiGetblob', {
-         *     direccion: `/usuarios/foto/${idUsuario}`
-         * });
-         *
-         * if (
-         *     res.estatus === 200 &&
-         *     res.data instanceof Blob
-         * ) {
-         *     fotoUsuario.value =
-         *         URL.createObjectURL(res.data);
-         * }
-         */
+    const handleCargar = async () => {
+        if (cargando.value) return;
+        cargando.value = true; error.value = '';
+        try {
+            const respuesta = await store.dispatch('api/apiGetTokenSinCargando', { direccion: '/inicio/resumen' });
+            if (!activo) return;
+            if (respuesta?.estatus !== 200) throw new Error(respuesta?.mensaje || 'No fue posible consultar tu resumen.');
+            secciones.value = respuesta.datos?.secciones || [];
+            actualizado.value = respuesta.datos?.actualizado || '';
+        } catch (e) {
+            if (activo) { error.value = e.message || 'No fue posible consultar tu resumen.'; secciones.value = []; actualizado.value = ''; }
+        } finally { if (activo) cargando.value = false; }
     };
-
-    // =========================================================
-    // INICIAL
-    // =========================================================
-
-    const handleInit = async () => {
-        await handleCargarFotoUsuario();
+    const handleCargarFoto = async () => {
+        try {
+            const r = await store.dispatch('api/apiGetblob', { direccion: '/usuarios/foto' });
+            if (activo && r.estatus === 200 && r.data instanceof Blob && r.data.type.startsWith('image/')) fotoUsuario.value = URL.createObjectURL(r.data);
+        } catch { /* Se conserva el avatar predeterminado. */ }
     };
-
-    handleInit();
-
-    return {
-        nombreUsuario,
-        fotoUsuario,
-        fechaActual,
-
-        accesosRapidos,
-
-        handleIrRuta
+    const handleErrorFoto = () => {
+        if (fotoUsuario.value) URL.revokeObjectURL(fotoUsuario.value);
+        fotoUsuario.value = null;
     };
-};
-
-export default useProceso;
+    onMounted(() => Promise.allSettled([handleCargar(), handleCargarFoto()]));
+    onUnmounted(() => { activo = false; handleErrorFoto(); });
+    return { ayuda, handleAyuda, handleTono, handleSubtitulo, handleTituloLista, nombreUsuario, fotoUsuario, fechaActual, secciones, cargando, error, actualizado,
+        handleCargar, handleIrModulo, handleMoneda, handleValor, handleImporte, handleFecha, handleHora, handleErrorFoto };
+}

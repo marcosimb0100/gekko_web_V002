@@ -1,0 +1,4 @@
+.contabilidad-pantalla { margin-top: 1rem; min-height: 20rem; }
+.contabilidad-inicio { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 1rem; gap: .75rem; color: var(--text-color-secondary); }
+.contabilidad-inicio > i { font-size: 2rem; color: var(--primary-color); }
+.contabilidad-inicio h3, .contabilidad-inicio p { margin: 0; }

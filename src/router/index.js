@@ -420,6 +420,14 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/finanzas/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
                 },
 
+                { path: '/contabilidad/cuentas_contables', name: 'contabilidad_cuentas_contables', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/cuentas_contables/CuentasContables.vue') },
+                { path: '/contabilidad/polizas', name: 'contabilidad_polizas', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/polizas/Polizas.vue') },
+                { path: '/contabilidad/periodos', name: 'contabilidad_periodos', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/periodos/Periodos.vue') },
+                { path: '/contabilidad/cierres', name: 'contabilidad_cierres', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/cierres/Cierres.vue') },
+                { path: '/reportes/contabilidad/balanza_comprobacion', name: 'reportes_contabilidad_balanza_comprobacion', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/balanza_comprobacion/BalanzaComprobacion.vue') },
+                { path: '/reportes/contabilidad/auxiliares', name: 'reportes_contabilidad_auxiliares', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/auxiliares/Auxiliares.vue') },
+                { path: '/reportes/contabilidad/balance_general', name: 'reportes_contabilidad_balance_general', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/balance_general/BalanceGeneral.vue') },
+                { path: '/reportes/contabilidad/estado_resultados', name: 'reportes_contabilidad_estado_resultados', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/estado_resultados/EstadoResultados.vue') },
                 {
                     path: '/reportes/reportes_dinamicos',
                     name: 'reportes_dinamicos',
