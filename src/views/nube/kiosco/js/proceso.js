@@ -29,6 +29,7 @@ const useProceso = (opciones = {}) => {
     const visorError = ref('');
     const visorNombre = ref('');
     const visorUrl = ref('');
+    const visorTexto = ref(null);
     const visorTipo = ref('');
     const visorOffice = ref(false);
     const visorLibro = ref(null);
@@ -73,7 +74,7 @@ const useProceso = (opciones = {}) => {
     watch(registros, handleCerrarVistaPrevia, { flush: 'sync' });
     let solicitudVisor = 0;
     const tiposVistaPrevia = {
-        pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+        txt: 'text/plain', pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
         gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp', avif: 'image/avif'
     };
     const extensionesOffice = ['doc', 'docx', 'odt', 'ppt', 'pptx', 'odp'];
@@ -88,6 +89,7 @@ const useProceso = (opciones = {}) => {
         solicitudVisor += 1;
         if (visorUrl.value) URL.revokeObjectURL(visorUrl.value);
         visorUrl.value = '';
+        visorTexto.value = null;
         visorLibro.value = null;
         visorDocumento.value = null;
         visorCargando.value = false;
@@ -95,7 +97,7 @@ const useProceso = (opciones = {}) => {
     watch(visorVisible, visible => { if (!visible) handleLimpiarVisor(); });
     onBeforeUnmount(handleLimpiarVisor);
     const handleErrorVisor = () => {
-        visorError.value = 'No se pudo mostrar el archivo. Puedes intentar descargarlo para abrirlo en tu equipo.';
+        visorError.value = 'No se pudo mostrar el archivo. Intenta abrir la vista previa nuevamente.';
     };
     const handleVisualizar = async registro => {
         if (papelera.value || registro.tipo !== 'archivo' || !handleTienePermiso('visualizar', registro)) return;
@@ -109,12 +111,17 @@ const useProceso = (opciones = {}) => {
         visorError.value = '';
         visorVisible.value = true;
         if (!visorTipo.value) {
-            visorError.value = 'Este formato no admite vista previa. Puedes descargarlo para abrirlo en tu equipo.';
+            visorError.value = 'Este formato no admite vista previa.';
             return;
         }
         visorCargando.value = true;
         try {
             const parametros = new URLSearchParams({ revision: registro.revision });
+            if (visorTipo.value === 'text/plain') {
+                const res = handleValidarRespuesta(await store.dispatch('api/apiGetTokenSinCargando', { direccion: `/sync/archivos/${registro._id}/visualizacion/texto?${parametros}` }));
+                if (solicitud === solicitudVisor && visorVisible.value) visorTexto.value = res.datos;
+                return;
+            }
             if (visorTipo.value === 'spreadsheet') {
                 visorLibro.value = { id: registro._id, revision: registro.revision };
                 return;
@@ -624,7 +631,7 @@ const useProceso = (opciones = {}) => {
         usuarioDescarga, hayMasUsuariosDescarga, handleBuscarUsuariosDescarga, handleMasUsuariosDescarga, handleAutorizarDescarga,
         vistaPreviaActiva, visorAmpliado, archivoActivo, busqueda, registrosVisibles, vistaArchivos, visorVertical,
         handleSeleccionarArchivo, handleAccionesRegistro,
-        visorVisible, visorCargando, visorError, visorNombre, visorUrl, visorTipo, visorOffice, visorLibro, visorDocumento,
+        visorVisible, visorCargando, visorError, visorNombre, visorUrl, visorTexto, visorTipo, visorOffice, visorLibro, visorDocumento,
         handleVisualizar, handleTipoVistaPrevia, handleErrorVisor,
         compartirVisible, archivoCompartido, usarVigencia, usarLimite, fechaEnlace, limiteEnlace, enlaceGenerado, enlaces, offsetEnlaces,
         handleCompartir, handleGenerarEnlace, handleCopiarEnlace, handleRevocarEnlace, handlePaginarEnlaces, handleEstadoEnlace,

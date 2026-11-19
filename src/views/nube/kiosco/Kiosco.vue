@@ -93,7 +93,7 @@
                 <Button v-if="visorVisible" type="button" icon="pi pi-window-maximize" title="Ampliar vista previa" aria-label="Ampliar vista previa" text rounded @click="visorAmpliado = true" />
                 <Button type="button" icon="pi pi-times" title="Ocultar vista previa" aria-label="Ocultar vista previa" text rounded @click="vistaPreviaActiva = false" />
             </div>
-            <VistaPreviaSync v-if="!visorAmpliado" :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :tipo="visorTipo" :nombre="visorNombre" :vacio="papelera ? 'La vista previa no está disponible en la papelera.' : archivoActivo?.tipo === 'carpeta' ? 'Abre la carpeta para seleccionar un archivo.' : archivoActivo && !handleTienePermiso('visualizar', archivoActivo) ? 'No tienes permiso para visualizar este archivo.' : 'Selecciona un archivo para visualizar su contenido.'" @error="handleErrorVisor" />
+            <VistaPreviaSync v-if="!visorAmpliado" :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :texto="visorTexto" :tipo="visorTipo" :nombre="visorNombre" :vacio="papelera ? 'La vista previa no está disponible en la papelera.' : archivoActivo?.tipo === 'carpeta' ? 'Abre la carpeta para seleccionar un archivo.' : archivoActivo && !handleTienePermiso('visualizar', archivoActivo) ? 'No tienes permiso para visualizar este archivo.' : 'Selecciona un archivo para visualizar su contenido.'" @error="handleErrorVisor" />
         </SplitterPanel>
         </Splitter>
         <div v-if="espacioId" class="sync-paginacion">
@@ -267,7 +267,7 @@
         <template #footer><Button type="button" label="Cerrar" :disabled="cargando" @click="permisosDescargaVisible = false" /></template>
     </Dialog>
     <Dialog v-model:visible="visorAmpliado" modal maximizable :header="`Vista previa: ${visorNombre}`" class="sync-dialogo-visor">
-        <div class="sync-visor-ampliado"><VistaPreviaSync :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :tipo="visorTipo" :nombre="visorNombre" @error="handleErrorVisor" /></div>
+        <div class="sync-visor-ampliado"><VistaPreviaSync :cargando="visorCargando" :office="visorOffice" :libro="visorLibro" :documento="visorDocumento" :error="visorError" :url="visorUrl" :texto="visorTexto" :tipo="visorTipo" :nombre="visorNombre" @error="handleErrorVisor" /></div>
         <template #footer><Button type="button" label="Volver al panel" @click="visorAmpliado = false" /></template>
     </Dialog>
 </template>

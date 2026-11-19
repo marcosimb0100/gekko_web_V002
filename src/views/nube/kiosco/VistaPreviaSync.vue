@@ -6,10 +6,11 @@
             <ProgressBar mode="indeterminate" aria-label="Cargando vista previa" />
         </div>
         <Message v-else-if="error" severity="error" :closable="false">{{ error }}</Message>
+        <template v-else-if="texto"><pre class="sync-vista-texto">{{ texto.texto || 'Archivo de texto vacio.' }}</pre><small v-if="texto.truncado">Se muestra solo el inicio del archivo por su longitud.</small></template>
         <HojaCalculoSync v-else-if="libro" :archivo="libro" />
         <PaginasDocumentoSync v-else-if="documento" :recurso="documento" />
         <template v-else-if="url">
-            <div class="sync-vista-imagen"><img :src="url" :alt="nombre" @error="$emit('error')" /></div>
+            <div class="sync-vista-imagen" @contextmenu.prevent @dragstart.prevent><img draggable="false" :src="url" :alt="nombre" @error="$emit('error')" /></div>
             <small v-if="office">Vista de lectura en PDF. El formato puede variar; PowerPoint se muestra sin animaciones.</small>
         </template>
         <div v-else class="sync-vista-vacia">
@@ -25,7 +26,7 @@ import HojaCalculoSync from './HojaCalculoSync.vue';
 import PaginasDocumentoSync from './PaginasDocumentoSync.vue';
 defineProps({
     cargando: Boolean, office: Boolean, error: String, url: String, tipo: String, nombre: String,
-    libro: Object, documento: Object,
+    libro: Object, documento: Object, texto: Object,
     vacio: { type: String, default: 'Selecciona un archivo para visualizar su contenido.' }
 });
 defineEmits(['error']);
@@ -39,5 +40,6 @@ defineEmits(['error']);
 .sync-vista-vacia, .sync-vista-espera { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: .85rem; text-align: center; padding: 1rem; color: var(--text-color-secondary); }
 .sync-vista-vacia i, .sync-vista-espera i { font-size: 2rem; color: var(--primary-color); }
 .sync-vista-espera :deep(.p-progressbar) { width: min(18rem, 100%); height: .3rem; }
+.sync-vista-texto { flex: 1; min-height: 0; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem; margin: 0; background: var(--surface-ground); border: 1px solid var(--surface-border); border-radius: .4rem; font: .85rem/1.6 monospace; }
 small { color: var(--text-color-secondary); font-size: .75rem; }
 </style>
