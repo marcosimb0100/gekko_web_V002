@@ -7,6 +7,7 @@ export function consultaCarpeta(query = {}) {
         if (typeof query[campo] === 'string' && /^[a-f0-9]{24}$/i.test(query[campo])) salida[campo] = query[campo];
     }
     if (!salida.espacio) delete salida.carpeta;
+    if (salida.carpeta && query.limitar === '1') salida.limitar = '1';
     return salida;
 }
 

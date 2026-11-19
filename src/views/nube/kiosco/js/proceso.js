@@ -12,6 +12,9 @@ const useProceso = (opciones = {}) => {
     let ubicacionPendiente = !!(destinoInicial.espacio || destinoInicial.carpeta);
     const enlaceCarpetaVisible = ref(false);
     const enlaceCarpeta = ref('');
+    const enlaceSoloCarpeta = ref(true), enlaceDestino = ref({});
+    const carpetaLimitada = !!(opciones.portal && consultaCarpeta(destinoInicial).limitar === '1');
+    const indiceBase = computed(() => carpetaLimitada ? ruta.value.findIndex(item => item._id === destinoInicial.carpeta) : -1);
     const instaladorWindows = useSyncInstaller(store, toast);
 
     const espacios = ref([]);
@@ -186,8 +189,8 @@ const useProceso = (opciones = {}) => {
     const espacioActual = computed(() => espacios.value.find((item) => item._id === espacioId.value));
     const carpetaActual = computed(() => ruta.value.at(-1)?._id || null);
     watch([espacioId, carpetaActual, papelera, offset], () => { busqueda.value = ''; });
-    const rutaInicio = computed(() => ({ label: espacioActual.value?.nombre || 'Inicio', indice: -1 }));
-    const rutaItems = computed(() => ruta.value.map((item, indice) => ({ label: item.nombre, indice })));
+    const rutaInicio = computed(() => carpetaLimitada ? ({ label: ruta.value[indiceBase.value]?.nombre || 'Carpeta', indice: indiceBase.value }) : ({ label: espacioActual.value?.nombre || 'Inicio', indice: -1 }));
+    const rutaItems = computed(() => ruta.value.map((item, indice) => ({ label: item.nombre, indice })).filter(item => !carpetaLimitada || item.indice > indiceBase.value));
 
     const handleTienePermiso = (accion, registro = null) => (registro?.acciones || accionesCarpeta.value).includes(accion);
     const handleFecha = (valor) => (valor ? new Date(valor).toLocaleString('es-MX') : '—');
@@ -238,6 +241,7 @@ const useProceso = (opciones = {}) => {
         registros.value = [];
         accionesCarpeta.value = [];
         if (!espacioId.value) return;
+        if (carpetaLimitada && (espacioId.value !== destinoInicial.espacio || indiceBase.value < 0)) throw new Error('Abre nuevamente el enlace de la carpeta autorizada.');
         const parametros = new URLSearchParams({ espacio: espacioId.value, limite, offset: offset.value });
         if (!papelera.value && carpetaActual.value) parametros.set('padre', carpetaActual.value);
         const res = handleValidarRespuesta(
@@ -276,6 +280,7 @@ const useProceso = (opciones = {}) => {
         });
     const handleCambiarPapelera = () =>
         handleEjecutar(async () => {
+            if (carpetaLimitada) return;
             papelera.value = !papelera.value;
             offset.value = 0;
             await handleCargarContenido();
@@ -288,6 +293,7 @@ const useProceso = (opciones = {}) => {
         });
     const handleNavegar = (indice) =>
         handleEjecutar(async () => {
+            if (carpetaLimitada && indice < indiceBase.value) return;
             ruta.value = ruta.value.slice(0, indice + 1);
             offset.value = 0;
             await handleCargarContenido();
@@ -543,8 +549,15 @@ const useProceso = (opciones = {}) => {
         const consulta = { espacio: espacioId.value };
         const carpeta = registro?._id || carpetaActual.value;
         if (carpeta) consulta.carpeta = carpeta;
-        enlaceCarpeta.value = opciones.resolverEnlace(consultaCarpeta(consulta));
+        enlaceDestino.value = consulta;
+        enlaceSoloCarpeta.value = !!carpeta;
+        handleActualizarEnlaceCarpeta();
         enlaceCarpetaVisible.value = true;
+    };
+    const handleActualizarEnlaceCarpeta = () => {
+        const consulta = { ...enlaceDestino.value };
+        if (consulta.carpeta && enlaceSoloCarpeta.value) consulta.limitar = '1';
+        enlaceCarpeta.value = opciones.resolverEnlace(consultaCarpeta(consulta));
     };
     const handleCopiarEnlaceCarpeta = async () => {
         try {
@@ -606,7 +619,7 @@ const useProceso = (opciones = {}) => {
     onBeforeUnmount(() => pantallaVisor?.removeEventListener('change', handlePantallaVisor));
     onMounted(handleActualizar);
     return {
-        enlaceCarpetaVisible, enlaceCarpeta, handleEnlaceCarpeta, handleCopiarEnlaceCarpeta,
+        enlaceCarpetaVisible, enlaceCarpeta, enlaceSoloCarpeta, enlaceDestino, carpetaLimitada, handleActualizarEnlaceCarpeta, handleEnlaceCarpeta, handleCopiarEnlaceCarpeta,
         permisosDescargaVisible, archivoPermisosDescarga, autorizadosDescarga, usuariosDescarga, buscarUsuarioDescarga,
         usuarioDescarga, hayMasUsuariosDescarga, handleBuscarUsuariosDescarga, handleMasUsuariosDescarga, handleAutorizarDescarga,
         vistaPreviaActiva, visorAmpliado, archivoActivo, busqueda, registrosVisibles, vistaArchivos, visorVertical,

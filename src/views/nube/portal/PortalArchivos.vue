@@ -20,7 +20,7 @@ import Kiosco from '../kiosco/Kiosco.vue';
 const route = useRoute(), router = useRouter(), store = useStore(), toast = useToast();
 const nombre = localStorage.getItem('nombre_completo') || 'Mi cuenta';
 const cerrando = ref(false);
-const claveUbicacion = computed(() => `${route.query.espacio || ''}:${route.query.carpeta || ''}`);
+const claveUbicacion = computed(() => `${route.query.espacio || ''}:${route.query.carpeta || ''}:${route.query.limitar || ''}`);
 const salir = motivo => {
     const destino = destinoAccesoArchivos(route.query, motivo);
     desconectarSocket(); localStorage.clear(); router.replace(destino);

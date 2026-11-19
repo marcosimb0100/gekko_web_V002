@@ -22,7 +22,7 @@
             </template>
             <template #end>
                 <div class="sync-controles">
-                    <Button v-if="espacioId" type="button" :label="papelera ? 'Volver a archivos' : 'Papelera'" :icon="papelera ? 'pi pi-folder' : 'pi pi-trash'" outlined :disabled="cargando" @click="handleCambiarPapelera" />
+                    <Button v-if="espacioId && !carpetaLimitada" type="button" :label="papelera ? 'Volver a archivos' : 'Papelera'" :icon="papelera ? 'pi pi-folder' : 'pi pi-trash'" outlined :disabled="cargando" @click="handleCambiarPapelera" />
                     <Button v-if="espacioId && !papelera && handleTienePermiso('crear_carpeta')" type="button" label="Nueva carpeta" icon="pi pi-folder-plus" class="btn-nuevo" :disabled="cargando" @click="handleMostrarFormulario('carpeta')" />
                     <Button v-if="espacioId && !papelera && handleTienePermiso('cargar')" type="button" label="Subir archivo" icon="pi pi-upload" class="btn-guardar" :disabled="cargando" @click="handleMostrarCarga()" />
                 </div>
@@ -248,7 +248,7 @@
         /></template>
     </Dialog>
     <Dialog v-model:visible="enlaceCarpetaVisible" modal header="Enlace de carpeta" class="sync-dialogo">
-        <div class="sync-formulario"><p>Este enlace abre la carpeta después de iniciar sesión. Cada persona conserva los permisos de su cuenta; el enlace no concede acceso.</p><InputText :modelValue="enlaceCarpeta" readonly aria-label="Enlace de acceso a la carpeta" @focus="$event.target.select()" /><Button type="button" label="Copiar enlace" icon="pi pi-copy" @click="handleCopiarEnlaceCarpeta" /></div>
+        <div class="sync-formulario"><p>Este enlace abre la carpeta después de iniciar sesión. Cada persona conserva los permisos de su cuenta; el enlace no concede acceso.</p><div v-if="enlaceDestino.carpeta" class="sync-controles"><Checkbox v-model="enlaceSoloCarpeta" inputId="sync-enlace-limitado" binary @change="handleActualizarEnlaceCarpeta" /><label for="sync-enlace-limitado">Abrir solo esta carpeta y sus subcarpetas</label></div><small v-if="enlaceDestino.carpeta">Oculta la navegacion al repositorio superior en este enlace. Los permisos de la cuenta se conservan.</small><InputText :modelValue="enlaceCarpeta" readonly aria-label="Enlace de acceso a la carpeta" @focus="$event.target.select()" /><Button type="button" label="Copiar enlace" icon="pi pi-copy" @click="handleCopiarEnlaceCarpeta" /></div>
     </Dialog>
     <Dialog v-model:visible="permisosDescargaVisible" modal header="Permisos de descarga" :closable="!cargando" class="sync-dialogo">
         <div class="sync-formulario">
@@ -282,9 +282,9 @@ export default {
     name: 'Kiosco',
     components: { Encabezado, VistaPreviaSync },
     props: { portal: Boolean },
-    setup() {
+    setup(props) {
         const route = useRoute(), router = useRouter();
-        return { ...proceso({ ubicacionInicial: route.query, resolverEnlace: query => new URL(router.resolve({ name: 'archivos_portal', query }).href, window.location.origin).href }) };
+        return { ...proceso({ portal: props.portal, ubicacionInicial: route.query, resolverEnlace: query => new URL(router.resolve({ name: 'archivos_portal', query }).href, window.location.origin).href }) };
     }
 };
 </script>

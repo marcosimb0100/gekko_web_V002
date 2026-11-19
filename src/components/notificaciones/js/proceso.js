@@ -77,9 +77,9 @@ export default function proceso() {
     const handleMostrar = () => { mostrar.value = true; handleActualizar({ reiniciar: true }); };
     const handleCerrar = () => { mostrar.value = false; };
     const handleFecha = (fecha) => fecha ? new Date(fecha).toLocaleString('es-MX') : '';
-    const handlePagina = (direccion) => { offset.value = Math.max(0, offset.value + direccion * 20); handleActualizar(); };
+    const handlePagina = (direccion) => { if (cargando.value || leyendo.value || archivando.value) return; offset.value = Math.max(0, offset.value + direccion * 20); handleActualizar(); };
     const handleLeer = async (item, navegar = false) => {
-        if (leyendo.value || archivando.value) return;
+        if (!activo || cargando.value || leyendo.value || archivando.value) return;
         leyendo.value = item._id;
         try {
             const res = await store.dispatch('api/apiPostTokenSinCargando', {
@@ -98,7 +98,7 @@ export default function proceso() {
         finally { if (activo) leyendo.value = ''; }
     };
     const handleQuitar = async (item = null) => {
-        if (archivando.value || leyendo.value) return;
+        if (!activo || cargando.value || archivando.value || leyendo.value) return;
         archivando.value = item?._id || 'leidas';
         error.value = '';
         try {
