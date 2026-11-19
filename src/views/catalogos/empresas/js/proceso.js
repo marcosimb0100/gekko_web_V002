@@ -31,6 +31,7 @@ const frmEmpresaInit = () => ({
     prod_serv: [],
 
     correos_solicitudes: [],
+    correos_factura: [],
 
     csd: {
         _id: '',
@@ -316,6 +317,7 @@ const useProceso = () => {
     const frmPlantilla = reactive(frmPlantillaInit());
 
     const frmCorreoSolicitud = reactive(frmCorreoSolicitudInit());
+    const frmCorreoFactura = reactive(frmCorreoSolicitudInit());
 
     const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -700,6 +702,7 @@ const useProceso = () => {
             prod_serv: data?.prod_serv ?? [],
 
             correos_solicitudes: data?.correos_solicitudes ?? [],
+            correos_factura: data?.correos_factura ?? [],
 
             plantillas: data?.plantillas ?? [],
 
@@ -1937,6 +1940,7 @@ const useProceso = () => {
 
         formData.append('prod_serv', JSON.stringify(frmEmpresa.prod_serv ?? []));
         formData.append('correos_solicitudes', JSON.stringify(frmEmpresa.correos_solicitudes ?? []));
+        formData.append('correos_factura', JSON.stringify(frmEmpresa.correos_factura ?? []));
         formData.append('csd', JSON.stringify(csdJson));
         formData.append('fiel', JSON.stringify(fielJson));
         formData.append('plantillas', JSON.stringify(plantillasJson));
@@ -2229,6 +2233,56 @@ const useProceso = () => {
 
     const handleEliminarCorreoSolicitud = (index) => {
         frmEmpresa.correos_solicitudes.splice(index, 1);
+    };
+
+    const correoFacturaValido = computed(() => {
+        const correo = (frmCorreoFactura.correo_electronico || '').trim().toLowerCase();
+
+        if (!correo) {
+            return false;
+        }
+
+        return regexCorreo.test(correo);
+    });
+
+    const handleAgregarCorreoFactura = () => {
+        const correo = (frmCorreoFactura.correo_electronico || '').trim().toLowerCase();
+
+        if (!correoFacturaValido.value) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'Ingrese un correo electrónico válido.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        const existe = frmEmpresa.correos_factura.some((item) => (item.correo_electronico || '').toLowerCase().trim() === correo);
+
+        if (existe) {
+            toast.add({
+                severity: 'warn',
+                summary: 'Notificación',
+                detail: 'El correo ya está registrado.',
+                life: 3000
+            });
+
+            return;
+        }
+
+        frmEmpresa.correos_factura.push({
+            _id: '',
+            correo_electronico: correo,
+            activo: true
+        });
+
+        Object.assign(frmCorreoFactura, frmCorreoSolicitudInit());
+    };
+
+    const handleEliminarCorreoFactura = (index) => {
+        frmEmpresa.correos_factura.splice(index, 1);
     };
 
     const clientesAsignacionFiltrados = computed(() => {
@@ -2571,6 +2625,10 @@ const useProceso = () => {
 
         frmEmpresa,
         frmCorreoSolicitud,
+        frmCorreoFactura,
+        correoFacturaValido,
+        handleAgregarCorreoFactura,
+        handleEliminarCorreoFactura,
 
         correoSolicitudValido,
 

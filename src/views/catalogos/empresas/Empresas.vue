@@ -108,6 +108,7 @@
                 <Tab value="6">Folios / Series</Tab>
                 <Tab value="7">Configuración</Tab>
                 <Tab value="8"> Correos Solicitudes </Tab>
+                <Tab value="11">Correos Factura</Tab>
                 <Tab value="10">Configuración contable</Tab>
                 <Tab value="9" v-if="movimiento === 'E'">Historial</Tab>
             </TabList>
@@ -643,6 +644,58 @@
                                 <Column header="Opciones" headerClass="encabezado-columna" style="width: 100px">
                                     <template #body="slotProps">
                                         <Button type="button" severity="danger" outlined @click="handleEliminarCorreoSolicitud(slotProps.index)">
+                                            <font-icon icon="fa-solid fa-trash" />
+                                        </Button>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
+                    </ScrollPanel>
+                </TabPanel>
+
+                <TabPanel value="11">
+                    <ScrollPanel style="height: 58vh">
+                        <div style="padding: 20px">
+                            <p class="correos-factura-ayuda">Recibe el PDF y XML con su nombre definitivo cuando termine el procesamiento de la factura. El envío se realiza en segundo plano y no retrasa el timbrado. Guarda la empresa para aplicar los cambios; solo se envían las nuevas facturas.</p>
+                            <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 20px">
+                                <div style="display: flex; flex-direction: column; gap: 8px">
+                                    <label for="correo_factura"> Correo Electrónico: </label>
+
+                                    <InputText
+                                        id="correo_factura"
+                                        v-model="frmCorreoFactura.correo_electronico"
+                                        type="email"
+                                        placeholder="correo@dominio.com"
+                                        style="width: 100%; text-transform: lowercase"
+                                        :invalid="frmCorreoFactura.correo_electronico && !correoFacturaValido"
+                                        @keyup.enter="handleAgregarCorreoFactura"
+                                    />
+                                </div>
+
+                                <Button type="button" label="Agregar" class="btn-nuevo" :disabled="!correoFacturaValido" @click="handleAgregarCorreoFactura">
+                                    <template #icon>
+                                        <font-icon icon="fa-solid fa-plus" class="mr-2" />
+                                    </template>
+                                </Button>
+                            </div>
+
+                            <!-- LISTADO -->
+                            <DataTable :value="frmEmpresa.correos_factura" size="small" paginator :rows="10" scrollable scrollHeight="38vh" class="tabla-encabezados">
+                                <template #empty> No se han registrado correos para recibir facturas. </template>
+
+                                <Column field="correo_electronico" header="Correo Electrónico" headerClass="encabezado-columna" />
+
+                                <Column header="Activo" headerClass="encabezado-columna" style="width: 100px">
+                                    <template #body="slotProps">
+                                        <font-icon v-if="slotProps.data.activo" icon="fa-solid fa-circle-check" style="color: green" />
+
+                                        <font-icon v-else icon="fa-solid fa-circle-minus" style="color: red" />
+                                    </template>
+                                </Column>
+
+                                <Column header="Opciones" headerClass="encabezado-columna" style="width: 100px">
+                                    <template #body="slotProps">
+                                        <Button type="button" severity="danger" outlined @click="handleEliminarCorreoFactura(slotProps.index)">
                                             <font-icon icon="fa-solid fa-trash" />
                                         </Button>
                                     </template>

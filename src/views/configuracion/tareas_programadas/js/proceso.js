@@ -10,6 +10,8 @@ export default function proceso() {
     ] : seleccionada.value?.id === 'recordatorios_juridico' ? [
         { key: 'intervalo_minutos', label: 'Revisar agenda cada (minutos)', min: 1, max: 1440 },
         { key: 'anticipacion_dias', label: 'Avisar dias antes del compromiso', min: 0, max: 30 }
+    ] : seleccionada.value?.id === 'correos_factura' ? [
+        { key: 'intervalo_segundos', label: 'Revisar correos cada (segundos)', min: 5, max: 300 }
     ] : [
         { key: 'espera_segundos', label: 'Espera sin trabajo (segundos)', min: 1, max: 60 },
         { key: 'reintento_segundos', label: 'Espera ante un fallo del servicio (segundos)', min: 5, max: 300 },
