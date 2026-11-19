@@ -6209,3 +6209,5 @@
 
 
 }
+
+.acciones-cobro { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }

@@ -57,6 +57,7 @@
 
                 <Column header="Opciones" headerClass="encabezado-columna">
                     <template #body="slotProps">
+                        <VinculoFacturacion tipo="impuesto" :registroId="slotProps.data._id || ''" />
                         <Button class="btn-nuevo" style="margin: 5px" @click="handleMostrarFormulario('E', slotProps.data)">
                             <font-icon :icon="['fas', 'pen-to-square']" />
                         </Button>
@@ -166,11 +167,12 @@
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
+import VinculoFacturacion from '../../../components/vinculo_facturacion/VinculoFacturacion.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'Impuestos',
-    components: { Encabezado },
+    components: { Encabezado, VinculoFacturacion },
     setup() {
         return {
             ...proceso()

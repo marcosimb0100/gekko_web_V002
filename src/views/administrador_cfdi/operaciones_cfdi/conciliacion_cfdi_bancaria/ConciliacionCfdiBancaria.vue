@@ -399,7 +399,7 @@
             </div>
         </div>
 
-        <Message severity="warn" :closable="false" class="mb-3"> Si una relación fue aplicada a la factura incorrecta, puedes desconciliarla. El movimiento bancario y el CFDI no se eliminan; solamente se desactiva la relación. </Message>
+        <Message severity="warn" :closable="false" class="mb-3"> Si una relación fue aplicada a la factura incorrecta, puedes desconciliarla. El movimiento bancario y el CFDI no se eliminan; solamente se desactiva la relación. Si ya generaste una póliza de cobro, anula primero el borrador. Una póliza contabilizada bloquea esta operación hasta resolver su reversión contable. </Message>
 
         <DataTable :value="detalleConciliaciones" dataKey="_id" size="small" paginator :rows="20" :rowsPerPageOptions="[20, 50, 100]" scrollable scrollHeight="42vh" :loading="consultandoDetalle">
             <template #empty>No existen conciliaciones activas para este CFDI.</template>
@@ -428,7 +428,11 @@
 
             <Column header="Acciones" style="min-width: 145px">
                 <template #body="slotProps">
+                    <div class="acciones-cobro">
+                    <GenerarCobro v-if="tipo === 1" :conciliacionId="slotProps.data._id" :disabled="consultandoDetalle || desconciliando" />
+                    <GenerarPago v-if="tipo === 2" :conciliacionId="slotProps.data._id" :disabled="consultandoDetalle || desconciliando" />
                     <Button label="Desconciliar" icon="pi pi-times-circle" severity="danger" size="small" outlined @click="handleSolicitarDesconciliar(slotProps.data)" />
+                    </div>
                 </template>
             </Column>
         </DataTable>
@@ -942,11 +946,13 @@
 import Encabezado from '../../../../components/encabezado/Encabezado.vue';
 
 import proceso from './js/proceso.js';
+import GenerarPago from '../../../contabilidad/polizas/GenerarPago.vue';
+import GenerarCobro from '../../../contabilidad/polizas/GenerarCobro.vue';
 
 export default {
     name: 'ConciliacionCfdiBancaria',
 
-    components: { Encabezado },
+    components: { Encabezado, GenerarCobro, GenerarPago },
 
     setup() {
         return { ...proceso() };

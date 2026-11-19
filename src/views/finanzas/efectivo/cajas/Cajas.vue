@@ -13,7 +13,7 @@
             <Column header="Saldo inicial"><template #body="{ data }"><span class="cajas-importe">{{ handleMoneda(data.saldo) }}</span></template></Column>
             <Column header="Fecha del saldo"><template #body="{ data }">{{ handleFecha(data.fecha_saldo) }}</template></Column>
             <Column header="Estado"><template #body="{ data }"><Tag :value="data.activo ? 'Activa' : 'Inactiva'" :severity="data.activo ? 'success' : 'secondary'" /></template></Column>
-            <Column header="Opciones"><template #body="{ data }"><Button icon="pi pi-pencil" outlined rounded aria-label="Editar caja" :disabled="conflicto || !!error" @click="handleEditar(data)" /></template></Column>
+            <Column header="Opciones"><template #body="{ data }"><VinculoContable tipo="caja" :registroId="data.id" class="mr-2" /><Button icon="pi pi-pencil" outlined rounded aria-label="Editar caja" :disabled="conflicto || !!error" @click="handleEditar(data)" /></template></Column>
         </DataTable>
     </div>
     <Dialog v-model:visible="mostrar" modal :header="formulario.id ? 'Editar caja' : 'Nueva caja'" :style="{ width: '43rem' }" :breakpoints="{ '768px': '95vw' }" :closable="!guardando" :closeOnEscape="!guardando">
@@ -35,8 +35,9 @@
 </template>
 <script>
 import Encabezado from '../../../../components/encabezado/Encabezado.vue';
+import VinculoContable from '../../../../components/vinculo_contable/VinculoContable.vue';
 import proceso from './js/proceso';
-export default { name: 'Cajas', components: { Encabezado }, setup() { return { ...proceso() }; } };
+export default { name: 'Cajas', components: { Encabezado, VinculoContable }, setup() { return { ...proceso() }; } };
 </script>
 <style scoped>
 @import './css/estilo.css';

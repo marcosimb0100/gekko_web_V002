@@ -22,6 +22,10 @@ export default function proceso(props) {
     const handleCerrarCambios = () => { mostrarCambios.value = false; };
     const cambiosElegidos = computed(() => Array.isArray(movimientoElegido.value?.cambios) ? movimientoElegido.value.cambios : []);
     const nombres = {
+        contabilidad_habilitada: 'Integración contable', contabilidad_fecha_inicio: 'Inicio de contabilidad',
+        contabilidad_clientes: 'Cuenta de clientes', contabilidad_proveedores: 'Cuenta de proveedores', contabilidad_ventas: 'Cuenta de ventas',
+        contabilidad_iva_trasladado: 'Cuenta de IVA trasladado', contabilidad_iva_acreditable: 'Cuenta de IVA acreditable',
+        contabilidad_retenciones_por_pagar: 'Retenciones por pagar', contabilidad_retenciones_a_favor: 'Retenciones a favor',
         rfc: 'RFC', razon_social_nombre_completo: 'Nombre o razón social', tipo_persona: 'Tipo de persona',
         codigo_postal: 'Código postal', numero_ext: 'Número exterior', numero_int: 'Número interior',
         numero_contacto_principal: 'Contacto principal', numero_contacto_alterno: 'Contacto alterno',

@@ -108,6 +108,7 @@
                 <Tab value="6">Folios / Series</Tab>
                 <Tab value="7">Configuración</Tab>
                 <Tab value="8"> Correos Solicitudes </Tab>
+                <Tab value="10">Configuración contable</Tab>
                 <Tab value="9" v-if="movimiento === 'E'">Historial</Tab>
             </TabList>
 
@@ -248,6 +249,7 @@
                         </Column>
                         <Column header="Opciones" headerClass="encabezado-columna">
                             <template #body="slotProps">
+                                <VinculoContable tipo="banco" :registroId="slotProps.data._id || ''" class="mr-2" />
                                 <Button class="btn-nuevo" type="button" @click="handleEditarBanco(slotProps.data, slotProps.index)">
                                     <font-icon :icon="['fas', 'pen-to-square']" />
                                 </Button>
@@ -298,6 +300,7 @@
                         <Column header="Opciones" headerClass="encabezado-columna" style="min-width: 190px">
                             <template #body="slotProps">
                                 <div class="acciones-concepto">
+                                    <VinculoFacturacion tipo="concepto" :registroId="slotProps.data._id || ''" />
                                     <!-- EDITAR -->
                                     <Button type="button" class="btn-nuevo" title="Editar concepto" @click="handleEditarConcepto(slotProps.data, slotProps.index)">
                                         <font-icon :icon="['fas', 'pen-to-square']" />
@@ -649,8 +652,10 @@
                     </ScrollPanel>
                 </TabPanel>
 
+                <TabPanel value="10"><ConfiguracionContable :empresaId="frmEmpresa._id || ''" @guardado="versionHistorialContable++" /></TabPanel>
+
                 <TabPanel value="9" v-if="movimiento === 'E'">
-                    <HistorialCatalogo modulo="empresas" :registroId="frmEmpresa._id" entidad="Empresa" :nombre="frmEmpresa.razon_social_nombre_completo" />
+                    <HistorialCatalogo :key="versionHistorialContable" modulo="empresas" :registroId="frmEmpresa._id" entidad="Empresa" :nombre="frmEmpresa.razon_social_nombre_completo" />
                 </TabPanel>
             </TabPanels>
         </Tabs>
@@ -1265,14 +1270,19 @@
 import empresaDefault from '../../../assets/images/Empresa.jpg';
 import HistorialCatalogo from '../../../components/historial_catalogo/HistorialCatalogo.vue';
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
+import { ref } from 'vue';
+import VinculoFacturacion from '../../../components/vinculo_facturacion/VinculoFacturacion.vue';
+import VinculoContable from '../../../components/vinculo_contable/VinculoContable.vue';
+import ConfiguracionContable from './ConfiguracionContable.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'Empresas',
-    components: { Encabezado, HistorialCatalogo },
+    components: { Encabezado, HistorialCatalogo, ConfiguracionContable, VinculoContable, VinculoFacturacion },
     setup() {
         return {
             ...proceso(),
+            versionHistorialContable: ref(0),
             empresaDefault
         };
     }
