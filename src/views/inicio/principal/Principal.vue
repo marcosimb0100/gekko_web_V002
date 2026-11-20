@@ -34,7 +34,7 @@
                             <div class="registro-estado"><strong v-if="handleImporte(item)" class="registro-importe">{{ item.importe === null ? (bloque.id === 'bancos' ? 'Sin saldo registrado' : 'Por definir') : handleMoneda(item.importe) }}</strong><Tag v-if="item.estado" :value="item.estado" :severity="item.tono === 'peligro' ? 'danger' : item.tono === 'aviso' ? 'warn' : 'secondary'" /></div>
                         </article>
                     </div>
-                    <div v-else-if="bloque.id === 'pagos' || bloque.id === 'juridico' || bloque.id === 'bancos' || bloque.id === 'efectivo' || bloque.id === 'nube'" class="bloque-vacio"><i class="pi pi-inbox" aria-hidden="true" /><span>{{ bloque.mensaje_vacio || 'No hay registros para mostrar en este resumen.' }}</span></div>
+                    <div v-else-if="bloque.id === 'pagos' || bloque.id === 'solicitudes_pago' || bloque.id === 'juridico' || bloque.id === 'bancos' || bloque.id === 'efectivo' || bloque.id === 'nube'" class="bloque-vacio"><i class="pi pi-inbox" aria-hidden="true" /><span>{{ bloque.mensaje_vacio || 'No hay registros para mostrar en este resumen.' }}</span></div>
                     
                 </template>
                 <footer class="bloque-pie"><Button :label="bloque.id === 'nube' ? 'Ir al kiosco' : 'Ver detalle'" icon="pi pi-arrow-right" iconPos="right" text :disabled="cargando" :aria-label="'Ver detalle de ' + bloque.titulo" @click="handleIrModulo(bloque)" /></footer>

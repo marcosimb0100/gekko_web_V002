@@ -17,6 +17,7 @@
 .resumen-bloque::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--modulo-color); opacity:.85; }
 .modulo-mesa { --modulo-color:#2563eb; --modulo-fondo:#eff6ff; }
 .modulo-pagos { --modulo-color:#d97706; --modulo-fondo:#fffbeb; }
+.modulo-solicitudes_pago { --modulo-color:#0d9488; --modulo-fondo:#f0fdfa; }
 .modulo-bancos { --modulo-color:#0891b2; --modulo-fondo:#ecfeff; }
 .modulo-efectivo { --modulo-color:#059669; --modulo-fondo:#ecfdf5; }
 .modulo-juridico { --modulo-color:#7c3aed; --modulo-fondo:#f5f3ff; }

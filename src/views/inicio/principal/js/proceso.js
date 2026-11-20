@@ -9,8 +9,8 @@ export default function proceso() {
     const ayuda = ref(null);
     const handleAyuda = bloque => { ayuda.value = bloque; };
     const handleTono = item => Number(item.valor) > 0 ? item.tono : 'normal';
-    const handleSubtitulo = bloque => ({ mesa: 'Revisi\u00f3n y timbrado', pagos: 'Vencimientos y abonos', bancos: 'Informaci\u00f3n bancaria registrada', efectivo: 'Disponibilidad y jornadas', juridico: 'Asuntos y compromisos', cancelaciones: 'Seguimiento de solicitudes', rh: 'Solicitudes de personal', nube: 'Contenido disponible para ti' }[bloque.id] || 'Resumen operativo');
-    const handleTituloLista = bloque => ({ pagos: 'Vencimientos por atender', bancos: '\u00daltimos saldos por cuenta', efectivo: 'Tus cajas', juridico: 'Compromisos por atender', nube: 'Repositorios autorizados' }[bloque.id] || 'Registros recientes');
+    const handleSubtitulo = bloque => ({ mesa: 'Revisi\u00f3n y timbrado', pagos: 'Vencimientos y abonos', solicitudes_pago: bloque.ruta === '/finanzas/solicitudes/mesa' ? 'Revision y pagos por registrar' : 'Seguimiento de mis solicitudes', bancos: 'Informaci\u00f3n bancaria registrada', efectivo: 'Disponibilidad y jornadas', juridico: 'Asuntos y compromisos', cancelaciones: 'Seguimiento de solicitudes', rh: 'Solicitudes de personal', nube: 'Contenido disponible para ti' }[bloque.id] || 'Resumen operativo');
+    const handleTituloLista = bloque => ({ pagos: 'Vencimientos por atender', solicitudes_pago: 'Solicitudes por atender', bancos: '\u00daltimos saldos por cuenta', efectivo: 'Tus cajas', juridico: 'Compromisos por atender', nube: 'Repositorios autorizados' }[bloque.id] || 'Registros recientes');
     const fechaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     let activo = true;
     const handleMoneda = valor => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(valor));

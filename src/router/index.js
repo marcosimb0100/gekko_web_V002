@@ -339,6 +339,13 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/finanzas/solicitudes/solicitud',
+                    name: 'finanzas_solicitudes_solicitud',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/finanzas/solicitudes/solicitud/Solicitud.vue')
+                },
+                { path: '/finanzas/solicitudes/mesa', name: 'finanzas_mesa_solicitudes', beforeEnter: permisoRutas, component: () => import('../views/finanzas/solicitudes/mesa/MesaSolicitudes.vue') },
+                {
                     path: '/finanzas/efectivo/saldos_iniciales',
                     alias: '/finanzas/efectivo/cajas',
                     name: 'finanzas_efectivo_saldos_iniciales',

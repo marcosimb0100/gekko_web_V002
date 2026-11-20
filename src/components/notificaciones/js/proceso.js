@@ -9,6 +9,10 @@ export default function proceso() {
     const store = useStore(), router = useRouter(), toast = useToast();
     const mostrar = ref(false), cargando = ref(false), error = ref(''), leyendo = ref(''), archivando = ref('');
     const notificaciones = ref([]), sinLeer = ref(0), total = ref(0), offset = ref(0);
+    const confirmarLimpieza = ref(false);
+    const handleConfirmarLimpieza = () => {
+        if (!cargando.value && !archivando.value && !leyendo.value && total.value > 0) confirmarLimpieza.value = true;
+    };
     let activo = true, temporizador = null, pendiente = false, avisoPendiente = false, reiniciarPendiente = false;
     let inicializado = false, ultimoAviso = '';
     const avisosNavegador = useAvisosNavegador({
@@ -88,32 +92,33 @@ export default function proceso() {
             if (!activo) return;
             if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible abrir la notificacion.');
             await handleActualizar();
-            if (navegar && activo) {
+            if (navegar && item.ruta && activo) {
                 const ruta = item.ruta || '/operaciones/mesa_control';
-                if (!['/operaciones/mesa_control', '/operaciones/cancelaciones', '/finanzas/pagos_programados', '/juridico/agenda'].includes(ruta)) throw new Error('Destino de notificacion no valido.');
+                if (!['/operaciones/mesa_control', '/operaciones/cancelaciones', '/finanzas/pagos_programados', '/juridico/agenda', '/finanzas/solicitudes/mesa'].includes(ruta)) throw new Error('Destino de notificacion no valido.');
                 mostrar.value = false;
                 router.push(ruta);
             }
         } catch (err) { if (activo) error.value = err.message; }
         finally { if (activo) leyendo.value = ''; }
     };
-    const handleQuitar = async (item = null) => {
+    const handleQuitar = async (item = null, todas = false) => {
         if (!activo || cargando.value || archivando.value || leyendo.value) return;
-        archivando.value = item?._id || 'leidas';
+        archivando.value = item?._id || (todas ? 'todas' : 'leidas');
         error.value = '';
         try {
             const res = await store.dispatch('api/apiPostTokenSinCargando', {
-                direccion: item ? '/notificaciones/archivar' : '/notificaciones/limpiar_leidas',
+                direccion: item ? '/notificaciones/archivar' : todas ? '/notificaciones/limpiar_todas' : '/notificaciones/limpiar_leidas',
                 datosJson: item ? { id: item._id } : {}
             });
             if (!activo) return;
             if (res.estatus !== 200) throw new Error(res.mensaje || 'No fue posible retirar las notificaciones.');
+            confirmarLimpieza.value = false;
             await handleActualizar({ reiniciar: true });
         } catch (err) { if (activo) error.value = err.message; }
         finally { if (activo) archivando.value = ''; }
     };
     onMounted(() => handleActualizar());
     onBeforeUnmount(() => { activo = false; if (temporizador !== null) clearTimeout(temporizador); });
-    return { ...avisosNavegador, mostrar, cargando, error, leyendo, archivando, notificaciones, sinLeer, total, offset,
+    return { ...avisosNavegador, mostrar, cargando, error, leyendo, archivando, notificaciones, sinLeer, total, offset, confirmarLimpieza, handleConfirmarLimpieza,
         handleActualizar, handleMostrar, handleCerrar, handleFecha, handlePagina, handleLeer, handleQuitar };
 }

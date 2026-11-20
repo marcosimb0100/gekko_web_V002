@@ -18,6 +18,7 @@ const useProceso = () => {
     const arbol = ref([]);
 
     const buscar = ref('');
+    const vista = ref('Arbol');
 
     const cargando = ref(false);
 
@@ -414,6 +415,19 @@ const useProceso = () => {
             .trim()
             .toLowerCase();
 
+        if (vista.value === 'Lista') {
+            const filas = [];
+            const recorrer = (nodos, ruta = []) => nodos.forEach((nodo) => {
+                const camino = [...ruta, nodo.data.nombre];
+                const contenido = [camino.join(' / '), nodo.data.clave, nodo.data.descripcion].join(' ').toLowerCase();
+                if (!nodo.data.agrupador && (!texto || contenido.includes(texto))) {
+                    filas.push({ ...nodo, data: { ...nodo.data, ruta_texto: camino.join(' / ') }, children: [] });
+                }
+                recorrer(nodo.children || [], camino);
+            });
+            recorrer(arbol.value);
+            return filas;
+        }
         if (!texto) {
             return arbol.value;
         }
@@ -462,6 +476,7 @@ const useProceso = () => {
         arbol,
 
         buscar,
+        vista,
 
         cargando,
         guardando,

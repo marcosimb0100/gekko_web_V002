@@ -10,6 +10,9 @@ export default function proceso() {
     ] : seleccionada.value?.id === 'recordatorios_juridico' ? [
         { key: 'intervalo_minutos', label: 'Revisar agenda cada (minutos)', min: 1, max: 1440 },
         { key: 'anticipacion_dias', label: 'Avisar dias antes del compromiso', min: 0, max: 30 }
+    ] : seleccionada.value?.id === 'sat_69b' ? [
+        { key: 'hora', label: 'Hora del dia 1 (formato de 24 horas)', min: 0, max: 23 },
+        { key: 'minuto', label: 'Minuto', min: 0, max: 59 }
     ] : seleccionada.value?.id === 'correos_factura' ? [
         { key: 'intervalo_segundos', label: 'Revisar correos cada (segundos)', min: 5, max: 300 }
     ] : [
@@ -18,7 +21,7 @@ export default function proceso() {
         { key: 'actividad_segundos', label: 'Reportar actividad cada (segundos)', min: 10, max: 120 }
     ]);
     const valido = computed(() => campos.value.every(c => Number.isInteger(valores.value[c.key]) && valores.value[c.key] >= c.min && valores.value[c.key] <= c.max));
-    const handleEditar = item => { seleccionada.value = item; valores.value = { ...item.configuracion }; errorEdicion.value = ''; mostrar.value = true; };
+    const handleEditar = item => { seleccionada.value = item; valores.value = { ...item.configuracion, habilitada: item.configuracion?.habilitada !== false }; errorEdicion.value = ''; mostrar.value = true; };
     const handleGuardar = async () => {
         if (guardando.value || !valido.value || !puedeModificar.value) return;
         guardando.value = true;
@@ -48,6 +51,8 @@ export default function proceso() {
         finally { cargando.value = false; }
     };
     const estados = {
+        deshabilitada: { label: 'Deshabilitada', severity: 'secondary' },
+        completado: { label: 'Finalizada', severity: 'success' },
         sin_ejecuciones: { label: 'Sin ejecuciones', severity: 'secondary' },
         activo: { label: 'Servicio activo', severity: 'success' },
         ejecutando: { label: 'En proceso', severity: 'info' },

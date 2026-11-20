@@ -26,6 +26,7 @@
             </div>
 
             <div class="acciones-superiores">
+                <SelectButton v-model="vista" :options="['Lista', 'Arbol']" :allowEmpty="false" aria-label="Presentacion del catalogo" />
                 <Button icon="pi pi-plus" label="Expandir" text @click="handleExpandirTodo" />
 
                 <Button icon="pi pi-minus" label="Contraer" text @click="handleContraerTodo" />
@@ -65,6 +66,8 @@
                             <strong>
                                 {{ slotProps.node.data.nombre }}
                             </strong>
+                            <Tag :value="slotProps.node.data.agrupador ? 'Agrupador' : 'Concepto final'" :severity="slotProps.node.data.agrupador ? 'secondary' : 'info'" />
+                            <small v-if="vista === 'Lista' && slotProps.node.data.parent_id">{{ slotProps.node.data.ruta_texto }}</small>
 
                             <small v-if="slotProps.node.data.descripcion">
                                 {{ slotProps.node.data.descripcion }}
@@ -141,7 +144,7 @@
 
                 <Dropdown v-model="frmConcepto.parent_id" :options="opcionesPadres" optionLabel="label" optionValue="_id" placeholder="Sin padre - Nivel 1" filter showClear class="w-full" />
 
-                <small> Sin padre significa que será un concepto de nivel 1. </small>
+                <small>Sin padre crea un concepto simple. Al agregarle subconceptos, se convierte en agrupador y solo sus conceptos finales podrán asignarse a nuevas operaciones.</small>
             </div>
 
             <div class="grid-formulario">
@@ -204,6 +207,8 @@
 
 <script>
 import Encabezado from '../../../../components/encabezado/Encabezado.vue';
+import SelectButton from 'primevue/selectbutton';
+import Tag from 'primevue/tag';
 
 import proceso from './js/proceso.js';
 
@@ -211,7 +216,9 @@ export default {
     name: 'ConceptosConciliacion',
 
     components: {
-        Encabezado
+        Encabezado,
+        SelectButton,
+        Tag
     },
 
     setup() {
