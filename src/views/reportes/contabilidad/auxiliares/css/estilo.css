@@ -1,4 +1,7 @@
-.contabilidad-pantalla { margin-top: 1rem; min-height: 20rem; }
-.contabilidad-inicio { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 1rem; gap: .75rem; color: var(--text-color-secondary); }
-.contabilidad-inicio > i { font-size: 2rem; color: var(--primary-color); }
-.contabilidad-inicio h3, .contabilidad-inicio p { margin: 0; }
+﻿.auxiliar-contenido{display:flex;flex-direction:column;gap:1.2rem;min-width:0;height:calc(100vh - 16rem);min-height:30rem;overflow:hidden}
+.auxiliar-filtros{display:flex;flex-wrap:wrap;align-items:end;gap:.8rem}.campo{display:flex;flex-direction:column;gap:.4rem;min-width:9rem;flex:1}.empresa{flex:2}.cuenta{flex:3}.acciones{display:flex;gap:.5rem}.requerido{color:#dc2626}
+.auxiliar-contexto{display:flex;align-items:center;justify-content:space-between;gap:1rem}.auxiliar-contexto>div,.dato-doble{display:flex;flex-direction:column;gap:.25rem}small,.nota{color:var(--text-color-secondary)}
+.auxiliar-resumen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem}.auxiliar-resumen>div{display:flex;flex-direction:column;gap:.5rem;padding:1rem;border:1px solid var(--surface-border);border-radius:10px}.auxiliar-resumen strong{font-size:1.25rem}
+.tabla-auxiliar{flex:1;min-height:0;min-width:0}.tabla-auxiliar :deep(.p-datatable-table){table-layout:fixed;width:100%}.tabla-auxiliar :deep(.p-datatable-thead>tr>th){background:#364149;color:white}.tabla-auxiliar :deep(th:nth-child(3)){width:35%}.tabla-auxiliar :deep(td){overflow-wrap:anywhere}.tabla-auxiliar :deep(td:nth-child(n+4)){text-align:right;font-variant-numeric:tabular-nums}.concepto{white-space:normal}
+.auxiliar-vacio{margin:auto;text-align:center;color:var(--text-color-secondary)}.auxiliar-vacio>i{font-size:2.5rem;color:var(--primary-color)}
+@media(max-width:800px){.auxiliar-contenido{height:auto;min-height:32rem;overflow:visible}.auxiliar-resumen{grid-template-columns:repeat(2,minmax(0,1fr))}.tabla-auxiliar{min-height:20rem}.campo{flex-basis:40%}.tabla-auxiliar :deep(th),.tabla-auxiliar :deep(td){font-size:.75rem;padding:.4rem}.auxiliar-contexto{align-items:start;flex-direction:column}}

@@ -18,7 +18,7 @@
                     </div>
                 </Fieldset>
                 <Fieldset legend="Cuentas generales">
-                    <p class="contabilidad-nota">Selecciona cuentas activas que permitan movimientos. Los bancos y las cajas se vincularán por separado.</p>
+                    <p class="contabilidad-nota">Selecciona cuentas activas que permitan movimientos. Los bancos y las cajas se vinculan por separado. Las cuentas pendientes son opcionales y deben ser distintas de sus cuentas efectivas.</p>
                     <div class="contabilidad-cuentas">
                         <div v-for="c in campos" :key="c.campo" class="contabilidad-campo">
                             <label :for="'contable-'+c.campo">{{ c.nombre }} <span v-if="c.requerido && configuracion.habilitada" class="requerido">*</span></label>
@@ -35,7 +35,9 @@
             <p><strong>Desactivada por defecto.</strong> La fecha y las cuentas se habilitan al activar el interruptor. Guardar solo se habilita cuando hay cambios. Cada empresa guarda su propia configuración. La opción no cambia el funcionamiento actual de facturas, bancos ni pagos.</p>
             <p><strong>Fecha de inicio.</strong> Define desde cuándo se utilizarán estas reglas cuando integremos la generación de pólizas. No se procesan datos anteriores al guardar.</p>
             <p><strong>Cuentas generales.</strong> Clientes y proveedores representan lo pendiente por cobrar y pagar; Ventas representa el ingreso. Los impuestos tienen cuentas separadas. Solo aparecen cuentas de esta empresa, activas y con movimientos habilitados.</p>
-            <p><strong>Impuestos.</strong> Estas cuentas son valores generales. Las reglas por impuesto, tasa, concepto y momento del cobro o pago se configurarán en la siguiente etapa.</p>
+            <p><strong>Impuestos pendientes y efectivos.</strong> Asigna cuentas distintas para el impuesto pendiente y el cobrado o pagado. Las nuevas facturas usarán la cuenta pendiente; las pólizas de cobro o pago reclasificarán la proporción correspondiente. El último abono ajusta los centavos. Las asignaciones específicas de impuestos conservan su cuenta efectiva.</p>
+            <p><strong>Configuración opcional.</strong> Sin cuenta pendiente se conserva el tratamiento directo actual. No se modifican pólizas anteriores ni se reclasifican sus impuestos retroactivamente. Revisa con tu contador las cuentas y el tratamiento de cada retención; esta separación no genera declaraciones fiscales.</p>
+            <p><strong>Parcialidades.</strong> Revisa las partidas antes de generar. Contabiliza los abonos en el orden de sus borradores. Las partidas con impuestos por flujo quedan protegidas contra edición.</p>
             <p><strong>Guardado independiente.</strong> Utiliza Guardar configuración en esta pestaña. El botón general Guardar de Empresas conserva su funcionamiento y no sobrescribe estos datos.</p>
             <p><strong>Historial.</strong> Los cambios de configuración se registran en el historial de Empresas con el nombre y código de la cuenta.</p>
         </div>

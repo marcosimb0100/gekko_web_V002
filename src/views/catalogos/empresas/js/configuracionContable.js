@@ -2,7 +2,7 @@ import {computed,onBeforeUnmount,reactive,ref,watch} from 'vue';
 import {useStore} from 'vuex';
 import {useToast} from 'primevue/usetoast';
 
-const inicial=()=>({revision:0,habilitada:false,fecha_inicio:null,modo:'borrador',clientes:null,proveedores:null,ventas:null,iva_trasladado:null,iva_acreditable:null,retenciones_por_pagar:null,retenciones_a_favor:null});
+const inicial=()=>({revision:0,habilitada:false,fecha_inicio:null,modo:'borrador',clientes:null,proveedores:null,ventas:null,iva_trasladado:null,iva_acreditable:null,retenciones_por_pagar:null,retenciones_a_favor:null,iva_trasladado_pendiente:null,iva_acreditable_pendiente:null,retenciones_por_pagar_pendientes:null,retenciones_a_favor_pendientes:null});
 export default function proceso(props,emit){
     const store=useStore(),toast=useToast(),configuracion=reactive(inicial());
     const cuentas=ref([]),cargando=ref(false),guardando=ref(false),error=ref(''),cargada=ref(false);
@@ -12,10 +12,14 @@ export default function proceso(props,emit){
         {campo:'clientes',nombre:'Clientes por cobrar',tipo:'activo',requerido:true},
         {campo:'proveedores',nombre:'Proveedores por pagar',tipo:'pasivo',requerido:true},
         {campo:'ventas',nombre:'Ventas e ingresos',tipo:'ingresos',requerido:true},
-        {campo:'iva_trasladado',nombre:'IVA trasladado',tipo:'pasivo'},
-        {campo:'iva_acreditable',nombre:'IVA acreditable',tipo:'activo'},
+        {campo:'iva_trasladado',nombre:'IVA efectivamente cobrado',tipo:'pasivo'},
+        {campo:'iva_acreditable',nombre:'IVA efectivamente pagado',tipo:'activo'},
         {campo:'retenciones_por_pagar',nombre:'Retenciones por pagar',tipo:'pasivo'},
-        {campo:'retenciones_a_favor',nombre:'Retenciones a favor',tipo:'activo'}
+        {campo:'retenciones_a_favor',nombre:'Retenciones a favor al cobrar',tipo:'activo'},
+        {campo:'iva_trasladado_pendiente',nombre:'IVA pendiente de cobro',tipo:'pasivo'},
+        {campo:'iva_acreditable_pendiente',nombre:'IVA pendiente de pago',tipo:'activo'},
+        {campo:'retenciones_por_pagar_pendientes',nombre:'Retenciones pendientes de pago',tipo:'pasivo'},
+        {campo:'retenciones_a_favor_pendientes',nombre:'Retenciones a favor pendientes de cobro',tipo:'activo'}
     ];
     const handleCuentas=tipo=>cuentas.value.filter(c=>c.tipo===tipo);
     const valido=computed(()=>cargada.value&&!cargando.value&&!guardando.value&&hayCambios.value&&

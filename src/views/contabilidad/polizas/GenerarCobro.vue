@@ -6,6 +6,7 @@
         <template v-else-if="datos.huella">
             <div class="cobro-contexto"><strong>{{ datos.empresa }}</strong><span>{{ datos.banco }}</span><small>{{ datos.uuid }}</small></div>
             <div class="cobro-resumen"><span>Fecha bancaria: <strong>{{ datos.fecha }}</strong></span><span>Importe aplicado: <strong>{{ handleMoneda(datos.importe) }}</strong></span></div>
+            <Message severity="info" :closable="false">Los impuestos pendientes configurados en la póliza original se reclasifican proporcionalmente. Las facturas anteriores sin ese desglose conservan su tratamiento directo.</Message>
             <DataTable :value="datos.partidas" size="small" class="cobro-tabla">
                 <Column header="Cuenta"><template #body="{data}">{{ data.codigo }} · {{ data.nombre }}</template></Column>
                 <Column header="Cargo"><template #body="{data}">{{ handleMoneda(data.cargo) }}</template></Column>
