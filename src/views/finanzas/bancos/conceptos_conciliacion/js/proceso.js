@@ -18,7 +18,21 @@ const useProceso = () => {
     const arbol = ref([]);
 
     const buscar = ref('');
-    const vista = ref('Arbol');
+    const vista = ref('lista');
+    const tipoBloqueado = ref(false);
+    const tiposCatalogo = [
+        { nombre: 'Lista sencilla', valor: 'lista' },
+        { nombre: 'Agrupado', valor: 'agrupado' },
+        { nombre: 'Especial 1', valor: 'especial_1' }
+    ];
+    const camposReporte = [
+        { campo: 'saldos_diarios', nombre: 'Saldos diarios' },
+        { campo: 'detalle', nombre: 'Detalle' },
+        { campo: 'gastos_informe', nombre: 'Gastos informe' },
+        { campo: 'tipo', nombre: 'Tipo' },
+        { campo: 'presentacion', nombre: 'Presentación' },
+        { campo: 'numero_catalogo', nombre: 'Número de catálogo' }
+    ];
 
     const cargando = ref(false);
 
@@ -33,6 +47,7 @@ const useProceso = () => {
     // ============================================================
 
     const frmConcepto = reactive({
+        clasificacion_reportes: {},
         _id: null,
 
         parent_id: null,
@@ -90,6 +105,7 @@ const useProceso = () => {
     // ============================================================
 
     const handleLimpiarFormulario = () => {
+        frmConcepto.clasificacion_reportes = Object.fromEntries(camposReporte.map(({ campo }) => [campo, '']));
         frmConcepto._id = null;
 
         frmConcepto.parent_id = null;
@@ -132,6 +148,8 @@ const useProceso = () => {
             conceptos.value = Array.isArray(datos.conceptos) ? datos.conceptos : [];
 
             arbol.value = Array.isArray(datos.arbol) ? datos.arbol : [];
+            tipoBloqueado.value = datos.configuracion?.bloqueado === true;
+            if (datos.configuracion?.tipo) vista.value = datos.configuracion.tipo;
 
             return true;
         } catch (error) {
@@ -201,6 +219,7 @@ const useProceso = () => {
     // ============================================================
 
     const handleNuevoHijo = (concepto) => {
+        if (vista.value !== 'agrupado') return;
         handleLimpiarFormulario();
 
         frmConcepto.parent_id = concepto._id;
@@ -224,6 +243,7 @@ const useProceso = () => {
         frmConcepto.clave = concepto.clave || '';
 
         frmConcepto.descripcion = concepto.descripcion || '';
+        frmConcepto.clasificacion_reportes = Object.fromEntries(camposReporte.map(({ campo }) => [campo, concepto.clasificacion_reportes?.[campo] || '']));
 
         frmConcepto.orden = Number(concepto.orden || 1);
 
@@ -257,6 +277,8 @@ const useProceso = () => {
     // ============================================================
 
     const handlePayload = () => ({
+        tipo_catalogo: vista.value,
+        ...(vista.value === 'especial_1' ? { clasificacion_reportes: Object.fromEntries(camposReporte.map(({ campo }) => [campo, String(frmConcepto.clasificacion_reportes[campo] || '').trim().toUpperCase()])) } : {}),
         parent_id: frmConcepto.parent_id || null,
 
         nombre: String(frmConcepto.nombre || '')
@@ -395,7 +417,7 @@ const useProceso = () => {
         nodos.forEach((nodo) => {
             const data = nodo.data || {};
 
-            const contenido = [data.nombre, data.clave, data.descripcion].join(' ').toLowerCase();
+            const contenido = [data.nombre, data.clave, data.descripcion, ...Object.values(data.clasificacion_reportes || {})].join(' ').toLowerCase();
 
             const hijos = filtrarNodos(nodo.children || [], texto);
 
@@ -415,11 +437,11 @@ const useProceso = () => {
             .trim()
             .toLowerCase();
 
-        if (vista.value === 'Lista') {
+        if (vista.value !== 'agrupado') {
             const filas = [];
             const recorrer = (nodos, ruta = []) => nodos.forEach((nodo) => {
                 const camino = [...ruta, nodo.data.nombre];
-                const contenido = [camino.join(' / '), nodo.data.clave, nodo.data.descripcion].join(' ').toLowerCase();
+                const contenido = [camino.join(' / '), nodo.data.clave, nodo.data.descripcion, ...Object.values(nodo.data.clasificacion_reportes || {})].join(' ').toLowerCase();
                 if (!nodo.data.agrupador && (!texto || contenido.includes(texto))) {
                     filas.push({ ...nodo, data: { ...nodo.data, ruta_texto: camino.join(' / ') }, children: [] });
                 }
@@ -477,6 +499,9 @@ const useProceso = () => {
 
         buscar,
         vista,
+        tipoBloqueado,
+        tiposCatalogo,
+        camposReporte,
 
         cargando,
         guardando,

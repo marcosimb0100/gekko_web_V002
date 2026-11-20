@@ -424,6 +424,27 @@
    VACÍO
    ========================================================= */
 
+.clasificacion-reportes {
+    width: 100%;
+}
+
+.selector-catalogo {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    min-width: 15rem;
+}
+
+.selector-catalogo small {
+    color: var(--text-color-secondary);
+}
+
+.clasificacion-reportes p {
+    margin: 0 0 1rem;
+    color: var(--text-color-secondary);
+    line-height: 1.5;
+}
+
 .tabla-vacia {
     padding: 35px;
 

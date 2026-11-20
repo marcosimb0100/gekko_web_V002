@@ -605,6 +605,9 @@
 
                             {{ handleNombreEstatus(slotProps.data.estatus) }}
                         </span>
+                        <small class="mesa-registrado-por" :title="slotProps.data.registrado_por || 'Sin registro de usuario'">
+                            {{ slotProps.data.registrado_por || 'Sin registro de usuario' }}
+                        </small>
                     </template>
                 </Column>
 
