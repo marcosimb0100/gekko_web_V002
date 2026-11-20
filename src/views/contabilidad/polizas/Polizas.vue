@@ -1,6 +1,7 @@
 <template>
     <Encabezado :titulo="mostrar ? formulario.folio || 'Nueva póliza' : 'Pólizas'" subtitulo="Captura manual de pólizas contables por empresa" icono="pi pi-book">
         <Button icon="pi pi-question-circle" text rounded aria-label="Guía de pólizas" title="Guía de pólizas" @click="mostrarAyuda = true" />
+        <SaldosIniciales v-if="!mostrar && empresaActual" :empresa="empresaActual" :disabled="cargando || !empresaActual.activo" @abrir="handleEditar" />
         <GenerarCfdi v-if="!mostrar" @generadas="handleCargar" />
         <Button v-if="!mostrar" label="Nueva póliza" icon="pi pi-plus" class="btn-nuevo" :disabled="cargando || !empresaActual?.activo || !!error || !hayPeriodos" @click="handleNuevo" />
         <template v-else>
@@ -45,6 +46,7 @@
 
     <div v-else class="card polizas-detalle">
         <div class="poliza-contexto"><div><strong>{{ empresaActual?.nombre }}</strong><small>{{ formulario.folio || 'El folio se asignará al guardar' }} · MXN</small></div><Tag :value="handleEstado(formulario.estado)" :severity="handleEstadoSeverity(formulario.estado)" /></div>
+        <Message v-if="formulario.origen_saldos_iniciales" severity="info" :closable="false">Apertura contable de la empresa. La fecha de apertura se conserva. Se administra desde su periodo de inicio y se presenta como saldo inicial en los reportes. El borrador permite revisar los saldos; al contabilizarlo formarán parte de los reportes. No crea movimientos bancarios ni modifica cajas.</Message>
         <Message v-if="formulario.reversion" severity="warn" :closable="false">Revertida mediante {{ formulario.reversion.folio }}, con fecha {{ formulario.reversion.fecha }}. Motivo: {{ formulario.reversion.motivo_reversion }}. El original y la contrapartida se conservan en los reportes.</Message>
         <Message v-if="formulario.reversion_de" severity="info" :closable="false">Contrapartida de {{ formulario.folio_original }}. Motivo: {{ formulario.motivo_reversion }}. Esta póliza no se edita ni se revierte nuevamente.</Message>
         <Message v-if="formulario.origen_cfdi" severity="info" :closable="false">Origen: {{ formulario.origen_cfdi.tipo === 'factura_recibida' ? 'factura recibida' : 'factura emitida' }} {{ formulario.origen_cfdi.serie }} / {{ formulario.origen_cfdi.folio }}. UUID: {{ formulario.origen_cfdi.uuid }}. Esta factura ya está vinculada a esta póliza.</Message>
@@ -61,7 +63,7 @@
                     <div class="poliza-formulario">
                         <Fieldset legend="Datos de la póliza">
                             <div class="form-grid">
-                                <div class="campo"><label for="poliza-fecha">Fecha <span class="requerido">*</span></label><DatePicker inputId="poliza-fecha" v-model="formulario.fecha" dateFormat="yy-mm-dd" showIcon :manualInput="false" :disabled="(!editable || !!formulario.origen_cobro || !!formulario.origen_pago || (formulario.origen_cfdi?.tipo === 'factura_recibida' || !!formulario.origen_cfdi?.impuestos_flujo?.length))" /><small v-if="formulario.id">Al editar se conserva el año del folio.</small></div>
+                                <div class="campo"><label for="poliza-fecha">Fecha <span class="requerido">*</span></label><DatePicker inputId="poliza-fecha" v-model="formulario.fecha" dateFormat="yy-mm-dd" showIcon :manualInput="false" :disabled="(!editable || !!formulario.origen_saldos_iniciales || !!formulario.origen_cobro || !!formulario.origen_pago || (formulario.origen_cfdi?.tipo === 'factura_recibida' || !!formulario.origen_cfdi?.impuestos_flujo?.length))" /><small v-if="formulario.id">Al editar se conserva el año del folio.</small></div>
                                 <div class="campo"><label for="poliza-tipo">Tipo <span class="requerido">*</span></label><Select inputId="poliza-tipo" v-model="formulario.tipo" :options="tipos" optionLabel="nombre" optionValue="valor" :disabled="(!editable || !!formulario.origen_cobro || !!formulario.origen_pago || (formulario.origen_cfdi?.tipo === 'factura_recibida' || !!formulario.origen_cfdi?.impuestos_flujo?.length)) || !!formulario.id" /></div>
                                 <div class="campo concepto-campo"><label for="poliza-concepto">Concepto <span class="requerido">*</span></label><InputText id="poliza-concepto" v-model="formulario.concepto" maxlength="300" :disabled="(!editable || !!formulario.origen_cobro || !!formulario.origen_pago || (formulario.origen_cfdi?.tipo === 'factura_recibida' || !!formulario.origen_cfdi?.impuestos_flujo?.length))" /></div>
                                 <div class="campo ancho-completo"><label for="poliza-referencia">Referencia</label><InputText id="poliza-referencia" v-model="formulario.referencia" maxlength="100" :disabled="(!editable || !!formulario.origen_cobro || !!formulario.origen_pago || (formulario.origen_cfdi?.tipo === 'factura_recibida' || !!formulario.origen_cfdi?.impuestos_flujo?.length))" /></div>
@@ -149,10 +151,11 @@ import Tag from 'primevue/tag';
 import Textarea from 'primevue/textarea';
 import proceso from './js/proceso.js';
 import GenerarCfdi from './GenerarCfdi.vue';
+import SaldosIniciales from './SaldosIniciales.vue';
 import RevertirPoliza from './RevertirPoliza.vue';
 export default {
     name:'Polizas',
-    components:{RevertirPoliza,GenerarCfdi,Encabezado,Button,Column,DataTable,DatePicker,Dialog,Fieldset,IconField,InputIcon,InputNumber,InputText,Message,Select,Tab,TabList,TabPanel,TabPanels,Tabs,Tag,Textarea},
+    components:{SaldosIniciales,RevertirPoliza,GenerarCfdi,Encabezado,Button,Column,DataTable,DatePicker,Dialog,Fieldset,IconField,InputIcon,InputNumber,InputText,Message,Select,Tab,TabList,TabPanel,TabPanels,Tabs,Tag,Textarea},
     setup(){return {...proceso()};}
 };
 </script>

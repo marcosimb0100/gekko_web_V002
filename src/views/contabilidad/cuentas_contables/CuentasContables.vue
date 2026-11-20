@@ -2,6 +2,8 @@
     <Encabezado titulo="Cuentas contables" subtitulo="Cat&aacute;logo, estructura y clasificaci&oacute;n por empresa" icono="pi pi-sitemap">
         <template #icono><font-icon icon="fa-solid fa-sitemap" style="font-size:1.2rem" /></template>
         <Button icon="pi pi-question-circle" text rounded aria-label="Gu&iacute;a de cuentas contables" title="Gu&iacute;a de cuentas contables" @click="mostrarAyuda = true" />
+        <CatalogoBase v-if="!mostrar && empresaActual" :empresa="empresaActual" :disabled="!empresaActual.activo || cargando || !!error" @guardado="handleCargar" />
+        <DeshacerCatalogoBase v-if="!mostrar && empresaActual" :empresa="empresaActual" :disabled="!empresaActual.activo || cargando || !!error" @guardado="handleCargar" />
         <Button v-if="!mostrar" label="Carga masiva" icon="pi pi-upload" outlined :disabled="!empresaActual?.activo || cargando || !!error" @click="handleAbrirImportacion" />
         <Button v-if="!mostrar" label="Nueva cuenta" icon="pi pi-plus" class="btn-nuevo" :disabled="!empresaActual?.activo || cargando || !!error" @click="handleNuevo" />
         <template v-else>
@@ -139,10 +141,12 @@ import Tabs from 'primevue/tabs';
 import Tag from 'primevue/tag';
 import Textarea from 'primevue/textarea';
 import ToggleSwitch from 'primevue/toggleswitch';
+import CatalogoBase from './CatalogoBase.vue';
+import DeshacerCatalogoBase from './DeshacerCatalogoBase.vue';
 import proceso from './js/proceso';
 export default {
     name: 'CuentasContables',
-    components: { FileUpload, Encabezado, Button, Column, DataTable, Dialog, Fieldset, IconField, InputIcon, InputText, Message, Select, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Textarea, ToggleSwitch },
+    components: { DeshacerCatalogoBase, CatalogoBase, FileUpload, Encabezado, Button, Column, DataTable, Dialog, Fieldset, IconField, InputIcon, InputText, Message, Select, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Textarea, ToggleSwitch },
     setup() { return { ...proceso() }; }
 };
 </script>
