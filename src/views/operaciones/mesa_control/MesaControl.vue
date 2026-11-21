@@ -375,6 +375,7 @@
                 :loading="cargandoSolicitudes"
                 tableClass="tabla-control"
                 class="tabla-encabezados tabla-mesa-control"
+                :class="{ 'tabla-timbradas-compacta': estatusFiltro === 'timbrada' }"
             >
                 <!-- VACIO -->
 
@@ -398,6 +399,7 @@
 
                 <Column v-if="mostrarSeleccionFacturas" selectionMode="multiple" headerClass="col-seleccion" bodyClass="col-seleccion" headerStyle="width:3rem" bodyStyle="width:3rem" />
 
+                <template v-if="estatusFiltro !== 'timbrada'">
                 <!-- FECHA -->
 
                 <Column
@@ -500,82 +502,34 @@
                     style="min-width: 100px"
                 />
 
-                <!-- =================================================
-
-                     SERIE
-
-                     SOLO TIMBRADAS
-
-                ================================================== -->
-
-                <Column
-                    v-if="estatusFiltro === 'timbrada'"
-                    field="factura_serie"
-                    header="Serie"
-                    headerClass="
-
-                        encabezado-columna
-
-                        col-mobile-hide
-
-                    "
-                    bodyClass="
-
-                        col-no-wrap
-
-                        col-centro
-
-                        col-mobile-hide
-
-                    "
-                    style="min-width: 80px"
-                />
-
-                <!-- =================================================
-
-                     FOLIO
-
-                     SOLO TIMBRADAS
-
-                ================================================== -->
-
-                <Column
-                    v-if="estatusFiltro === 'timbrada'"
-                    field="factura_folio"
-                    header="Folio"
-                    headerClass="encabezado-columna"
-                    bodyClass="
-
-                        col-no-wrap
-
-                        col-centro
-
-                    "
-                    style="min-width: 85px"
-                />
-
-                <!-- UUID -->
-
-                <Column
-                    v-if="estatusFiltro === 'timbrada'"
-                    field="uuid"
-                    header="UUID"
-                    headerClass="
-
-                        encabezado-columna
-
-                        col-tablet-hide
-
-                    "
-                    bodyClass="
-
-                        col-no-wrap
-
-                        col-tablet-hide
-
-                    "
-                    style="min-width: 285px"
-                />
+                </template>
+                <template v-else>
+                    <Column header="Comprobante" headerClass="encabezado-columna" style="width: 28%">
+                        <template #body="{ data }">
+                            <div class="mesa-celda-timbrada">
+                                <strong>{{ data.factura_serie || 'Sin serie' }} / {{ data.factura_folio || 'Sin folio' }}</strong>
+                                <span class="mesa-uuid" :title="data.uuid">{{ data.uuid || 'Sin UUID' }}</span>
+                                <small>{{ data.created_at }}</small>
+                            </div>
+                        </template>
+                    </Column>
+                    <Column header="Empresa emisora / cliente" headerClass="encabezado-columna" style="width: 27%">
+                        <template #body="{ data }">
+                            <div class="mesa-celda-timbrada">
+                                <strong>{{ data.compania }}</strong>
+                                <span>{{ data.cliente }}</span>
+                            </div>
+                        </template>
+                    </Column>
+                    <Column header="Datos CFDI" headerClass="encabezado-columna" style="width: 11%">
+                        <template #body="{ data }">
+                            <div class="mesa-celda-timbrada">
+                                <span>Uso: {{ data.uso_cfdi || '?' }}</span>
+                                <small>{{ tipoSolicitudFiltro === 'facturas' ? data.cantidad_conceptos : data.cantidad_documentos }} {{ tipoSolicitudFiltro === 'facturas' ? 'conceptos' : 'documentos' }}</small>
+                            </div>
+                        </template>
+                    </Column>
+                </template>
 
                 <!-- TOTAL -->
 
