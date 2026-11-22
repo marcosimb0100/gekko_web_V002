@@ -24,7 +24,7 @@
     </div>
     <Dialog v-model:visible="confirmar" modal header="Confirmar reinicio de datos" :closable="!ocupado" :closeOnEscape="!ocupado" :style="{ width: '38rem' }" :breakpoints="{ '640px': '95vw' }">
         <div class="reinicio-confirmacion" v-if="resumen">
-            <p>Se eliminarán las operaciones indicadas en la vista previa de <strong>{{ resumen.base }}</strong>. Se reconstruirán los índices de Nube y se desactivará su API de sincronización Windows.</p>
+            <p>Se eliminarán las operaciones, compañías y catálogos capturados indicados en la vista previa de <strong>{{ resumen.base }}</strong>. Se reconstruirán los índices de Nube y se desactivará su API de sincronización Windows.</p>
             <label>Escribe REINICIAR {{ resumen.base }}<InputText v-model="texto" :disabled="ocupado" autocomplete="off" /></label>
             <div><Checkbox v-model="detenidos" inputId="reinicio-detenidos" binary :disabled="ocupado" /><label for="reinicio-detenidos">Confirmo que detuve los ejecutores y dispongo de almacenamiento persistente para el respaldo.</label></div>
             <small>No cierres esta ventana mientras se procesa. Si se pierde la conexión, revisa el registro administrativo antes de volver a intentar.</small>

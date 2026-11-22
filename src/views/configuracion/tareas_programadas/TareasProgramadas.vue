@@ -17,6 +17,7 @@
                     <template v-if="data.id === 'timbrado_worker'"><span>{{ data.pendientes }} CFDI pendientes o en proceso</span><small>{{ data.errores }} con error pendiente de reintento</small></template>
                     <template v-else-if="data.id === 'correos_factura'"><span>{{ data.pendientes }} pendientes &middot; {{ data.enviados }} enviados</span><small>{{ data.errores }} con error &middot; {{ data.por_confirmar }} por confirmar</small></template>
                     <template v-else-if="data.id === 'sat_69b'"><span>{{ data.registros }} registros del listado</span><small>Fecha SAT: {{ data.fecha_informacion_sat || 'Sin registro' }}</small><small>{{ data.errores }} errores</small></template>
+                    <template v-else-if="data.id === 'sat_portal'"><span>{{ data.revisadas }} empresas revisadas</span><small>{{ data.actualizadas }} actualizadas &middot; {{ data.errores }} con error</small></template>
                     <template v-else><span>{{ data.revisadas }} {{ data.id === 'recordatorios_juridico' ? 'compromisos revisados' : 'pagos revisados' }}</span><small>{{ data.avisos_creados }} avisos nuevos &middot; {{ data.errores }} observaciones</small></template>
                 </div></template>
             </Column>
@@ -32,12 +33,32 @@
             <small>Al deshabilitarla termina el trabajo en curso y conserva los pendientes hasta que la habilites de nuevo.</small>
         </div>
         <Message v-if="errorEdicion" severity="error" :closable="false">{{ errorEdicion }}</Message>
-        <div v-for="campo in campos" :key="campo.key" class="tareas-campo">
-            <label :for="campo.key">{{ campo.label }} <span class="tareas-requerido">*</span></label>
-            <InputNumber :inputId="campo.key" v-model="valores[campo.key]" :min="campo.min" :max="campo.max" :maxFractionDigits="0" showButtons :disabled="guardando || !valores.habilitada" />
-            <small>Entre {{ campo.min }} y {{ campo.max }}.</small>
+        <div v-if="seleccionada?.id === 'sat_portal'" class="tareas-horarios">
+            <div v-for="numero in [1, 2]" :key="numero" class="tareas-horario">
+                <strong>{{ numero === 1 ? 'Primer horario' : 'Segundo horario' }} <span class="tareas-requerido">*</span></strong>
+                <div class="tareas-hora-fila">
+                    <div class="tareas-hora-parte">
+                        <label :for="'hora_' + numero">Hora</label>
+                        <InputNumber :inputId="'hora_' + numero" v-model="valores['hora_' + numero]" :min="0" :max="23" :maxFractionDigits="0" :minIntegerDigits="2" :useGrouping="false" showButtons :disabled="guardando || !valores.habilitada" />
+                    </div>
+                    <span class="tareas-hora-separador">:</span>
+                    <div class="tareas-hora-parte">
+                        <label :for="'minuto_' + numero">Minuto</label>
+                        <InputNumber :inputId="'minuto_' + numero" v-model="valores['minuto_' + numero]" :min="0" :max="59" :maxFractionDigits="0" :minIntegerDigits="2" :useGrouping="false" showButtons :disabled="guardando || !valores.habilitada" />
+                    </div>
+                </div>
+            </div>
+            <small class="tareas-horarios-ayuda">Formato de 24 horas. Hora: 00 a 23; minuto: 00 a 59.</small>
         </div>
-        <p class="tareas-nota">Se aplica al continuar el ciclo del servicio. No interrumpe un trabajo en proceso. El reintento individual de cada CFDI conserva su protecci&oacute;n actual.</p>
+        <template v-else>
+            <div v-for="campo in campos" :key="campo.key" class="tareas-campo">
+                <label :for="campo.key">{{ campo.label }} <span class="tareas-requerido">*</span></label>
+                <InputNumber :inputId="campo.key" v-model="valores[campo.key]" :min="campo.min" :max="campo.max" :maxFractionDigits="0" showButtons :disabled="guardando || !valores.habilitada" />
+                <small>Entre {{ campo.min }} y {{ campo.max }}.</small>
+            </div>
+        </template>
+        <p v-if="seleccionada?.id === 'sat_portal'" class="tareas-nota">Zona: America/Mexico_City. Dos horarios distintos; un intento por empresa en cada horario. Un error espera al siguiente horario. No recupera horarios perdidos. Incluye cancelaciones de CFDI emitidos en el a&ntilde;o actual. Un cierre abrupto requiere revisar el bloqueo en sat_portal_ejecuciones antes de reactivar.</p>
+        <p v-else class="tareas-nota">Se aplica al continuar el ciclo del servicio. No interrumpe un trabajo en proceso. El reintento individual de cada CFDI conserva su protecci&oacute;n actual.</p>
         <template #footer><Button label="Cancelar" outlined :disabled="guardando" @click="mostrar = false" /><Button label="Guardar" icon="pi pi-save" :loading="guardando" :disabled="!valido" @click="handleGuardar" /></template>
     </Dialog>
 </template>

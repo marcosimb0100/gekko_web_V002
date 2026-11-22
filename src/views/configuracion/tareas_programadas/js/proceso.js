@@ -12,6 +12,11 @@ export default function proceso() {
     ] : seleccionada.value?.id === 'recordatorios_juridico' ? [
         { key: 'intervalo_minutos', label: 'Revisar agenda cada (minutos)', min: 1, max: 1440 },
         { key: 'anticipacion_dias', label: 'Avisar dias antes del compromiso', min: 0, max: 30 }
+    ] : seleccionada.value?.id === 'sat_portal' ? [
+        { key: 'hora_1', label: 'Primera hora (24 horas)', min: 0, max: 23 },
+        { key: 'minuto_1', label: 'Primer minuto', min: 0, max: 59 },
+        { key: 'hora_2', label: 'Segunda hora (24 horas)', min: 0, max: 23 },
+        { key: 'minuto_2', label: 'Segundo minuto', min: 0, max: 59 }
     ] : seleccionada.value?.id === 'sat_69b' ? [
         { key: 'hora', label: 'Hora del dia 1 (formato de 24 horas)', min: 0, max: 23 },
         { key: 'minuto', label: 'Minuto', min: 0, max: 59 }
@@ -22,7 +27,7 @@ export default function proceso() {
         { key: 'reintento_segundos', label: 'Espera ante un fallo del servicio (segundos)', min: 5, max: 300 },
         { key: 'actividad_segundos', label: 'Reportar actividad cada (segundos)', min: 10, max: 120 }
     ]);
-    const valido = computed(() => campos.value.every(c => Number.isInteger(valores.value[c.key]) && valores.value[c.key] >= c.min && valores.value[c.key] <= c.max));
+    const valido = computed(() => campos.value.every(c => Number.isInteger(valores.value[c.key]) && valores.value[c.key] >= c.min && valores.value[c.key] <= c.max) && (seleccionada.value?.id !== 'sat_portal' || valores.value.hora_1 !== valores.value.hora_2 || valores.value.minuto_1 !== valores.value.minuto_2));
     const handleEditar = item => { seleccionada.value = item; valores.value = { ...item.configuracion, habilitada: item.configuracion?.habilitada !== false }; errorEdicion.value = ''; mostrar.value = true; };
     const handleGuardar = async () => {
         if (guardando.value || !valido.value || !puedeModificar.value) return;

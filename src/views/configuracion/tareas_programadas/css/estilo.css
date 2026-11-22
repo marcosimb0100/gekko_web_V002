@@ -10,3 +10,12 @@
 .tareas-campo { display: flex; flex-direction: column; gap: .5rem; margin-top: 1.25rem; }
 .tareas-campo small { color: var(--text-color-secondary); }
 .tareas-requerido { color: #dc2626; }
+
+.tareas-horarios { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+.tareas-horario { min-width: 0; padding: .85rem; border: 1px solid var(--surface-border); border-radius: .5rem; }
+.tareas-hora-fila { display: flex; align-items: flex-end; gap: .4rem; margin-top: .75rem; }
+.tareas-hora-parte { display: flex; flex-direction: column; gap: .35rem; min-width: 0; flex: 1; }
+.tareas-hora-parte :deep(.p-inputnumber), .tareas-hora-parte :deep(.p-inputnumber-input) { width: 100%; min-width: 0; }
+.tareas-hora-separador { padding-bottom: .55rem; font-weight: 600; }
+.tareas-horarios-ayuda { grid-column: 1 / -1; color: var(--text-color-secondary); }
+@media (max-width: 420px) { .tareas-horarios { grid-template-columns: 1fr; } }

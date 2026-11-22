@@ -15,7 +15,7 @@ export default function proceso() {
             if (res.estatus !== 200) throw new Error(res.mensaje);
             resumen.value = res.datos;
             toast.add({ severity: 'info', summary: res.datos.mantenimiento ? 'Modo mantenimiento' : 'Solo vista previa',
-                detail: 'Se conserva tu usuario ROOT y los catálogos. Los archivos físicos permanecen. El reinicio no cancela CFDI ante el SAT.',
+                detail: 'Se conserva tu usuario ROOT, el menú general y los catálogos técnicos. Se eliminan los catálogos capturados y las compañías. Los archivos físicos permanecen. El reinicio no cancela CFDI ante el SAT.',
                 life: 8000 });
         } catch (error) { handleError(error); }
         finally { ocupado.value = false; }
