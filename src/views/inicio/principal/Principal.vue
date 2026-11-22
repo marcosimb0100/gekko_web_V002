@@ -27,14 +27,17 @@
                     <div v-if="bloque.indicadores.length" class="indicadores" :class="{ 'indicadores-cuatro': bloque.indicadores.length === 4 }">
                         <div v-for="item in bloque.indicadores" :key="item.etiqueta" class="indicador" :class="'tono-' + handleTono(item)"><span>{{ item.etiqueta }}</span><strong>{{ handleValor(item) }}</strong><small v-if="item.detalle">{{ item.detalle }}</small></div>
                     </div>
+                    <div v-if="bloque.monedas?.length" class="cartera-monedas">
+                        <div v-for="moneda in bloque.monedas" :key="moneda.moneda" class="cartera-moneda"><Tag :value="moneda.moneda" severity="secondary" /><span>Vencido <strong>{{ handleMoneda(moneda.vencido,moneda.moneda) }}</strong></span><span>Pr&oacute;ximos 7 d&iacute;as <strong>{{ handleMoneda(moneda.proximos,moneda.moneda) }}</strong></span></div>
+                    </div>
                     <h3 v-if="bloque.registros.length" class="lista-titulo">{{ handleTituloLista(bloque) }}</h3>
                     <div v-if="bloque.registros.length" class="registros" :class="{ 'registros-repositorios': bloque.id === 'nube' }">
                         <article v-for="(item, indice) in bloque.registros" :key="item.id || indice" class="registro">
                             <div class="registro-datos"><strong><i v-if="bloque.id === 'nube'" class="pi pi-folder repositorio-icono" aria-hidden="true" />{{ item.titulo }}</strong><span v-if="item.detalle">{{ item.detalle }}</span><span v-if="item.fecha" class="registro-fecha"><i class="pi pi-calendar" aria-hidden="true" /> {{ handleFecha(item.fecha) }}</span></div>
-                            <div class="registro-estado"><strong v-if="handleImporte(item)" class="registro-importe">{{ item.importe === null ? (bloque.id === 'bancos' ? 'Sin saldo registrado' : 'Por definir') : handleMoneda(item.importe) }}</strong><Tag v-if="item.estado" :value="item.estado" :severity="item.tono === 'peligro' ? 'danger' : item.tono === 'aviso' ? 'warn' : 'secondary'" /></div>
+                            <div class="registro-estado"><strong v-if="handleImporte(item)" class="registro-importe">{{ item.importe === null ? (bloque.id === 'bancos' ? 'Sin saldo registrado' : 'Por definir') : handleMoneda(item.importe,item.moneda) }}</strong><Tag v-if="item.estado" :value="item.estado" :severity="item.tono === 'peligro' ? 'danger' : item.tono === 'aviso' ? 'warn' : 'secondary'" /></div>
                         </article>
                     </div>
-                    <div v-else-if="bloque.id === 'pagos' || bloque.id === 'solicitudes_pago' || bloque.id === 'juridico' || bloque.id === 'bancos' || bloque.id === 'efectivo' || bloque.id === 'nube'" class="bloque-vacio"><i class="pi pi-inbox" aria-hidden="true" /><span>{{ bloque.mensaje_vacio || 'No hay registros para mostrar en este resumen.' }}</span></div>
+                    <div v-else-if="bloque.id === 'cartera_cobrar' || bloque.id === 'cartera_pagar' || bloque.id === 'pagos' || bloque.id === 'solicitudes_pago' || bloque.id === 'juridico' || bloque.id === 'bancos' || bloque.id === 'efectivo' || bloque.id === 'nube'" class="bloque-vacio"><i class="pi pi-inbox" aria-hidden="true" /><span>{{ bloque.mensaje_vacio || 'No hay registros para mostrar en este resumen.' }}</span></div>
                     
                 </template>
                 <footer class="bloque-pie"><Button :label="bloque.id === 'nube' ? 'Ir al kiosco' : 'Ver detalle'" icon="pi pi-arrow-right" iconPos="right" text :disabled="cargando" :aria-label="'Ver detalle de ' + bloque.titulo" @click="handleIrModulo(bloque)" /></footer>

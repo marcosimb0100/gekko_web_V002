@@ -175,6 +175,10 @@
 
                     <div class="consulta-filtros">
                         <div class="campo-consulta">
+                            <label>Consultar por</label>
+                            <Dropdown v-model="consultarPor" :options="criteriosFecha" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
+                        </div>
+                        <div class="campo-consulta">
                             <label> Tipo </label>
 
                             <Dropdown v-model="tipoConsulta" :options="tiposConsulta" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
@@ -195,10 +199,19 @@
                         <div class="campo-consulta">
                             <label> Estado </label>
 
-                            <Dropdown v-model="estadoCfdi" :options="estadosCfdi" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
+                            <span v-if="consultarPor === 'cancelacion'" class="estado-cancelacion-fijo">Cancelados</span>
+                            <Dropdown v-else v-model="estadoCfdi" :options="estadosCfdi" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
                         </div>
                     </div>
 
+                    <div v-if="consultarPor === 'cancelacion'" class="consulta-cancelacion-sat">
+                        <div class="campo-consulta">
+                            <label>Revisar CFDI emitidos desde</label>
+                            <Calendar v-model="emisionDesde" dateFormat="dd/mm/yy" showIcon :maxDate="fechaInicial || fechaHoy" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
+                        </div>
+                        <p class="consulta-aclaracion">Se consulta directamente al SAT por meses de emisi&#243;n y se filtra la fecha de cancelaci&#243;n. Los CFDI emitidos antes de esta fecha no se revisan. Un rango amplio puede tardar varios minutos.</p>
+                    </div>
+                    <p v-if="avisoCancelacion" class="consulta-aclaracion" role="status">{{ avisoCancelacion }}</p>
                     <!-- BOTONES FILTROS -->
 
                     <div class="consulta-botones">

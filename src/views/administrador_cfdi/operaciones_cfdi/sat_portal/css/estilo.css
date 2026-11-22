@@ -1806,3 +1806,11 @@
 .avance-actualizacion > div:first-child span { margin-left: auto; }
 .avance-actualizacion small { display: block; margin-top: 8px; color: var(--text-color-secondary); }
 .avance-actualizacion :deep(.p-progressbar) { height: 6px; }
+
+.estado-cancelacion-fijo { display: block; padding: 9px 12px; background: var(--surface-100); border-radius: 6px; }
+.consulta-aclaracion { margin: 12px 0; color: var(--text-color-secondary); font-size: .85rem; }
+@media (min-width: 1200px) { .consulta-filtros { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+.consulta-cancelacion-sat { display: flex; align-items: end; flex-wrap: wrap; gap: 12px 20px; margin-top: 12px; }
+.consulta-cancelacion-sat .campo-consulta { width: 260px; max-width: 100%; }
+.consulta-cancelacion-sat .consulta-aclaracion { flex: 1; min-width: 220px; }

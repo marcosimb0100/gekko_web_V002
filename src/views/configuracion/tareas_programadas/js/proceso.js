@@ -7,6 +7,8 @@ export default function proceso() {
     const puedeModificar = ref(false), mostrar = ref(false), guardando = ref(false), seleccionada = ref(null), valores = ref({}), errorEdicion = ref('');
     const campos = computed(() => seleccionada.value?.id === 'recordatorios_pagos' ? [
         { key: 'intervalo_minutos', label: 'Revisar pagos cada (minutos)', min: 1, max: 1440 }
+    ] : seleccionada.value?.id === 'cancelaciones_sat' ? [
+        { key: 'intervalo_minutos', label: 'Revisar cancelaciones cada (minutos)', min: 1, max: 1440 }
     ] : seleccionada.value?.id === 'recordatorios_juridico' ? [
         { key: 'intervalo_minutos', label: 'Revisar agenda cada (minutos)', min: 1, max: 1440 },
         { key: 'anticipacion_dias', label: 'Avisar dias antes del compromiso', min: 0, max: 30 }

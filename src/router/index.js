@@ -153,6 +153,18 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "configuracion_menus" */ '../views/configuracion/menus/Menus.vue')
                 },
                 {
+                    path: '/configuracion/reiniciar_datos',
+                    name: 'configuracion_reiniciar_datos',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/configuracion/reiniciar_datos/ReiniciarDatos.vue')
+                },
+                {
+                    path: '/configuracion/contpaq_net',
+                    name: 'configuracion_contpaq_net',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/configuracion/contpaq_net/ContpaqNet.vue')
+                },
+                {
                     path: '/configuracion/tareas_programadas',
                     name: 'configuracion_tareas_programadas',
                     beforeEnter: permisoRutas,
@@ -427,10 +439,14 @@ const router = createRouter({
                     component: () => import(/* webpackChunkName: "bancos_conceptos_conciliacion" */ '../views/finanzas/bancos/conceptos_conciliacion/ConceptosConciliacion.vue')
                 },
 
+                { path: '/contabilidad/tablero', name: 'contabilidad_tablero', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/tablero/Tablero.vue') },
                 { path: '/contabilidad/cuentas_contables', name: 'contabilidad_cuentas_contables', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/cuentas_contables/CuentasContables.vue') },
                 { path: '/contabilidad/polizas', name: 'contabilidad_polizas', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/polizas/Polizas.vue') },
                 { path: '/contabilidad/periodos', name: 'contabilidad_periodos', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/periodos/Periodos.vue') },
                 { path: '/contabilidad/cierres', name: 'contabilidad_cierres', beforeEnter: permisoRutas, component: () => import('../views/contabilidad/cierres/Cierres.vue') },
+                { path: '/reportes/cuentas_por_cobrar', name: 'reportes_cuentas_por_cobrar', beforeEnter: permisoRutas, component: () => import('../views/reportes/cuentas_por_cobrar/CuentasPorCobrar.vue') },
+                { path: '/reportes/cuentas_por_pagar', name: 'reportes_cuentas_por_pagar', beforeEnter: permisoRutas, component: () => import('../views/reportes/cuentas_por_pagar/CuentasPorPagar.vue') },
+                { path: '/reportes/cfdi_sin_poliza', name: 'reportes_cfdi_sin_poliza', beforeEnter: permisoRutas, component: () => import('../views/reportes/cfdi_sin_poliza/CfdiSinPoliza.vue') },
                 { path: '/reportes/contabilidad/balanza_comprobacion', name: 'reportes_contabilidad_balanza_comprobacion', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/balanza_comprobacion/BalanzaComprobacion.vue') },
                 { path: '/reportes/contabilidad/auxiliares', name: 'reportes_contabilidad_auxiliares', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/auxiliares/Auxiliares.vue') },
                 { path: '/reportes/contabilidad/balance_general', name: 'reportes_contabilidad_balance_general', beforeEnter: permisoRutas, component: () => import('../views/reportes/contabilidad/balance_general/BalanceGeneral.vue') },

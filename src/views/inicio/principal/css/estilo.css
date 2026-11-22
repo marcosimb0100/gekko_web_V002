@@ -69,3 +69,5 @@
 .bloque-periodo { display:flex; align-items:center; gap:.45rem; margin:0 1.3rem .8rem; color:var(--text-color-secondary); font-size:.74rem; }
 .bloque-periodo i { color:var(--modulo-color); }
 .indicador > small { color:var(--text-color-secondary); font-size:.66rem; line-height:1.55; overflow-wrap:anywhere; }
+
+.modulo-cartera_cobrar{--modulo-color:#0284c7;--modulo-fondo:#f0f9ff}.modulo-cartera_pagar{--modulo-color:#d97706;--modulo-fondo:#fffbeb}.cartera-monedas{display:flex;flex-direction:column;gap:.65rem;margin:0 1.3rem 1rem}.cartera-moneda{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;padding:.65rem;border:1px solid var(--surface-border);border-radius:8px;font-size:.75rem}.cartera-moneda span{display:flex;flex-direction:column;gap:.2rem}.cartera-moneda strong{font-variant-numeric:tabular-nums}

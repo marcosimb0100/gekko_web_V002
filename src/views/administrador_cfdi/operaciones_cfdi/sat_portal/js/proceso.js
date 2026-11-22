@@ -88,6 +88,11 @@ const useProceso = () => {
         }
     ]);
 
+    const consultarPor = ref('emision');
+    const criteriosFecha = [{ label: 'Fecha de emisi\u00f3n', value: 'emision' }, { label: 'Fecha de cancelaci\u00f3n (SAT)', value: 'cancelacion' }];
+    const emisionDesde = ref(new Date(new Date().getFullYear(), 0, 1));
+    const avisoCancelacion = ref('');
+    watch(consultarPor, () => { cfdis.value = []; avisoCancelacion.value = ''; });
     const estadoCfdi = ref('todos');
 
     const estadosCfdi = ref([
@@ -787,6 +792,11 @@ const useProceso = () => {
             return;
         }
 
+        if (consultarPor.value === 'cancelacion' && (!emisionDesde.value || new Date(emisionDesde.value) > inicio)) {
+            toast.add({ severity: 'warn', summary: 'Consulta SAT', detail: 'Selecciona desde qué fecha de emisión revisar, anterior o igual al inicio de cancelación.', life: 5000 });
+            return;
+        }
+        avisoCancelacion.value = '';
         consultandoCfdi.value = true;
 
         cfdis.value = [];
@@ -806,7 +816,9 @@ const useProceso = () => {
 
                     fecha_final: handleFormatoFechaApi(fechaFinal.value),
 
-                    estado: estadoCfdi.value
+                    consultar_por: consultarPor.value,
+                    emision_desde: handleFormatoFechaApi(emisionDesde.value),
+                    estado: consultarPor.value === 'cancelacion' ? 'cancelado' : estadoCfdi.value
                 }
             });
 
@@ -829,6 +841,9 @@ const useProceso = () => {
             }
 
             cfdis.value = Array.isArray(res.datos?.registros) ? res.datos.registros : [];
+            if (consultarPor.value === 'cancelacion' && res.datos?.sin_fecha_cancelacion) {
+                avisoCancelacion.value = `${res.datos.sin_fecha_cancelacion} comprobante(s) cancelado(s) sin fecha de cancelación informada por el SAT. No se incluyeron en el resultado por fecha.`;
+            }
 
             toast.add({
                 severity: 'success',
@@ -1016,6 +1031,7 @@ const useProceso = () => {
     // ==========================================================
 
     const handleLimpiarConsulta = () => {
+        consultarPor.value = 'emision';
         tipoConsulta.value = 'recibidos';
 
         estadoCfdi.value = 'todos';
@@ -1232,6 +1248,7 @@ const useProceso = () => {
 
         busquedaCfdi.value = '';
 
+        consultarPor.value = 'emision';
         tipoConsulta.value = 'recibidos';
 
         estadoCfdi.value = 'todos';
@@ -1287,6 +1304,10 @@ const useProceso = () => {
         actualizandoCfdiBase,
         totalCfdiActualizando,
 
+        emisionDesde,
+        avisoCancelacion,
+        consultarPor,
+        criteriosFecha,
         tipoConsulta,
 
         tiposConsulta,
