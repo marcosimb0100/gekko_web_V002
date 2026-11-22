@@ -89,7 +89,7 @@ const useProceso = () => {
     ]);
 
     const consultarPor = ref('emision');
-    const criteriosFecha = [{ label: 'Fecha de emisi\u00f3n', value: 'emision' }, { label: 'Fecha de cancelaci\u00f3n (SAT)', value: 'cancelacion' }];
+    const criteriosFecha = [{ label: 'Emisi\u00f3n', value: 'emision' }, { label: 'Cancelaci\u00f3n', value: 'cancelacion' }];
     const emisionDesde = ref(new Date(new Date().getFullYear(), 0, 1));
     const avisoCancelacion = ref('');
     watch(consultarPor, () => { cfdis.value = []; avisoCancelacion.value = ''; });
@@ -97,19 +97,19 @@ const useProceso = () => {
 
     const estadosCfdi = ref([
         {
-            label: 'Todos',
+            label: 'Todos (vigentes y cancelados)',
 
             value: 'todos'
         },
 
         {
-            label: 'Vigentes',
+            label: 'Solo vigentes',
 
             value: 'vigente'
         },
 
         {
-            label: 'Cancelados',
+            label: 'Solo cancelados',
 
             value: 'cancelado'
         }

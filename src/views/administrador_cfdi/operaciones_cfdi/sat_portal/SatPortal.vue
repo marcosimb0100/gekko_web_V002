@@ -175,34 +175,37 @@
 
                     <div class="consulta-filtros">
                         <div class="campo-consulta">
-                            <label>Consultar por</label>
+                            <label>Buscar por fecha de</label>
                             <Dropdown v-model="consultarPor" :options="criteriosFecha" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
                         </div>
                         <div class="campo-consulta">
-                            <label> Tipo </label>
+                            <label> Comprobantes </label>
 
                             <Dropdown v-model="tipoConsulta" :options="tiposConsulta" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
                         </div>
 
                         <div class="campo-consulta">
-                            <label> Fecha inicial </label>
+                            <label> Estado del CFDI </label>
+
+                            <Dropdown v-if="consultarPor === 'cancelacion'" modelValue="cancelado" :options="estadosCfdi" optionLabel="label" optionValue="value" class="w-full" disabled />
+                            <Dropdown v-else v-model="estadoCfdi" :options="estadosCfdi" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
+                        </div>
+
+                        <div class="campo-consulta">
+                            <label> Desde </label>
 
                             <Calendar v-model="fechaInicial" dateFormat="dd/mm/yy" showIcon :maxDate="fechaHoy" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
                         </div>
 
                         <div class="campo-consulta">
-                            <label> Fecha final </label>
+                            <label> Hasta </label>
 
                             <Calendar v-model="fechaFinal" dateFormat="dd/mm/yy" showIcon :maxDate="fechaHoy" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
                         </div>
 
-                        <div class="campo-consulta">
-                            <label> Estado </label>
-
-                            <span v-if="consultarPor === 'cancelacion'" class="estado-cancelacion-fijo">Cancelados</span>
-                            <Dropdown v-else v-model="estadoCfdi" :options="estadosCfdi" optionLabel="label" optionValue="value" class="w-full" :disabled="consultandoCfdi || actualizandoCfdiBase" />
-                        </div>
                     </div>
+
+                    <p class="consulta-aclaracion">{{ consultarPor === 'cancelacion' ? 'Se buscarán comprobantes cancelados entre estas fechas.' : 'Se buscarán comprobantes emitidos entre estas fechas, con el estado seleccionado.' }}</p>
 
                     <div v-if="consultarPor === 'cancelacion'" class="consulta-cancelacion-sat">
                         <div class="campo-consulta">
