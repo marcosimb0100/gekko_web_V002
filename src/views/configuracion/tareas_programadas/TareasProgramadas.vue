@@ -17,7 +17,7 @@
                     <template v-if="data.id === 'timbrado_worker'"><span>{{ data.pendientes }} CFDI pendientes o en proceso</span><small>{{ data.errores }} con error pendiente de reintento</small></template>
                     <template v-else-if="data.id === 'correos_factura'"><span>{{ data.pendientes }} pendientes &middot; {{ data.enviados }} enviados</span><small>{{ data.errores }} con error &middot; {{ data.por_confirmar }} por confirmar</small></template>
                     <template v-else-if="data.id === 'sat_69b'"><span>{{ data.registros }} registros del listado</span><small>Fecha SAT: {{ data.fecha_informacion_sat || 'Sin registro' }}</small><small>{{ data.errores }} errores</small></template>
-                    <template v-else-if="data.id === 'sat_portal'"><span>{{ data.revisadas }} empresas revisadas</span><small>{{ data.actualizadas }} actualizadas &middot; {{ data.errores }} con error</small></template>
+                    <template v-else-if="data.id === 'sat_portal'"><span>{{ data.revisadas }} empresas revisadas</span><small>{{ data.actualizadas }} actualizadas &middot; {{ data.errores }} con error</small><Button label="Ver detalle" icon="pi pi-info-circle" text size="small" @click="handleDetalle(data)" /></template>
                     <template v-else><span>{{ data.revisadas }} {{ data.id === 'recordatorios_juridico' ? 'compromisos revisados' : 'pagos revisados' }}</span><small>{{ data.avisos_creados }} avisos nuevos &middot; {{ data.errores }} observaciones</small></template>
                 </div></template>
             </Column>
@@ -25,6 +25,15 @@
         </DataTable>
         <p class="tareas-nota">Sin ejecuciones: el servicio a&uacute;n no ha registrado una revisi&oacute;n. Sin actividad reciente: no se ha registrado actividad dentro del margen esperado para los intervalos configurados. Revisa el servicio correspondiente en el servidor.</p>
     </div>
+    <Dialog v-model:visible="mostrarDetalle" modal header="Resultado del Portal SAT" :style="{ width: '48rem' }" :breakpoints="{ '768px': '95vw' }">
+        <DataTable :value="detalles" size="small" paginator :rows="10" class="tabla-encabezados">
+            <template #empty>Esta ejecuci&oacute;n anterior no guard&oacute; la causa. El detalle estar&aacute; disponible en la siguiente ejecuci&oacute;n.</template>
+            <Column field="empresa" header="Empresa" />
+            <Column header="Resultado"><template #body="{ data }"><Tag :value="handleEstado(data.estado).label" :severity="handleEstado(data.estado).severity" /></template></Column>
+            <Column header="Detalle"><template #body="{ data }"><div class="tareas-dato"><span>{{ data.estado === 'completado' ? 'Consulta y actualizaci&oacute;n finalizadas.' : data.etapa }}</span><small v-if="data.codigo">C&oacute;digo: {{ data.codigo }}</small><small>{{ data.mensaje }}</small></div></template></Column>
+        </DataTable>
+        <template #footer><Button label="Cerrar" outlined @click="mostrarDetalle = false" /></template>
+    </Dialog>
     <Dialog v-model:visible="mostrar" modal header="Modificar tarea programada" :style="{ width: '34rem' }" :breakpoints="{ '640px': '95vw' }" :closable="!guardando">
         <strong>{{ seleccionada?.nombre }}</strong>
         <div class="tareas-campo">

@@ -4,6 +4,8 @@ import { useToast } from 'primevue/usetoast';
 
 export default function proceso() {
     const store = useStore(), toast = useToast();
+    const mostrarDetalle = ref(false), detalles = ref([]);
+    const handleDetalle = item => { detalles.value = item.detalles || []; mostrarDetalle.value = true; };
     const puedeModificar = ref(false), mostrar = ref(false), guardando = ref(false), seleccionada = ref(null), valores = ref({}), errorEdicion = ref('');
     const campos = computed(() => seleccionada.value?.id === 'recordatorios_pagos' ? [
         { key: 'intervalo_minutos', label: 'Revisar pagos cada (minutos)', min: 1, max: 1440 }
@@ -71,5 +73,5 @@ export default function proceso() {
     const handleEstado = estado => estados[estado] || estados.sin_ejecuciones;
     const handleFecha = valor => valor ? new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(valor)) : 'Sin registro';
     onMounted(handleCargar);
-    return { puedeModificar, mostrar, guardando, seleccionada, valores, campos, valido, errorEdicion, handleEditar, handleGuardar, tareas, filtradas, cargando, error, busqueda, handleCargar, handleEstado, handleFecha };
+    return { mostrarDetalle, detalles, handleDetalle, puedeModificar, mostrar, guardando, seleccionada, valores, campos, valido, errorEdicion, handleEditar, handleGuardar, tareas, filtradas, cargando, error, busqueda, handleCargar, handleEstado, handleFecha };
 }
