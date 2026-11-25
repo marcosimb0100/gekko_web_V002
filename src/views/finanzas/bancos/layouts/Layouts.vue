@@ -558,6 +558,14 @@
                             </div>
                         </div>
 
+                        <div v-if="frmLayout.validaciones.distinguir_repetidos_por_saldo != null" class="campo-formulario">
+                            <label for="distinguirRepetidosPorSaldo">Movimientos repetidos</label>
+                            <div class="contenedor-checkbox">
+                                <Checkbox inputId="distinguirRepetidosPorSaldo" :modelValue="frmLayout.validaciones.distinguir_repetidos_por_saldo" binary disabled />
+                                <span>Distinguir por el saldo del archivo</span>
+                            </div>
+                        </div>
+
                         <div class="campo-formulario">
                             <label> Tolerancia: </label>
 

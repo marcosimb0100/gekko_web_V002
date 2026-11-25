@@ -1,5 +1,5 @@
 <template>
-    <Encabezado titulo="Solicitud Detallada" subtitulo="Captura de solicitudes CFDI" icono="pi pi-search" />
+    <Encabezado :titulo="modoNota ? 'Solicitud Nota' : 'Solicitud Detallada'" :subtitulo="modoNota ? 'Captura de notas de crédito y débito' : 'Captura de solicitudes CFDI'" icono="pi pi-search" />
 
     <div class="card p-0 m-0" style="height: 72vh">
         <ScrollPanel style="height: 66vh">
@@ -10,6 +10,10 @@
                         <div class="bloque-titulo">Datos principales</div>
 
                         <div class="grid-datos-principales">
+                            <div v-if="modoNota" class="campo-formulario">
+                                <label for="tipo-nota">Tipo de nota</label>
+                                <Dropdown inputId="tipo-nota" v-model="tipoNota" :options="tiposNota" optionLabel="label" optionValue="value" class="w-full" />
+                            </div>
                             <!-- CLIENTE -->
                             <div class="campo-formulario">
                                 <label for="client_id">
@@ -54,7 +58,7 @@
                             </div>
 
                             <!-- BANCO -->
-                            <div class="campo-formulario">
+                            <div v-if="!modoNota" class="campo-formulario">
                                 <label for="bank_id">
                                     <span class="requerido">*</span>
                                     Cuenta bancaria
@@ -103,7 +107,7 @@
                                     Uso CFDI
                                 </label>
 
-                                <Dropdown id="uso_cfdi" v-model="frmSolicitud.uso_cfdi" :options="usoCfdi" optionValue="uso_cfdi" optionLabel="descripcion_mostrar" placeholder="Selecciona uso CFDI" filter class="w-full" />
+                                <Dropdown id="uso_cfdi" v-model="frmSolicitud.uso_cfdi" :disabled="esNotaPorAnticipo" :options="usoCfdi" optionValue="uso_cfdi" optionLabel="descripcion_mostrar" placeholder="Selecciona uso CFDI" filter class="w-full" />
                             </div>
 
                             <!-- METODO PAGO -->
@@ -113,7 +117,7 @@
                                     Método de pago
                                 </label>
 
-                                <Dropdown id="metodo_pago" v-model="frmSolicitud.metodo_pago" :options="metodoPago" optionValue="metodo_pago" optionLabel="descripcion" placeholder="Selecciona método de pago" filter class="w-full" />
+                                <Dropdown id="metodo_pago" v-model="frmSolicitud.metodo_pago" :disabled="esNotaPorAnticipo" :options="metodoPago" optionValue="metodo_pago" optionLabel="descripcion" placeholder="Selecciona método de pago" filter class="w-full" />
                             </div>
 
                             <!-- FORMA PAGO -->
@@ -123,7 +127,7 @@
                                     Forma de pago
                                 </label>
 
-                                <Dropdown id="forma_pago" v-model="frmSolicitud.forma_pago" :options="formaPago" optionValue="forma_pago" optionLabel="descripcion" placeholder="Selecciona forma de pago" filter class="w-full" />
+                                <Dropdown id="forma_pago" v-model="frmSolicitud.forma_pago" :disabled="esNotaPorAnticipo" :options="formasPagoDisponibles" optionValue="forma_pago" optionLabel="descripcion" placeholder="Selecciona forma de pago" filter class="w-full" />
                             </div>
 
                             <!-- FECHA -->
@@ -145,7 +149,7 @@
                             </div>
 
                             <!-- ARCHIVO -->
-                            <div class="campo-formulario">
+                            <div v-if="!modoNota" class="campo-formulario">
                                 <label> Comprobante Bancario </label>
 
                                 <div class="archivo-contenedor">
@@ -168,7 +172,7 @@
                                     </Button>
                                 </div>
                             </div>
-                            <div class="campo-formulario campo-cfdi-relacionados">
+                            <div class="campo-formulario" :class="{ 'campo-cfdi-relacionados': !modoNota }">
                                 <Button
                                     type="button"
                                     icon="pi pi-link"
@@ -190,6 +194,7 @@
                                     <span class="requerido">*</span>
                                     Concepto
                                 </label>
+                                <small v-if="modoNota">Da de alta el concepto en el catálogo del cliente para la empresa facturadora y después selecciónalo aquí.</small>
 
                                 <Dropdown
                                     id="concepto_id"
@@ -323,7 +328,8 @@
                                 <strong>{{ handleMoney4(totalesSolicitud.total) }}</strong>
                             </div>
 
-                            <Button type="submit" label="Guardar solicitud" class="w-full btn-guardar" :disabled="botonGuardarDeshabilitado">
+                            <p v-if="modoNota">La nota quedará pendiente hasta configurar su serie y folio.</p>
+                            <Button type="submit" :loading="guardandoNota" label="Guardar solicitud" class="w-full btn-guardar" :disabled="botonGuardarDeshabilitado">
                                 <template #icon>
                                     <font-icon icon="fa-solid fa-floppy-disk" class="mr-2" />
                                 </template>
@@ -336,13 +342,15 @@
 
         <Dialog v-model:visible="dialogoAnticipos" modal header="CFDI relacionados" :style="{ width: '50rem', maxWidth: '95vw' }">
             <label for="tipoRelacionAnticipo" class="block mb-2">Tipo de relación</label>
-            <Dropdown inputId="tipoRelacionAnticipo" modelValue="07" :options="[{ value: '07', label: '07 - CFDI por aplicación de anticipo' }]" optionLabel="label" optionValue="value" class="w-full mb-3" />
+            <Dropdown v-if="modoNota" inputId="tipoRelacionAnticipo" :modelValue="relacionNota" :options="relacionesNota" optionLabel="label" optionValue="value" :loading="cargandoRelacionesNota" class="w-full mb-3" />
+            <small v-if="modoNota && errorRelacionesNota" role="alert">{{ errorRelacionesNota }}</small>
+            <Dropdown v-if="!modoNota" inputId="tipoRelacionAnticipo" modelValue="07" :options="[{ value: '07', label: '07 - CFDI por aplicación de anticipo' }]" optionLabel="label" optionValue="value" class="w-full mb-3" />
             <form class="flex gap-2 mb-3" @submit.prevent="buscarAnticipos">
                 <InputText v-model="busquedaAnticipos" aria-label="Buscar por folio o UUID" placeholder="Folio, serie y folio o UUID" class="flex-1 min-w-0" maxlength="80" />
                 <Button type="submit" label="Buscar" icon="pi pi-search" :loading="buscandoAnticipos" />
             </form>
             <DataTable :value="resultadosAnticipos" dataKey="uuid" scrollable scrollHeight="18rem" :loading="buscandoAnticipos">
-                <template #empty>{{ errorAnticipos || 'No se encontraron anticipos.' }}</template>
+                <template #empty>{{ errorAnticipos || (modoNota ? 'No se encontraron facturas vigentes.' : 'No se encontraron anticipos.') }}</template>
                 <Column header="Serie y folio">
                     <template #body="{ data }">{{ [data.serie, data.folio].filter(Boolean).join(' ') || 'Sin folio' }}</template>
                 </Column>
@@ -359,7 +367,7 @@
                 </Column>
             </DataTable>
             <div v-if="seleccionAnticipos.length" class="mt-3">
-                <strong>Anticipos seleccionados ({{ seleccionAnticipos.length }})</strong>
+                <strong>{{ modoNota ? 'Facturas seleccionadas' : 'Anticipos seleccionados' }} ({{ seleccionAnticipos.length }})</strong>
                 <ul class="list-none pl-0">
                     <li v-for="anticipo in seleccionAnticipos" :key="anticipo.uuid" class="flex align-items-center justify-content-between gap-2">
                         <span style="overflow-wrap: anywhere">{{ anticipo.uuid }}</span>
@@ -381,13 +389,14 @@ import proceso from './js/proceso.js';
 
 export default {
     name: 'SolicitudDetallada',
+    props: { modoNota: Boolean },
     components: {
         Encabezado
     },
 
-    setup() {
+    setup(props) {
         return {
-            ...proceso()
+            ...proceso(props.modoNota)
         };
     }
 };

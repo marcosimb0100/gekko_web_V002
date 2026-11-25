@@ -597,6 +597,7 @@ const useProceso = () => {
 
             totales: layout.validaciones?.totales === true,
 
+            distinguir_repetidos_por_saldo: layout.distinguir_repetidos_por_saldo ?? null,
             tolerancia: Number(layout.validaciones?.tolerancia ?? 0.05)
         };
 

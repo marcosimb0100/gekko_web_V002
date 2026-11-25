@@ -48,6 +48,7 @@ const useProceso = () => {
     const saldoBorrador = ref(null);
     const saldoConfirmado = ref(false);
     const cargaGuardada = ref(false);
+    const motivoBloqueo = ref('');
     const puedeGuardar = computed(() => !!resultado.value?.resumen?.correcto && !!resultado.value?.control_saldos?.confirmado && !cargaGuardada.value);
     const handleEditarSaldo = () => {
         saldoBorrador.value = resultado.value?.control_saldos?.saldo_inicial ?? null;
@@ -69,6 +70,7 @@ const useProceso = () => {
     const validacionesVisibles = computed(() => (soloDiferencias.value ? validaciones.value.filter((item) => item.correcto === false) : validaciones.value));
     const estadoCarga = computed(() => {
         if (cargaGuardada.value) return { severity: 'success', titulo: 'Estado de cuenta guardado', mensaje: 'La carga se guardo correctamente.' };
+        if (motivoBloqueo.value) return { severity: 'warn', titulo: 'Carga bloqueada', mensaje: motivoBloqueo.value };
         if (errores.value.length) return { severity: 'error', titulo: 'Hay errores de lectura', mensaje: `${errores.value.length} fila(s) no se pudieron leer. Abre Errores para revisar el detalle antes de guardar.` };
         if (diferenciasValidacion.value) return { severity: 'warn', titulo: 'Hay diferencias por revisar', mensaje: `${diferenciasValidacion.value} comprobacion(es) presentan diferencias. Abre Comprobaciones para verlas.` };
         if (!resultado.value?.control_saldos?.confirmado)
@@ -155,6 +157,7 @@ const useProceso = () => {
         dialogValidaciones.value = false;
         dialogErrores.value = false;
         resultado.value = null;
+        motivoBloqueo.value = '';
         saldoInicial.value = null;
         saldoConfirmado.value = false;
         dialogSaldo.value = false;
@@ -342,6 +345,7 @@ const useProceso = () => {
             }
 
             resultado.value = datos;
+            motivoBloqueo.value = '';
             cargaGuardada.value = false;
             if (!datos.control_saldos?.confirmado) {
                 saldoBorrador.value = datos.control_saldos?.saldo_sugerido ?? null;
@@ -370,6 +374,7 @@ const useProceso = () => {
         if (!handleValidarAnalisis() || guardando.value) return;
 
         guardando.value = true;
+        const analisisGuardado = resultado.value;
 
         try {
             const formData = crearFormDataCarga(true);
@@ -380,8 +385,23 @@ const useProceso = () => {
             });
 
             if (res?.estatus !== 200) {
-                if (res?.estatus === 409) resultado.value.resumen.correcto = false;
-                handleToast(res?.estatus === 409 ? 'warn' : 'error', res?.mensaje || 'No fue posible guardar el estado de cuenta.');
+                const conflicto = res?.estatus === 409;
+                let mensaje = res?.mensaje || 'No fue posible guardar el estado de cuenta.';
+                if (conflicto) {
+                    const datos = obtenerDatosRespuesta(res);
+                    if (datos.carga_id) {
+                        const fecha = new Date(datos.fecha_carga?.slice(0, 10) ?? '');
+                        const fechaCarga = Number.isNaN(fecha.getTime())
+                            ? ''
+                            : ' el ' + new Intl.DateTimeFormat('es-MX', { dateStyle: 'long', timeZone: 'UTC' }).format(fecha);
+                        mensaje = `Este archivo ya fue cargado para esta cuenta${fechaCarga}. Puedes consultar la carga en Historial de Cargas.`;
+                    }
+                    if (resultado.value === analisisGuardado) {
+                        analisisGuardado.resumen.correcto = false;
+                        motivoBloqueo.value = mensaje;
+                    }
+                }
+                handleToast(conflicto ? 'warn' : 'error', mensaje);
                 return;
             }
 

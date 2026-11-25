@@ -1,6 +1,6 @@
 <template>
-    <Encabezado titulo="Empresas" subtitulo="Administración de empresas del sistema" icono="pi pi-building">
-        <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleNuevaEmpresa()" v-if="!mostrarTablaFormulario">
+    <Encabezado :titulo="modoFolios ? 'Empresas Folios' : 'Empresas'" :subtitulo="modoFolios ? 'Administración de series y folios' : 'Administración de empresas del sistema'" icono="pi pi-building">
+        <Button type="button" label="Nuevo" class="w-full btn-nuevo" @click="handleNuevaEmpresa()" v-if="!modoFolios && !mostrarTablaFormulario">
             <template #icon>
                 <font-icon icon="fa-solid fa-plus" class="mr-2" />
             </template>
@@ -76,7 +76,8 @@
 
                 <Column header="Opciones" headerClass="encabezado-columna">
                     <template #body="slotProps">
-                        <div class="flex align-items-center gap-2">
+                        <Button v-if="modoFolios" type="button" label="Administrar folios" icon="pi pi-list" @click="$emit('administrar-folios', slotProps.data)" />
+                        <div v-else class="flex align-items-center gap-2">
                             <!-- EDITAR -->
                             <Button type="button" class="btn-nuevo" title="Editar empresa" @click="handleMostrarFormulario('E', slotProps.data)">
                                 <font-icon :icon="['fas', 'pen-to-square']" />
@@ -475,11 +476,11 @@
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 5px">
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="factura_serie">Serie:</label>
-                                            <InputText id="factura_serie" v-model="frmEmpresa.factura_serie" style="width: 100%; text-transform: uppercase" @update:modelValue="frmEmpresa.factura_serie = ($event || '').toUpperCase()" />
+                                            <InputText id="factura_serie" disabled v-model="frmEmpresa.factura_serie" style="width: 100%; text-transform: uppercase" @update:modelValue="frmEmpresa.factura_serie = ($event || '').toUpperCase()" />
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="factura_folio">Folio:</label>
-                                            <InputNumber inputId="factura_folio" v-model="frmEmpresa.factura_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
+                                            <InputNumber inputId="factura_folio" disabled v-model="frmEmpresa.factura_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
                                         </div>
                                     </div>
                                 </Fieldset>
@@ -488,23 +489,35 @@
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 5px">
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="nota_credito_serie">Serie:</label>
-                                            <InputText id="nota_credito_serie" v-model="frmEmpresa.nota_credito_serie" style="width: 100%; text-transform: uppercase" @update:modelValue="frmEmpresa.nota_credito_serie = ($event || '').toUpperCase()" />
+                                            <InputText id="nota_credito_serie" disabled v-model="frmEmpresa.nota_credito_serie" style="width: 100%; text-transform: uppercase" @update:modelValue="frmEmpresa.nota_credito_serie = ($event || '').toUpperCase()" />
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="nota_credito_folio">Folio:</label>
-                                            <InputNumber inputId="nota_credito_folio" v-model="frmEmpresa.nota_credito_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
+                                            <InputNumber inputId="nota_credito_folio" disabled v-model="frmEmpresa.nota_credito_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
                                         </div>
                                     </div>
                                 </Fieldset>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+                                <Fieldset legend="Notas de Débito">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 5px">
+                                        <div style="display: flex; flex-direction: column; gap: 8px">
+                                            <label for="nota_debito_serie">Serie:</label>
+                                            <InputText id="nota_debito_serie" disabled v-model="frmEmpresa.nota_debito_serie" style="width: 100%; text-transform: uppercase" @update:modelValue="frmEmpresa.nota_debito_serie = ($event || '').toUpperCase()" />
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 8px">
+                                            <label for="nota_debito_folio">Folio:</label>
+                                            <InputNumber inputId="nota_debito_folio" disabled v-model="frmEmpresa.nota_debito_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
+                                        </div>
+                                    </div>
+                                </Fieldset>
                                 <Fieldset legend="Complemento de Pago">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 5px">
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="complemento_pago_serie">Serie:</label>
                                             <InputText
-                                                id="complemento_pago_serie"
+                                                id="complemento_pago_serie" disabled
                                                 v-model="frmEmpresa.complemento_pago_serie"
                                                 style="width: 100%; text-transform: uppercase"
                                                 @update:modelValue="frmEmpresa.complemento_pago_serie = ($event || '').toUpperCase()"
@@ -512,7 +525,7 @@
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 8px">
                                             <label for="complemento_pago_folio">Folio:</label>
-                                            <InputNumber inputId="complemento_pago_folio" v-model="frmEmpresa.complemento_pago_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
+                                            <InputNumber inputId="complemento_pago_folio" disabled v-model="frmEmpresa.complemento_pago_folio" :useGrouping="false" :min="0" showButtons style="width: 100%" />
                                         </div>
                                     </div>
                                 </Fieldset>
@@ -1331,6 +1344,8 @@ import proceso from './js/proceso.js';
 
 export default {
     name: 'Empresas',
+    props: { modoFolios: Boolean },
+    emits: ['administrar-folios'],
     components: { Encabezado, HistorialCatalogo, ConfiguracionContable, VinculoContable, VinculoFacturacion },
     setup() {
         return {

@@ -77,6 +77,8 @@ const frmEmpresaInit = () => ({
 
     nota_credito_serie: '',
     nota_credito_folio: 0,
+    nota_debito_serie: '',
+    nota_debito_folio: 0,
 
     complemento_pago_serie: '',
     complemento_pago_folio: 0
@@ -267,6 +269,10 @@ const useProceso = () => {
         {
             label: 'NOTA DE CRÉDITO',
             value: 'NOTA_CREDITO'
+        },
+        {
+            label: 'NOTA DE DÉBITO',
+            value: 'NOTA_DEBITO'
         },
         {
             label: 'COMPLEMENTO DE PAGO',
@@ -1895,7 +1901,7 @@ const useProceso = () => {
         ];
 
         if (esNuevo) {
-            campos.push('factura_serie', 'factura_folio', 'nota_credito_serie', 'nota_credito_folio', 'complemento_pago_serie', 'complemento_pago_folio');
+            campos.push('factura_serie', 'factura_folio', 'nota_credito_serie', 'nota_credito_folio', 'nota_debito_serie', 'nota_debito_folio', 'complemento_pago_serie', 'complemento_pago_folio');
         }
 
         campos.forEach((campo) => {
@@ -1999,6 +2005,10 @@ const useProceso = () => {
                 .trim()
                 .toUpperCase(),
             nota_credito_folio: Number(frmEmpresa.nota_credito_folio || 0),
+            nota_debito_serie: String(frmEmpresa.nota_debito_serie || '')
+                .trim()
+                .toUpperCase(),
+            nota_debito_folio: Number(frmEmpresa.nota_debito_folio || 0),
             complemento_pago_serie: String(frmEmpresa.complemento_pago_serie || '')
                 .trim()
                 .toUpperCase(),
@@ -2023,6 +2033,8 @@ const useProceso = () => {
                 frmEmpresa.factura_folio = Number(actuales.factura_folio ?? 0);
                 frmEmpresa.nota_credito_serie = actuales.nota_credito_serie ?? frmEmpresa.nota_credito_serie;
                 frmEmpresa.nota_credito_folio = Number(actuales.nota_credito_folio ?? 0);
+                frmEmpresa.nota_debito_serie = actuales.nota_debito_serie ?? frmEmpresa.nota_debito_serie;
+                frmEmpresa.nota_debito_folio = Number(actuales.nota_debito_folio ?? 0);
                 frmEmpresa.complemento_pago_serie = actuales.complemento_pago_serie ?? frmEmpresa.complemento_pago_serie;
                 frmEmpresa.complemento_pago_folio = Number(actuales.complemento_pago_folio ?? 0);
             }
@@ -2044,6 +2056,8 @@ const useProceso = () => {
             frmEmpresa.factura_folio = Number(folios.factura_folio ?? 0);
             frmEmpresa.nota_credito_serie = folios.nota_credito_serie ?? frmEmpresa.nota_credito_serie;
             frmEmpresa.nota_credito_folio = Number(folios.nota_credito_folio ?? 0);
+            frmEmpresa.nota_debito_serie = folios.nota_debito_serie ?? frmEmpresa.nota_debito_serie;
+            frmEmpresa.nota_debito_folio = Number(folios.nota_debito_folio ?? 0);
             frmEmpresa.complemento_pago_serie = folios.complemento_pago_serie ?? frmEmpresa.complemento_pago_serie;
             frmEmpresa.complemento_pago_folio = Number(folios.complemento_pago_folio ?? 0);
         }

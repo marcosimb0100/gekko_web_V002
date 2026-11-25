@@ -184,6 +184,12 @@ const router = createRouter({
                 },
 
                 {
+                    path: '/catalogos/empresas_folios',
+                    name: 'catalogos_empresas_folios',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/catalogos/empresas_folios/EmpresasFolios.vue')
+                },
+                {
                     path: '/catalogos/empresas',
                     name: 'catalogos_empresas',
                     beforeEnter: permisoRutas,
@@ -231,6 +237,12 @@ const router = createRouter({
                     name: 'operaciones_mesa_control',
                     beforeEnter: permisoRutas,
                     component: () => import(/* webpackChunkName: "operaciones_mesa_control" */ '../views/operaciones/mesa_control/MesaControl.vue')
+                },
+                {
+                    path: '/operaciones/notas',
+                    name: 'operaciones_notas',
+                    beforeEnter: permisoRutas,
+                    component: () => import('../views/operaciones/notas/NotasPagina.vue')
                 },
                 {
                     path: '/operaciones/cancelaciones',

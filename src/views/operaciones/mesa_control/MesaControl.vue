@@ -1,5 +1,5 @@
 <template>
-    <Encabezado titulo="Mesa de Control" subtitulo="Administración de solicitudes" icono="pi pi-gauge">
+    <Encabezado :titulo="modoNotas ? 'Notas' : 'Mesa de Control'" :subtitulo="modoNotas ? 'Selecciona una factura timbrada para abrir la captura' : 'Administración de solicitudes'" icono="pi pi-gauge">
         <Button label="Procesar CFDI timbrados" icon="pi pi-cloud-upload" outlined @click="handleAbrirPostproceso" />
     </Encabezado>
     <Dialog v-model:visible="mostrarPostproceso" modal header="Procesar CFDI timbrados" :style="{ width: '42rem', maxWidth: '95vw' }" class="mesa-postproceso-dialog">
@@ -45,12 +45,12 @@
                 </div>
             </div>
 
-            <div class="resumen-card resumen-en-espera" :title="resumenEnEspera ? resumenEnEspera.facturas + ' facturas y ' + resumenEnEspera.complementos + ' complementos aceptados sin timbre' : 'No se pudo consultar el contador'">
+            <div class="resumen-card resumen-en-espera" :title="resumenEnEspera ? resumenEnEspera.facturas + ' facturas y ' + resumenEnEspera.complementos + ' complementos y ' + resumenDashboard.notasEnEspera + ' notas por timbrar' : 'No se pudo consultar el contador'">
                 <div class="resumen-icono"><i class="pi pi-send" /></div>
                 <div class="resumen-info">
-                    <span class="resumen-label">En espera de timbrado</span>
-                    <strong class="resumen-numero">{{ resumenEnEspera ? resumenEnEspera.total : '—' }}</strong>
-                    <span class="resumen-descripcion">{{ resumenEnEspera ? resumenEnEspera.facturas + ' facturas / ' + resumenEnEspera.complementos + ' complementos' : 'Sin datos disponibles' }}</span>
+                    <span class="resumen-label">Por timbrar</span>
+                    <strong class="resumen-numero">{{ resumenEnEspera ? resumenEnEspera.total + resumenDashboard.notasEnEspera : '—' }}</strong>
+                    <span class="resumen-descripcion">{{ resumenEnEspera ? (resumenEnEspera.total + resumenDashboard.notasEnEspera > 0 ? 'Aceptadas sin timbre' : 'Sin solicitudes') : 'Sin datos disponibles' }}</span>
                 </div>
             </div>
 
@@ -106,6 +106,16 @@
 
             <!-- TOTAL -->
 
+            <button type="button" class="resumen-card resumen-card-click resumen-complementos" :class="{ activo: tipoSolicitudFiltro === 'notas' }" @click="tipoSolicitudFiltro = 'notas'; handleCambiarTipoSolicitud()">
+                <div class="resumen-icono"><i class="pi pi-file-edit" /></div>
+                <div class="resumen-info">
+                    <span class="resumen-label">Notas timbradas</span>
+                    <strong class="resumen-numero">{{ resumenDashboard.notas }}</strong>
+                    <span class="resumen-descripcion">{{ resumenDashboard.notasIngreso }} ingresos / {{ resumenDashboard.notasEgreso }} egresos</span>
+                    <span class="resumen-descripcion">Neto {{ handleMoney(resumenDashboard.importeNotasIngreso - resumenDashboard.importeNotasEgreso) }}</span>
+                </div>
+            </button>
+
             <div class="resumen-card resumen-total">
                 <div class="resumen-icono">
                     <font-icon :icon="['fas', 'file-circle-check']" />
@@ -118,7 +128,7 @@
                         {{ resumenDashboard.total }}
                     </strong>
 
-                    <span class="resumen-descripcion"> Facturas + complementos </span>
+                    <span class="resumen-descripcion"> Facturas + complementos + notas </span>
                 </div>
             </div>
 
@@ -155,8 +165,8 @@
                 </div>
                 <div class="resumen-info">
                     <span class="resumen-label">Error de timbrado</span>
-                    <strong class="resumen-numero">{{ cargandoErroresTimbrado ? '…' : resumenErroresTimbrado }}</strong>
-                    <span class="resumen-descripcion">{{ tipoSolicitudFiltro === 'facturas' ? 'Facturas con error' : 'Complementos con error' }}</span>
+                    <strong class="resumen-numero">{{ cargandoErroresTimbrado ? '…' : (tipoSolicitudFiltro === 'notas' ? resumenDashboard.notasError : resumenErroresTimbrado) }}</strong>
+                    <span class="resumen-descripcion">{{ tipoSolicitudFiltro === 'notas' ? 'Notas con error' : (tipoSolicitudFiltro === 'facturas' ? 'Facturas con error' : 'Complementos con error') }}</span>
                 </div>
             </div>
         </div>
@@ -307,7 +317,7 @@
             <div class="tipo-actual">
                 <font-icon :icon="tipoSolicitudFiltro === 'facturas' ? ['fas', 'file-invoice'] : ['fas', 'money-check-dollar']" />
 
-                {{ tipoSolicitudFiltro === 'facturas' ? 'Facturas' : 'Complementos de pago' }}
+                {{ tipoSolicitudFiltro === 'notas' ? 'Notas' : (tipoSolicitudFiltro === 'facturas' ? 'Facturas' : 'Complementos de pago') }}
             </div>
         </div>
 
@@ -525,7 +535,7 @@
                         <template #body="{ data }">
                             <div class="mesa-celda-timbrada">
                                 <span>Uso: {{ data.uso_cfdi || '?' }}</span>
-                                <small>{{ tipoSolicitudFiltro === 'facturas' ? data.cantidad_conceptos : data.cantidad_documentos }} {{ tipoSolicitudFiltro === 'facturas' ? 'conceptos' : 'documentos' }}</small>
+                                <small>{{ tipoSolicitudFiltro === 'complementos_pago' ? data.cantidad_documentos : data.cantidad_conceptos }} {{ tipoSolicitudFiltro === 'complementos_pago' ? 'documentos' : 'conceptos' }}</small>
                             </div>
                         </template>
                     </Column>
@@ -565,9 +575,18 @@
                     </template>
                 </Column>
 
+                <Column v-if="tipoSolicitudFiltro === 'notas'" header="Tipo y relación" headerClass="encabezado-columna" bodyClass="col-no-wrap">
+                    <template #body="{ data }">
+                        {{ data.tipo_de_comprobante === 'E' ? 'Egreso' : 'Ingreso' }} · {{ data.tipo_relacion }}
+                    </template>
+                </Column>
+                <Column v-if="tipoSolicitudFiltro === 'notas'" header="CFDI relacionados" headerClass="encabezado-columna">
+                    <template #body="{ data }"><span class="break-all">{{ data.uuids_relacionados?.join(', ') }}</span></template>
+                </Column>
+
                 <!-- OPCIONES -->
 
-                <Column header="Opciones" headerClass="encabezado-columna" bodyClass="col-opciones" style="min-width: 230px">
+                <Column v-if="tipoSolicitudFiltro !== 'notas'" header="Opciones" headerClass="encabezado-columna" bodyClass="col-opciones" style="min-width: 230px">
                     <template #body="slotProps">
                         <div class="acciones-tabla">
                             <!-- VER -->
@@ -599,6 +618,8 @@
                             <Button size="small" class="btn-pdf-preview" v-tooltip.top="'Visualizar PDF'" @click="handleVisualizarPdf(slotProps.data)">
                                 <font-icon :icon="['fas', 'magnifying-glass']" />
                             </Button>
+
+                            <Button v-if="estatusFiltro === 'timbrada' && tipoSolicitudFiltro === 'facturas' && slotProps.data.uuid" size="small" outlined icon="pi pi-file-edit" aria-label="Crear nota de crédito" v-tooltip.top="'Crear nota de crédito'" @click="facturaParaNota = slotProps.data" />
 
                             <!-- ACCIONES DE ERROR DE TIMBRADO -->
                             <template v-if="estatusFiltro === 'error_timbrado'">
@@ -1178,23 +1199,30 @@
             <Button label="Descargar PDF" icon="pi pi-download" severity="warn" :disabled="!pdfUrl || pdfCargando" @click="handleDescargarPdfVisualizado" />
         </template>
     </Dialog>
+    <Notas :factura="facturaParaNota" @cerrar="facturaParaNota = null" />
 </template>
 
 <script>
 import Encabezado from '../../../components/encabezado/Encabezado.vue';
 
+import { ref } from 'vue';
+import Notas from '../notas/Notas.vue';
 import proceso from './js/proceso.js';
 
 export default {
     name: 'PanelControl',
 
+    props: { modoNotas: Boolean },
+
     components: {
-        Encabezado
+        Encabezado,
+        Notas
     },
 
-    setup() {
+    setup(props) {
         return {
-            ...proceso()
+            facturaParaNota: ref(null),
+            ...proceso(props.modoNotas)
         };
     }
 };

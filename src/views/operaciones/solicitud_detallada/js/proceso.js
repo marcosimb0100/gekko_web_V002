@@ -1,8 +1,8 @@
 import { useToast } from 'primevue/usetoast';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-const frmSolicitudInit = () => ({
+const frmSolicitudInit = (usoCfdi = 'G03') => ({
     _id: '',
 
     company_id: '',
@@ -10,7 +10,7 @@ const frmSolicitudInit = () => ({
     concepto_id: '',
     bank_id: '',
 
-    uso_cfdi: 'G03',
+    uso_cfdi: usoCfdi,
     metodo_pago: 'PPD',
     forma_pago: '99',
 
@@ -27,11 +27,11 @@ const frmSolicitudInit = () => ({
     anticipos: []
 });
 
-const useProceso = () => {
+const useProceso = (modoNota = false) => {
     const store = useStore();
     const toast = useToast();
 
-    const frmSolicitud = reactive(frmSolicitudInit());
+    const frmSolicitud = reactive(frmSolicitudInit(modoNota ? 'G02' : 'G03'));
 
     const clientes = ref([]);
     const companias = ref([]);
@@ -51,6 +51,67 @@ const useProceso = () => {
     const errorAnticipos = ref('');
     let consultaAnticipos = 0;
 
+    const tiposNota = [
+        { value: 'E', label: 'E - Egreso (nota de crédito)' },
+        { value: 'E_ANTICIPO', label: 'E - Egreso (aplicación de anticipo)' },
+        { value: 'I', label: 'I - Ingreso (nota de débito)' }
+    ];
+    const tipoNota = ref('E');
+    const esNotaPorAnticipo = computed(() => modoNota && tipoNota.value === 'E_ANTICIPO');
+    const claveRelacionPorTipoNota = { E: '01', E_ANTICIPO: '07', I: '02' };
+    const relacionNota = computed(() => claveRelacionPorTipoNota[tipoNota.value]);
+    const formasPagoDisponibles = computed(() => modoNota && !esNotaPorAnticipo.value
+        ? formaPago.value.filter(({ forma_pago }) => forma_pago !== '30')
+        : formaPago.value);
+    let datosPagoAnteriores;
+
+    watch(tipoNota, () => {
+        consultaAnticipos++;
+        frmSolicitud.anticipos = [];
+        seleccionAnticipos.value = [];
+        dialogoAnticipos.value = false;
+        buscandoAnticipos.value = false;
+
+        if (esNotaPorAnticipo.value) {
+            datosPagoAnteriores = {
+                uso_cfdi: frmSolicitud.uso_cfdi,
+                metodo_pago: frmSolicitud.metodo_pago,
+                forma_pago: frmSolicitud.forma_pago
+            };
+            Object.assign(frmSolicitud, { uso_cfdi: 'G02', metodo_pago: 'PUE', forma_pago: '30' });
+        } else {
+            if (datosPagoAnteriores) {
+                Object.assign(frmSolicitud, datosPagoAnteriores);
+                datosPagoAnteriores = undefined;
+            }
+            frmSolicitud.uso_cfdi = tipoNota.value === 'E' ? 'G02' : 'G03';
+        }
+    });
+    const catalogoRelaciones = ref([]);
+    const relacionesNota = computed(() => catalogoRelaciones.value
+        .filter(({ clave }) => clave === relacionNota.value)
+        .map(({ clave, descripcion }) => ({ value: clave, label: clave + ' - ' + descripcion })));
+    const cargandoRelacionesNota = ref(false);
+    const errorRelacionesNota = ref('');
+
+    const cargarRelacionesNota = async () => {
+        if (catalogoRelaciones.value.length || cargandoRelacionesNota.value) return;
+        cargandoRelacionesNota.value = true;
+        errorRelacionesNota.value = '';
+        try {
+            const res = await store.dispatch('api/apiGetToken', { direccion: '/sat/sat_tipo_relacion' });
+            const datos = res.datos?.tipos_relacion;
+            if (res.estatus !== 200 || !Array.isArray(datos) || !Object.values(claveRelacionPorTipoNota).every((clave) => datos.some((tipo) => tipo.clave === clave))) {
+                throw new Error('Catalogo incompleto');
+            }
+            catalogoRelaciones.value = datos;
+        } catch {
+            errorRelacionesNota.value = 'No se pudo consultar el catálogo de tipos de relación.';
+        } finally {
+            cargandoRelacionesNota.value = false;
+        }
+    };
+
     const buscarAnticipos = async () => {
         const consulta = ++consultaAnticipos;
         const { client_id, company_id } = frmSolicitud;
@@ -60,16 +121,16 @@ const useProceso = () => {
         errorAnticipos.value = '';
         try {
             const res = await store.dispatch('api/apiGetToken', {
-                direccion: `/solicitud_detallada/anticipos/${client_id}/${company_id}?q=${q}`
+                direccion: `/solicitud_detallada/${modoNota ? 'facturas_relacionables' : 'anticipos'}/${client_id}/${company_id}?q=${q}`
             });
             if (consulta !== consultaAnticipos) return;
             if (res.estatus === 200) {
-                resultadosAnticipos.value = res.datos?.anticipos ?? [];
+                resultadosAnticipos.value = res.datos?.[modoNota ? 'facturas' : 'anticipos'] ?? [];
             } else {
-                errorAnticipos.value = res.mensaje || 'No se pudieron consultar los anticipos.';
+                errorAnticipos.value = res.mensaje || (modoNota ? 'No se pudieron consultar las facturas.' : 'No se pudieron consultar los anticipos.');
             }
         } catch {
-            if (consulta === consultaAnticipos) errorAnticipos.value = 'No se pudieron consultar los anticipos.';
+            if (consulta === consultaAnticipos) errorAnticipos.value = (modoNota ? 'No se pudieron consultar las facturas.' : 'No se pudieron consultar los anticipos.');
         } finally {
             if (consulta === consultaAnticipos) buscandoAnticipos.value = false;
         }
@@ -79,6 +140,7 @@ const useProceso = () => {
         seleccionAnticipos.value = [...frmSolicitud.anticipos];
         busquedaAnticipos.value = '';
         dialogoAnticipos.value = true;
+        if (modoNota) cargarRelacionesNota();
         buscarAnticipos();
     };
 
@@ -334,7 +396,7 @@ const useProceso = () => {
         conceptos.value = [];
         bancos.value = [];
 
-        await Promise.all([handleCargarConceptos(), handleCargarBancos()]);
+        await Promise.all([handleCargarConceptos(), modoNota ? undefined : handleCargarBancos()]);
     };
 
     const handleCambioConcepto = () => {
@@ -577,12 +639,14 @@ const useProceso = () => {
         return Boolean(frmSolicitud.concepto_id) && Number(frmSolicitud.cantidad) > 0 && Number(frmSolicitud.valor_unitario) > 0;
     });
 
+    const guardandoNota = ref(false);
     const botonGuardarDeshabilitado = computed(() => {
+        if (modoNota && (!frmSolicitud.anticipos.length || guardandoNota.value)) return true;
         if (!frmSolicitud.client_id) return true;
 
         if (!frmSolicitud.company_id) return true;
 
-        if (!frmSolicitud.bank_id) return true;
+        if (!modoNota && !frmSolicitud.bank_id) return true;
 
         if (!frmSolicitud.uso_cfdi) return true;
 
@@ -639,6 +703,27 @@ const useProceso = () => {
 
             total: totalesSolicitud.value.total
         };
+
+        if (modoNota) {
+            guardandoNota.value = true;
+            try {
+                const res = await store.dispatch('api/apiPostToken', {
+                    direccion: '/solicitud_detallada/notas',
+                    datosJson: { ...payload, tipo_nota: tipoNota.value, uuids_relacionados: payload.anticipos_uuids }
+                });
+                if (res.estatus !== 200) throw new Error(res.mensaje || 'No se pudo guardar la nota.');
+                toast.add({ severity: 'success', summary: 'Solicitud Nota', detail: res.mensaje, life: 3500 });
+                Object.assign(frmSolicitud, frmSolicitudInit(tipoNota.value === 'I' ? 'G03' : 'G02'));
+                if (esNotaPorAnticipo.value) Object.assign(frmSolicitud, { metodo_pago: 'PUE', forma_pago: '30' });
+                companias.value = [];
+                conceptos.value = [];
+            } catch (error) {
+                toast.add({ severity: 'error', summary: 'Solicitud Nota', detail: error.message, life: 4000 });
+            } finally {
+                guardandoNota.value = false;
+            }
+            return;
+        }
 
         const formData = new FormData();
 
@@ -721,9 +806,16 @@ const useProceso = () => {
 
         usoCfdi,
         metodoPago,
-        formaPago,
+        formasPagoDisponibles,
+        esNotaPorAnticipo,
 
         archivoAdjuntoRef,
+        tipoNota,
+        tiposNota,
+        relacionNota,
+        relacionesNota,
+        cargandoRelacionesNota,
+        errorRelacionesNota,
         dialogoAnticipos,
         busquedaAnticipos,
         resultadosAnticipos,
@@ -750,6 +842,7 @@ const useProceso = () => {
 
         puedeAgregarConcepto,
         botonGuardarDeshabilitado,
+        guardandoNota,
 
         handleCambioCliente,
         handleCambioCompania,

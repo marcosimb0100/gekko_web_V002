@@ -10,7 +10,7 @@ import { useStore } from 'vuex';
 import * as XLSX from 'xlsx';
 import usePostproceso from './postproceso';
 
-const useProceso = () => {
+const useProceso = (modoNotas = false) => {
     const store = useStore();
     const postproceso = usePostproceso({ obtenerFiltros: () => ({ fecha_inicial: handleFechaApi(fechaInicial.value), fecha_final: handleFechaApi(fechaFinal.value), company_id: String(empresaFiltro.value || '') }) });
     let vistaActiva = true;
@@ -73,7 +73,7 @@ const useProceso = () => {
 
     const tipoSolicitudFiltro = ref('facturas');
 
-    const estatusFiltro = ref('pendiente');
+    const estatusFiltro = ref(modoNotas ? 'timbrada' : 'pendiente');
 
     const empresaFiltro = ref('');
 
@@ -118,6 +118,7 @@ const useProceso = () => {
         });
     });
     const dashboardFacturasPendientes = ref([]);
+    const dashboardNotas = ref([]);
 
     const dashboardFacturasTimbradas = ref([]);
 
@@ -223,7 +224,8 @@ const useProceso = () => {
             label: 'Complementos de pago',
 
             value: 'complementos_pago'
-        }
+        },
+        { label: 'Notas', value: 'notas' }
     ];
 
     const estatusSolicitud = [
@@ -362,6 +364,7 @@ const useProceso = () => {
     // ============================================================
 
     const handleEndpointSolicitudes = () => {
+        if (tipoSolicitudFiltro.value === 'notas') return '/solicitud_detallada/notas';
         if (estatusFiltro.value === 'error_timbrado') return '/solicitud_detallada/errores_timbrado';
         if (tipoSolicitudFiltro.value === 'facturas') {
             return estatusFiltro.value === 'timbrada' ? '/solicitud_detallada/timbradas' : '/solicitud_detallada/pendientes';
@@ -401,7 +404,8 @@ const useProceso = () => {
 
         try {
             const parametros = new URLSearchParams(handleParametrosFecha());
-            if (estatusFiltro.value === 'error_timbrado') {
+            if (tipoSolicitudFiltro.value === 'notas') parametros.set('estatus', estatusFiltro.value);
+            else if (estatusFiltro.value === 'error_timbrado') {
                 parametros.set('tipo_solicitud', tipoSolicitudFiltro.value === 'facturas' ? 'factura' : 'complemento_pago');
                 if (empresaFiltro.value) parametros.set('company_id', String(empresaFiltro.value));
             }
@@ -497,7 +501,7 @@ const useProceso = () => {
         const parametros = handleParametrosFecha();
 
         try {
-            const [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera] = await Promise.all([
+            const [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera, notas] = await Promise.all([
                 store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/pendientes' + '?' + parametros
                 }),
@@ -513,12 +517,14 @@ const useProceso = () => {
                 store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', {
                     direccion: '/solicitud_detallada/' + 'complementos_pago/timbradas' + '?' + parametros
                 }),
-                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', { direccion: '/solicitud_detallada/resumen_en_espera_timbrado?' + parametros })
+                store.dispatch(silencioso ? 'api/apiGetTokenSinCargando' : 'api/apiGetToken', { direccion: '/solicitud_detallada/resumen_en_espera_timbrado?' + parametros }),
+                store.dispatch('api/apiGetTokenSinCargando', { direccion: '/solicitud_detallada/notas?' + parametros })
             ]);
 
             if (!vistaActiva || contexto !== handleContextoMesa()) return;
-            if (silencioso && [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera].some((res) => res?.estatus !== 200)) return;
+            if (silencioso && [facturasPendientes, facturasTimbradas, complementosPendientes, complementosTimbrados, enEspera, notas].some((res) => res?.estatus !== 200)) return;
             dashboardEnEspera.value = enEspera?.estatus === 200 && Array.isArray(enEspera.datos?.empresas) ? enEspera.datos.empresas : null;
+            dashboardNotas.value = handleObtenerSolicitudesRespuesta(notas);
             dashboardFacturasPendientes.value = handleObtenerSolicitudesRespuesta(facturasPendientes);
 
             dashboardFacturasTimbradas.value = handleObtenerSolicitudesRespuesta(facturasTimbradas);
@@ -532,6 +538,7 @@ const useProceso = () => {
             dashboardEnEspera.value = null;
 
             dashboardFacturasPendientes.value = [];
+            dashboardNotas.value = [];
 
             dashboardFacturasTimbradas.value = [];
 
@@ -574,7 +581,12 @@ const useProceso = () => {
 
         const complementos = [...complementosPendientes, ...complementosTimbrados];
 
-        const pendientes = [...facturasPendientes, ...complementosPendientes];
+        const notas = handleFiltrarEmpresa(dashboardNotas.value);
+        const notasTimbradas = notas.filter(({ estatus }) => estatus === 'timbrada');
+        const ingresos = notasTimbradas.filter(({ tipo_de_comprobante }) => tipo_de_comprobante === 'I');
+        const egresos = notasTimbradas.filter(({ tipo_de_comprobante }) => tipo_de_comprobante === 'E');
+        const sumar = (notas) => notas.reduce((total, nota) => total + handleObtenerTotal(nota), 0);
+        const pendientes = [...facturasPendientes, ...complementosPendientes, ...notas.filter(({ estatus }) => estatus === 'pendiente')];
 
         const todos = [...facturas, ...complementos];
 
@@ -589,7 +601,14 @@ const useProceso = () => {
 
             complementos: complementos.length,
 
-            total: todos.length,
+            total: todos.length + notas.length,
+            notas: notasTimbradas.length,
+            notasIngreso: ingresos.length,
+            notasEgreso: egresos.length,
+            importeNotasIngreso: sumar(ingresos),
+            importeNotasEgreso: sumar(egresos),
+            notasEnEspera: notas.filter(({ estatus }) => estatus === 'aceptada').length,
+            notasError: notas.filter(({ estatus }) => estatus === 'error_timbrado').length,
 
             importe
         };
@@ -602,7 +621,7 @@ const useProceso = () => {
     // ============================================================
 
     const empresasFiltro = computed(() => {
-        const todos = [...dashboardFacturasPendientes.value, ...dashboardFacturasTimbradas.value, ...dashboardComplementosPendientes.value, ...dashboardComplementosTimbrados.value, ...(dashboardEnEspera.value || [])];
+        const todos = [...dashboardFacturasPendientes.value, ...dashboardFacturasTimbradas.value, ...dashboardComplementosPendientes.value, ...dashboardComplementosTimbrados.value, ...dashboardNotas.value, ...(dashboardEnEspera.value || [])];
 
         const empresas = todos
 
@@ -664,6 +683,7 @@ const useProceso = () => {
     // ============================================================
 
     const tituloTabla = computed(() => {
+        if (tipoSolicitudFiltro.value === 'notas') return 'Notas ' + (estatusSolicitud.find(({ value }) => value === estatusFiltro.value)?.label || '');
         const tipo = tipoSolicitudFiltro.value === 'facturas' ? 'Facturas' : 'Complementos';
 
         const estatus = estatusFiltro.value === 'timbrada' ? 'timbrados' : 'pendientes';
@@ -716,6 +736,11 @@ const useProceso = () => {
     };
 
     const handleSeleccionarErroresTimbrado = async () => {
+        if (tipoSolicitudFiltro.value === 'notas') {
+            estatusFiltro.value = 'error_timbrado';
+            await handleCambiarEstatus();
+            return;
+        }
         if (!handleValidarFechas()) return;
         tipoListadoErrores.value = tipoSolicitudFiltro.value;
         busquedaErrores.value = '';
@@ -1733,7 +1758,7 @@ const useProceso = () => {
     const handleInit = async () => {
         tipoSolicitudFiltro.value = 'facturas';
 
-        estatusFiltro.value = 'pendiente';
+        estatusFiltro.value = modoNotas ? 'timbrada' : 'pendiente';
 
         handleLimpiarSeleccionFacturas();
 
