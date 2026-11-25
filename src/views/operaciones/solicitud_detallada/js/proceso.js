@@ -23,7 +23,8 @@ const frmSolicitudInit = () => ({
     archivo_adjunto: null,
     archivo_adjunto_nombre: '',
 
-    conceptos: []
+    conceptos: [],
+    anticipos: []
 });
 
 const useProceso = () => {
@@ -42,6 +43,59 @@ const useProceso = () => {
     const formaPago = ref([]);
 
     const archivoAdjuntoRef = ref(null);
+    const dialogoAnticipos = ref(false);
+    const busquedaAnticipos = ref('');
+    const resultadosAnticipos = ref([]);
+    const seleccionAnticipos = ref([]);
+    const buscandoAnticipos = ref(false);
+    const errorAnticipos = ref('');
+    let consultaAnticipos = 0;
+
+    const buscarAnticipos = async () => {
+        const consulta = ++consultaAnticipos;
+        const { client_id, company_id } = frmSolicitud;
+        const q = encodeURIComponent(busquedaAnticipos.value.trim());
+        buscandoAnticipos.value = true;
+        resultadosAnticipos.value = [];
+        errorAnticipos.value = '';
+        try {
+            const res = await store.dispatch('api/apiGetToken', {
+                direccion: `/solicitud_detallada/anticipos/${client_id}/${company_id}?q=${q}`
+            });
+            if (consulta !== consultaAnticipos) return;
+            if (res.estatus === 200) {
+                resultadosAnticipos.value = res.datos?.anticipos ?? [];
+            } else {
+                errorAnticipos.value = res.mensaje || 'No se pudieron consultar los anticipos.';
+            }
+        } catch {
+            if (consulta === consultaAnticipos) errorAnticipos.value = 'No se pudieron consultar los anticipos.';
+        } finally {
+            if (consulta === consultaAnticipos) buscandoAnticipos.value = false;
+        }
+    };
+
+    const abrirAnticipos = () => {
+        seleccionAnticipos.value = [...frmSolicitud.anticipos];
+        busquedaAnticipos.value = '';
+        dialogoAnticipos.value = true;
+        buscarAnticipos();
+    };
+
+    const anticipoSeleccionado = (uuid) => seleccionAnticipos.value.some((anticipo) => anticipo.uuid === uuid);
+
+    const alternarAnticipo = (anticipo) => {
+        if (anticipoSeleccionado(anticipo.uuid)) {
+            seleccionAnticipos.value = seleccionAnticipos.value.filter(({ uuid }) => uuid !== anticipo.uuid);
+        } else {
+            seleccionAnticipos.value.push(anticipo);
+        }
+    };
+
+    const aplicarAnticipos = () => {
+        frmSolicitud.anticipos = [...seleccionAnticipos.value];
+        dialogoAnticipos.value = false;
+    };
 
     const redondear = (valor, decimales = 4) => {
         return Number((Number(valor) || 0).toFixed(decimales));
@@ -248,6 +302,7 @@ const useProceso = () => {
     // -------------------------------------------------------------------------
 
     const handleCambioCliente = async () => {
+        frmSolicitud.anticipos = [];
         frmSolicitud.company_id = '';
         frmSolicitud.concepto_id = '';
         frmSolicitud.bank_id = '';
@@ -266,6 +321,7 @@ const useProceso = () => {
     };
 
     const handleCambioCompania = async () => {
+        frmSolicitud.anticipos = [];
         frmSolicitud.concepto_id = '';
         frmSolicitud.bank_id = '';
 
@@ -573,6 +629,7 @@ const useProceso = () => {
             fecha_factura: formatFechaLocal(frmSolicitud.fecha_factura),
 
             conceptos: frmSolicitud.conceptos,
+            anticipos_uuids: frmSolicitud.anticipos.map(({ uuid }) => uuid),
 
             subtotal: totalesSolicitud.value.subtotal,
 
@@ -667,6 +724,17 @@ const useProceso = () => {
         formaPago,
 
         archivoAdjuntoRef,
+        dialogoAnticipos,
+        busquedaAnticipos,
+        resultadosAnticipos,
+        seleccionAnticipos,
+        buscandoAnticipos,
+        errorAnticipos,
+        buscarAnticipos,
+        abrirAnticipos,
+        anticipoSeleccionado,
+        alternarAnticipo,
+        aplicarAnticipos,
 
         totalesSolicitud,
 

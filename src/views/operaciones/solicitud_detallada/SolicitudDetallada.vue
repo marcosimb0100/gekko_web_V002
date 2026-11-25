@@ -168,6 +168,16 @@
                                     </Button>
                                 </div>
                             </div>
+                            <div class="campo-formulario flex align-items-end">
+                                <Button
+                                    type="button"
+                                    icon="pi pi-link"
+                                    outlined
+                                    :label="frmSolicitud.anticipos.length ? 'CFDI relacionados (' + frmSolicitud.anticipos.length + ')' : 'CFDI relacionados'"
+                                    :disabled="!frmSolicitud.client_id || !frmSolicitud.company_id"
+                                    @click="abrirAnticipos"
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -324,6 +334,45 @@
                 </div>
             </form>
         </ScrollPanel>
+
+        <Dialog v-model:visible="dialogoAnticipos" modal header="CFDI relacionados" :style="{ width: '50rem', maxWidth: '95vw' }">
+            <label for="tipoRelacionAnticipo" class="block mb-2">Tipo de relación</label>
+            <Dropdown inputId="tipoRelacionAnticipo" modelValue="07" :options="[{ value: '07', label: '07 - CFDI por aplicación de anticipo' }]" optionLabel="label" optionValue="value" class="w-full mb-3" />
+            <form class="flex gap-2 mb-3" @submit.prevent="buscarAnticipos">
+                <InputText v-model="busquedaAnticipos" aria-label="Buscar por folio o UUID" placeholder="Folio, serie y folio o UUID" class="flex-1 min-w-0" maxlength="80" />
+                <Button type="submit" label="Buscar" icon="pi pi-search" :loading="buscandoAnticipos" />
+            </form>
+            <DataTable :value="resultadosAnticipos" dataKey="uuid" scrollable scrollHeight="18rem" :loading="buscandoAnticipos">
+                <template #empty>{{ errorAnticipos || 'No se encontraron anticipos.' }}</template>
+                <Column header="Serie y folio">
+                    <template #body="{ data }">{{ [data.serie, data.folio].filter(Boolean).join(' ') || 'Sin folio' }}</template>
+                </Column>
+                <Column field="uuid" header="UUID" />
+                <Column header="Selección">
+                    <template #body="{ data }">
+                        <Button
+                            type="button"
+                            text
+                            :label="anticipoSeleccionado(data.uuid) ? 'Quitar' : 'Agregar'"
+                            @click="alternarAnticipo(data)"
+                        />
+                    </template>
+                </Column>
+            </DataTable>
+            <div v-if="seleccionAnticipos.length" class="mt-3">
+                <strong>Anticipos seleccionados ({{ seleccionAnticipos.length }})</strong>
+                <ul class="list-none pl-0">
+                    <li v-for="anticipo in seleccionAnticipos" :key="anticipo.uuid" class="flex align-items-center justify-content-between gap-2">
+                        <span style="overflow-wrap: anywhere">{{ anticipo.uuid }}</span>
+                        <Button type="button" label="Quitar" text @click="alternarAnticipo(anticipo)" />
+                    </li>
+                </ul>
+            </div>
+            <template #footer>
+                <Button type="button" label="Cancelar" text @click="dialogoAnticipos = false" />
+                <Button type="button" label="Aplicar" @click="aplicarAnticipos" />
+            </template>
+        </Dialog>
     </div>
 </template>
 
