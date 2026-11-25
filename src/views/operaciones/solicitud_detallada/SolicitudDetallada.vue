@@ -168,11 +168,10 @@
                                     </Button>
                                 </div>
                             </div>
-                            <div class="campo-formulario flex align-items-end">
+                            <div class="campo-formulario campo-cfdi-relacionados">
                                 <Button
                                     type="button"
                                     icon="pi pi-link"
-                                    outlined
                                     :label="frmSolicitud.anticipos.length ? 'CFDI relacionados (' + frmSolicitud.anticipos.length + ')' : 'CFDI relacionados'"
                                     :disabled="!frmSolicitud.client_id || !frmSolicitud.company_id"
                                     @click="abrirAnticipos"

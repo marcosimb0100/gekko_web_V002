@@ -102,6 +102,13 @@
     margin-bottom: 12px;
 }
 
+@media (width > 1000px) {
+    .campo-cfdi-relacionados {
+        align-self: start;
+        padding-block-start: calc(1lh + 8px);
+    }
+}
+
 @media (max-width: 1000px) {
     .grid-datos-principales {
         grid-template-columns: 1fr 1fr;
