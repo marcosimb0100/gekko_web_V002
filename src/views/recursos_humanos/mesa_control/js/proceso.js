@@ -35,12 +35,6 @@ export default function useProceso() {
     const formularioAlta = reactive({ tipo_nomina: '', periodicidad_pago: '', fecha_alta: null });
     const observacion = ref('');
 
-    const fechaMinima = computed(() => {
-        const fecha = new Date();
-        fecha.setHours(0, 0, 0, 0);
-        fecha.setDate(fecha.getDate() + 10);
-        return fecha;
-    });
     const nombre = (x) => [x?.nombres, x?.apellido_paterno, x?.apellido_materno].filter(Boolean).join(' ');
     const fecha = (x) => (x ? String(x).slice(0, 10) : '—');
     const notificar = (severity, detail) =>
@@ -96,7 +90,7 @@ export default function useProceso() {
             await cargarNomina();
             formularioAlta.tipo_nomina = predeterminado.value.tipo_nomina || '';
             formularioAlta.periodicidad_pago = predeterminado.value.periodicidad_pago || '';
-            formularioAlta.fecha_alta = new Date(fechaMinima.value);
+            formularioAlta.fecha_alta = new Date();
             visibleAlta.value = true;
         } catch (e) {
             notificar('error', e?.message || 'Error al cargar nómina');
@@ -107,8 +101,8 @@ export default function useProceso() {
         if (!tiposNomina.value.some((x) => x.tipo_nomina === formularioAlta.tipo_nomina) || !periodicidades.value.some((x) => x.periodicidad_pago === formularioAlta.periodicidad_pago)) {
             return notificar('warn', 'Selecciona un tipo de nómina y una periodicidad válidos');
         }
-        if (!(formularioAlta.fecha_alta instanceof Date) || Number.isNaN(formularioAlta.fecha_alta.getTime()) || isoLocal(formularioAlta.fecha_alta) < isoLocal(fechaMinima.value)) {
-            return notificar('warn', 'La fecha debe ser al menos 10 días posterior a hoy');
+        if (!(formularioAlta.fecha_alta instanceof Date) || Number.isNaN(formularioAlta.fecha_alta.getTime())) {
+            return notificar('warn', 'Selecciona una fecha de alta válida');
         }
         procesando.value = true;
         try {
@@ -273,7 +267,6 @@ export default function useProceso() {
         periodicidades,
         formularioAlta,
         observacion,
-        fechaMinima,
         nombre,
         fecha,
         solicitudesFiltradas,

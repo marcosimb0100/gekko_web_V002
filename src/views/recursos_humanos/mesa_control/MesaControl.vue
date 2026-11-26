@@ -57,7 +57,7 @@
                 </div>
                 <div class="mc-campo">
                     <label>Fecha de alta *</label>
-                    <DatePicker v-model="formularioAlta.fecha_alta" :minDate="fechaMinima" dateFormat="dd/mm/yy" showIcon iconDisplay="input" :manualInput="false" class="w-full" />
+                    <DatePicker v-model="formularioAlta.fecha_alta" dateFormat="dd/mm/yy" showIcon iconDisplay="input" :manualInput="false" class="w-full" />
                     <small>La fecha debe ser por lo menos 10 días naturales después de hoy.</small>
                 </div>
             </div>
